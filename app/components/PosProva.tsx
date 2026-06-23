@@ -6,10 +6,10 @@ const etapas = [
       "Cronograma automático personalizado",
       "Aulas, questões e flashcards integrados",
       "Dr. Bonnet disponível 24h",
-      "Suporte dos professores",
+      "Suporte direto dos professores",
     ],
-    color: "border-blue-500/30 bg-blue-500/5",
-    badge: "text-blue-400",
+    colorClass: "border-blue-500/20 bg-blue-500/4",
+    badgeClass: "text-blue-400",
   },
   {
     step: "02",
@@ -20,8 +20,8 @@ const etapas = [
       "Suporte emocional e estratégico",
       "Checklist do que levar",
     ],
-    color: "border-purple-500/30 bg-purple-500/5",
-    badge: "text-purple-400",
+    colorClass: "border-purple-500/20 bg-purple-500/4",
+    badgeClass: "text-purple-400",
   },
   {
     step: "03",
@@ -32,8 +32,8 @@ const etapas = [
       "Estratégia para as próximas fases",
       "Acompanhamento até a nomeação",
     ],
-    color: "border-green-500/30 bg-green-500/5",
-    badge: "text-green-400",
+    colorClass: "border-green-500/20 bg-green-500/4",
+    badgeClass: "text-green-400",
   },
 ];
 
@@ -54,23 +54,15 @@ export default function PosProva() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-5">
           {etapas.map((e) => (
-            <div
-              key={e.step}
-              className={`border rounded-2xl p-6 card-hover ${e.color}`}
-            >
-              <div className={`text-4xl font-bold opacity-30 mb-4 ${e.badge}`}>{e.step}</div>
-              <h3 className="font-bold text-white mb-5">{e.title}</h3>
-              <ul className="space-y-3">
+            <div key={e.step} className={`border rounded-2xl p-6 card-hover ${e.colorClass}`}>
+              <div className={`text-3xl font-bold opacity-20 mb-4 ${e.badgeClass}`}>{e.step}</div>
+              <h3 className="font-bold text-white mb-5 text-sm">{e.title}</h3>
+              <ul className="space-y-2.5">
                 {e.items.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-slate-400">
-                    <svg
-                      className={`w-4 h-4 flex-shrink-0 mt-0.5 ${e.badge}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                  <li key={item} className="flex items-start gap-2.5 text-xs text-slate-400">
+                    <svg className={`w-4 h-4 flex-shrink-0 mt-0.5 ${e.badgeClass}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     {item}

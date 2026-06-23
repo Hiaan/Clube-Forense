@@ -10,7 +10,7 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: "Aprova Legista | Mentoria para Médico Legista — PC Maranhão",
   description:
-    "A mentoria feita por médicos legistas para futuros médicos legistas. Plataforma completa, IA Dr. Bonnet, cronograma automático e acompanhamento até a aprovação. PC Maranhão 2025.",
+    "A mentoria feita por médicos legistas para futuros médicos legistas. Plataforma completa com IA Dr. Bonnet, cronograma automático e acompanhamento até a aprovação. PC Maranhão 2025.",
   keywords: [
     "médico legista",
     "concurso médico legista",
@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#080b14] text-[#f0f2f8]">
+      <body className="min-h-full flex flex-col bg-[#070a12] text-[#eef0f8]">
         {children}
       </body>
     </html>

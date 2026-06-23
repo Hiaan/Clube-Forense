@@ -27,6 +27,10 @@ const faqs = [
     q: "Como é feito o acompanhamento pós-prova?",
     a: "Nossa equipe analisa o gabarito junto com os alunos e orienta sobre os recursos cabíveis, argumentos técnicos e estratégias para as próximas fases do concurso. Permanecemos disponíveis até a nomeação.",
   },
+  {
+    q: "Os flashcards são realmente vinculados às videoaulas?",
+    a: "Sim. Cada flashcard está linkado ao trecho específico da videoaula que aborda aquele conteúdo. Se você erra uma carta, pode acessar diretamente a parte do vídeo correspondente sem precisar rebobinar tudo.",
+  },
 ];
 
 export default function FAQ() {
@@ -36,7 +40,7 @@ export default function FAQ() {
     <section id="faq" className="py-24 px-6 border-t border-white/5">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-slate-700/50 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 mb-5">
+          <div className="inline-flex items-center gap-2 bg-white/5 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 mb-5">
             PERGUNTAS FREQUENTES
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -47,17 +51,14 @@ export default function FAQ() {
 
         <div className="space-y-2">
           {faqs.map((faq, i) => (
-            <div
-              key={i}
-              className="border border-white/6 rounded-xl overflow-hidden bg-[#0d1220]"
-            >
+            <div key={i} className="border border-white/5 rounded-xl overflow-hidden bg-[#0b0f1e]">
               <button
                 className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-white/2 transition-colors"
                 onClick={() => setOpen(open === i ? null : i)}
               >
                 <span className="font-medium text-white text-sm pr-4">{faq.q}</span>
                 <svg
-                  className={`w-5 h-5 text-slate-500 flex-shrink-0 transition-transform ${open === i ? "rotate-180" : ""}`}
+                  className={`w-4 h-4 text-slate-600 flex-shrink-0 transition-transform duration-200 ${open === i ? "rotate-180" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -66,7 +67,7 @@ export default function FAQ() {
                 </svg>
               </button>
               {open === i && (
-                <div className="px-6 pb-5 text-slate-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                <div className="px-6 pb-5 text-slate-400 text-sm leading-relaxed border-t border-white/4 pt-4">
                   {faq.a}
                 </div>
               )}

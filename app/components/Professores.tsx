@@ -2,24 +2,24 @@ const professores = [
   {
     inicial: "P1",
     nome: "Prof. Dr. [Nome]",
-    cargo: "Médico Legista",
-    bio: "Aprovado em 1º lugar no concurso para médico legista. Especialista em tanatologia e traumatologia forense.",
+    cargo: "Médico Legista em exercício",
+    bio: "Aprovado em 1º lugar no concurso para médico legista. Especialista em tanatologia e traumatologia forense com vasta experiência em perícias.",
     areas: ["Tanatologia", "Traumatologia"],
     gradient: "from-blue-500 to-blue-700",
   },
   {
     inicial: "P2",
     nome: "Prof. Dr. [Nome]",
-    cargo: "Médico Legista",
-    bio: "Médico legista em exercício com vasta experiência em concursos públicos e docência em medicina legal.",
+    cargo: "Médico Legista em exercício",
+    bio: "Médico legista concursado com ampla experiência em docência para concursos públicos. Responsável pelo conteúdo de sexologia e psiquiatria forense.",
     areas: ["Sexologia Forense", "Psiquiatria"],
     gradient: "from-purple-500 to-purple-700",
   },
   {
     inicial: "P3",
     nome: "Prof. Dr. [Nome]",
-    cargo: "Médico Legista",
-    bio: "Especialista em toxicologia forense e responsável pelo conteúdo de questões comentadas da plataforma.",
+    cargo: "Médico Legista em exercício",
+    bio: "Especialista em toxicologia forense e responsável pelo banco de questões comentadas e análise das bancas dos últimos concursos.",
     areas: ["Toxicologia", "Genética Forense"],
     gradient: "from-teal-500 to-teal-700",
   },
@@ -38,31 +38,25 @@ export default function Professores() {
             <span className="gradient-text">já foi aprovado</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Nossos professores são médicos legistas em exercício. Não teóricos — profissionais que
-            vivem o dia a dia da perícia.
+            Nossos professores são médicos legistas em exercício — não teóricos. Profissionais que
+            vivem o dia a dia da perícia e que já foram aprovados nos mesmos concursos.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-5">
           {professores.map((p) => (
-            <div
-              key={p.inicial}
-              className="bg-[#0d1220] border border-white/6 rounded-2xl p-6 card-hover"
-            >
+            <div key={p.inicial} className="bg-[#0b0f1e] border border-white/5 rounded-2xl p-6 card-hover">
               <div
-                className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${p.gradient} flex items-center justify-center text-white font-bold text-xl mb-5`}
+                className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.gradient} flex items-center justify-center text-white font-bold text-lg mb-5`}
               >
                 {p.inicial}
               </div>
-              <div className="text-white font-semibold mb-0.5">{p.nome}</div>
-              <div className="text-xs text-slate-500 mb-3">{p.cargo}</div>
-              <p className="text-slate-400 text-sm leading-relaxed mb-4">{p.bio}</p>
+              <div className="text-white font-semibold mb-0.5 text-sm">{p.nome}</div>
+              <div className="text-xs text-slate-600 mb-3">{p.cargo}</div>
+              <p className="text-slate-400 text-xs leading-relaxed mb-4">{p.bio}</p>
               <div className="flex flex-wrap gap-2">
                 {p.areas.map((a) => (
-                  <span
-                    key={a}
-                    className="bg-white/5 border border-white/8 text-slate-400 text-xs px-2.5 py-1 rounded-lg"
-                  >
+                  <span key={a} className="bg-white/4 border border-white/7 text-slate-400 text-xs px-2.5 py-1 rounded-lg">
                     {a}
                   </span>
                 ))}
@@ -71,8 +65,8 @@ export default function Professores() {
           ))}
         </div>
 
-        <p className="text-center text-slate-600 text-xs mt-8">
-          * Nomes dos professores serão revelados aos alunos matriculados.
+        <p className="text-center text-slate-700 text-xs mt-8">
+          * Nomes dos professores revelados aos alunos matriculados.
         </p>
       </div>
     </section>
