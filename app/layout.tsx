@@ -2,40 +2,19 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Aprova Legista | Mentoria para Médico Legista — PC Maranhão",
+  title: "Mentoria Aprova Legista | PC Maranhão — Clube Forense",
   description:
-    "A mentoria feita por médicos legistas para futuros médicos legistas. Plataforma completa, IA Dr. Bonnet, cronograma automático e acompanhamento até a aprovação. PC Maranhão 2025.",
-  keywords: [
-    "médico legista",
-    "concurso médico legista",
-    "PC Maranhão",
-    "polícia civil maranhão",
-    "medicina legal concurso",
-    "aprova legista",
-    "mentoria médico legista",
-  ],
-  openGraph: {
-    title: "Aprova Legista — Mentoria para Médico Legista PC Maranhão",
-    description:
-      "100% dos 1º lugares nos últimos concursos para médico legista. Metodologia exclusiva com IA, videoaulas, flashcards e acompanhamento pós-prova.",
-    type: "website",
-  },
+    "A mentoria que mais aprova médicos-legistas no Brasil. Prepare-se para a Polícia Civil do Maranhão com professores aprovados, plataforma exclusiva e suporte pós-prova.",
+  keywords: ["médico legista", "PC Maranhão", "concurso médico legista", "mentoria medicina legal", "Clube Forense"],
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#080b14] text-[#f0f2f8]">
+    <html lang="pt-BR" className={geist.variable}>
+      <body className="min-h-screen" style={{ background: "#060d1a", color: "#fff" }}>
         {children}
       </body>
     </html>

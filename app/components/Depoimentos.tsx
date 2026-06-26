@@ -1,72 +1,94 @@
 const depoimentos = [
   {
-    nome: "Aluno aprovado — 2024",
-    cargo: "Médico Legista, aprovado em 1º lugar",
-    texto:
-      "O cronograma automático mudou minha vida. Trabalho em plantões e nunca consegui manter um ritmo fixo de estudos. A plataforma se adapta e eu sempre soube exatamente o que estudar. Cheguei na prova sem lacunas.",
-    inicial: "A",
-    gradient: "from-blue-500 to-blue-700",
-  },
-  {
-    nome: "Aluno aprovado — 2023",
-    cargo: "Médico Legista, aprovado em 1º lugar",
-    texto:
-      "O Dr. Bonnet foi essencial nas madrugadas de estudo. Tinha uma dúvida em tanatologia às 2h da manhã e a IA me trouxe a resposta com a referência exata do Hygino. Isso fez diferença na minha formação.",
+    nome: "Bruno Viana",
+    cargo: "Aprovado — Médico Legista",
+    texto: "Entrei no Clube Forense durante o intensivão de questões... Eu precisava de alguém que já tivesse passado pelo que eu passei e nisso, o Clube Forense foi EXCELENTE.",
     inicial: "B",
-    gradient: "from-purple-500 to-purple-700",
+    cor: "#1d4ed8",
   },
   {
-    nome: "Aluna aprovada — 2024",
-    cargo: "Médica Legista",
-    texto:
-      "Quando vi o gabarito, fui tirar dúvida de uma questão com os professores e eles me ajudaram a entender o recurso cabível. Não esperava esse nível de suporte pós-prova. Valeu cada centavo.",
+    nome: "Laís Nader",
+    cargo: "Aprovada — 1º Lugar",
+    texto: "Comprei todo o material, ebooks, mentoria... e agora, já aprovada, estou ainda com a ficha caindo, eufórica, a sensação é de dever cumprido.",
+    inicial: "L",
+    cor: "#0d9488",
+  },
+  {
+    nome: "Marcel Medeiros",
+    cargo: "Aprovado — Médico Legista",
+    texto: "Foi o grande diferencial na minha preparação, os encontros com os professores, bem como a disponibilidade para tirar dúvidas e discutir casos reais fizeram total diferença.",
+    inicial: "M",
+    cor: "#7c3aed",
+  },
+  {
+    nome: "André Souza",
+    cargo: "Aprovado",
+    texto: "De início achei que não conseguiria estudar... ao final acreditei que teria chances: persisti e continuei esperançoso. Hoje aprovado e aguardando as próximas etapas.",
+    inicial: "A",
+    cor: "#d97706",
+  },
+  {
+    nome: "Pietro Tenório",
+    cargo: "Aprovado — Médico Legista",
+    texto: "Esses encontros semanais foram incrivelmente importantes... mnemônicos, mapas mentais fizeram total diferença. Atribuo meu sucesso a essa equipe... gratidão.",
+    inicial: "P",
+    cor: "#0284c7",
+  },
+  {
+    nome: "Carla Bandeira",
+    cargo: "Aprovada — Médica Legista",
+    texto: "Para mim vocês se tornaram uma família por tanto cuidado que vai além de uma simples questão contratual. A dedicação, atenção e cordialidade de cada um do Clube é incrível.",
     inicial: "C",
-    gradient: "from-teal-500 to-teal-700",
+    cor: "#db2777",
   },
 ];
 
 export default function Depoimentos() {
   return (
-    <section className="py-24 px-6 border-t border-white/5">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-slate-700/50 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 mb-5">
-            DEPOIMENTOS
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            O que dizem nossos{" "}
-            <span className="gradient-text">aprovados</span>
-          </h2>
+    <section id="depoimentos" className="py-24 px-6" style={{ background: "#060d1a" }}>
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-5">
+          <p className="section-label">DEPOIMENTOS</p>
         </div>
+        <h2 className="text-3xl md:text-4xl font-black uppercase text-center text-white mb-3">
+          Seja o próximo{" "}
+          <span className="text-gold">aprovado.</span>
+        </h2>
+        <p className="text-center mb-14 text-base" style={{ color: "#64748b" }}>
+          Veja o que dizem os nossos alunos
+        </p>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {depoimentos.map((d) => (
-            <div
-              key={d.nome}
-              className="bg-[#0d1220] border border-white/6 rounded-2xl p-6 flex flex-col card-hover"
-            >
-              <div className="flex-1">
-                <div className="text-slate-500 text-2xl mb-4">"</div>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">{d.texto}</p>
+            <div key={d.nome} className="card p-6 flex flex-col" style={{ background: "#0b1628" }}>
+              {/* Stars */}
+              <div className="flex gap-0.5 mb-4">
+                {[0,1,2,3,4].map(i => (
+                  <svg key={i} className="w-4 h-4" style={{ color: "#f0a500" }} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                ))}
               </div>
-              <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+
+              <p className="text-sm leading-relaxed flex-1 mb-5" style={{ color: "#94a3b8" }}>
+                "{d.texto}"
+              </p>
+
+              <div className="flex items-center gap-3 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
                 <div
-                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${d.gradient} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0"
+                  style={{ background: d.cor }}
                 >
                   {d.inicial}
                 </div>
                 <div>
-                  <div className="text-white text-sm font-medium">{d.nome}</div>
-                  <div className="text-slate-500 text-xs">{d.cargo}</div>
+                  <div className="font-bold text-white text-sm">{d.nome}</div>
+                  <div className="text-xs" style={{ color: "#f0a500" }}>{d.cargo}</div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-
-        <p className="text-center text-slate-600 text-xs mt-6">
-          * Identidades preservadas a pedido dos alunos.
-        </p>
       </div>
     </section>
   );

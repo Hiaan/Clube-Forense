@@ -1,99 +1,68 @@
-const stats = [
-  {
-    value: "100%",
-    label: "dos 1ºs lugares",
-    detail: "Aprovamos todos os primeiros colocados nos concursos para médico legista dos últimos 2 anos",
-    color: "from-amber-400 to-orange-500",
-  },
-  {
-    value: "2+",
-    label: "anos de resultados",
-    detail: "Histórico comprovado de aprovações em concursos estaduais para médico legista",
-    color: "from-blue-400 to-blue-600",
-  },
-  {
-    value: "360°",
-    label: "de acompanhamento",
-    detail: "Do primeiro dia de estudo até o gabarito, recursos e nomeação",
-    color: "from-purple-400 to-purple-600",
-  },
+const aprovacoes = [
+  { estado: "Polícia Federal", num: "Top 5", nomes: ["Dr. Bruno Viana", "Dr. Giuliano Castelo", "Dra. Giovanna Viemond"], badge: "🇧🇷" },
+  { estado: "Pernambuco", num: "86", nomes: ["1º Lugar do Clube Forense", "Dr. Marcel Medeiros", "Dra. Simone Salgado", "Dr. Pietro Tenório"], badge: "🏅" },
+  { estado: "Santa Catarina", num: "49", nomes: ["1º e 2º Lugar", "Dr. Lucas Mesquita", "Dr. Bruno Silva", "Dr. Hugo Emério"], badge: "🥇" },
+  { estado: "Rio Grande do Sul", num: "55", nomes: ["1º Lugar do Clube Forense", "Dr. Marcos Sandro"], badge: "🏆" },
+  { estado: "Goiás", num: "17", nomes: ["1º Lugar do Clube Forense", "Dr. Bruno Viana"], badge: "🥇" },
+  { estado: "Piauí", num: "10", nomes: ["1º Lugar do Clube Forense", "Dr. Robert Wall"], badge: "🥇" },
+  { estado: "Minas Gerais", num: "13", nomes: ["1º Lugar do Clube Forense", "Dra. Lívia Bárbara"], badge: "🥇" },
+  { estado: "Paraná", num: "4", nomes: ["1º Lugar do Clube Forense", "Dra. Laís Nader"], badge: "🥇" },
 ];
 
 export default function Resultados() {
   return (
-    <section id="resultados" className="py-24 px-6 border-t border-white/5">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-500/20 mb-5">
-            RESULTADOS
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Números que{" "}
-            <span className="gradient-text-gold">falam por si</span>
-          </h2>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Não prometemos aprovação. Entregamos o método que os campeões usaram.
-          </p>
+    <section id="resultados" className="py-24 px-6" style={{ background: "#0b1628" }}>
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-5">
+          <p className="section-label">HISTÓRICO DE APROVAÇÕES</p>
         </div>
+        <h2 className="text-3xl md:text-4xl font-black uppercase text-center text-white mb-4">
+          Por que escolher o{" "}
+          <span className="text-gold">Clube Forense?</span>
+        </h2>
+        <p className="text-center text-base mb-14" style={{ color: "#64748b", maxWidth: 600, margin: "0 auto 3.5rem" }}>
+          Desde 2024, em <strong style={{ color: "#fff" }}>todos os 4 concursos</strong> realizados para médicos-legistas, o
+          primeiro lugar esteve conosco. Mais de{" "}
+          <strong style={{ color: "#f0a500" }}>100 aprovações</strong> nos últimos concursos.
+        </p>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="bg-[#0d1220] border border-white/6 rounded-2xl p-8 text-center card-hover"
-            >
-              <div
-                className={`text-5xl font-bold mb-2 bg-gradient-to-r ${s.color} bg-clip-text text-transparent`}
-              >
-                {s.value}
-              </div>
-              <div className="text-white font-semibold mb-3">{s.label}</div>
-              <div className="text-slate-500 text-sm leading-relaxed">{s.detail}</div>
+        {/* Big stats */}
+        <div className="grid grid-cols-3 gap-6 mb-14">
+          {[
+            { v: "100%", l: "dos 1ºs lugares nos últimos concursos" },
+            { v: "4", l: "concursos consecutivos com 1º lugar" },
+            { v: "100+", l: "aprovações totais nos últimos editais" },
+          ].map((s) => (
+            <div key={s.l} className="text-center card py-8 px-4" style={{ background: "#060d1a" }}>
+              <div className="font-black mb-2 text-gold" style={{ fontSize: "clamp(2rem,5vw,3.5rem)" }}>{s.v}</div>
+              <div className="text-xs" style={{ color: "#64748b" }}>{s.l}</div>
             </div>
           ))}
         </div>
 
-        {/* Timeline de conquistas */}
-        <div className="bg-gradient-to-br from-amber-500/8 to-orange-500/5 border border-amber-500/15 rounded-2xl p-8">
-          <h3 className="text-xl font-bold text-white mb-6 text-center">
-            Histórico de Aprovações
-          </h3>
-          <div className="space-y-4">
-            {[
-              {
-                year: "2024",
-                desc: "1º lugar no concurso para médico legista — aluno Aprova Legista",
-              },
-              {
-                year: "2023",
-                desc: "1º lugar no concurso para médico legista — aluno Aprova Legista",
-              },
-              {
-                year: "Próximo",
-                desc: "Seu nome aqui — PC Maranhão 2025",
-                highlight: true,
-              },
-            ].map((item) => (
-              <div key={item.year} className="flex items-start gap-4">
-                <div
-                  className={`flex-shrink-0 w-16 text-xs font-bold px-2 py-1 rounded text-center ${
-                    item.highlight
-                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                      : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                  }`}
-                >
-                  {item.year}
-                </div>
-                <div
-                  className={`text-sm leading-relaxed ${
-                    item.highlight ? "text-blue-200 font-medium" : "text-slate-400"
-                  }`}
-                >
-                  {item.desc}
-                </div>
+        {/* Approval grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          {aprovacoes.map((a) => (
+            <div key={a.estado} className="card p-5" style={{ background: "#060d1a" }}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-black text-white text-sm">{a.estado}</span>
+                <span className="text-xl">{a.badge}</span>
               </div>
-            ))}
-          </div>
+              <div className="font-black text-gold mb-2" style={{ fontSize: "1.8rem" }}>{a.num}</div>
+              <div className="text-[10px]" style={{ color: "#475569" }}>aprovados</div>
+              <div className="mt-3 space-y-1">
+                {a.nomes.map(n => (
+                  <div key={n} className="text-[11px]" style={{ color: "#64748b" }}>• {n}</div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center">
+          <a href="#preco" className="btn-gold px-8 py-4 text-sm inline-block">
+            APROVEITAR OFERTA AGORA
+          </a>
         </div>
       </div>
     </section>
