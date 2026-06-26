@@ -13,32 +13,32 @@ const faqs = [
 export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" className="py-24 px-6" style={{ background: "#0b1628" }}>
+    <section id="faq" className="py-24 px-6" style={{ background: "#f8f9fb" }}>
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-14">
           <p className="section-label mb-3">PERGUNTAS FREQUENTES</p>
-          <h2 className="text-3xl md:text-4xl font-black uppercase text-white">
-            Ainda tem <span className="text-gold">dúvidas?</span>
+          <h2 className="text-3xl md:text-4xl font-black uppercase text-gray-900">
+            Ainda tem <span style={{ color: "#e6b800" }}>dúvidas?</span>
           </h2>
         </div>
         <div className="space-y-2">
           {faqs.map((f, i) => (
-            <div key={i} className="card overflow-hidden" style={{ background: "#060d1a" }}>
+            <div key={i} className="card-white overflow-hidden">
               <button
                 className="w-full flex items-center justify-between px-6 py-5 text-left"
                 onClick={() => setOpen(open === i ? null : i)}
               >
-                <span className="font-semibold text-white text-sm pr-4">{f.q}</span>
+                <span className="font-semibold text-gray-900 text-sm pr-4">{f.q}</span>
                 <svg
                   className={`w-5 h-5 flex-shrink-0 transition-transform ${open === i ? "rotate-180" : ""}`}
-                  style={{ color: "#f0a500" }}
+                  style={{ color: "#ffcd07" }}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
                 </svg>
               </button>
               {open === i && (
-                <div className="px-6 pb-5 text-sm leading-relaxed" style={{ color: "#64748b", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1rem" }}>
+                <div className="px-6 pb-5 text-sm leading-relaxed text-gray-500 border-t border-gray-100 pt-4">
                   {f.a}
                 </div>
               )}

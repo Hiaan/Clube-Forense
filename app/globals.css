@@ -1,17 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #060d1a;
-  --bg-secondary: #0b1628;
-  --bg-card: #0f1e35;
-  --bg-card-hover: #132340;
-  --gold: #f0a500;
-  --gold-light: #f5bc2e;
-  --gold-dark: #c98900;
-  --blue-accent: #1d4ed8;
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
-  --border: rgba(255,255,255,0.06);
+  --yellow: #ffcd07;
+  --yellow-dark: #e6b800;
+  --yellow-light: #fff9db;
+  --dark: #111827;
+  --body: #374151;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --bg-light: #f8f9fb;
+  --bg-white: #ffffff;
 }
 
 @theme inline {
@@ -20,83 +18,70 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: #ffffff;
+  color: #111827;
   font-family: var(--font-geist-sans), Arial, sans-serif;
 }
 
-/* Gold button */
-.btn-gold {
-  background: linear-gradient(135deg, #f0a500 0%, #f5bc2e 50%, #e09000 100%);
+.btn-yellow {
+  background: var(--yellow);
   color: #000;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border-radius: 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 20px rgba(240,165,0,0.3);
+  box-shadow: 0 4px 16px rgba(255,205,7,0.35);
 }
-.btn-gold:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 8px 30px rgba(240,165,0,0.5);
+.btn-yellow:hover {
+  background: var(--yellow-dark);
+  box-shadow: 0 6px 24px rgba(255,205,7,0.5);
   transform: translateY(-1px);
 }
 
-/* Section label */
+.btn-dark {
+  background: #111827;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.btn-dark:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
 .section-label {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #f0a500;
+  color: var(--yellow-dark);
 }
 
-/* Card */
-.card {
-  background: var(--bg-card);
+.card-white {
+  background: #fff;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
-.card:hover {
-  border-color: rgba(240,165,0,0.2);
+.card-white:hover {
+  border-color: var(--yellow);
   transform: translateY(-3px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
 }
 
-/* Marquee */
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-.marquee-track {
-  animation: marquee 30s linear infinite;
-}
-
-/* Gradient text */
-.text-gold {
-  background: linear-gradient(135deg, #f0a500, #f5bc2e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Section divider */
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-}
-
-@keyframes float {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-.animate-float { animation: float 4s ease-in-out infinite; }
+.marquee-track { animation: marquee 30s linear infinite; }
 
 @keyframes badge-pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(240,165,0,0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(240,165,0,0); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,205,7,0.5); }
+  50% { box-shadow: 0 0 0 10px rgba(255,205,7,0); }
 }
 .badge-pulse { animation: badge-pulse 2.5s ease-in-out infinite; }

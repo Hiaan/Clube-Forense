@@ -1,68 +1,69 @@
-const aprovacoes = [
-  { estado: "Polícia Federal", num: "Top 5", nomes: ["Dr. Bruno Viana", "Dr. Giuliano Castelo", "Dra. Giovanna Viemond"], badge: "🇧🇷" },
-  { estado: "Pernambuco", num: "86", nomes: ["1º Lugar do Clube Forense", "Dr. Marcel Medeiros", "Dra. Simone Salgado", "Dr. Pietro Tenório"], badge: "🏅" },
-  { estado: "Santa Catarina", num: "49", nomes: ["1º e 2º Lugar", "Dr. Lucas Mesquita", "Dr. Bruno Silva", "Dr. Hugo Emério"], badge: "🥇" },
-  { estado: "Rio Grande do Sul", num: "55", nomes: ["1º Lugar do Clube Forense", "Dr. Marcos Sandro"], badge: "🏆" },
-  { estado: "Goiás", num: "17", nomes: ["1º Lugar do Clube Forense", "Dr. Bruno Viana"], badge: "🥇" },
-  { estado: "Piauí", num: "10", nomes: ["1º Lugar do Clube Forense", "Dr. Robert Wall"], badge: "🥇" },
-  { estado: "Minas Gerais", num: "13", nomes: ["1º Lugar do Clube Forense", "Dra. Lívia Bárbara"], badge: "🥇" },
-  { estado: "Paraná", num: "4", nomes: ["1º Lugar do Clube Forense", "Dra. Laís Nader"], badge: "🥇" },
-];
+import MapaBrasil from "./MapaBrasil";
 
 export default function Resultados() {
   return (
-    <section id="resultados" className="py-24 px-6" style={{ background: "#0b1628" }}>
+    <section id="resultados" className="py-24 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-5">
           <p className="section-label">HISTÓRICO DE APROVAÇÕES</p>
         </div>
-        <h2 className="text-3xl md:text-4xl font-black uppercase text-center text-white mb-4">
+        <h2 className="text-3xl md:text-4xl font-black uppercase text-center text-gray-900 mb-4">
           Por que escolher o{" "}
-          <span className="text-gold">Clube Forense?</span>
+          <span style={{ color: "#e6b800" }}>Clube Forense?</span>
         </h2>
-        <p className="text-center text-base mb-14" style={{ color: "#64748b", maxWidth: 600, margin: "0 auto 3.5rem" }}>
-          Desde 2024, em <strong style={{ color: "#fff" }}>todos os 4 concursos</strong> realizados para médicos-legistas, o
-          primeiro lugar esteve conosco. Mais de{" "}
-          <strong style={{ color: "#f0a500" }}>100 aprovações</strong> nos últimos concursos.
+        <p className="text-center text-base text-gray-500 mb-14" style={{ maxWidth: 600, margin: "0 auto 3.5rem" }}>
+          Desde 2024, em <strong className="text-gray-900">todos os 4 concursos</strong> para médicos-legistas,
+          o primeiro lugar esteve conosco. Mais de{" "}
+          <strong style={{ color: "#e6b800" }}>100 aprovações</strong> nos últimos concursos.
         </p>
 
         {/* Big stats */}
-        <div className="grid grid-cols-3 gap-6 mb-14">
+        <div className="grid grid-cols-3 gap-5 mb-16">
           {[
             { v: "100%", l: "dos 1ºs lugares nos últimos concursos" },
             { v: "4", l: "concursos consecutivos com 1º lugar" },
             { v: "100+", l: "aprovações totais nos últimos editais" },
-          ].map((s) => (
-            <div key={s.l} className="text-center card py-8 px-4" style={{ background: "#060d1a" }}>
-              <div className="font-black mb-2 text-gold" style={{ fontSize: "clamp(2rem,5vw,3.5rem)" }}>{s.v}</div>
-              <div className="text-xs" style={{ color: "#64748b" }}>{s.l}</div>
+          ].map(s => (
+            <div key={s.l} className="card-white py-8 px-4 text-center">
+              <div className="font-black mb-2" style={{ fontSize: "clamp(2rem,5vw,3.5rem)", color: "#e6b800" }}>{s.v}</div>
+              <div className="text-xs text-gray-500">{s.l}</div>
             </div>
           ))}
         </div>
 
-        {/* Approval grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {aprovacoes.map((a) => (
-            <div key={a.estado} className="card p-5" style={{ background: "#060d1a" }}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-black text-white text-sm">{a.estado}</span>
-                <span className="text-xl">{a.badge}</span>
-              </div>
-              <div className="font-black text-gold mb-2" style={{ fontSize: "1.8rem" }}>{a.num}</div>
-              <div className="text-[10px]" style={{ color: "#475569" }}>aprovados</div>
-              <div className="mt-3 space-y-1">
-                {a.nomes.map(n => (
-                  <div key={n} className="text-[11px]" style={{ color: "#64748b" }}>• {n}</div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Map + right text */}
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <MapaBrasil />
 
-        <div className="text-center">
-          <a href="#preco" className="btn-gold px-8 py-4 text-sm inline-block">
-            APROVEITAR OFERTA AGORA
-          </a>
+          <div className="flex flex-col justify-center py-8">
+            <h3 className="text-2xl font-black uppercase text-gray-900 mb-4">
+              Não importa o número de vagas do concurso,{" "}
+              <span style={{ color: "#e6b800" }}>aqui você estará no topo.</span>
+            </h3>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Desde 2024, em todos os 4 concursos que foram realizados para médicos-legistas, o
+              primeiro lugar esteve conosco. Garantimos mais de{" "}
+              <strong className="text-gray-900">100 aprovações</strong> nos últimos concursos com
+              diversos alunos no topo de todos eles.
+            </p>
+            <div className="space-y-3 mb-8">
+              {[
+                { estado: "Pernambuco", n: "86 aprovados · 1º Lugar", cor: "#ffcd07" },
+                { estado: "Santa Catarina", n: "49 aprovados · 1º e 2º Lugar", cor: "#06b6d4" },
+                { estado: "Rio Grande do Sul", n: "55 aprovados · 1º Lugar", cor: "#ec4899" },
+                { estado: "Polícia Federal", n: "3 alunos no Top 5", cor: "#dc2626" },
+              ].map(e => (
+                <div key={e.estado} className="flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: e.cor }}/>
+                  <span className="font-bold text-gray-900 text-sm">{e.estado}</span>
+                  <span className="text-gray-500 text-sm">{e.n}</span>
+                </div>
+              ))}
+            </div>
+            <a href="#preco" className="btn-yellow px-8 py-4 text-sm inline-block w-fit">
+              APROVEITAR OFERTA AGORA
+            </a>
+          </div>
         </div>
       </div>
     </section>
