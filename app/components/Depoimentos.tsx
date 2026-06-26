@@ -1,3 +1,10 @@
+// Replace these YouTube video IDs with your real testimonial video IDs
+const videosDepoimentos = [
+  { youtubeId: "SUBSTITUA_PELO_ID_1", nome: "Bruno Viana", cargo: "Aprovado — Médico Legista" },
+  { youtubeId: "SUBSTITUA_PELO_ID_2", nome: "Laís Nader", cargo: "Aprovada — 1º Lugar" },
+  { youtubeId: "SUBSTITUA_PELO_ID_3", nome: "Marcel Medeiros", cargo: "Aprovado — Médico Legista" },
+];
+
 const depoimentos = [
   {
     nome: "Bruno Viana",
@@ -54,14 +61,36 @@ export default function Depoimentos() {
           Seja o próximo{" "}
           <span style={{ color: "#e6b800" }}>aprovado.</span>
         </h2>
-        <p className="text-center mb-14 text-base text-gray-500">
+        <p className="text-center mb-12 text-base text-gray-500">
           Veja o que dizem os nossos alunos
         </p>
 
+        {/* Video testimonials */}
+        <div className="grid md:grid-cols-3 gap-5 mb-14">
+          {videosDepoimentos.map((v) => (
+            <div key={v.nome} className="card-white overflow-hidden">
+              <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${v.youtubeId}?rel=0&modestbranding=1`}
+                  title={`Depoimento — ${v.nome}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{ border: 0 }}
+                />
+              </div>
+              <div className="px-4 py-3">
+                <div className="font-bold text-gray-900 text-sm">{v.nome}</div>
+                <div className="text-xs font-semibold" style={{ color: "#e6b800" }}>{v.cargo}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Text testimonials */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {depoimentos.map((d) => (
             <div key={d.nome} className="card-white p-6 flex flex-col">
-              {/* Stars */}
               <div className="flex gap-0.5 mb-4">
                 {[0,1,2,3,4].map(i => (
                   <svg key={i} className="w-4 h-4" style={{ color: "#ffcd07" }} fill="currentColor" viewBox="0 0 20 20">
@@ -75,10 +104,7 @@ export default function Depoimentos() {
               </p>
 
               <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0"
-                  style={{ background: d.cor }}
-                >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0" style={{ background: d.cor }}>
                   {d.inicial}
                 </div>
                 <div>

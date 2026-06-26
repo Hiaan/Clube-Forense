@@ -1,4 +1,3 @@
-// Simplified Brazil SVG map with approval callouts
 const aprovacoes = [
   {
     estado: "Polícia Federal", num: "Top 5", badge: "🇧🇷",
@@ -42,36 +41,49 @@ const aprovacoes = [
   },
 ];
 
-// Simplified Brazil outline SVG path (approximate)
+// Brazil outline derived from real geographic coordinates
+// viewBox "0 50 460 420": x maps 73.1°W→34.8°W, y maps 5.3°N(50)→33.7°S(470)
 const BRAZIL_PATH = `
-  M 220 10 L 240 12 L 260 8 L 295 15 L 315 12 L 335 20 L 350 18 L 365 25
-  L 375 22 L 385 30 L 390 45 L 385 55 L 395 60 L 400 75 L 390 80 L 395 95
-  L 400 105 L 395 115 L 388 125 L 380 135 L 370 140 L 355 145 L 345 155
-  L 340 170 L 330 180 L 315 190 L 305 205 L 290 215 L 275 225 L 260 235
-  L 245 245 L 235 260 L 225 275 L 215 285 L 205 295 L 195 305 L 185 318
-  L 178 330 L 172 345 L 168 360 L 165 375 L 162 390 L 158 405 L 150 415
-  L 140 420 L 130 425 L 120 430 L 110 435 L 100 440 L 90 445 L 80 450
-  L 70 455 L 60 460 L 55 455 L 50 445 L 45 435 L 42 420 L 40 405
-  L 38 390 L 36 375 L 35 360 L 34 345 L 33 330 L 35 315 L 38 300
-  L 40 285 L 45 270 L 50 255 L 55 240 L 62 225 L 70 215 L 80 205
-  L 90 198 L 100 192 L 112 188 L 120 180 L 128 170 L 133 158 L 135 145
-  L 133 130 L 128 118 L 122 108 L 115 98 L 108 88 L 100 78 L 95 65
-  L 92 52 L 95 42 L 102 33 L 115 25 L 130 18 L 148 12 L 165 8 L 185 6
-  L 205 8 L 220 10 Z
+  M 157 51
+  L 155 74
+  L 192 68
+  L 229 83
+  L 256 64
+  L 265 107
+  L 295 123
+  L 346 134
+  C 388 139 410 144 415 147
+  C 445 158 458 172 460 184
+  L 459 194
+  C 443 218 428 233 415 247
+  C 405 272 397 302 394 326
+  C 380 340 369 349 359 355
+  C 342 361 331 363 322 365
+  C 294 385 274 413 263 430
+  C 250 448 240 463 237 470
+  L 221 458
+  L 192 427
+  L 222 383
+  L 181 322
+  L 157 299
+  L 1 225
+  L 37 153
+  L 73 108
+  L 121 64
+  L 157 51
+  Z
 `;
 
 export default function MapaBrasil() {
   return (
     <div className="relative w-full" style={{ maxWidth: 520, margin: "0 auto" }}>
-      {/* SVG Map */}
       <svg viewBox="0 50 460 420" className="w-full h-auto drop-shadow-lg">
         <defs>
           <filter id="mapShadow">
-            <feDropShadow dx="2" dy="4" stdDeviation="6" floodOpacity="0.15"/>
+            <feDropShadow dx="2" dy="4" stdDeviation="6" floodOpacity="0.12"/>
           </filter>
         </defs>
-        {/* Brazil fill */}
-        <path d={BRAZIL_PATH} fill="#fef9e7" stroke="#ffcd07" strokeWidth="2" filter="url(#mapShadow)"/>
+        <path d={BRAZIL_PATH} fill="#fef9e7" stroke="#ffcd07" strokeWidth="1.5" filter="url(#mapShadow)"/>
 
         {/* State pins */}
         {aprovacoes.map(a => {
@@ -79,50 +91,58 @@ export default function MapaBrasil() {
           const svgY = 50 + (a.y / 100) * 420;
           return (
             <g key={a.estado}>
-              {/* Pin shadow */}
-              <circle cx={svgX} cy={svgY + 2} r="7" fill="rgba(0,0,0,0.15)"/>
-              {/* Pin circle */}
-              <circle cx={svgX} cy={svgY} r="7" fill={a.cor} stroke="#fff" strokeWidth="1.5"/>
-              {/* Pin dot */}
+              <circle cx={svgX} cy={svgY + 2} r="6" fill="rgba(0,0,0,0.12)"/>
+              <circle cx={svgX} cy={svgY} r="6" fill={a.cor} stroke="#fff" strokeWidth="1.5"/>
               <circle cx={svgX} cy={svgY} r="2.5" fill="#fff"/>
             </g>
           );
         })}
       </svg>
 
-      {/* Callout boxes — positioned absolutely */}
+      {/* Interactive callout boxes — hover to reveal */}
       {aprovacoes.map(a => {
         const isRight = a.x < 50;
         return (
-          <div key={a.estado} className="absolute" style={{
+          <div key={a.estado} className="group absolute" style={{
             left: `${a.x}%`,
             top: `${((a.y / 100) * 420 + 50) / 470 * 100}%`,
-            transform: isRight ? "translate(-100%, -50%) translateX(-12px)" : "translate(12px, -50%)",
+            transform: "translate(-50%, -50%)",
             zIndex: 10,
+            cursor: "pointer",
           }}>
-            <div className="rounded-xl p-3 shadow-xl whitespace-nowrap"
-              style={{ background: "#fff", border: `2px solid ${a.cor}`, minWidth: 150, maxWidth: 200 }}>
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-base">{a.badge}</span>
-                <span className="font-black text-gray-900 text-xs">{a.estado}</span>
+            <div className="w-5 h-5"/>
+
+            <div className={`
+              absolute pointer-events-none
+              opacity-0 group-hover:opacity-100
+              transition-opacity duration-150
+              ${isRight ? "right-4" : "left-4"} top-1/2 -translate-y-1/2
+            `} style={{ zIndex: 20 }}>
+              <div className="rounded-xl p-3 shadow-2xl whitespace-nowrap"
+                style={{ background: "#fff", border: `2px solid ${a.cor}`, minWidth: 155, maxWidth: 200 }}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-base">{a.badge}</span>
+                  <span className="font-black text-gray-900 text-xs">{a.estado}</span>
+                </div>
+                <div className="font-black mb-1" style={{ color: a.cor, fontSize: "1.3rem", lineHeight: 1 }}>
+                  {a.num} <span className="text-xs font-semibold text-gray-400">aprovados</span>
+                </div>
+                <div className="space-y-0.5">
+                  {a.nomes.slice(0, 3).map(n => (
+                    <div key={n} className="text-[10px] text-gray-500 flex items-center gap-1">
+                      <span style={{ color: a.cor }}>•</span> {n}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="font-black mb-1" style={{ color: a.cor, fontSize: "1.3rem", lineHeight: 1 }}>
-                {a.num} <span className="text-xs font-semibold text-gray-400">aprovados</span>
-              </div>
-              <div className="space-y-0.5">
-                {a.nomes.slice(0, 3).map(n => (
-                  <div key={n} className="text-[10px] text-gray-500 flex items-center gap-1">
-                    <span style={{ color: a.cor }}>•</span> {n}
-                  </div>
-                ))}
-              </div>
+              <div className="absolute top-1/2 -translate-y-1/2"
+                style={{ [isRight ? "right" : "left"]: "-8px", width: 8, height: 2, background: a.cor }}/>
             </div>
-            {/* Connector line */}
-            <div className="absolute top-1/2 -translate-y-1/2"
-              style={{ [isRight ? "right" : "left"]: "-10px", width: 10, height: 2, background: a.cor }}/>
           </div>
         );
       })}
+
+      <p className="text-center text-xs text-gray-400 mt-2">Passe o cursor sobre os pontos para ver os detalhes</p>
     </div>
   );
 }

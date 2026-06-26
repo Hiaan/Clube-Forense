@@ -25,10 +25,21 @@ const professores = [
   },
 ];
 
-const parceiros = [
-  { nome: "Prof. Adenilton Almeida", area: "Direito Administrativo", cargo: "Policial Penal do DF" },
-  { nome: "Prof. Bruno Vasconselos", area: "Direito Constitucional", cargo: "" },
-  { nome: "Prof. Ricardo Ziegler", area: "Legislação Especial", cargo: "Oficial da Polícia Militar" },
+// Partner professor profile images from Wix CDN
+const parceiroImagens = [
+  "https://static.wixstatic.com/media/240889_82b1d86584c540888f57a76934ec38dd~mv2.png",
+  "https://static.wixstatic.com/media/240889_fcf58f87d5b34608a3cb508d063e3690~mv2.png",
+  "https://static.wixstatic.com/media/240889_1c08cc8bfbb54d388355df86348e1a2f~mv2.png",
+  "https://static.wixstatic.com/media/240889_11fe110de7f64244952bba19ed1409c6~mv2.png",
+  "https://static.wixstatic.com/media/240889_967470bceed2476cb2e707a2607ec174~mv2.png",
+  "https://static.wixstatic.com/media/240889_5bc790771937436d8afd01ba96be8393~mv2.png",
+  "https://static.wixstatic.com/media/240889_8fc122a50a00459b9ff1dedfb72ef7d0~mv2.png",
+  "https://static.wixstatic.com/media/240889_29fcc357e5844fc19c3f0ae5ed15f9b9~mv2.png",
+  "https://static.wixstatic.com/media/240889_c305072b88024aab8fd3cdb558823156~mv2.png",
+  "https://static.wixstatic.com/media/240889_97ca950731df4996abac8864d9bda6c9~mv2.png",
+  "https://static.wixstatic.com/media/240889_6f717ab569a84e27998ef18582e96328~mv2.png",
+  "https://static.wixstatic.com/media/240889_a9ea3fc15c2943b99eaf347a96455220~mv2.png",
+  "https://static.wixstatic.com/media/240889_81a5419a5aa14471b4664b40754c0e4b~mv2.png",
 ];
 
 export default function Professores() {
@@ -50,15 +61,9 @@ export default function Professores() {
         <div className="space-y-5 mb-16">
           {professores.map((p) => (
             <div key={p.nome} className="card-white flex flex-col md:flex-row gap-6 p-6 md:p-8">
-              {/* Avatar */}
-              <div
-                className="flex-shrink-0 w-24 h-24 md:w-20 md:h-20 rounded-full flex items-center justify-center font-black text-white text-2xl self-start"
-                style={{ background: p.cor }}
-              >
+              <div className="flex-shrink-0 w-20 h-20 rounded-full flex items-center justify-center font-black text-white text-2xl self-start" style={{ background: p.cor }}>
                 {p.inicial}
               </div>
-
-              {/* Info */}
               <div className="flex-1">
                 <h3 className="text-xl font-black text-gray-900 mb-1">{p.nome}</h3>
                 <p className="text-sm font-semibold mb-1" style={{ color: "#ffcd07" }}>{p.crm}</p>
@@ -69,26 +74,32 @@ export default function Professores() {
           ))}
         </div>
 
-        {/* Partner professors */}
+        {/* Partner professors — infinite auto-scroll carousel */}
         <div className="text-center mb-8">
           <p className="text-sm font-semibold text-gray-500">
-            Conheça também alguns dos <strong className="text-gray-900">nossos professores parceiros:</strong>
+            Conheça também nossos <strong className="text-gray-900">professores parceiros:</strong>
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-5">
-          {parceiros.map((p) => (
-            <div key={p.nome} className="card-white p-5 text-center">
-              <div
-                className="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center font-black text-black text-lg"
-                style={{ background: "#ffcd07" }}
-              >
-                {p.nome.split(" ")[1][0]}
+
+        <div className="relative overflow-hidden" style={{ padding: "20px 0" }}>
+          {/* Gradient masks */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
+            style={{ background: "linear-gradient(to right, #ffffff, transparent)" }}/>
+          <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
+            style={{ background: "linear-gradient(to left, #ffffff, transparent)" }}/>
+
+          {/* Scrolling track — images duplicated for seamless loop */}
+          <div className="carousel-track flex gap-6" style={{ width: "max-content" }}>
+            {[...parceiroImagens, ...parceiroImagens].map((url, i) => (
+              <div key={i} className="flex-shrink-0 rounded-2xl overflow-hidden bg-gray-50" style={{ border: "1px solid #e5e7eb" }}>
+                <img
+                  src={url}
+                  alt="Professor parceiro"
+                  style={{ height: 120, width: "auto", objectFit: "contain", display: "block" }}
+                />
               </div>
-              <div className="font-bold text-gray-900 text-sm">{p.nome}</div>
-              <div className="text-xs mt-1 font-semibold" style={{ color: "#e6b800" }}>{p.area}</div>
-              {p.cargo && <div className="text-xs mt-0.5 text-gray-400">{p.cargo}</div>}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
