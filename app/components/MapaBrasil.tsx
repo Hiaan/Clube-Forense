@@ -41,82 +41,48 @@ const aprovacoes = [
   },
 ];
 
-// Brazil outline derived from real geographic coordinates
-// viewBox "0 50 460 420": x maps 73.1°W→34.8°W, y maps 5.3°N(50)→33.7°S(470)
-const BRAZIL_PATH = `
-  M 157 51
-  L 155 74
-  L 192 68
-  L 229 83
-  L 256 64
-  L 265 107
-  L 295 123
-  L 346 134
-  C 388 139 410 144 415 147
-  C 445 158 458 172 460 184
-  L 459 194
-  C 443 218 428 233 415 247
-  C 405 272 397 302 394 326
-  C 380 340 369 349 359 355
-  C 342 361 331 363 322 365
-  C 294 385 274 413 263 430
-  C 250 448 240 463 237 470
-  L 221 458
-  L 192 427
-  L 222 383
-  L 181 322
-  L 157 299
-  L 1 225
-  L 37 153
-  L 73 108
-  L 121 64
-  L 157 51
-  Z
-`;
-
 export default function MapaBrasil() {
   return (
     <div className="relative w-full" style={{ maxWidth: 520, margin: "0 auto" }}>
-      <svg viewBox="0 50 460 420" className="w-full h-auto drop-shadow-lg">
-        <defs>
-          <filter id="mapShadow">
-            <feDropShadow dx="2" dy="4" stdDeviation="6" floodOpacity="0.12"/>
-          </filter>
-        </defs>
-        <path d={BRAZIL_PATH} fill="#fef9e7" stroke="#ffcd07" strokeWidth="1.5" filter="url(#mapShadow)"/>
+      {/* Brazil map image */}
+      <img
+        src="https://static.wixstatic.com/media/240889_3411000ea67448f2a282bd98d5b48e20~mv2.png"
+        alt="Mapa do Brasil com aprovações"
+        className="w-full h-auto"
+        style={{ display: "block" }}
+      />
 
-        {/* State pins */}
-        {aprovacoes.map(a => {
-          const svgX = (a.x / 100) * 460;
-          const svgY = 50 + (a.y / 100) * 420;
-          return (
-            <g key={a.estado}>
-              <circle cx={svgX} cy={svgY + 2} r="6" fill="rgba(0,0,0,0.12)"/>
-              <circle cx={svgX} cy={svgY} r="6" fill={a.cor} stroke="#fff" strokeWidth="1.5"/>
-              <circle cx={svgX} cy={svgY} r="2.5" fill="#fff"/>
-            </g>
-          );
-        })}
-      </svg>
-
-      {/* Interactive callout boxes — hover to reveal */}
+      {/* Pin overlays — positioned as percentage of container */}
       {aprovacoes.map(a => {
         const isRight = a.x < 50;
         return (
           <div key={a.estado} className="group absolute" style={{
             left: `${a.x}%`,
-            top: `${((a.y / 100) * 420 + 50) / 470 * 100}%`,
+            top: `${a.y}%`,
             transform: "translate(-50%, -50%)",
             zIndex: 10,
             cursor: "pointer",
           }}>
-            <div className="w-5 h-5"/>
+            {/* Pin dot */}
+            <div className="relative">
+              <div className="w-4 h-4 rounded-full shadow-md" style={{
+                background: a.cor,
+                border: "2.5px solid #fff",
+                boxShadow: `0 0 0 3px ${a.cor}40`,
+              }}/>
+              {/* Pulse ring */}
+              <div className="absolute inset-0 rounded-full animate-ping" style={{
+                background: a.cor,
+                opacity: 0.35,
+              }}/>
+            </div>
 
+            {/* Hover callout */}
             <div className={`
               absolute pointer-events-none
               opacity-0 group-hover:opacity-100
               transition-opacity duration-150
-              ${isRight ? "right-4" : "left-4"} top-1/2 -translate-y-1/2
+              ${isRight ? "right-5" : "left-5"} top-1/2 -translate-y-1/2
             `} style={{ zIndex: 20 }}>
               <div className="rounded-xl p-3 shadow-2xl whitespace-nowrap"
                 style={{ background: "#fff", border: `2px solid ${a.cor}`, minWidth: 155, maxWidth: 200 }}>
@@ -135,6 +101,7 @@ export default function MapaBrasil() {
                   ))}
                 </div>
               </div>
+              {/* Connector line */}
               <div className="absolute top-1/2 -translate-y-1/2"
                 style={{ [isRight ? "right" : "left"]: "-8px", width: 8, height: 2, background: a.cor }}/>
             </div>

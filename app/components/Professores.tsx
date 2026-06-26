@@ -1,3 +1,5 @@
+import CarouselParceiros from "./CarouselParceiros";
+
 const professores = [
   {
     nome: "Dra. Erika Anjos",
@@ -25,22 +27,6 @@ const professores = [
   },
 ];
 
-// Partner professor profile images from Wix CDN
-const parceiroImagens = [
-  "https://static.wixstatic.com/media/240889_82b1d86584c540888f57a76934ec38dd~mv2.png",
-  "https://static.wixstatic.com/media/240889_fcf58f87d5b34608a3cb508d063e3690~mv2.png",
-  "https://static.wixstatic.com/media/240889_1c08cc8bfbb54d388355df86348e1a2f~mv2.png",
-  "https://static.wixstatic.com/media/240889_11fe110de7f64244952bba19ed1409c6~mv2.png",
-  "https://static.wixstatic.com/media/240889_967470bceed2476cb2e707a2607ec174~mv2.png",
-  "https://static.wixstatic.com/media/240889_5bc790771937436d8afd01ba96be8393~mv2.png",
-  "https://static.wixstatic.com/media/240889_8fc122a50a00459b9ff1dedfb72ef7d0~mv2.png",
-  "https://static.wixstatic.com/media/240889_29fcc357e5844fc19c3f0ae5ed15f9b9~mv2.png",
-  "https://static.wixstatic.com/media/240889_c305072b88024aab8fd3cdb558823156~mv2.png",
-  "https://static.wixstatic.com/media/240889_97ca950731df4996abac8864d9bda6c9~mv2.png",
-  "https://static.wixstatic.com/media/240889_6f717ab569a84e27998ef18582e96328~mv2.png",
-  "https://static.wixstatic.com/media/240889_a9ea3fc15c2943b99eaf347a96455220~mv2.png",
-  "https://static.wixstatic.com/media/240889_81a5419a5aa14471b4664b40754c0e4b~mv2.png",
-];
 
 export default function Professores() {
   return (
@@ -81,25 +67,8 @@ export default function Professores() {
           </p>
         </div>
 
-        <div className="relative overflow-hidden" style={{ padding: "20px 0" }}>
-          {/* Gradient masks */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to right, #ffffff, transparent)" }}/>
-          <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to left, #ffffff, transparent)" }}/>
-
-          {/* Scrolling track — images duplicated for seamless loop */}
-          <div className="carousel-track flex gap-6" style={{ width: "max-content" }}>
-            {[...parceiroImagens, ...parceiroImagens].map((url, i) => (
-              <div key={i} className="flex-shrink-0 rounded-2xl overflow-hidden bg-gray-50" style={{ border: "1px solid #e5e7eb" }}>
-                <img
-                  src={url}
-                  alt="Professor parceiro"
-                  style={{ height: 120, width: "auto", objectFit: "contain", display: "block" }}
-                />
-              </div>
-            ))}
-          </div>
+        <div className="px-6">
+          <CarouselParceiros />
         </div>
       </div>
     </section>
