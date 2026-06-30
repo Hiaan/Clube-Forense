@@ -1,5 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+Inclui o **Monitor de Concursos para Médico-Legista** em `/monitor` — veja [MONITOR.md](./MONITOR.md).
+
+## Publicar na Vercel (passo a passo)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/UandreLucas/Clube-Forense)
+
+1. Clique no botão acima (ou acesse <https://vercel.com/new>) e entre com sua conta **GitHub**.
+2. Importe o repositório **Clube-Forense**. A Vercel detecta o Next.js sozinho — não mude nada, só clique em **Deploy**.
+3. Ao terminar, anote a URL gerada (ex.: `https://clube-forense.vercel.app`). O monitor fica em `…/monitor`.
+
+### Atualização de hora em hora (grátis)
+
+A página já se regenera a cada hora ao ser acessada. Para forçar a atualização mesmo sem visitas, use o GitHub Action incluído (`.github/workflows/atualizar-monitor.yml`):
+
+1. No GitHub, vá em **Settings → Secrets and variables → Actions → Variables → New repository variable**.
+2. Crie a variável `MONITOR_BASE_URL` com a URL da Vercel (ex.: `https://clube-forense.vercel.app`).
+3. Pronto: o Action aciona a coleta toda hora. (Opcional: crie o *secret* `CRON_SECRET` aqui e a variável de ambiente de mesmo nome na Vercel para proteger o endpoint.)
+
+> O cron nativo da Vercel (`vercel.json`) roda de hora em hora **apenas no plano Pro**; no plano grátis ele é limitado a 1x/dia. Por isso o GitHub Action acima garante a frequência horária sem custo.
+
 ## Getting Started
 
 First, run the development server:

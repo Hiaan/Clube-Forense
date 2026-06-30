@@ -31,15 +31,25 @@ Fontes externas  ──►  Coletor  ──►  Filtro de cargo  ──►  Clas
 
 ## Atualização automática (cron)
 
-- `vercel.json` agenda `GET /api/cron` **a cada hora** (`0 * * * *`).
-- O endpoint refaz a coleta e revalida a página.
-- Opcional: defina a variável de ambiente `CRON_SECRET` na Vercel para proteger o
-  endpoint (ele passa a exigir o header `Authorization: Bearer <segredo>`).
+Há três camadas, e bastam as duas primeiras (grátis) para ter atualização horária:
+
+1. **ISR** — a página `/monitor` se regenera a cada hora (`revalidate = 3600`)
+   sempre que é acessada após esse intervalo. Não depende de cron.
+2. **GitHub Action** (`.github/workflows/atualizar-monitor.yml`) — aciona
+   `GET /api/cron` **toda hora**, de graça, mesmo sem visitas. Basta configurar a
+   variável de repositório `MONITOR_BASE_URL` (ver README).
+3. **Vercel Cron** (`vercel.json`) — também agenda `GET /api/cron` a cada hora,
+   mas a frequência horária só vale no **plano Pro**; no plano grátis (Hobby) a
+   Vercel limita o cron a 1x/dia. Por isso a camada 2 é a recomendada no grátis.
+
+Opcional: defina a variável de ambiente `CRON_SECRET` na Vercel (e o secret de
+mesmo nome no GitHub) para proteger o endpoint — ele passa a exigir o header
+`Authorization: Bearer <segredo>`.
 
 ## Deploy
 
 1. Suba o repositório na **Vercel** (importar projeto Next.js — zero config).
-2. O cron de 1h funciona automaticamente no plano da Vercel.
+2. Configure o GitHub Action para a atualização horária grátis (ver README).
 3. Pronto: `https://seu-projeto.vercel.app/monitor`.
 
 > Em ambientes de rede restrita (como o de desenvolvimento), as fontes externas
