@@ -31,7 +31,7 @@ export default function Navbar() {
         </div>
 
         <nav className={`hidden md:flex items-center gap-7 text-sm transition-colors ${scrolled ? "text-gray-600" : "text-white/80"}`}>
-          {[["#metodologia","Metodologia"],["#professores","Professores"],["#resultados","Resultados"],["#depoimentos","Depoimentos"],["#preco","Preço"]].map(([href,label]) => (
+          {[["#metodologia","Metodologia"],["#professores","Professores"],["#resultados","Resultados"],["#depoimentos","Depoimentos"],["#preco","Preço"],["/monitor","Monitor de Concursos"]].map(([href,label]) => (
             <a key={href} href={href} className="hover:text-gray-900 transition-colors">{label}</a>
           ))}
         </nav>
