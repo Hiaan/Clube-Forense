@@ -1,0 +1,324 @@
+"use client";
+
+// Mapa interativo do radar de concursos (abertura do site). Mapa geográfico do
+// Brasil em SVG: cada estado tem seu contorno real, é clicável, colorido pelo
+// estágio do funil do edital, e o painel ao lado resume a situação (curadoria +
+// notícias do monitor).
+
+import { useState } from "react";
+import Avatar from "./Avatar";
+import BancaLink from "./BancaLink";
+import { APROVADOS } from "../monitor/lib/aprovados";
+import { NIVEL_COR, NIVEL_LABEL, type Nivel } from "../monitor/lib/tipos";
+import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
+
+// Estrela (viewBox 24) usada como selo de "aprovados do Clube" no mapa.
+const ESTRELA_D =
+  "M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.2L12 17.3 5.8 21l1.6-7.2L2 9.1l7.1-.6z";
+
+export interface EstadoMapa {
+  uf: string;
+  nome: string;
+  nivel: Nivel;
+  score: number;
+  ultimaMencao: string | null;
+  destaque: { titulo: string; resumo: string; fonte: string } | null;
+  historico: {
+    ultimoEdital: string | null;
+    ultimaProva: string | null;
+    banca: string | null;
+  } | null;
+}
+
+const LEGENDA: Nivel[] = [
+  "edital",
+  "banca",
+  "comissao",
+  "autorizado",
+  "solicitado",
+  "estudo",
+  "noticia",
+  "sem",
+];
+
+/** Estados pequenos demais para rótulo interno confortável. */
+const ROTULO_PEQUENO = new Set(["DF", "SE", "AL", "RJ", "ES", "RN"]);
+
+function formatarData(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function corDoNivel(nivel: Nivel): string {
+  return nivel === "sem" ? "#26262b" : NIVEL_COR[nivel];
+}
+
+export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
+  const porUf = new Map(estados.map((e) => [e.uf, e]));
+  // estados vêm ordenados por score desc — o primeiro é o mais quente.
+  const [ufSelecionada, setUfSelecionada] = useState<string>(estados[0]?.uf ?? "MA");
+  const sel = porUf.get(ufSelecionada);
+
+  return (
+    <section className="bg-[#0b0b0d] py-12 sm:py-16" id="radar">
+      <div className="mx-auto max-w-5xl px-4">
+        <div className="mb-8 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffcd07]">
+            Radar de Concursos
+          </p>
+          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+            Onde o edital de Médico-Legista está mais perto de sair?
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-400">
+            Clique no seu estado e veja a situação resumida — estágio do edital,
+            última movimentação, histórico e os aprovados do Clube Forense.
+          </p>
+        </div>
+
+        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,420px)_1fr] lg:justify-items-center">
+          {/* Mapa geográfico */}
+          <div className="w-full max-w-[420px]">
+            <svg
+              viewBox={MAPA_VIEWBOX}
+              className="h-auto w-full"
+              role="group"
+              aria-label="Mapa do Brasil por estágio do edital"
+            >
+              {Object.entries(MAPA_PATHS).map(([uf, d]) => {
+                const e = porUf.get(uf);
+                const nivel: Nivel = e?.nivel ?? "sem";
+                return (
+                  <path
+                    key={uf}
+                    d={d}
+                    fill={corDoNivel(nivel)}
+                    stroke="#0b0b0d"
+                    strokeWidth={2}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${e?.nome ?? uf} — ${NIVEL_LABEL[nivel]}`}
+                    onClick={() => setUfSelecionada(uf)}
+                    onKeyDown={(ev) => {
+                      if (ev.key === "Enter" || ev.key === " ") setUfSelecionada(uf);
+                    }}
+                    className="cursor-pointer outline-none transition-[filter] hover:brightness-125 focus-visible:brightness-125"
+                  >
+                    <title>{`${e?.nome ?? uf} — ${NIVEL_LABEL[nivel]}`}</title>
+                  </path>
+                );
+              })}
+
+              {/* Contorno de destaque do estado selecionado */}
+              {MAPA_PATHS[ufSelecionada] && (
+                <path
+                  d={MAPA_PATHS[ufSelecionada]}
+                  fill="none"
+                  stroke="#ffcd07"
+                  strokeWidth={4}
+                  strokeLinejoin="round"
+                  pointerEvents="none"
+                />
+              )}
+
+              {/* Rótulos das siglas */}
+              {Object.entries(MAPA_CENTROIDES).map(([uf, [x, y]]) => {
+                const e = porUf.get(uf);
+                const semNovidade = (e?.nivel ?? "sem") === "sem";
+                if (ROTULO_PEQUENO.has(uf)) return null;
+                return (
+                  <text
+                    key={uf}
+                    x={x}
+                    y={y}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize={22}
+                    fontWeight={700}
+                    fill={semNovidade ? "#71717a" : "#ffffff"}
+                    pointerEvents="none"
+                    style={{ userSelect: "none" }}
+                  >
+                    {uf}
+                  </text>
+                );
+              })}
+
+              {/* Selo de aprovados do Clube (estrela dourada acima da sigla) */}
+              {Object.keys(APROVADOS).map((uf) => {
+                const c = MAPA_CENTROIDES[uf];
+                if (!c) return null;
+                const [x, y] = c;
+                const s = 1.15;
+                return (
+                  <path
+                    key={`${uf}-estrela`}
+                    d={ESTRELA_D}
+                    fill="#ffcd07"
+                    stroke="#0b0b0d"
+                    strokeWidth={1.4}
+                    transform={`translate(${x + 15 - 12 * s}, ${y - 20 - 12 * s}) scale(${s})`}
+                    pointerEvents="none"
+                  />
+                );
+              })}
+            </svg>
+
+            {/* Legenda */}
+            <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+              {LEGENDA.map((n) => (
+                <span key={n} className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                  <span
+                    className="h-2.5 w-2.5 rounded-sm"
+                    style={{ backgroundColor: corDoNivel(n) }}
+                  />
+                  {NIVEL_LABEL[n]}
+                </span>
+              ))}
+              <span className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                <span className="text-[#ffcd07]">★</span>
+                Aprovados do Clube
+              </span>
+            </div>
+          </div>
+
+          {/* Painel do estado selecionado */}
+          {sel && (
+            <div className="w-full min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#ffcd07] text-sm font-black text-gray-900">
+                    {sel.uf}
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{sel.nome}</h3>
+                    <p className="text-xs text-gray-400">
+                      Última movimentação: {formatarData(sel.ultimaMencao)}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-bold text-white"
+                  style={{ backgroundColor: sel.nivel === "sem" ? "#3f3f46" : NIVEL_COR[sel.nivel] }}
+                >
+                  {NIVEL_LABEL[sel.nivel]}
+                </span>
+              </div>
+
+              <div className="mt-5">
+                <div className="mb-1 flex justify-between text-[11px] text-gray-400">
+                  <span>Proximidade do edital</span>
+                  <span>{sel.score}/100</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${sel.score}%`,
+                      backgroundColor: sel.nivel === "sem" ? "#3f3f46" : NIVEL_COR[sel.nivel],
+                    }}
+                  />
+                </div>
+              </div>
+
+              {sel.historico && (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="rounded-xl bg-white/[0.06] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                      Último edital
+                    </p>
+                    <p className="mt-0.5 text-sm font-bold text-white">
+                      {sel.historico.ultimoEdital ?? "—"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white/[0.06] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                      Última prova
+                    </p>
+                    <p className="mt-0.5 text-sm font-bold text-white">
+                      {sel.historico.ultimaProva ?? "—"}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white/[0.06] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                      Banca
+                    </p>
+                    <p className="mt-0.5 text-sm font-bold text-white">
+                      <BancaLink
+                        nome={sel.historico.banca}
+                        className="text-[#ffcd07] hover:underline"
+                      />
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {APROVADOS[sel.uf] && (
+                <div className="mt-4 rounded-xl border border-[#ffcd07]/30 bg-[#ffcd07]/10 p-4">
+                  <p className="flex items-center gap-2 text-sm font-bold text-[#ffcd07]">
+                    <span>🏆</span>
+                    {APROVADOS[sel.uf].orgao
+                      ? `Aprovados na ${APROVADOS[sel.uf].orgao}`
+                      : `${APROVADOS[sel.uf].total} aprovados do Clube Forense`}
+                  </p>
+                  {APROVADOS[sel.uf].orgao && (
+                    <p className="mt-1 text-[11px] text-gray-400">
+                      Concurso nacional — não é do concurso do {sel.uf}.
+                    </p>
+                  )}
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {APROVADOS[sel.uf].destaques.map((d) => (
+                      <span
+                        key={d}
+                        className="rounded-full bg-[#ffcd07]/20 px-2 py-0.5 text-[11px] font-semibold text-[#ffcd07]"
+                      >
+                        {d}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
+                    {APROVADOS[sel.uf].nomes.map((n) => (
+                      <span key={n} className="flex items-center gap-1.5">
+                        <Avatar nome={n} size={28} />
+                        <span className="text-xs text-gray-300">{n}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {sel.destaque ? (
+                <div className="mt-5 border-t border-white/10 pt-4">
+                  <p className="text-sm font-semibold leading-snug text-white">
+                    {sel.destaque.titulo}
+                  </p>
+                  <p className="mt-2 break-words text-xs leading-relaxed text-gray-400 line-clamp-6 [overflow-wrap:anywhere]">
+                    {sel.destaque.resumo}
+                  </p>
+                  <p className="mt-2 text-[11px] font-medium text-gray-500">
+                    Fonte: {sel.destaque.fonte}
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-5 border-t border-white/10 pt-4 text-sm text-gray-400">
+                  Nenhuma movimentação recente registrada para este estado. O
+                  radar segue monitorando notícias, diários e redes oficiais.
+                </p>
+              )}
+
+              <a
+                href="#painel"
+                className="mt-5 inline-flex items-center gap-1 rounded-full bg-[#ffcd07] px-4 py-2 text-xs font-bold text-gray-900 transition hover:brightness-95"
+              >
+                Ver todas as menções no painel ↓
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

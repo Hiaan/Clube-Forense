@@ -1,0 +1,29 @@
+name: Atualizar Monitor
+
+# Aciona a coleta do monitor de hora em hora, de graça, sem depender do plano
+# Pro da Vercel. Basta o site estar publicado e a variável MONITOR_BASE_URL
+# configurada nas Settings do repositório (Settings → Secrets and variables →
+# Actions → Variables → New repository variable).
+
+on:
+  schedule:
+    - cron: "0 * * * *" # todo início de hora (horário UTC)
+  workflow_dispatch: {} # permite acionar manualmente pelo botão "Run workflow"
+
+jobs:
+  acionar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acionar coleta no site publicado
+        env:
+          BASE_URL: ${{ vars.MONITOR_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$BASE_URL" ]; then
+            echo "::warning::Defina a variável de repositório MONITOR_BASE_URL (ex.: https://seu-projeto.vercel.app)."
+            exit 0
+          fi
+          echo "Acionando $BASE_URL/api/cron ..."
+          curl -fsS "$BASE_URL/api/cron" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            && echo "" && echo "Coleta acionada com sucesso."
