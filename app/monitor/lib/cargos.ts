@@ -16,7 +16,12 @@
 //      nomeação, posse) e de seleção TEMPORÁRIA (PSS) nunca definem estágio:
 //      são notícias do passado ou de vínculo precário, não funil de edital.
 
-import { normalizar } from "./estados";
+import {
+  normalizarCargo,
+  SINAL_MEDICINA,
+  TERMOS_CARGO_DIRETO,
+  TERMOS_CARGO_UNIFICADO,
+} from "./nomenclaturas";
 import type { Nivel } from "./tipos";
 
 // ---------------------------------------------------------------------------
@@ -26,6 +31,7 @@ import type { Nivel } from "./tipos";
 /** Termos que indicam que a menção é sobre concurso/seleção. */
 const TERMOS_CONCURSO = [
   "concurso",
+  "certame",
   "edital",
   "selecao",
   "processo seletivo",
@@ -37,12 +43,22 @@ const TERMOS_CONCURSO = [
   "aprovados",
 ];
 
-/**
- * Termos do cargo-alvo (médico-legista), já normalizados. "legista" cobre
- * "médico legista", "perito médico-legista" e "odontolegista".
- */
-const TERMOS_LEGISTA = ["legista", "medicina legal", "medico legal", "medica legal"];
+// Os termos do cargo-alvo vivem em nomenclaturas.ts, montados a partir do nome
+// OFICIAL do cargo no último concurso de cada estado — porque o nome muda por
+// UF ("Médico Legista" em SP, "Perito Legista" no RJ, "Perito Oficial
+// Médico-Legal" na PB, "Perito Oficial Criminal" no PR e em SC).
 const IML_REGEX = /\biml\b/;
+
+/**
+ * Perito médico do INSS/previdenciário é OUTRO cargo (avalia benefício, não faz
+ * necropsia). Sem sinal do cargo-alvo, a menção sai.
+ */
+const TERMOS_PERICIA_PREVIDENCIARIA = [
+  "perito medico federal",
+  "perito medico previdenciario",
+  "pericia medica federal",
+  "inss",
+];
 
 /**
  * Guarda-chuva de carreira que PODE englobar o médico-legista no mesmo edital.
@@ -81,41 +97,63 @@ const TERMOS_OUTROS_CARGOS = [
  */
 const TERMOS_EVENTO = ["corrida", "caminhada", "maratona", "campeonato", "torneio"];
 
+/** Como a menção se relaciona com o cargo-alvo. */
+export type TipoMencao =
+  /** Nomeia o cargo do legista (em qualquer das nomenclaturas do país). */
+  | "direto"
+  /** Cargo que engloba medicina como área (PR, SC, MS, MT, PF) + sinal médico. */
+  | "unificado"
+  /** Só o guarda-chuva de carreira: contexto, não define estágio. */
+  | "carreira"
+  /** Fora do monitor. */
+  | "fora";
+
 export interface AvaliacaoMencao {
   /** True se a menção deve entrar no monitor. */
   manter: boolean;
-  /** True se cita o cargo diretamente (legista/medicina legal/IML). */
+  /** True se a menção pode DEFINIR estágio do funil (direto ou unificado). */
   cargoDireto: boolean;
+  tipo: TipoMencao;
 }
 
-/** Avalia se a menção entra no monitor e como (direta ou guarda-chuva). */
+const FORA: AvaliacaoMencao = { manter: false, cargoDireto: false, tipo: "fora" };
+
+/** Avalia se a menção entra no monitor e como (direta, unificada ou contexto). */
 export function avaliarMencao(texto: string): AvaliacaoMencao {
-  const t = normalizar(texto);
+  const t = normalizarCargo(texto);
 
   const temConcurso = TERMOS_CONCURSO.some((termo) => t.includes(termo));
-  if (!temConcurso) return { manter: false, cargoDireto: false };
+  if (!temConcurso) return FORA;
 
   if (!t.includes("concurso") && TERMOS_EVENTO.some((termo) => t.includes(termo))) {
-    return { manter: false, cargoDireto: false }; // evento esportivo/social do órgão
+    return FORA; // evento esportivo/social do órgão
   }
 
-  const cargoDireto = TERMOS_LEGISTA.some((termo) => t.includes(termo)) || IML_REGEX.test(t);
-  if (cargoDireto) return { manter: true, cargoDireto: true };
+  // 1) Cargo nomeado diretamente, em qualquer nomenclatura estadual.
+  if (TERMOS_CARGO_DIRETO.some((termo) => t.includes(termo)) || IML_REGEX.test(t)) {
+    return { manter: true, cargoDireto: true, tipo: "direto" };
+  }
 
+  // Sem o cargo-alvo, perícia médica previdenciária é outro concurso.
+  if (TERMOS_PERICIA_PREVIDENCIARIA.some((termo) => t.includes(termo))) return FORA;
+
+  const unificado = TERMOS_CARGO_UNIFICADO.some((termo) => t.includes(termo));
   const carreira = TERMOS_CARREIRA.some((termo) => t.includes(termo));
-  if (!carreira) return { manter: false, cargoDireto: false };
+  if (!unificado && !carreira) return FORA;
 
-  // Guarda-chuva explicitamente sobre outro cargo (sem citar legista): fora.
-  if (TERMOS_OUTROS_CARGOS.some((termo) => t.includes(termo))) {
-    return { manter: false, cargoDireto: false };
-  }
-  // Guarda-chuva restrito a níveis que excluem o legista (cargo de nível
-  // superior): fora, a menos que o texto também fale de nível superior.
-  if (/nivel (medio|fundamental)/.test(t) && !t.includes("superior")) {
-    return { manter: false, cargoDireto: false };
+  // 2) Guarda-chuva COM sinal de medicina: no PR, SC, MS, MT e na PF o legista
+  //    entra exatamente assim ("Perito Oficial Criminal — área Medicina"), então
+  //    aqui a menção pode definir estágio.
+  if (unificado && SINAL_MEDICINA.test(t)) {
+    return { manter: true, cargoDireto: true, tipo: "unificado" };
   }
 
-  return { manter: true, cargoDireto: false };
+  // 3) Guarda-chuva sem sinal de medicina: só contexto — e fora se for
+  //    explicitamente sobre outro cargo ou restrito a nível médio/fundamental.
+  if (TERMOS_OUTROS_CARGOS.some((termo) => t.includes(termo))) return FORA;
+  if (/nivel (medio|fundamental)/.test(t) && !t.includes("superior")) return FORA;
+
+  return { manter: true, cargoDireto: false, tipo: "carreira" };
 }
 
 // ---------------------------------------------------------------------------
@@ -184,7 +222,7 @@ const PADROES: { nivel: Exclude<Nivel, "sem" | "noticia">; regex: RegExp }[] = [
 export function classificarNivel(texto: string, cargoDireto: boolean): Nivel {
   if (!cargoDireto) return "noticia";
 
-  const t = normalizar(texto);
+  const t = normalizarCargo(texto);
   if (SINAIS_CONCLUIDO.test(t)) return "noticia";
   if (SINAIS_TEMPORARIO.test(t)) return "noticia";
 
