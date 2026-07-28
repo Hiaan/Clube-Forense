@@ -1,14 +1,22 @@
 "use client";
 
-// Avatar de aluno aprovado. Tenta carregar a foto em /public/aprovados/<slug>.jpg
-// (slug = nome sem título, sem acento, com hífens). Se o arquivo não existir,
-// cai para um círculo com as iniciais e uma cor determinística pelo nome.
+// Avatar de aluno aprovado: a foto em /public/aprovados/<slug>.<ext> quando ela
+// existe, senão um círculo com as iniciais e uma cor determinística pelo nome.
 //
-// Para adicionar a foto de alguém, basta colocar o arquivo:
-//   public/aprovados/<slug>.jpg   (ou .png/.webp — ver ordem de tentativa)
-// Ex.: "Dr. Lucas Mesquita" -> public/aprovados/lucas-mesquita.jpg
+// Para adicionar a foto de alguém:
+//   1. coloque o arquivo em public/aprovados/<slug>.jpg (ou .jpeg/.png/.webp)
+//      Ex.: "Dr. Lucas Mesquita" -> public/aprovados/lucas-mesquita.jpg
+//   2. rode `npm run fotos` para reindexar
+//
+// O índice (fotosAprovados.ts, gerado) diz quais slugs têm arquivo e em qual
+// formato. É ele que evita o que acontecia antes: sem saber o que existe, o
+// componente pedia .jpg, .jpeg, .png e .webp em sequência e só then desistia —
+// até 4 requisições 404 por pessoa sem foto. Agora quem não tem foto não gera
+// requisição alguma, e quem tem é pedido no formato certo de primeira.
 
 import { useState } from "react";
+
+import { FOTOS_APROVADOS } from "./fotosAprovados";
 
 /** Gera o slug do nome (sem título Dr./Dra., sem acento, com hífens). */
 export function slugDoNome(nome: string): string {
@@ -45,9 +53,6 @@ function corDoNome(nome: string): string {
   return CORES[h % CORES.length];
 }
 
-// Formatos tentados, em ordem.
-const EXTENSOES = ["jpg", "jpeg", "png", "webp"];
-
 export default function Avatar({
   nome,
   size = 28,
@@ -56,10 +61,12 @@ export default function Avatar({
   size?: number;
 }) {
   const slug = slugDoNome(nome);
-  const [tentativa, setTentativa] = useState(0);
-  const semFoto = tentativa >= EXTENSOES.length;
+  const extensao = FOTOS_APROVADOS[slug];
+  // `falhou` é rede de segurança: o índice diz que o arquivo existe, mas se ele
+  // vier corrompido ou for removido sem reindexar, ainda caímos nas iniciais.
+  const [falhou, setFalhou] = useState(false);
 
-  if (semFoto) {
+  if (!extensao || falhou) {
     return (
       <span
         className="inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white"
@@ -79,11 +86,11 @@ export default function Avatar({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={`/aprovados/${slug}.${EXTENSOES[tentativa]}`}
+      src={`/aprovados/${slug}.${extensao}`}
       alt={nome}
       width={size}
       height={size}
-      onError={() => setTentativa((t) => t + 1)}
+      onError={() => setFalhou(true)}
       className="shrink-0 rounded-full object-cover"
       style={{ width: size, height: size }}
     />

@@ -1,11 +1,23 @@
 # Fotos dos aprovados
 
-Coloque aqui a foto de cada aluno aprovado. O site carrega automaticamente
-`/aprovados/<slug>.jpg` (também aceita `.jpeg`, `.png`, `.webp`). Se o arquivo
-não existir, aparece um círculo com as iniciais — nada quebra.
+Coloque aqui a foto de cada aluno aprovado. Aceita `.jpg`, `.jpeg`, `.png` e
+`.webp`. Se o arquivo não existir, aparece um círculo com as iniciais — nada
+quebra.
 
 - Formato ideal: quadrado (ex.: 200×200), rosto centralizado.
 - Nome do arquivo = slug do nome (sem "Dr./Dra.", sem acento, com hífens).
+
+> **Depois de adicionar ou remover uma foto, rode `npm run fotos`.**
+> Isso regenera `app/components/fotosAprovados.ts`, o índice que diz ao site
+> quais fotos existem. Sem reindexar, uma foto nova não aparece — e o site
+> continua funcionando, só que com as iniciais no lugar dela.
+
+## Faltando hoje
+
+Estes quatro estão listados como aprovados mas não têm arquivo, então aparecem
+com as iniciais. Basta adicionar a imagem e rodar `npm run fotos`:
+
+- `hugo-emerico.jpg` · `matheus-miguel.jpg` · `tulio-rucinski.jpg` · `hugo-souza.jpg`
 
 ## Nomes de arquivo esperados
 
