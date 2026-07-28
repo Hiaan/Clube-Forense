@@ -150,7 +150,7 @@ export const HISTORICO_CONCURSOS: Record<string, HistoricoConcurso> = {
     ultimoEdital: "2022",
     ultimaProva: "2022",
     banca: "Cebraspe",
-    obs: "PC-RO 2022 incluiu médico legista; a Politec-RO teve edital próprio em 2022 (60 vagas de nível superior).",
+    obs: "PC-RO 2022 (Cebraspe): 319 vagas no total, incluindo Médico-Legista, com prova objetiva em 25/09/2022. A Politec-RO teve edital próprio no mesmo ano, mas apenas para Perito Criminal e Agente de Criminalística — o cargo de legista não passa por ela.",
   },
   RR: {
     ultimoEdital: "2022",

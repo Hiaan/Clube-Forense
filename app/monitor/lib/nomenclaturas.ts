@@ -63,8 +63,10 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
     orgao: "Polícia Civil do Acre (PC-AC)",
     referencia: "Funcab, 2015",
     tipo: "direto",
+    // Edital de 2015: 15 vagas de Perito Criminal e 2 de Perito Médico-Legista.
+    // O certame seguinte da PC-AC (2017, Ibade) não teve o cargo.
     variantes: ["perito medico legista", "medico legista"],
-    confianca: "media",
+    confianca: "alta",
   },
   AL: {
     uf: "AL",
@@ -81,8 +83,16 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
     orgao: "Politec-AP",
     referencia: "FCC, 2017",
     tipo: "direto",
-    variantes: ["perito medico legista", "medico legista", "perito legista"],
-    confianca: "media",
+    // Edital de 2017: 70 vagas de "Perito Médico Legista" e 10 de "Perito
+    // Médico Legista — Especialização em Psiquiatria" (cargo desdobrado por
+    // especialidade, não por área de perícia).
+    variantes: [
+      "perito medico legista",
+      "perito medico legista especializacao em psiquiatria",
+      "medico legista",
+      "perito legista",
+    ],
+    confianca: "alta",
   },
   AM: {
     uf: "AM",
@@ -169,12 +179,22 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
   },
   MS: {
     uf: "MS",
-    oficial: "Perito Oficial Forense — área Medicina Legal",
+    oficial: "Perito Oficial Forense — função Perito Médico Legista",
     orgao: "Coordenadoria-Geral de Perícias (Sejusp-MS)",
     referencia: "Fapec, 2021",
+    // Unificado CONFIRMADO: o cargo é "Perito Oficial Forense", desdobrado em
+    // duas funções — "Perito Criminal" (por áreas numeradas) e "Perito Médico
+    // Legista" (exige Medicina). Edital de 2021: 75 vagas na primeira, 53 na
+    // segunda. Como o nome da função já é um termo direto, notícias do MS
+    // costumam casar por ele, sem depender da regra de cargo unificado.
     tipo: "unificado",
-    variantes: ["perito oficial forense", "perito medico legista", "medico legista"],
-    confianca: "media",
+    variantes: [
+      "perito oficial forense",
+      "perito oficial forense perito medico legista",
+      "perito medico legista",
+      "medico legista",
+    ],
+    confianca: "alta",
   },
   MG: {
     uf: "MG",
@@ -276,12 +296,14 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
   },
   RO: {
     uf: "RO",
-    oficial: "Médico Legista",
-    orgao: "Polícia Civil de Rondônia (PC-RO) / Politec-RO",
+    oficial: "Médico-Legista",
+    // NÃO é a Politec-RO: o edital dela em 2022 foi só de Perito Criminal e
+    // Agente de Criminalística. O cargo de legista está na Polícia Civil.
+    orgao: "Polícia Civil de Rondônia (PC-RO)",
     referencia: "Cebraspe, 2022",
     tipo: "direto",
     variantes: ["medico legista", "perito medico legista"],
-    confianca: "media",
+    confianca: "alta",
   },
   RR: {
     uf: "RR",
@@ -289,8 +311,10 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
     orgao: "Polícia Civil de Roraima (PC-RR)",
     referencia: "Vunesp, 2022 (prova reaplicada em 2023)",
     tipo: "direto",
+    // O edital traz "Médico Legista", sem o prefixo "Perito": 7 vagas na
+    // abertura, ampliadas para 13.
     variantes: ["medico legista", "perito medico legista"],
-    confianca: "media",
+    confianca: "alta",
   },
   SC: {
     uf: "SC",
