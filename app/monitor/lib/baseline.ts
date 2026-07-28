@@ -12,7 +12,7 @@
 import type { Mencao, Nivel } from "./tipos";
 
 /** Data da última verificação editorial destes dados. */
-export const VERIFICADO_EM = "2026-07-01";
+export const VERIFICADO_EM = "2026-07-26";
 
 interface EntradaCuradoria {
   uf: string;
@@ -24,65 +24,59 @@ interface EntradaCuradoria {
 const CURADORIA: EntradaCuradoria[] = [
   {
     uf: "MA",
-    estagio: "banca",
-    titulo:
-      "PC-MA: banca Cebraspe definida — edital iminente (decisão judicial: até junho/2026)",
+    estagio: "edital",
+    titulo: "Perícia Oficial MA: EDITAL PUBLICADO — inscrições de 31/07 a 05/10/2026",
     resumo:
-      "Comissão formada e ativa; certame consta na PLOA 2026. A Justiça do Maranhão determinou a realização do concurso até junho/2026 e o governador Carlos Brandão anunciou o Cebraspe como banca, com previsão de publicação do edital em até 30 dias. 25 vagas para médico legista; salário inicial de R$ 14.675,58 (valor reajustado a partir de junho/2026).",
+      "Edital publicado pela SEAD/MA e SSP-MA para a Perícia Oficial de Natureza Criminal, organizado pelo Cebraspe. 25 vagas imediatas para Médico Legista, além de cadastro de reserva nas especialidades de psiquiatria e radiologia. Inscrições exclusivamente on-line de 31/07 a 05/10/2026, taxa de R$ 250,00; provas objetiva e discursiva em 10/01/2027. Salário inicial de R$ 14.675,58 para 40h semanais. Etapas seguintes: exame médico, avaliação psicológica, investigação social e curso de formação.",
   },
   {
     uf: "RJ",
-    estagio: "comissao",
-    titulo:
-      "PC-RJ: concurso autorizado — banca em definição final (9 instituições na disputa)",
+    estagio: "banca",
+    titulo: "PC-RJ: FGV definida como banca (homologada em 24/06/2026) — edital iminente",
     resumo:
-      "Autorizado oficialmente pelo governador Cláudio Castro em abril/2025; fase final de preparação, com meta de divulgar os editais até junho. 414 vagas totais autorizadas, sendo 251 para Perito Legista (nível superior em Medicina, Odontologia ou Farmácia); remuneração inicial de R$ 13.786,36. Na disputa pela banca: FGV, Cebraspe, Fundação Cesgranrio, Instituto AOCP, Idecan, Selecon, Fundação Ceperj, Instituto Consulplan e Instituto Seleção.",
+      "A escolha da FGV foi homologada em 24/06/2026 via publicação no Portal Nacional de Contratações Públicas (PNCP), encerrando a disputa que tinha 9 instituições. 251 vagas para Perito Legista (nível superior em Medicina, Odontologia ou Farmácia), dentro de um lote de 329 vagas sob a FGV; remuneração inicial de R$ 13.786,36 e taxa de inscrição de R$ 220,00. Falta a assinatura do contrato e a divulgação do cronograma com as datas de inscrição e prova.",
   },
   {
     uf: "DF",
     estagio: "comissao",
-    titulo:
-      "PC-DF: comissão formada — projeto básico para contratação da banca em elaboração",
+    titulo: "PC-DF: quatro bancas com proposta entregue — prazo do 1º trimestre venceu",
     resumo:
-      "Concurso autorizado e previsto na Lei Orçamentária de 2026; expectativa de edital no primeiro trimestre. 75 vagas autorizadas para Médico Legista (25 imediatas + 50 cadastro de reserva), com expectativa de nomeações chegando a 134 até 2027. Remuneração inicial de R$ 27.831,70 (Terceira Classe), chegando a R$ 41.350,00 no topo da carreira. Último concurso: 2014 (Fundação Universa).",
+      "Concurso autorizado e previsto na Lei Orçamentária de 2026, mas a expectativa de edital no primeiro trimestre não se cumpriu. O Plano de Contratações 2026 reserva R$ 500 mil para contratar a instituição responsável pelas carreiras de Perito Criminal, Médico Legista e Papiloscopista, e o prazo de propostas atraiu Instituto Access, Instituto Verbena, FGV e IDCAP. 75 vagas para Médico Legista (25 imediatas + 50 cadastro de reserva), remuneração inicial de R$ 26.690,15. Ainda sem data confirmada de publicação. Último concurso: 2014 (Fundação Universa).",
   },
   {
     uf: "TO",
     estagio: "comissao",
-    titulo: "PC-TO: comissão formada — edital confirmado para 2026",
+    titulo: "PC-TO: cronograma oficial prevê edital no fim de agosto e provas em novembro/2026",
     resumo:
-      "O prazo estipulado pelo MPTO (outubro/2025) expirou sem cumprimento, mas em 22/01/2026 o secretário de Segurança Pública, Wlademir Mota, reafirmou publicamente que o edital está previsto no orçamento e será lançado este ano. O governo trabalha com 452 vagas no total (381 imediatas + 71 CR), entre Delegado, Investigador/Escrivão, Papiloscopista, Agente de Necrotomia e Peritos (incluindo Médico-Legista). Subsídio inicial do Perito Oficial: R$ 16.348,75; final de carreira pode ultrapassar R$ 28.000,00.",
+      "A Justiça deu 100 dias para a publicação do edital da área pericial. O secretário de Segurança Pública, Luciano Cruz, divulgou cronograma com definição da banca no início de julho, contratação em meados de agosto, publicação do edital no fim de agosto e provas objetivas em novembro/2026. Enviaram proposta: Instituto Access, FGV, Instituto Verbena e IDCAP (o último certame foi da Fundação Aroeira). 12 vagas para Médico Legista (9 imediatas + 3 cadastro de reserva), dentro de 452 vagas totais. Subsídio inicial do Perito Oficial: R$ 15.763,91.",
   },
   {
     uf: "PA",
     estagio: "comissao",
-    titulo: "PC-PA: comissão formada desde março/2024 — banca em fase de definição",
+    titulo: "PC-PA: comissão formada — banca em definição; prazo do 1º semestre venceu",
     resumo:
-      "Comissão organizadora formada desde março/2024 e processo de escolha da banca em andamento. Expectativa de publicação do edital no primeiro semestre de 2026, visando reforçar a segurança pública. 72 vagas previstas para Médico Perito Legista, distribuídas entre Belém, Altamira, Santarém e outras coordenadorias. Remuneração inicial de ~R$ 12.954,40 (vencimento base + gratificação de risco de vida e escolaridade). Último concurso: 2018 (Fadesp).",
+      "Comissão organizadora formada desde março/2024 e processo de escolha da banca ainda em andamento; a expectativa de edital no primeiro semestre de 2026 não se cumpriu. O próximo edital deve ofertar 174 vagas de Perito Criminal e 72 de Perito Médico Legista, distribuídas entre Belém, Altamira, Santarém e outras coordenadorias. Remuneração por níveis, de R$ 12.214,37 (Nível I) a R$ 14.846,64 (Nível V). Último concurso: 2018 (Fadesp).",
   },
   {
     uf: "PE",
-    estagio: "estudo",
-    titulo:
-      "PC-PE: novo edital em estudo — anúncio da governadora Raquel Lyra (dez/2025)",
+    estagio: "autorizado",
+    titulo: "Politec-PE: novo concurso autorizado, banca em definição — prazo de junho venceu",
     resumo:
-      "Em dezembro/2025 a governadora Raquel Lyra anunciou a necessidade do novo concurso; a previsão oficial, reforçada pelo secretário de Defesa Social, Alessandro Carvalho, é de publicação do edital até junho/2026. Quantitativo em definição — referência: o concurso de 2024 ofertou 60 vagas para Médico Legista (Instituto AOCP, ainda em finalização/homologação). Remuneração inicial de ~R$ 10.622,86 (vencimento base + gratificação de risco de função policial).",
+      "Novo concurso autorizado pelo Governo de Pernambuco, com banca ainda em definição; a previsão oficial de edital até junho/2026, reforçada pelo secretário de Defesa Social Alessandro Carvalho, não se cumpriu. Quantitativo em definição — referência: o concurso de 2024 ofertou 60 vagas para Médico Legista (Instituto AOCP) e segue em andamento, o que tende a empurrar o novo edital. Remuneração inicial de ~R$ 10.622,86 (vencimento base + gratificação de risco de função policial).",
   },
   {
     uf: "ES",
     estagio: "comissao",
-    titulo:
-      "PCI-ES: concurso confirmado na LOA 2026 — trâmites de contratação da banca",
+    titulo: "PCI-ES: trâmites iniciados em junho/2026 — banca ainda não escolhida",
     resumo:
-      "Concurso confirmado para 2026: em 06/01/2026 o governador Renato Casagrande sancionou o novo Estatuto da Polícia Científica, consolidando a autonomia do órgão. O edital consta na LOA 2026 e a expectativa é de publicação no primeiro semestre, logo após os trâmites de contratação da banca. Com a nova lei (LC 1.137/2026), a remuneração inicial do Perito Oficial Médico Legista ficou em R$ 10.159,77. Último concurso (2018): 15 vagas para Médico Legista; banca anterior: Instituto AOCP.",
+      "Em 06/01/2026 o governador Renato Casagrande sancionou o novo Estatuto da Polícia Científica (LC 1.137/2026), consolidando a autonomia do órgão e fixando um quadro de 892 cargos — 120 deles de Perito Médico Legista. Os trâmites do certame foram iniciados em junho/2026, mas a banca ainda não foi escolhida e a expectativa de edital no primeiro semestre não se cumpriu. Remuneração inicial na faixa de R$ 9.769,00 a R$ 10.159,77 conforme a nova lei. Último concurso (2018): 15 vagas para Médico Legista, pelo Instituto AOCP.",
   },
   {
     uf: "MT",
     estagio: "solicitado",
-    titulo:
-      "Politec-MT: previsto na LOA 2026 — comissão e banca esperadas para o 1º semestre",
+    titulo: "Politec-MT: validade do certame anterior expirou em 30/06/2026 — destrava o novo edital",
     resumo:
-      "A Politec MT está contemplada na LOA 2026, que garante reserva de recursos para novas contratações. Detalhe estratégico: o último certame teve a validade prorrogada e segue vigente até 30/06/2026 — a expectativa é que comissão e escolha da banca ocorram no primeiro semestre, com edital a partir do segundo semestre. Salário inicial do Perito Oficial Médico Legista entre R$ 17.358,00 e R$ 18.295,00 (44h semanais), chegando a ~R$ 43.000,00 no topo — uma das remunerações periciais mais fortes do Brasil. Último concurso (2022, UFMT): apenas cadastro de reserva para medicina legal.",
+      "A Politec-MT está contemplada na LOA 2026 e o PLDO 2026, com parecer favorável da CCJR da Assembleia, prevê concurso para Perito Oficial Criminal e Perito Médico Legista. O travamento principal caiu: a validade prorrogada do certame anterior venceu em 30/06/2026. Banca ainda a definir (a última foi a UFMT). Salário inicial do Perito Médico Legista entre R$ 17.358,00 e R$ 18.295,00 (44h semanais), chegando a ~R$ 43.000,00 no topo — uma das remunerações periciais mais fortes do Brasil. Último concurso (2022, UFMT): apenas cadastro de reserva para medicina legal.",
   },
   {
     uf: "AC",

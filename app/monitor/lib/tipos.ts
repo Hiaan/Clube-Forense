@@ -40,6 +40,12 @@ export interface Mencao {
   /** Sigla do estado a que a menção foi associada. */
   uf: string;
   resumo: string;
+  /**
+   * True quando a menção anuncia o fim de um certame (resultado final,
+   * homologação, nomeação, posse). Fecha o ciclo: menções anteriores a ela
+   * pertencem a um concurso já encerrado e não contam para o estágio atual.
+   */
+  conclusiva?: boolean;
 }
 
 /** Histórico do último concurso com o cargo no estado (fonte: QConcursos). */

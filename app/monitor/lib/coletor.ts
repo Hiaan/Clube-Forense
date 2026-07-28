@@ -14,7 +14,7 @@
 //     carreira (polícia científica, perícia oficial etc.).
 
 import { mencoesCuradoria } from "./baseline";
-import { avaliarMencao, classificarNivel } from "./cargos";
+import { avaliarMencao, classificarNivel, mencaoConclusiva } from "./cargos";
 import { ESTADOS, ESTADO_POR_UF, normalizar } from "./estados";
 import { montarConsultas } from "./fontes";
 import { HISTORICO_CONCURSOS } from "./historico";
@@ -177,6 +177,7 @@ export async function coletar(): Promise<Relatorio> {
         data: item.data,
         nivel: classificarNivel(texto, avaliacao.cargoDireto),
         resumo: item.resumo,
+        conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
       });
     }
   }
@@ -196,6 +197,7 @@ export async function coletar(): Promise<Relatorio> {
       data: post.data,
       nivel: classificarNivel(texto, avaliacao.cargoDireto),
       resumo: post.resumo,
+      conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
     });
   }
 
@@ -208,9 +210,20 @@ export async function coletar(): Promise<Relatorio> {
       (a, b) => (b.data ? Date.parse(b.data) : 0) - (a.data ? Date.parse(a.data) : 0),
     );
 
+    // Fecho de ciclo: a menção conclusiva mais recente (resultado final,
+    // homologação, posse) encerra o certame a que ela pertence. Tudo que é
+    // ANTERIOR a ela descreve um concurso acabado e não pode mais definir o
+    // estágio — senão um estado que já publicou edital, aplicou prova e
+    // homologou continua marcado como "Edital publicado" pelos 2 anos da
+    // janela. Menções posteriores começam o ciclo seguinte e contam normalmente.
+    const fechamento = mencoes.find((m) => m.conclusiva && m.data)?.data ?? null;
+    const limite = fechamento ? Date.parse(fechamento) : null;
+
     let nivel: Nivel = "sem";
     let score = 0;
     for (const m of mencoes) {
+      // Sem data não dá para ordenar em relação ao fechamento: mantemos.
+      if (limite !== null && m.data && Date.parse(m.data) < limite) continue;
       nivel = nivelMaisAvancado(nivel, m.nivel);
       score = Math.max(score, NIVEL_PESO[m.nivel] * fatorRecencia(m.data));
     }

@@ -6,7 +6,7 @@
 // segurança — preferimos "—" a dado impreciso. Atualize quando novos editais
 // saírem (e ajuste VERIFICADO_EM).
 
-export const HISTORICO_VERIFICADO_EM = "2026-07-01";
+export const HISTORICO_VERIFICADO_EM = "2026-07-26";
 
 export interface HistoricoConcurso {
   /** Quando saiu o último edital com o cargo (texto de exibição). */
@@ -75,10 +75,10 @@ export const HISTORICO_CONCURSOS: Record<string, HistoricoConcurso> = {
     obs: "Polícia Científica GO (SPTC) — 111 vagas de médico legista + 6 de odontolegista.",
   },
   MA: {
-    ultimoEdital: "2017",
+    ultimoEdital: "jul/2026",
     ultimaProva: "2018",
     banca: "Cebraspe",
-    obs: "PC-MA — 415 vagas no total, incluindo médico legista.",
+    obs: "Edital de 2026 publicado (Perícia Oficial de Natureza Criminal): 25 vagas de Médico Legista, inscrições de 31/07 a 05/10/2026 e prova marcada para 10/01/2027 — por isso a última prova aplicada segue sendo a de 2018 (edital de 2017, 415 vagas).",
   },
   MT: {
     ultimoEdital: "2022",
@@ -162,7 +162,7 @@ export const HISTORICO_CONCURSOS: Record<string, HistoricoConcurso> = {
     ultimoEdital: "19/12/2025",
     ultimaProva: "22/02/2026",
     banca: "FEPESE",
-    obs: "Polícia Científica SC — 60 vagas de perito oficial criminal (cargo unificado que inclui medicina legal).",
+    obs: "Polícia Científica SC — 60 vagas de perito oficial criminal (cargo unificado), das quais 30 imediatas em medicina legal e medicina legal/psiquiatria. Ciclo encerrado: prova aplicada em 22/02/2026.",
   },
   SP: {
     ultimoEdital: "set/2023",
@@ -179,7 +179,7 @@ export const HISTORICO_CONCURSOS: Record<string, HistoricoConcurso> = {
   TO: {
     ultimoEdital: "2014",
     ultimaProva: "2014",
-    banca: null,
+    banca: "Fundação Aroeira",
     obs: "PC-TO — 12 vagas de médico legista (9 imediatas + 3 CR) no último certame.",
   },
 };

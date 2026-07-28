@@ -17,6 +17,7 @@
 //      são notícias do passado ou de vínculo precário, não funil de edital.
 
 import {
+  CARGO_DE_APOIO,
   normalizarCargo,
   SINAL_MEDICINA,
   TERMOS_CARGO_DIRETO,
@@ -129,8 +130,14 @@ export function avaliarMencao(texto: string): AvaliacaoMencao {
     return FORA; // evento esportivo/social do órgão
   }
 
+  // Apaga os nomes de cargos de APOIO antes de procurar o cargo-alvo: sem isso
+  // "auxiliar de perícia médico-legal" casa com o termo "medico legal" e um
+  // concurso só de apoio (caso da Polícia Científica SP/2026) entraria como se
+  // fosse de legista.
+  const alvo = t.replace(CARGO_DE_APOIO, " ");
+
   // 1) Cargo nomeado diretamente, em qualquer nomenclatura estadual.
-  if (TERMOS_CARGO_DIRETO.some((termo) => t.includes(termo)) || IML_REGEX.test(t)) {
+  if (TERMOS_CARGO_DIRETO.some((termo) => alvo.includes(termo)) || IML_REGEX.test(alvo)) {
     return { manter: true, cargoDireto: true, tipo: "direto" };
   }
 
@@ -144,7 +151,7 @@ export function avaliarMencao(texto: string): AvaliacaoMencao {
   // 2) Guarda-chuva COM sinal de medicina: no PR, SC, MS, MT e na PF o legista
   //    entra exatamente assim ("Perito Oficial Criminal — área Medicina"), então
   //    aqui a menção pode definir estágio.
-  if (unificado && SINAL_MEDICINA.test(t)) {
+  if (unificado && SINAL_MEDICINA.test(alvo)) {
     return { manter: true, cargoDireto: true, tipo: "unificado" };
   }
 
@@ -211,6 +218,16 @@ const PADROES: { nivel: Exclude<Nivel, "sem" | "noticia">; regex: RegExp }[] = [
       /em estudo|estuda|estudos? de viabilidade|deve (sair|ter|abrir|haver|ser publicad)|pode (ter|sair|haver)|planeja|expectativa|anunciou (a )?(necessidade|intencao|realizacao)|em tramitac|projeto de lei|previst[oa]/,
   },
 ];
+
+/**
+ * True quando a menção anuncia o FECHAMENTO de um certame (resultado final,
+ * homologação, nomeação, posse). O consolidador usa isso para encerrar o ciclo:
+ * sem esse sinal, o estado ficava exibindo "Edital publicado" durante os 2 anos
+ * da janela mesmo com o concurso já concluído.
+ */
+export function mencaoConclusiva(texto: string): boolean {
+  return SINAIS_CONCLUIDO.test(normalizarCargo(texto));
+}
 
 /**
  * Classifica o estágio do funil de uma menção.

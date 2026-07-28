@@ -104,12 +104,14 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
   },
   CE: {
     uf: "CE",
-    oficial: "Perito Médico-Legista",
+    oficial: "Médico Legista",
     orgao: "Perícia Forense do Ceará (Pefoce)",
     referencia: "Idecan, 2021",
     tipo: "direto",
-    variantes: ["perito medico legista", "medico perito legista", "medico legista"],
-    confianca: "media",
+    // O edital do CE sai como "médico legista / Pefoce"; "médico perito-legista"
+    // é paráfrase de imprensa, não o nome do cargo.
+    variantes: ["medico legista", "medico legista pefoce", "medico perito legista"],
+    confianca: "alta",
   },
   DF: {
     uf: "DF",
@@ -126,8 +128,12 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
     orgao: "Polícia Científica do Espírito Santo (PCI-ES)",
     referencia: "Instituto AOCP, 2018",
     tipo: "direto",
-    variantes: ["medico legista", "perito medico legista"],
-    confianca: "media",
+    // O certame de 2018 trouxe "Médico Legista" (e, à parte, "Auxiliar de
+    // Perícia Médico-Legal", que é cargo de apoio e NÃO entra aqui). O Estatuto
+    // de 2026 (LC 1.137) renomeia a carreira para "Perito Oficial Médico
+    // Legista".
+    variantes: ["medico legista", "perito medico legista", "perito oficial medico legista"],
+    confianca: "alta",
   },
   GO: {
     uf: "GO",
@@ -141,20 +147,25 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
   MA: {
     uf: "MA",
     oficial: "Médico Legista",
-    orgao: "Polícia Civil do Maranhão (PC-MA)",
-    referencia: "Cebraspe, 2017",
+    orgao: "Perícia Oficial de Natureza Criminal (SEAD/SSP-MA)",
+    referencia: "Cebraspe, 2026",
     tipo: "direto",
+    // Edital de 2026: cargo "Médico Legista", com especialidades (clínica,
+    // psiquiatria, radiologia).
     variantes: ["medico legista", "perito medico legista"],
-    confianca: "media",
+    confianca: "alta",
   },
   MT: {
     uf: "MT",
-    oficial: "Perito Oficial Criminal — área Medicina Legal",
+    oficial: "Perito Médico-Legista",
     orgao: "Politec-MT",
     referencia: "UFMT, 2022",
-    tipo: "unificado",
-    variantes: ["perito oficial criminal", "perito medico legista", "medico legista"],
-    confianca: "media",
+    // Cargo PRÓPRIO, não unificado: o edital de 2022 trouxe "Perito Oficial
+    // Criminal", "Perito Médico-Legista" e "Perito Odonto-Legista" como cargos
+    // separados, e o PLDO 2026 repete os dois primeiros.
+    tipo: "direto",
+    variantes: ["perito medico legista", "medico legista", "perito odonto legista"],
+    confianca: "alta",
   },
   MS: {
     uf: "MS",
@@ -213,12 +224,15 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
   },
   PE: {
     uf: "PE",
-    oficial: "Perito Médico-Legista",
+    oficial: "Médico Legista",
     orgao: "Politec-PE (SDS-PE)",
     referencia: "Instituto AOCP, 2024",
     tipo: "direto",
-    variantes: ["perito medico legista", "medico legista"],
-    confianca: "media",
+    // Edital de 2024: "Agente de Medicina Legal", "Médico Legista" e "Perito
+    // Criminal" — o cargo-alvo é "Médico Legista", sem o prefixo "Perito"; o
+    // agente é cargo de apoio e fica fora.
+    variantes: ["medico legista", "perito medico legista"],
+    confianca: "alta",
   },
   PI: {
     uf: "PI",
@@ -313,10 +327,13 @@ export const NOMES_CARGO_POR_UF: Record<string, NomeCargoUF> = {
     uf: "TO",
     oficial: "Médico Legista",
     orgao: "Polícia Civil do Tocantins (PC-TO)",
-    referencia: "2014",
+    referencia: "Fundação Aroeira, 2014",
     tipo: "direto",
+    // "Perito Oficial" é o nome da CARREIRA no TO (subsídio, enquadramento),
+    // não do cargo — não pode entrar como termo direto, senão "perito oficial
+    // criminal" de qualquer área casaria como médico-legista.
     variantes: ["medico legista", "perito medico legista"],
-    confianca: "media",
+    confianca: "alta",
   },
 };
 
@@ -404,6 +421,24 @@ export const TERMOS_CARGO_UNIFICADO: string[] = unir(
   CARGO_FEDERAL.variantes,
   VARIANTES_GENERICAS_UNIFICADAS,
 );
+
+/**
+ * Cargos de APOIO da perícia. O nome deles contém o nome do cargo-alvo como
+ * pedaço ("Auxiliar de Perícia Médico-**Legal**", "Agente de Medicina Legal"),
+ * então um `includes` ingênuo os promoveria a cargo-alvo.
+ *
+ * Caso real: o concurso da Polícia Científica SP de 2026 tem 397 vagas —
+ * Atendente de Necrotério, Auxiliar de Necropsia, Desenhista e Fotógrafo
+ * Técnico-Pericial — e NENHUMA de médico-legista. Precisa ficar fora.
+ *
+ * Tem flag `g` porque é usada apenas em `String.replace` (que reseta
+ * `lastIndex`); não use `.test()` com ela.
+ */
+// Cada alternativa precisa consumir TAMBÉM o qualificador do cargo de apoio:
+// apagar só "auxiliar de pericia" deixaria "medico legal" solto na frase, que
+// voltaria a casar como cargo-alvo.
+export const CARGO_DE_APOIO =
+  /\bauxiliar de pericia( medico leg(al|ista))?\b|\bauxiliar de necropsia\b|\bauxiliar de laboratorio\b|\bauxiliar de medicina legal\b|\bagente de medicina legal\b|\bagente de necrotomia\b|\batendente de necroterio( policial)?\b|\btecnico de necropsia\b|\bdesenhista tecnico pericial\b|\bfotografo tecnico pericial\b/g;
 
 /**
  * Sinal de que um cargo unificado se refere à medicina. Usa limite de palavra:
