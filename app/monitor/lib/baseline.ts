@@ -9,6 +9,7 @@
 //
 // Estágios (ver tipos.ts): estudo → solicitado → autorizado → comissao → banca → edital.
 
+import { lerPlanilha, planilhaConfigurada, type LinhaCuradoria } from "./planilha";
 import type { Mencao, Nivel } from "./tipos";
 
 /** Data da última verificação editorial destes dados. */
@@ -87,7 +88,7 @@ const CURADORIA: EntradaCuradoria[] = [
   },
 ];
 
-/** Converte a curadoria em menções prontas para o consolidador. */
+/** Converte a curadoria embutida em menções prontas para o consolidador. */
 export function mencoesCuradoria(): Mencao[] {
   return CURADORIA.map((c) => ({
     uf: c.uf,
@@ -98,4 +99,72 @@ export function mencoesCuradoria(): Mencao[] {
     nivel: c.estagio,
     resumo: c.resumo,
   }));
+}
+
+/** Converte as linhas da planilha no mesmo formato de menção. */
+function mencoesDaPlanilha(linhas: LinhaCuradoria[]): Mencao[] {
+  return linhas
+    .filter((l) => l.etapa !== "sem" || l.andamento)
+    .map((l) => ({
+      uf: l.uf,
+      titulo: l.andamento.split(/[.;]\s/)[0] || `${l.uf}: ${l.etapa}`,
+      link: l.fonteUrl,
+      fonte: "Curadoria Clube Forense (planilha)",
+      data: l.verificadoEm ?? new Date().toISOString(),
+      nivel: l.etapa,
+      resumo: l.andamento,
+    }));
+}
+
+/** De onde a curadoria veio nesta geração, e por quê. */
+export interface OrigemCuradoria {
+  fonte: "planilha" | "embutida";
+  /** Preenchido quando a planilha falhou e caímos no piso embutido. */
+  motivo?: string;
+  avisos: string[];
+}
+
+export interface CuradoriaResolvida {
+  mencoes: Mencao[];
+  /** UFs marcadas como travadas: notícia nenhuma altera o estágio delas. */
+  travadas: Set<string>;
+  /** Dados ricos por UF (vagas, salário, prazos), quando vieram da planilha. */
+  detalhes: Map<string, LinhaCuradoria>;
+  origem: OrigemCuradoria;
+}
+
+/**
+ * Resolve a curadoria: tenta a planilha e, em qualquer falha, usa o piso
+ * embutido. Nunca lança e nunca devolve vazio — o mapa não pode ficar órfão
+ * porque o Google teve um soluço.
+ */
+export async function obterCuradoria(): Promise<CuradoriaResolvida> {
+  const vazio = {
+    travadas: new Set<string>(),
+    detalhes: new Map<string, LinhaCuradoria>(),
+  };
+
+  if (!planilhaConfigurada()) {
+    return {
+      ...vazio,
+      mencoes: mencoesCuradoria(),
+      origem: { fonte: "embutida", motivo: "CURADORIA_CSV_URL não configurada", avisos: [] },
+    };
+  }
+
+  const r = await lerPlanilha();
+  if (!r.ok) {
+    return {
+      ...vazio,
+      mencoes: mencoesCuradoria(),
+      origem: { fonte: "embutida", motivo: r.motivo, avisos: [] },
+    };
+  }
+
+  return {
+    mencoes: mencoesDaPlanilha(r.linhas),
+    travadas: new Set(r.linhas.filter((l) => l.travado).map((l) => l.uf)),
+    detalhes: new Map(r.linhas.map((l) => [l.uf, l])),
+    origem: { fonte: "planilha", avisos: r.avisos },
+  };
 }

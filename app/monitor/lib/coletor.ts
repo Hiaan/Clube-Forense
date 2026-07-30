@@ -13,7 +13,7 @@
 //     direto ("legista", "medicina legal", IML) ou pelo guarda-chuva de
 //     carreira (polícia científica, perícia oficial etc.).
 
-import { mencoesCuradoria } from "./baseline";
+import { obterCuradoria } from "./baseline";
 import { avaliarMencao, classificarNivel, mencaoConclusiva } from "./cargos";
 import { ESTADOS, ESTADO_POR_UF, normalizar } from "./estados";
 import { montarConsultas } from "./fontes";
@@ -136,8 +136,9 @@ function nivelMaisAvancado(a: Nivel, b: Nivel): Nivel {
 
 /** Coleta e consolida o relatório completo. */
 export async function coletar(): Promise<Relatorio> {
-  // Google Notícias e Instagram (posts já raspados pelo Apify) em paralelo.
-  const [feeds, postsInstagram] = await Promise.all([
+  // Curadoria, Google Notícias e Instagram (posts já raspados) em paralelo.
+  const [curadoria, feeds, postsInstagram] = await Promise.all([
+    obterCuradoria(),
     Promise.all(montarConsultas().map(buscarFeed)),
     instagramConfigurado() ? lerPostsInstagram() : Promise.resolve([]),
   ]);
@@ -157,7 +158,7 @@ export async function coletar(): Promise<Relatorio> {
   // Curadoria Clube Forense: piso verificado por estado. Registrada primeiro
   // para prevalecer em caso de manchete idêntica; as notícias abaixo só
   // acrescentam ou elevam o estágio.
-  for (const m of mencoesCuradoria()) registrar(m);
+  for (const m of curadoria.mencoes) registrar(m);
 
   // Google Notícias.
   for (const xml of feeds) {
@@ -219,9 +220,17 @@ export async function coletar(): Promise<Relatorio> {
     const fechamento = mencoes.find((m) => m.conclusiva && m.data)?.data ?? null;
     const limite = fechamento ? Date.parse(fechamento) : null;
 
+    // Estado travado na planilha: a curadoria manda, ponto. Nenhuma notícia
+    // eleva o estágio. É a válvula para casos como o concurso da Polícia
+    // Científica SP/2026 — manchete de avanço, mas sem vaga de legista.
+    const travado = curadoria.travadas.has(estado.uf);
+    const detalhe = curadoria.detalhes.get(estado.uf);
+    const daCuradoria = mencoes.find((m) => m.fonte.startsWith("Curadoria"));
+
     let nivel: Nivel = "sem";
     let score = 0;
     for (const m of mencoes) {
+      if (travado && m !== daCuradoria) continue;
       // Sem data não dá para ordenar em relação ao fechamento: mantemos.
       if (limite !== null && m.data && Date.parse(m.data) < limite) continue;
       nivel = nivelMaisAvancado(nivel, m.nivel);
@@ -237,6 +246,21 @@ export async function coletar(): Promise<Relatorio> {
       mencoes: mencoes.slice(0, 8),
       diarioOficial: estado.diarioOficial,
       historico: HISTORICO_CONCURSOS[estado.uf] ?? null,
+      curadoria: detalhe
+        ? {
+            previsao: detalhe.previsao,
+            vagasImediatas: detalhe.vagasImediatas,
+            vagasCr: detalhe.vagasCr,
+            salarioInicial: detalhe.salarioInicial,
+            cargaHoraria: detalhe.cargaHoraria,
+            especialidades: detalhe.especialidades,
+            banca: detalhe.banca,
+            inscricoesAte: detalhe.inscricoesAte,
+            dataProva: detalhe.dataProva,
+            confianca: detalhe.confianca,
+            travado: detalhe.travado,
+          }
+        : null,
     };
   });
 
@@ -264,5 +288,6 @@ export async function coletar(): Promise<Relatorio> {
     resumo,
     totalMencoes,
     fonteIndisponivel: !algumaFonteRespondeu,
+    origemCuradoria: curadoria.origem,
   };
 }

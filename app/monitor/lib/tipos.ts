@@ -56,6 +56,34 @@ export interface HistoricoResumo {
   obs?: string;
 }
 
+/**
+ * Dados ricos vindos da planilha de curadoria. Definidos aqui (e não importados
+ * de planilha.ts) para não criar ciclo de import — planilha.ts já depende deste
+ * módulo.
+ */
+export interface DetalheCuradoria {
+  previsao: string | null;
+  vagasImediatas: number | null;
+  vagasCr: number | null;
+  salarioInicial: number | null;
+  cargaHoraria: number | null;
+  especialidades: string | null;
+  banca: string | null;
+  inscricoesAte: string | null;
+  dataProva: string | null;
+  confianca: "alta" | "media" | "baixa";
+  /** True quando a curadoria fixou o estágio e nenhuma notícia pode alterá-lo. */
+  travado: boolean;
+}
+
+/** De onde saiu a curadoria nesta geração. */
+export interface OrigemCuradoriaRelatorio {
+  fonte: "planilha" | "embutida";
+  /** Por que caímos no piso embutido, quando foi o caso. */
+  motivo?: string;
+  avisos: string[];
+}
+
 /** Situação consolidada de um estado. */
 export interface EstadoStatus {
   uf: string;
@@ -72,6 +100,8 @@ export interface EstadoStatus {
   diarioOficial: string;
   /** Último edital/prova/banca do cargo no estado, ou null se desconhecido. */
   historico: HistoricoResumo | null;
+  /** Detalhes da planilha de curadoria, quando ela foi lida com sucesso. */
+  curadoria: DetalheCuradoria | null;
 }
 
 /** Resultado completo de uma coleta. */
@@ -86,6 +116,8 @@ export interface Relatorio {
   totalMencoes: number;
   /** True quando nenhuma fonte externa pôde ser consultada (só curadoria). */
   fonteIndisponivel: boolean;
+  /** Se a curadoria veio da planilha ou do piso embutido, e por quê. */
+  origemCuradoria: OrigemCuradoriaRelatorio;
 }
 
 export const NIVEL_LABEL: Record<Nivel, string> = {
