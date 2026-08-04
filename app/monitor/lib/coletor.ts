@@ -20,6 +20,7 @@ import { montarConsultas } from "./fontes";
 import { HISTORICO_CONCURSOS } from "./historico";
 import { instagramConfigurado, lerPostsInstagram } from "./instagram";
 import { parseRSS } from "./rss";
+import { versaoAtual } from "./versao";
 import {
   type EstadoStatus,
   type Mencao,
@@ -289,5 +290,6 @@ export async function coletar(): Promise<Relatorio> {
     totalMencoes,
     fonteIndisponivel: !algumaFonteRespondeu,
     origemCuradoria: curadoria.origem,
+    versao: (({ commit, branch, ondeRoda }) => ({ commit, branch, ondeRoda }))(versaoAtual()),
   };
 }

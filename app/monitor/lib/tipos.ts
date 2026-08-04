@@ -118,6 +118,12 @@ export interface Relatorio {
   fonteIndisponivel: boolean;
   /** Se a curadoria veio da planilha ou do piso embutido, e por quê. */
   origemCuradoria: OrigemCuradoriaRelatorio;
+  /** Qual commit gerou esta resposta — para não precisar deduzir. */
+  versao: {
+    commit: string | null;
+    branch: string | null;
+    ondeRoda: string;
+  };
 }
 
 export const NIVEL_LABEL: Record<Nivel, string> = {
