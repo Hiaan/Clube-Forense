@@ -17,11 +17,14 @@ function mascaraCelular(bruto: string): string {
 
 export default function ModalCadastro({
   estado,
+  uf,
   onFechar,
   onSucesso,
 }: {
   /** Nome do estado que a pessoa tentou abrir — deixa a oferta concreta. */
   estado: string | null;
+  /** Sigla do mesmo estado, guardada junto com o lead como sinal de demanda. */
+  uf: string | null;
   onFechar: () => void;
   onSucesso: () => void;
 }) {
@@ -51,7 +54,7 @@ export default function ModalCadastro({
       const resp = await fetch("/api/cadastro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, celular, senha }),
+        body: JSON.stringify({ nome, email, celular, senha, uf }),
       });
       const dados = await resp.json();
       if (!resp.ok) {

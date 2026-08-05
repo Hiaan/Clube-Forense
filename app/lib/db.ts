@@ -80,6 +80,30 @@ alter table estados add constraint estados_etapa_valida
 alter table estados drop constraint if exists estados_confianca_valida;
 alter table estados add constraint estados_confianca_valida
   check (confianca in ('alta','media','baixa'));
+
+-- Quem se cadastrou pelo muro do mapa.
+--
+-- O cadastro em si vai para a plataforma de alunos, que é a fonte da verdade
+-- das contas. Isto aqui é a cópia do Clube: sem ela, não há como saber quantas
+-- pessoas o mapa converteu nem de quais estados elas vieram.
+--
+-- A chave é o e-mail, e não um id sequencial: a mesma pessoa voltando de outro
+-- navegador não deve virar dois leads. A coluna vezes registra o retorno, que
+-- por si só é sinal de interesse.
+create table if not exists leads (
+  email          text primary key,
+  nome           text not null,
+  celular        text,
+  -- Estado que a pessoa tentou abrir quando o cadastro apareceu. É o dado mais
+  -- valioso da tabela: mostra a demanda por UF antes de qualquer edital.
+  uf_interesse   text,
+  vezes          integer not null default 1,
+  criado_em      timestamptz not null default now(),
+  visto_em       timestamptz not null default now()
+);
+
+create index if not exists leads_criado_em_idx on leads (criado_em desc);
+create index if not exists leads_uf_idx on leads (uf_interesse);
 `;
 
 /** Cria as tabelas se ainda não existirem. Seguro de chamar várias vezes. */

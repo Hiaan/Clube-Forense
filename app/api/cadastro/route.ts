@@ -7,6 +7,7 @@
 // verdade — ele autoriza criar contas — então, diferente da URL da planilha,
 // não pode ser embutido no código.
 
+import { registrarLead } from "../../lib/leadsRepo";
 import { criarSessao } from "../../lib/sessao";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,8 @@ interface Corpo {
   email?: string;
   celular?: string;
   senha?: string;
+  /** Estado que a pessoa tentou abrir quando o cadastro apareceu. */
+  uf?: string;
 }
 
 /** Só os dígitos: a API espera o celular sem máscara. */
@@ -93,6 +96,20 @@ export async function POST(request: Request) {
       console.error(`external-register respondeu ${resp.status}: ${texto.slice(0, 300)}`);
       // 409 sinaliza ao front que provavelmente é e-mail repetido.
       return erro(mensagem, resp.status === 422 || resp.status === 409 ? 409 : 502);
+    }
+
+    // A conta já foi criada na plataforma. Guardar o lead aqui é secundário e
+    // não pode atrapalhar: `registrarLead` engole os próprios erros, então uma
+    // falha de banco custa o lead, nunca o cadastro.
+    const uf = String(corpo.uf ?? "").trim().toUpperCase();
+    const gravou = await registrarLead({
+      nome,
+      email,
+      celular,
+      ufInteresse: /^[A-Z]{2}$/.test(uf) ? uf : null,
+    });
+    if (!gravou) {
+      console.error(`Lead não registrado (cadastro seguiu normalmente): ${email}`);
     }
 
     const sessao = criarSessao();

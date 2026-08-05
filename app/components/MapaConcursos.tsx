@@ -387,6 +387,7 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
       {pedindoCadastro && (
         <ModalCadastro
           estado={porUf.get(pedindoCadastro)?.nome ?? null}
+          uf={pedindoCadastro}
           onFechar={() => setPedindoCadastro(null)}
           onSucesso={aposCadastro}
         />
