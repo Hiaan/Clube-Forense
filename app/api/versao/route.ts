@@ -11,7 +11,7 @@
 //   /api/versao?planilha=1   -> tudo acima + tenta ler a planilha de verdade e
 //                               relata o resultado, sem esperar revalidação
 
-import { lerPlanilha, planilhaConfigurada } from "../../monitor/lib/planilha";
+import { lerPlanilha, origemDaUrl } from "../../monitor/lib/planilha";
 import { versaoAtual } from "../../monitor/lib/versao";
 
 // Nunca em cache: uma resposta de diagnóstico velha é pior que nenhuma.
@@ -22,8 +22,8 @@ export async function GET(request: Request) {
 
   const corpo: Record<string, unknown> = {
     ...versaoAtual(),
-    // O valor da URL não é exposto — só se ela existe.
-    curadoriaConfigurada: planilhaConfigurada(),
+    // "variavel" = veio de CURADORIA_CSV_URL; "padrao" = a embutida no código.
+    urlDaPlanilha: origemDaUrl().origem,
   };
 
   if (querPlanilha) {

@@ -1,9 +1,9 @@
 // Leitura da curadoria a partir da planilha do Google (aba "Monitor").
 //
 // A planilha é publicada como CSV (Arquivo → Compartilhar → Publicar na web),
-// o que dispensa autenticação: é só um GET. A URL vai na variável de ambiente
-// CURADORIA_CSV_URL — nunca no código, porque ela muda se a planilha for
-// republicada.
+// o que dispensa autenticação: é só um GET. O endereço fica embutido logo
+// abaixo (ver CSV_PADRAO) e pode ser trocado sem mexer no código pela variável
+// CURADORIA_CSV_URL, que tem precedência.
 //
 // PRINCÍPIO: esta fonte pode falhar, e falhar é normal (cota, rede, alguém
 // despublicou). Toda falha é reportada com motivo e o chamador cai para o piso
@@ -118,9 +118,27 @@ function limpo(bruto: string | undefined): string {
 // Leitura
 // ---------------------------------------------------------------------------
 
-/** True se a planilha está configurada (só então vale a pena tentar). */
-export function planilhaConfigurada(): boolean {
-  return Boolean(process.env.CURADORIA_CSV_URL);
+/**
+ * Endereço da planilha publicada, embutido como padrão.
+ *
+ * Normalmente uma URL dessas viveria só em variável de ambiente. Aqui ela fica
+ * no código de propósito: a variável se perdeu três vezes entre dois projetos
+ * da Vercel, e cada perda derrubava a leitura da planilha em silêncio. Como a
+ * aba é publicada na web (Arquivo → Compartilhar → Publicar na web), este
+ * endereço já é público por natureza — não há segredo sendo exposto.
+ *
+ * CURADORIA_CSV_URL, quando definida, tem precedência. É o caminho para trocar
+ * de planilha sem mexer no código.
+ */
+const CSV_PADRAO =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgKBKFNphOKDb5oWOaV1x68XN5dxBK2MYfd8iD6OPt73PiFsAp4h4HTDW5wCILvDiLjisw_Y_mrjqc/pub?gid=98953382&single=true&output=csv";
+
+/** Endereço em uso e de onde ele veio, para o diagnóstico saber dizer. */
+export function origemDaUrl(): { url: string; origem: "variavel" | "padrao" } {
+  const daVariavel = process.env.CURADORIA_CSV_URL;
+  return daVariavel
+    ? { url: daVariavel, origem: "variavel" }
+    : { url: CSV_PADRAO, origem: "padrao" };
 }
 
 /**
@@ -214,8 +232,7 @@ export function interpretarCSV(texto: string): ResultadoPlanilha {
 
 /** Busca a planilha publicada e a interpreta. Nunca lança — devolve o motivo. */
 export async function lerPlanilha(): Promise<ResultadoPlanilha> {
-  const url = process.env.CURADORIA_CSV_URL;
-  if (!url) return { ok: false, motivo: "CURADORIA_CSV_URL não configurada" };
+  const { url } = origemDaUrl();
 
   const controlador = new AbortController();
   const timer = setTimeout(() => controlador.abort(), 10_000);

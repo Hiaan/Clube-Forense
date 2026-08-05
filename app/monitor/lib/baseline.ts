@@ -9,7 +9,7 @@
 //
 // Estágios (ver tipos.ts): estudo → solicitado → autorizado → comissao → banca → edital.
 
-import { lerPlanilha, planilhaConfigurada, type LinhaCuradoria } from "./planilha";
+import { lerPlanilha, type LinhaCuradoria } from "./planilha";
 import type { Mencao, Nivel } from "./tipos";
 
 /** Data da última verificação editorial destes dados. */
@@ -143,14 +143,6 @@ export async function obterCuradoria(): Promise<CuradoriaResolvida> {
     travadas: new Set<string>(),
     detalhes: new Map<string, LinhaCuradoria>(),
   };
-
-  if (!planilhaConfigurada()) {
-    return {
-      ...vazio,
-      mencoes: mencoesCuradoria(),
-      origem: { fonte: "embutida", motivo: "CURADORIA_CSV_URL não configurada", avisos: [] },
-    };
-  }
 
   const r = await lerPlanilha();
   if (!r.ok) {
