@@ -5,8 +5,9 @@ import "./globals.css";
 const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mentoria Aprova Legista | PC Maranhão — Clube Forense",
-  description: "A mentoria que mais aprova médicos-legistas no Brasil. Prepare-se para a Polícia Civil do Maranhão com professores aprovados, plataforma exclusiva e suporte pós-prova.",
+  title: "Monitor de Concursos — Médico-Legista | Clube Forense",
+  description:
+    "Radar dos concursos para perito médico-legista nos 27 estados: estágio do edital, curadoria verificada e notícias atualizadas.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
