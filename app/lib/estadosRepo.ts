@@ -106,11 +106,26 @@ function paraValores(e: EstadoCuradoria): unknown[] {
   ];
 }
 
-/** SQL do upsert. Fora da função para poder ser testado sem o driver. */
-export function sqlUpsert(): string {
+/** Campos da notícia principal — escolha editorial, não vêm de fonte externa. */
+const COLUNAS_NOTICIA = new Set([
+  "noticia_titulo", "noticia_resumo", "noticia_fonte", "noticia_link",
+]);
+
+/**
+ * SQL do upsert. Fora da função para poder ser testado sem o driver.
+ *
+ * `preservarNoticia` existe para a importação da planilha: ela reenvia todas as
+ * colunas, e sem essa proteção reimportar apagaria a notícia principal que foi
+ * escolhida no painel — a planilha não tem esses campos, então mandaria null.
+ * Numa linha nova eles entram normalmente (vazios); numa linha existente, ficam
+ * como estavam.
+ */
+export function sqlUpsert(preservarNoticia = false): string {
   const campos = COLUNAS.join(", ");
   const marcadores = COLUNAS.map((_, i) => `$${i + 1}`).join(", ");
-  const atualiza = COLUNAS.filter((c) => c !== "uf")
+  const atualiza = COLUNAS.filter(
+    (c) => c !== "uf" && !(preservarNoticia && COLUNAS_NOTICIA.has(c)),
+  )
     .map((c) => `${c} = excluded.${c}`)
     .join(", ");
   return `insert into estados (${campos}) values (${marcadores})
@@ -151,11 +166,14 @@ export async function salvarEstado(e: EstadoCuradoria): Promise<void> {
   await sql().query(sqlUpsert(), paraValores(e));
 }
 
-/** Grava vários de uma vez. Usado pela importação da planilha. */
+/**
+ * Grava vários de uma vez. Usado pela importação da planilha, por isso preserva
+ * a notícia principal já escolhida em cada estado.
+ */
 export async function salvarVarios(estados: EstadoCuradoria[]): Promise<number> {
   await garantirEsquema();
   const s = sql();
-  const comando = sqlUpsert();
+  const comando = sqlUpsert(true);
   let gravados = 0;
   for (const e of estados) {
     await s.query(comando, paraValores(e));

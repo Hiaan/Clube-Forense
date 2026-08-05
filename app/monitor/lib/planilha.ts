@@ -44,6 +44,9 @@ export interface LinhaCuradoria {
   banca: string | null;
   inscricoesAte: string | null;
   dataProva: string | null;
+  ultimoEdital: string | null;
+  ultimaProva: string | null;
+  bancaAnterior: string | null;
   validadeCertameAnterior: string | null;
   confianca: "alta" | "media" | "baixa";
   fonteUrl: string;
@@ -214,6 +217,9 @@ export function interpretarCSV(texto: string): ResultadoPlanilha {
       banca: campo(linha, "banca") || null,
       inscricoesAte: paraISO(campo(linha, "inscricoes_ate")),
       dataProva: paraISO(campo(linha, "data_prova")),
+      ultimoEdital: paraISO(campo(linha, "ultimo_edital")),
+      ultimaProva: paraISO(campo(linha, "ultima_prova")),
+      bancaAnterior: campo(linha, "banca_anterior") || null,
       validadeCertameAnterior: paraISO(campo(linha, "validade_certame_anterior")),
       confianca,
       fonteUrl: campo(linha, "fonte_url"),
