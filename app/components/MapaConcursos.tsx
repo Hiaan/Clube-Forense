@@ -8,6 +8,7 @@
 import { useState } from "react";
 import Avatar from "./Avatar";
 import BancaLink from "./BancaLink";
+import ModalCadastro from "./ModalCadastro";
 import { APROVADOS } from "../monitor/lib/aprovados";
 import { NIVEL_COR, NIVEL_LABEL, type Nivel } from "../monitor/lib/tipos";
 import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
@@ -16,11 +17,8 @@ import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
 const ESTRELA_D =
   "M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.2L12 17.3 5.8 21l1.6-7.2L2 9.1l7.1-.6z";
 
-export interface EstadoMapa {
-  uf: string;
-  nome: string;
-  nivel: Nivel;
-  score: number;
+/** A parte do estado que fica atrás do cadastro. */
+export interface DetalheEstado {
   ultimaMencao: string | null;
   destaque: { titulo: string; resumo: string; fonte: string } | null;
   historico: {
@@ -28,6 +26,20 @@ export interface EstadoMapa {
     ultimaProva: string | null;
     banca: string | null;
   } | null;
+}
+
+export interface EstadoMapa {
+  uf: string;
+  nome: string;
+  nivel: Nivel;
+  score: number;
+  /**
+   * `null` significa "ainda não liberado". A página inicial só preenche isto
+   * para o estado em destaque; os demais chegam vazios e são buscados em
+   * /api/estado/<uf> depois do cadastro. É o que impede pular o muro lendo o
+   * código-fonte da página.
+   */
+  detalhe: DetalheEstado | null;
 }
 
 const LEGENDA: Nivel[] = [
@@ -59,9 +71,40 @@ function corDoNivel(nivel: Nivel): string {
 
 export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
   const porUf = new Map(estados.map((e) => [e.uf, e]));
-  // estados vêm ordenados por score desc — o primeiro é o mais quente.
-  const [ufSelecionada, setUfSelecionada] = useState<string>(estados[0]?.uf ?? "MA");
-  const sel = porUf.get(ufSelecionada);
+  // estados vêm ordenados por score desc — o primeiro é o mais quente, e é ele
+  // que abre selecionado, servindo de vitrine do que há atrás do cadastro.
+  const emDestaque = estados[0]?.uf ?? "MA";
+  const [ufSelecionada, setUfSelecionada] = useState<string>(emDestaque);
+
+  const [pedindoCadastro, setPedindoCadastro] = useState<string | null>(null);
+
+  const estadoBase = porUf.get(ufSelecionada);
+  const detalheAtual = estadoBase?.detalhe ?? null;
+  const sel = estadoBase && {
+    ...estadoBase,
+    ultimaMencao: detalheAtual?.ultimaMencao ?? null,
+    destaque: detalheAtual?.destaque ?? null,
+    historico: detalheAtual?.historico ?? null,
+  };
+
+  /**
+   * Quem já se cadastrou recebe os detalhes prontos do servidor; para os
+   * demais, só o estado em destaque vem preenchido. Então "detalhe vazio"
+   * significa "precisa cadastrar", e não há o que buscar no cliente.
+   */
+  function abrirEstado(uf: string) {
+    setUfSelecionada(uf);
+    if (!porUf.get(uf)?.detalhe) setPedindoCadastro(uf);
+  }
+
+  /**
+   * Depois do cadastro o cookie já está no navegador. Recarregar é mais simples
+   * e mais confiável que remontar o estado no cliente: o servidor devolve a
+   * página inteira já liberada, mapa e painel.
+   */
+  function aposCadastro() {
+    window.location.reload();
+  }
 
   return (
     <section className="bg-[#0b0b0d] py-12 sm:py-16" id="radar">
@@ -101,9 +144,9 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                     tabIndex={0}
                     role="button"
                     aria-label={`${e?.nome ?? uf} — ${NIVEL_LABEL[nivel]}`}
-                    onClick={() => setUfSelecionada(uf)}
+                    onClick={() => abrirEstado(uf)}
                     onKeyDown={(ev) => {
-                      if (ev.key === "Enter" || ev.key === " ") setUfSelecionada(uf);
+                      if (ev.key === "Enter" || ev.key === " ") abrirEstado(uf);
                     }}
                     className="cursor-pointer outline-none transition-[filter] hover:brightness-125 focus-visible:brightness-125"
                   >
@@ -290,7 +333,26 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                 </div>
               )}
 
-              {sel.destaque ? (
+              {!detalheAtual ? (
+                // Bloqueado. O texto diz o que há atrás, não só que está fechado.
+                <div className="mt-5 border-t border-white/10 pt-4">
+                  <p className="text-sm font-semibold text-white">
+                    Situação completa de {sel.nome} disponível após o cadastro
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-gray-400">
+                    Último edital, última prova, banca organizadora e a
+                    movimentação mais recente — como você está vendo no estado em
+                    destaque.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setPedindoCadastro(sel.uf)}
+                    className="mt-4 inline-flex items-center gap-1 rounded-full bg-[#ffcd07] px-4 py-2 text-xs font-bold text-gray-900 transition hover:brightness-95"
+                  >
+                    Liberar acesso gratuito →
+                  </button>
+                </div>
+              ) : sel.destaque ? (
                 <div className="mt-5 border-t border-white/10 pt-4">
                   <p className="text-sm font-semibold leading-snug text-white">
                     {sel.destaque.titulo}
@@ -309,16 +371,26 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                 </p>
               )}
 
-              <a
-                href="#painel"
-                className="mt-5 inline-flex items-center gap-1 rounded-full bg-[#ffcd07] px-4 py-2 text-xs font-bold text-gray-900 transition hover:brightness-95"
-              >
-                Ver todas as menções no painel ↓
-              </a>
+              {detalheAtual && (
+                <a
+                  href="#painel"
+                  className="mt-5 inline-flex items-center gap-1 rounded-full bg-[#ffcd07] px-4 py-2 text-xs font-bold text-gray-900 transition hover:brightness-95"
+                >
+                  Ver todas as menções no painel ↓
+                </a>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {pedindoCadastro && (
+        <ModalCadastro
+          estado={porUf.get(pedindoCadastro)?.nome ?? null}
+          onFechar={() => setPedindoCadastro(null)}
+          onSucesso={aposCadastro}
+        />
+      )}
     </section>
   );
 }

@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
+import { NOME_COOKIE, sessaoValida } from "./lib/sessao";
 import PainelMonitor from "./monitor/PainelMonitor";
 import { BANCAS_LISTA } from "./monitor/lib/bancas";
 import { coletar } from "./monitor/lib/coletor";
 import { NIVEL_COR, NIVEL_LABEL, type Nivel } from "./monitor/lib/tipos";
 
-// Regenera a cada hora (também é forçado pelo cron em /api/cron).
-export const revalidate = 3600;
+// A página varia conforme o visitante já se cadastrou ou não, então não pode
+// ser pré-renderizada uma vez só. As buscas externas dentro de `coletar` seguem
+// com cache próprio (1h para notícias, 5min para a planilha), então o custo por
+// visita continua baixo.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Monitor de Concursos — Médico-Legista | Clube Forense",
@@ -37,28 +43,40 @@ const ORDEM_RESUMO: Nivel[] = [
 ];
 
 export default async function MonitorPage() {
-  const relatorio = await coletar();
+  const [relatorio, jar] = await Promise.all([coletar(), cookies()]);
+  const liberado = sessaoValida(jar.get(NOME_COOKIE)?.value);
+
+  // O mapa (cores e estágios) é público — é ele que dá vontade de entrar. O
+  // detalhe de cada estado só viaja para quem já se cadastrou; para os demais,
+  // vai apenas o do estado em destaque, como vitrine. Fazer esse corte AQUI, no
+  // servidor, é o que impede pular o cadastro lendo o código-fonte.
+  const destaque = relatorio.estados[0]?.uf;
 
   const estadosMapa: EstadoMapa[] = relatorio.estados.map((e) => ({
     uf: e.uf,
     nome: e.nome,
     nivel: e.nivel,
     score: e.score,
-    ultimaMencao: e.ultimaMencao,
-    destaque: e.mencoes[0]
-      ? {
-          titulo: e.mencoes[0].titulo,
-          resumo: e.mencoes[0].resumo,
-          fonte: e.mencoes[0].fonte,
-        }
-      : null,
-    historico: e.historico
-      ? {
-          ultimoEdital: e.historico.ultimoEdital,
-          ultimaProva: e.historico.ultimaProva,
-          banca: e.historico.banca,
-        }
-      : null,
+    detalhe:
+      liberado || e.uf === destaque
+        ? {
+            ultimaMencao: e.ultimaMencao,
+            destaque: e.mencoes[0]
+              ? {
+                  titulo: e.mencoes[0].titulo,
+                  resumo: e.mencoes[0].resumo,
+                  fonte: e.mencoes[0].fonte,
+                }
+              : null,
+            historico: e.historico
+              ? {
+                  ultimoEdital: e.historico.ultimoEdital,
+                  ultimaProva: e.historico.ultimaProva,
+                  banca: e.historico.banca,
+                }
+              : null,
+          }
+        : null,
   }));
 
   return (
@@ -122,7 +140,28 @@ export default async function MonitorPage() {
           ))}
         </section>
 
-        <PainelMonitor relatorio={relatorio} />
+        {/* O painel é detalhe puro — todas as menções de todos os estados.
+            Deixá-lo aberto anularia o cadastro pedido no mapa logo acima. */}
+        {liberado ? (
+          <PainelMonitor relatorio={relatorio} />
+        ) : (
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center">
+            <p className="text-lg font-bold text-gray-900">
+              Painel completo dos 27 estados
+            </p>
+            <p className="mx-auto mt-2 max-w-md text-sm text-gray-600">
+              Todas as menções coletadas, com fonte e data, filtráveis por
+              estágio do edital — e o link do Diário Oficial de cada estado para
+              você conferir na fonte.
+            </p>
+            <a
+              href="#radar"
+              className="mt-5 inline-flex rounded-full bg-[#ffcd07] px-5 py-2.5 text-sm font-bold text-gray-900 transition hover:brightness-95"
+            >
+              Liberar acesso gratuito ↑
+            </a>
+          </div>
+        )}
 
         <section className="mt-12 border-t border-gray-100 pt-6">
           <h2 className="text-sm font-bold text-gray-700">Bancas oficiais</h2>
