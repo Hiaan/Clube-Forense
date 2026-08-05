@@ -1,0 +1,112 @@
+name: Publicar na Vercel
+
+# Publica o site a cada push no branch de produção.
+#
+# POR QUE ESTE ARQUIVO EXISTE
+# O projeto na Vercel não está conectado ao GitHub — os deploys vinham do CLI,
+# na mão, e por isso nenhum commit chegava ao site sozinho. Conectar esbarra num
+# detalhe de contas: a conta Vercel está atrelada a um login do GitHub diferente
+# do dono deste repositório. Este workflow contorna tudo isso — o GitHub Actions
+# alcança a Vercel normalmente e publica por conta própria.
+#
+# CONFIGURAÇÃO (uma vez só)
+# Em Settings → Secrets and variables → Actions → New repository secret:
+#
+#   VERCEL_TOKEN       vercel.com/account/tokens (crie um novo)
+#   VERCEL_ORG_ID      Vercel → Settings da conta → ID
+#   VERCEL_PROJECT_ID  projeto clube-forense → Settings → General → Project ID
+#
+# As variáveis do site (CURADORIA_CSV_URL etc.) NÃO entram aqui. O `vercel pull`
+# busca as que já estão cadastradas no projeto — este workflow nunca as vê.
+#
+# Se um dia o GitHub for conectado à Vercel pelo painel, apague este arquivo:
+# os dois publicando ao mesmo tempo geraria deploy duplicado a cada push.
+
+on:
+  push:
+    branches:
+      - claude/gracious-euler-7kzav0
+  # Permite publicar manualmente pelo botão "Run workflow", sem precisar de commit.
+  workflow_dispatch: {}
+
+# Se dois pushes acontecerem juntos, o mais novo cancela o anterior — evita
+# dois deploys correndo e um resultado imprevisível de qual vence.
+concurrency:
+  group: publicar-vercel
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      # Sem isto, um segredo faltando só apareceria como erro obscuro do CLI
+      # lá adiante. Aqui a mensagem diz exatamente o que cadastrar.
+      - name: Conferir os segredos
+        env:
+          TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          ORG: ${{ secrets.VERCEL_ORG_ID }}
+          PROJETO: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          faltando=""
+          [ -n "$TOKEN" ] || faltando="$faltando VERCEL_TOKEN"
+          [ -n "$ORG" ] || faltando="$faltando VERCEL_ORG_ID"
+          [ -n "$PROJETO" ] || faltando="$faltando VERCEL_PROJECT_ID"
+          if [ -n "$faltando" ]; then
+            echo "::error::Faltam estes segredos:$faltando — cadastre em Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          echo "Os três segredos estão presentes."
+
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Preparar o Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar o CLI da Vercel
+        run: npm install --global vercel@latest
+
+      # Traz a configuração do projeto e as variáveis de ambiente já cadastradas
+      # na Vercel — é assim que CURADORIA_CSV_URL entra no build.
+      - name: Buscar a configuração do projeto
+        run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Compilar
+        run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Publicar
+        id: publicar
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Publicado em: $url"
+
+      # Fecha o ciclo: em vez de você ir conferir na mão qual código subiu, o
+      # próprio workflow pergunta ao site e mostra a resposta no log.
+      - name: Conferir o que ficou no ar
+        run: |
+          url="${{ steps.publicar.outputs.url }}"
+          echo "Consultando $url/api/versao ..."
+          if resposta=$(curl -fsS --retry 5 --retry-delay 3 "$url/api/versao"); then
+            echo "$resposta"
+            echo "$resposta" | grep -q '"curadoriaConfigurada":true' \
+              && echo "Curadoria: lendo da planilha." \
+              || echo "::warning::CURADORIA_CSV_URL não está neste projeto — o site vai usar a curadoria embutida no código."
+          else
+            echo "::warning::Não consegui ler /api/versao. O deploy saiu, mas confira o site."
+          fi
+
+      - name: Resumo
+        run: |
+          echo "### Publicado" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: \`${GITHUB_SHA:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Endereço do deploy: ${{ steps.publicar.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Site: https://clube-forense-three.vercel.app" >> "$GITHUB_STEP_SUMMARY"
