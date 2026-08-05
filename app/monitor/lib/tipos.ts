@@ -78,7 +78,7 @@ export interface DetalheCuradoria {
 
 /** De onde saiu a curadoria nesta geração. */
 export interface OrigemCuradoriaRelatorio {
-  fonte: "planilha" | "embutida";
+  fonte: "banco" | "embutida";
   /** Por que caímos no piso embutido, quando foi o caso. */
   motivo?: string;
   avisos: string[];

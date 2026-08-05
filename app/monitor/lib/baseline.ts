@@ -9,7 +9,7 @@
 //
 // Estágios (ver tipos.ts): estudo → solicitado → autorizado → comissao → banca → edital.
 
-import { lerPlanilha, type LinhaCuradoria } from "./planilha";
+import { lerEstados, type EstadoCuradoria } from "../../lib/estadosRepo";
 import type { Mencao, Nivel } from "./tipos";
 
 /** Data da última verificação editorial destes dados. */
@@ -101,24 +101,33 @@ export function mencoesCuradoria(): Mencao[] {
   }));
 }
 
-/** Converte as linhas da planilha no mesmo formato de menção. */
-function mencoesDaPlanilha(linhas: LinhaCuradoria[]): Mencao[] {
+/**
+ * Converte as linhas do banco em menções para o consolidador.
+ *
+ * Quando o painel definiu uma notícia principal, ela vira o título e o resumo —
+ * é essa escolha editorial que aparece no topo do estado, e o link costuma
+ * apontar para o blog do Clube em vez do veículo original.
+ */
+function mencoesDoBanco(linhas: EstadoCuradoria[]): Mencao[] {
   return linhas
-    .filter((l) => l.etapa !== "sem" || l.andamento)
+    .filter((l) => l.etapa !== "sem" || l.andamento || l.noticiaTitulo)
     .map((l) => ({
       uf: l.uf,
-      titulo: l.andamento.split(/[.;]\s/)[0] || `${l.uf}: ${l.etapa}`,
-      link: l.fonteUrl,
-      fonte: "Curadoria Clube Forense (planilha)",
-      data: l.verificadoEm ?? new Date().toISOString(),
+      titulo:
+        l.noticiaTitulo?.trim() ||
+        l.andamento.split(/[.;]\s/)[0] ||
+        `${l.uf}: ${l.etapa}`,
+      link: l.noticiaLink?.trim() || l.fonteUrl || "",
+      fonte: l.noticiaFonte?.trim() || "Curadoria Clube Forense",
+      data: l.verificadoEm ?? l.atualizadoEm ?? new Date().toISOString(),
       nivel: l.etapa,
-      resumo: l.andamento,
+      resumo: l.noticiaResumo?.trim() || l.andamento,
     }));
 }
 
 /** De onde a curadoria veio nesta geração, e por quê. */
 export interface OrigemCuradoria {
-  fonte: "planilha" | "embutida";
+  fonte: "banco" | "embutida";
   /** Preenchido quando a planilha falhou e caímos no piso embutido. */
   motivo?: string;
   avisos: string[];
@@ -128,35 +137,45 @@ export interface CuradoriaResolvida {
   mencoes: Mencao[];
   /** UFs marcadas como travadas: notícia nenhuma altera o estágio delas. */
   travadas: Set<string>;
-  /** Dados ricos por UF (vagas, salário, prazos), quando vieram da planilha. */
-  detalhes: Map<string, LinhaCuradoria>;
+  /** Dados ricos por UF (vagas, salário, prazos), quando vieram do banco. */
+  detalhes: Map<string, EstadoCuradoria>;
   origem: OrigemCuradoria;
 }
 
 /**
- * Resolve a curadoria: tenta a planilha e, em qualquer falha, usa o piso
- * embutido. Nunca lança e nunca devolve vazio — o mapa não pode ficar órfão
- * porque o Google teve um soluço.
+ * Resolve a curadoria: tenta o banco e, em qualquer falha, usa o piso embutido.
+ * Nunca lança e nunca devolve vazio — o mapa não pode ficar órfão porque o
+ * banco teve um soluço ou porque a importação ainda não foi feita.
  */
 export async function obterCuradoria(): Promise<CuradoriaResolvida> {
   const vazio = {
     travadas: new Set<string>(),
-    detalhes: new Map<string, LinhaCuradoria>(),
+    detalhes: new Map<string, EstadoCuradoria>(),
   };
 
-  const r = await lerPlanilha();
-  if (!r.ok) {
+  const linhas = await lerEstados();
+
+  // Banco indisponível OU ainda vazio (antes da importação): o piso embutido
+  // segura o site. O motivo distingue os dois casos para o diagnóstico.
+  if (!linhas) {
     return {
       ...vazio,
       mencoes: mencoesCuradoria(),
-      origem: { fonte: "embutida", motivo: r.motivo, avisos: [] },
+      origem: { fonte: "embutida", motivo: "banco indisponível", avisos: [] },
+    };
+  }
+  if (linhas.length === 0) {
+    return {
+      ...vazio,
+      mencoes: mencoesCuradoria(),
+      origem: { fonte: "embutida", motivo: "banco vazio — importe no painel", avisos: [] },
     };
   }
 
   return {
-    mencoes: mencoesDaPlanilha(r.linhas),
-    travadas: new Set(r.linhas.filter((l) => l.travado).map((l) => l.uf)),
-    detalhes: new Map(r.linhas.map((l) => [l.uf, l])),
-    origem: { fonte: "planilha", avisos: r.avisos },
+    mencoes: mencoesDoBanco(linhas),
+    travadas: new Set(linhas.filter((l) => l.travado).map((l) => l.uf)),
+    detalhes: new Map(linhas.map((l) => [l.uf, l])),
+    origem: { fonte: "banco", avisos: [] },
   };
 }
