@@ -16,6 +16,7 @@ import {
   NOME_COOKIE_ADMIN,
   sessaoAdminValida,
 } from "../lib/admin";
+import { apagarAprovado, salvarAprovado } from "../lib/aprovadosRepo";
 import { salvarEstado, salvarVarios, type EstadoCuradoria } from "../lib/estadosRepo";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import type { Nivel } from "../monitor/lib/tipos";
@@ -139,6 +140,7 @@ export async function salvarEstadoAcao(
       noticiaResumo: texto(dados, "noticiaResumo"),
       noticiaFonte: texto(dados, "noticiaFonte"),
       noticiaLink: texto(dados, "noticiaLink"),
+      imagemUrl: texto(dados, "imagemUrl"),
       atualizadoEm: null,
     };
 
@@ -154,6 +156,78 @@ export async function salvarEstadoAcao(
     return { ok: true, mensagem: `${uf} salvo.` };
   } catch (e) {
     return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao salvar." };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Aprovados
+// ---------------------------------------------------------------------------
+
+export async function salvarAprovadoAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const uf = String(dados.get("uf") ?? "").trim().toUpperCase();
+    if (!/^[A-Z]{2}$/.test(uf)) return { ok: false, mensagem: "Escolha o estado." };
+
+    const nome = String(dados.get("nome") ?? "").trim();
+    if (!nome) return { ok: false, mensagem: "O nome é obrigatório." };
+
+    const idBruto = String(dados.get("id") ?? "").trim();
+
+    await salvarAprovado({
+      id: idBruto ? Number(idBruto) : undefined,
+      uf,
+      nome,
+      titulo: texto(dados, "titulo"),
+      orgao: texto(dados, "orgao"),
+      ano: numero(dados, "ano"),
+      fotoUrl: texto(dados, "fotoUrl"),
+      ordem: numero(dados, "ordem") ?? 0,
+    });
+
+    revalidatePath("/");
+    revalidatePath("/admin/aprovados");
+
+    return { ok: true, mensagem: `${nome} salvo.` };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao salvar." };
+  }
+}
+
+export async function apagarAprovadoAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const id = Number(String(dados.get("id") ?? ""));
+    if (!Number.isInteger(id) || id <= 0) return { ok: false, mensagem: "Registro inválido." };
+
+    const foto = await apagarAprovado(id);
+
+    // A imagem no Blob não some sozinha quando a linha some. Se falhar, o
+    // registro já foi apagado e o arquivo fica ocupando espaço — vale um log,
+    // não vale desfazer a exclusão que a pessoa pediu.
+    if (foto) {
+      try {
+        const { del } = await import("@vercel/blob");
+        await del(foto);
+      } catch (e) {
+        console.error("Aprovado apagado, mas a foto ficou no Blob:", e);
+      }
+    }
+
+    revalidatePath("/");
+    revalidatePath("/admin/aprovados");
+
+    return { ok: true, mensagem: "Aprovado removido." };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao remover." };
   }
 }
 
@@ -197,6 +271,7 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
       noticiaResumo: null,
       noticiaFonte: null,
       noticiaLink: null,
+      imagemUrl: null,
       atualizadoEm: null,
     }));
 

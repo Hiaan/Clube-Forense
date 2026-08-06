@@ -5,12 +5,13 @@
 // estágio do funil do edital, e o painel ao lado resume a situação (curadoria +
 // notícias do monitor).
 
+import Image from "next/image";
 import { useState } from "react";
 import Avatar from "./Avatar";
 import BancaLink from "./BancaLink";
 import ModalCadastro from "./ModalCadastro";
-import { APROVADOS } from "../monitor/lib/aprovados";
 import { NIVEL_COR, NIVEL_LABEL, NIVEL_TINTA, type Nivel } from "../monitor/lib/tipos";
+import type { AprovacaoSite } from "../lib/aprovadosSite";
 import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
 
 // Estrela (viewBox 24) usada como selo de "aprovados do Clube" no mapa.
@@ -33,6 +34,8 @@ export interface EstadoMapa {
   nome: string;
   nivel: Nivel;
   score: number;
+  /** Imagem do estado escolhida no painel; sem ela, mostramos a sigla. */
+  imagemUrl: string | null;
   /**
    * `null` significa "ainda não liberado". A página inicial só preenche isto
    * para o estado em destaque; os demais chegam vazios e são buscados em
@@ -69,7 +72,14 @@ function corDoNivel(nivel: Nivel): string {
   return nivel === "sem" ? "#25211d" : NIVEL_COR[nivel];
 }
 
-export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
+export default function MapaConcursos({
+  estados,
+  aprovados,
+}: {
+  estados: EstadoMapa[];
+  /** Vem do servidor: tabela do painel quando existe, lista do código como piso. */
+  aprovados: Record<string, AprovacaoSite>;
+}) {
   const porUf = new Map(estados.map((e) => [e.uf, e]));
   // estados vêm ordenados por score desc — o primeiro é o mais quente, e é ele
   // que abre selecionado, servindo de vitrine do que há atrás do cadastro.
@@ -195,7 +205,7 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
               })}
 
               {/* Selo de aprovados do Clube (estrela dourada acima da sigla) */}
-              {Object.keys(APROVADOS).map((uf) => {
+              {Object.keys(aprovados).map((uf) => {
                 const c = MAPA_CENTROIDES[uf];
                 if (!c) return null;
                 const [x, y] = c;
@@ -237,9 +247,19 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
             <div className="w-full min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#ffcd07] text-sm font-black text-gray-900">
-                    {sel.uf}
-                  </span>
+                  {sel.imagemUrl ? (
+                    <Image
+                      src={sel.imagemUrl}
+                      alt={sel.nome}
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 shrink-0 rounded-xl object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#ffcd07] text-sm font-black text-gray-900">
+                      {sel.uf}
+                    </span>
+                  )}
                   <div>
                     <h3 className="text-lg font-bold text-white">{sel.nome}</h3>
                     <p className="text-xs text-gray-400">
@@ -307,21 +327,21 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                 </div>
               )}
 
-              {APROVADOS[sel.uf] && (
+              {aprovados[sel.uf] && (
                 <div className="mt-4 rounded-xl border border-[#ffcd07]/30 bg-[#ffcd07]/10 p-4">
                   <p className="flex items-center gap-2 text-sm font-bold text-[#ffcd07]">
                     <span>🏆</span>
-                    {APROVADOS[sel.uf].orgao
-                      ? `Aprovados na ${APROVADOS[sel.uf].orgao}`
-                      : `${APROVADOS[sel.uf].total} aprovados do Clube Forense`}
+                    {aprovados[sel.uf].orgao
+                      ? `Aprovados na ${aprovados[sel.uf].orgao}`
+                      : `${aprovados[sel.uf].total} aprovados do Clube Forense`}
                   </p>
-                  {APROVADOS[sel.uf].orgao && (
+                  {aprovados[sel.uf].orgao && (
                     <p className="mt-1 text-[11px] text-gray-400">
                       Concurso nacional — não é do concurso do {sel.uf}.
                     </p>
                   )}
                   <div className="mt-2 flex flex-wrap gap-1.5">
-                    {APROVADOS[sel.uf].destaques.map((d) => (
+                    {aprovados[sel.uf].destaques.map((d) => (
                       <span
                         key={d}
                         className="rounded-full bg-[#ffcd07]/20 px-2 py-0.5 text-[11px] font-semibold text-[#ffcd07]"
@@ -331,9 +351,9 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                     ))}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
-                    {APROVADOS[sel.uf].nomes.map((n) => (
+                    {aprovados[sel.uf].nomes.map((n) => (
                       <span key={n} className="flex items-center gap-1.5">
-                        <Avatar nome={n} size={28} />
+                        <Avatar nome={n} size={28} fotoUrl={aprovados[sel.uf].fotos[n]} />
                         <span className="text-xs text-gray-300">{n}</span>
                       </span>
                     ))}

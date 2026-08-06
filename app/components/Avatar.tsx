@@ -56,17 +56,23 @@ function corDoNome(nome: string): string {
 export default function Avatar({
   nome,
   size = 28,
+  fotoUrl,
 }: {
   nome: string;
+  /** Foto cadastrada no painel. Quando existe, vence o arquivo em /public. */
+  fotoUrl?: string;
   size?: number;
 }) {
   const slug = slugDoNome(nome);
   const extensao = FOTOS_APROVADOS[slug];
+  // A foto do painel vence: é a que a pessoa acabou de subir, e não depende de
+  // reindexar arquivo nenhum.
+  const src = fotoUrl ?? (extensao ? `/aprovados/${slug}.${extensao}` : null);
   // `falhou` é rede de segurança: o índice diz que o arquivo existe, mas se ele
   // vier corrompido ou for removido sem reindexar, ainda caímos nas iniciais.
   const [falhou, setFalhou] = useState(false);
 
-  if (!extensao || falhou) {
+  if (!src || falhou) {
     return (
       <span
         className="inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white"
@@ -86,7 +92,7 @@ export default function Avatar({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={`/aprovados/${slug}.${extensao}`}
+      src={src}
       alt={nome}
       width={size}
       height={size}

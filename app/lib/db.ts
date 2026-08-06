@@ -124,6 +124,35 @@ create table if not exists leads (
 
   "create index if not exists leads_criado_em_idx on leads (criado_em desc);",
   "create index if not exists leads_uf_idx on leads (uf_interesse);",
+
+  // Imagem do estado, mostrada no lugar da sigla quando existe. Coluna nova numa
+  // tabela que já está em produção, por isso `if not exists`.
+  "alter table estados add column if not exists imagem_url text;",
+
+  // Alunos aprovados do Clube.
+  //
+  // Vira tabela porque agora tem foto e é editado no painel; a lista antiga
+  // ficava dentro do código, e trocar uma colocação exigia publicar o site.
+  // O código continua sendo o piso: se esta tabela estiver vazia, o site mostra
+  // a lista embutida, do mesmo jeito que faz com a curadoria.
+  `
+create table if not exists aprovados (
+  id          bigint generated always as identity primary key,
+  uf          text not null,
+  nome        text not null,
+  -- "1º Lugar do Clube Forense", quando houver.
+  titulo      text,
+  -- Órgão/concurso, para os casos em que o aprovado não é do concurso da UF —
+  -- é o que hoje distingue a Polícia Federal, hospedada no DF.
+  orgao       text,
+  ano         integer,
+  foto_url    text,
+  -- Menor primeiro: é a ordem em que aparecem no card do estado.
+  ordem       integer not null default 0,
+  criado_em   timestamptz not null default now()
+);
+`,
+  "create index if not exists aprovados_uf_idx on aprovados (uf, ordem, id);",
 ];
 
 /** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */

@@ -84,6 +84,8 @@ export interface DetalheCuradoria {
   confianca: "alta" | "media" | "baixa";
   /** True quando a curadoria fixou o estágio e nenhuma notícia pode alterá-lo. */
   travado: boolean;
+  /** Imagem do estado escolhida no painel, mostrada no lugar da sigla. */
+  imagemUrl: string | null;
 }
 
 /** De onde saiu a curadoria nesta geração. */

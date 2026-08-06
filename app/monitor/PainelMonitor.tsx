@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Avatar from "../components/Avatar";
+import type { AprovacaoSite } from "../lib/aprovadosSite";
 import BancaLink from "../components/BancaLink";
-import { APROVADOS } from "./lib/aprovados";
 import {
   type EstadoStatus,
   type Nivel,
@@ -63,7 +63,13 @@ function Pill({ nivel }: { nivel: Nivel }) {
   );
 }
 
-function CartaoEstado({ estado }: { estado: EstadoStatus }) {
+function CartaoEstado({
+  estado,
+  aprovados,
+}: {
+  estado: EstadoStatus;
+  aprovados: Record<string, AprovacaoSite>;
+}) {
   const [aberto, setAberto] = useState(false);
   const temInstagram = estado.mencoes.some((m) => ehInstagram(m.fonte));
   return (
@@ -125,26 +131,26 @@ function CartaoEstado({ estado }: { estado: EstadoStatus }) {
         </div>
       )}
 
-      {APROVADOS[estado.uf] && (
+      {aprovados[estado.uf] && (
         <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
           <p className="text-xs font-bold text-amber-700">
             🏆{" "}
-            {APROVADOS[estado.uf].orgao
-              ? `Aprovados na ${APROVADOS[estado.uf].orgao}`
-              : `${APROVADOS[estado.uf].total} aprovados do Clube Forense`}
+            {aprovados[estado.uf].orgao
+              ? `Aprovados na ${aprovados[estado.uf].orgao}`
+              : `${aprovados[estado.uf].total} aprovados do Clube Forense`}
           </p>
-          {APROVADOS[estado.uf].orgao && (
+          {aprovados[estado.uf].orgao && (
             <p className="text-[10px] text-amber-600/80">
               Concurso nacional, não do {estado.uf}
             </p>
           )}
           <p className="mt-1 text-[11px] font-semibold text-amber-600">
-            {APROVADOS[estado.uf].destaques.join(" · ")}
+            {aprovados[estado.uf].destaques.join(" · ")}
           </p>
           <div className="mt-2 flex flex-wrap gap-x-2.5 gap-y-1.5">
-            {APROVADOS[estado.uf].nomes.map((n) => (
+            {aprovados[estado.uf].nomes.map((n) => (
               <span key={n} className="flex items-center gap-1">
-                <Avatar nome={n} size={22} />
+                <Avatar nome={n} size={22} fotoUrl={aprovados[estado.uf].fotos[n]} />
                 <span className="text-[11px] text-gray-600">{n}</span>
               </span>
             ))}
@@ -197,7 +203,13 @@ function CartaoEstado({ estado }: { estado: EstadoStatus }) {
   );
 }
 
-export default function PainelMonitor({ relatorio }: { relatorio: Relatorio }) {
+export default function PainelMonitor({
+  relatorio,
+  aprovados,
+}: {
+  relatorio: Relatorio;
+  aprovados: Record<string, AprovacaoSite>;
+}) {
   const [filtro, setFiltro] = useState<Nivel | "todos">("todos");
   const [soInstagram, setSoInstagram] = useState(false);
   const [busca, setBusca] = useState("");
@@ -276,7 +288,7 @@ export default function PainelMonitor({ relatorio }: { relatorio: Relatorio }) {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {estadosVisiveis.map((e) => (
-            <CartaoEstado key={e.uf} estado={e} />
+            <CartaoEstado key={e.uf} estado={e} aprovados={aprovados} />
           ))}
         </div>
       )}

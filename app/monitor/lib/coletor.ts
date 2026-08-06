@@ -260,6 +260,7 @@ export async function coletar(): Promise<Relatorio> {
             dataProva: detalhe.dataProva,
             confianca: detalhe.confianca,
             travado: detalhe.travado,
+            imagemUrl: detalhe.imagemUrl,
           }
         : null,
     };

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
+import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { NOME_COOKIE, sessaoValida } from "./lib/sessao";
 import PainelMonitor from "./monitor/PainelMonitor";
 import { BANCAS_LISTA } from "./monitor/lib/bancas";
@@ -43,7 +44,11 @@ const ORDEM_RESUMO: Nivel[] = [
 ];
 
 export default async function MonitorPage() {
-  const [relatorio, jar] = await Promise.all([coletar(), cookies()]);
+  const [relatorio, jar, aprovados] = await Promise.all([
+    coletar(),
+    cookies(),
+    obterAprovadosSite(),
+  ]);
   const liberado = sessaoValida(jar.get(NOME_COOKIE)?.value);
 
   // O mapa (cores e estágios) é público — é ele que dá vontade de entrar. O
@@ -57,6 +62,7 @@ export default async function MonitorPage() {
     nome: e.nome,
     nivel: e.nivel,
     score: e.score,
+    imagemUrl: e.curadoria?.imagemUrl ?? null,
     detalhe:
       liberado || e.uf === destaque
         ? {
@@ -89,7 +95,7 @@ export default async function MonitorPage() {
           </p>
         </div>
       </header>
-      <MapaConcursos estados={estadosMapa} />
+      <MapaConcursos estados={estadosMapa} aprovados={aprovados} />
 
       {/* Painel detalhado */}
       <main id="painel" className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
@@ -145,7 +151,7 @@ export default async function MonitorPage() {
         {/* O painel é detalhe puro — todas as menções de todos os estados.
             Deixá-lo aberto anularia o cadastro pedido no mapa logo acima. */}
         {liberado ? (
-          <PainelMonitor relatorio={relatorio} />
+          <PainelMonitor relatorio={relatorio} aprovados={aprovados} />
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center">
             <p className="text-lg font-bold text-gray-900">

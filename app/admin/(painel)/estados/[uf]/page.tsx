@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import FormEstado, { type MencaoSugerida } from "./FormEstado";
+import { blobConfigurado } from "../../../../lib/blob";
 import { lerEstado } from "../../../../lib/estadosRepo";
 import { coletar } from "../../../../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../../../../monitor/lib/estados";
@@ -71,7 +72,13 @@ export default async function EditarEstado({
         </div>
       )}
 
-      <FormEstado uf={uf} nome={estado.nome} inicial={gravado} sugestoes={sugestoes} />
+      <FormEstado
+        uf={uf}
+        nome={estado.nome}
+        inicial={gravado}
+        sugestoes={sugestoes}
+        temBlob={blobConfigurado()}
+      />
     </div>
   );
 }

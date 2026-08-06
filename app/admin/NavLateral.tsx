@@ -12,6 +12,7 @@ import { sair } from "./acoes";
 const ITENS: { href: string; rotulo: string; icone: NomeIcone }[] = [
   { href: "/admin", rotulo: "Dashboard", icone: "painel" },
   { href: "/admin/estados", rotulo: "Estados", icone: "mapa" },
+  { href: "/admin/aprovados", rotulo: "Aprovados", icone: "estrela" },
   { href: "/admin/leads", rotulo: "Leads", icone: "pessoas" },
 ];
 

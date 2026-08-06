@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 
+import CampoFoto from "../../../graficos/CampoFoto";
 import { enviarSemLimpar } from "../../../enviarSemLimpar";
 import { salvarEstadoAcao, type Resultado } from "../../../acoes";
 import type { EstadoCuradoria } from "../../../../lib/estadosRepo";
@@ -53,11 +54,13 @@ export default function FormEstado({
   nome,
   inicial,
   sugestoes,
+  temBlob,
 }: {
   uf: string;
   nome: string;
   inicial: EstadoCuradoria | null;
   sugestoes: MencaoSugerida[];
+  temBlob: boolean;
 }) {
   const [resultado, acao, salvando] = useActionState<Resultado | null, FormData>(
     salvarEstadoAcao,
@@ -136,6 +139,19 @@ export default function FormEstado({
               defaultValue={v(inicial?.verificadoEm)}
             />
           </Campo>
+        </div>
+
+        <div className="mt-4">
+          {temBlob ? (
+            <CampoFoto
+              nome="imagemUrl"
+              pasta="estados"
+              valorInicial={inicial?.imagemUrl ?? null}
+              rotulo="Imagem do estado"
+            />
+          ) : (
+            <input type="hidden" name="imagemUrl" value={inicial?.imagemUrl ?? ""} />
+          )}
         </div>
 
         <label className="mt-4 flex items-start gap-3 rounded-xl bg-gray-50 p-3">

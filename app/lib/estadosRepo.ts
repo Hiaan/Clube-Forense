@@ -38,6 +38,8 @@ export interface EstadoCuradoria {
   noticiaResumo: string | null;
   noticiaFonte: string | null;
   noticiaLink: string | null;
+  /** Imagem do estado, mostrada no site no lugar da sigla. */
+  imagemUrl: string | null;
   atualizadoEm: string | null;
 }
 
@@ -79,6 +81,7 @@ function daLinha(l: Record<string, unknown>): EstadoCuradoria {
     noticiaResumo: texto(l.noticia_resumo),
     noticiaFonte: texto(l.noticia_fonte),
     noticiaLink: texto(l.noticia_link),
+    imagemUrl: texto(l.imagem_url),
     atualizadoEm: l.atualizado_em ? new Date(String(l.atualizado_em)).toISOString() : null,
   };
 }
@@ -91,6 +94,7 @@ const COLUNAS = [
   "banca_anterior", "validade_certame_anterior", "confianca", "fonte_url",
   "verificado_em", "travado", "observacao",
   "noticia_titulo", "noticia_resumo", "noticia_fonte", "noticia_link",
+  "imagem_url",
 ] as const;
 
 function paraValores(e: EstadoCuradoria): unknown[] {
@@ -103,12 +107,15 @@ function paraValores(e: EstadoCuradoria): unknown[] {
     e.bancaAnterior, d(e.validadeCertameAnterior), e.confianca, e.fonteUrl,
     d(e.verificadoEm), e.travado, e.observacao,
     e.noticiaTitulo, e.noticiaResumo, e.noticiaFonte, e.noticiaLink,
+    e.imagemUrl,
   ];
 }
 
 /** Campos da notícia principal — escolha editorial, não vêm de fonte externa. */
 const COLUNAS_NOTICIA = new Set([
   "noticia_titulo", "noticia_resumo", "noticia_fonte", "noticia_link",
+  // A imagem também é escolha feita aqui, e a planilha não a conhece.
+  "imagem_url",
 ]);
 
 /**
