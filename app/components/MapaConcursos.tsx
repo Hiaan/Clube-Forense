@@ -90,11 +90,22 @@ function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
         });
 
   return (
-    <details className="mt-4 rounded-xl border border-white/10 bg-white/[0.04]" open>
-      <summary className="cursor-pointer list-none px-4 py-3">
-        <span className="text-sm font-bold text-white">Plano de cargos e carreiras</span>
-        <span className="ml-2 text-[11px] text-gray-400">
+    // Fechado por padrão: a tabela inteira aberta enchia o card e empurrava a
+    // notícia e os aprovados para fora da tela. Quem quer o salário clica.
+    <details className="group mt-4 rounded-xl border border-white/10 bg-white/[0.04]">
+      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 transition hover:bg-white/[0.04]">
+        <span
+          aria-hidden
+          className="text-[10px] text-gray-500 transition-transform group-open:rotate-90"
+        >
+          ▶
+        </span>
+        <span className="text-sm font-bold text-white">Cargos e Carreiras</span>
+        <span className="text-[11px] text-gray-400">
           {[plano.orgao, plano.ano].filter(Boolean).join(" · ")}
+        </span>
+        <span className="ml-auto text-[11px] text-gray-500">
+          {plano.classes.length} classes
         </span>
       </summary>
 
