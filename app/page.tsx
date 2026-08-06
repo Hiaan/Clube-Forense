@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
+import { lerPlanos } from "./lib/planoRepo";
 import { NOME_COOKIE, sessaoValida } from "./lib/sessao";
 import PainelMonitor from "./monitor/PainelMonitor";
 import { BANCAS_LISTA } from "./monitor/lib/bancas";
@@ -44,10 +45,11 @@ const ORDEM_RESUMO: Nivel[] = [
 ];
 
 export default async function MonitorPage() {
-  const [relatorio, jar, aprovados] = await Promise.all([
+  const [relatorio, jar, aprovados, planos] = await Promise.all([
     coletar(),
     cookies(),
     obterAprovadosSite(),
+    lerPlanos(),
   ]);
   const liberado = sessaoValida(jar.get(NOME_COOKIE)?.value);
 
@@ -79,6 +81,14 @@ export default async function MonitorPage() {
                   ultimoEdital: e.historico.ultimoEdital,
                   ultimaProva: e.historico.ultimaProva,
                   banca: e.historico.banca,
+                }
+              : null,
+            plano: planos?.[e.uf]?.length
+              ? {
+                  orgao: e.curadoria?.planoOrgao ?? null,
+                  ano: e.curadoria?.planoAno ?? null,
+                  fonte: e.curadoria?.planoFonte ?? null,
+                  classes: planos[e.uf],
                 }
               : null,
           }

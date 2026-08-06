@@ -153,6 +153,30 @@ create table if not exists aprovados (
 );
 `,
   "create index if not exists aprovados_uf_idx on aprovados (uf, ordem, id);",
+
+  // Cabeçalho do plano de cargos e carreiras do estado: de quem é, de quando, e
+  // de onde saiu. As classes ficam na tabela abaixo.
+  "alter table estados add column if not exists plano_orgao text;",
+  "alter table estados add column if not exists plano_ano integer;",
+  "alter table estados add column if not exists plano_fonte text;",
+
+  // Uma linha por classe da carreira (7ª, 6ª, … 1ª, Especial).
+  //
+  // `subsidio` é numeric, e não float: dinheiro em ponto flutuante acumula
+  // erro de arredondamento, e aqui são valores que a pessoa compara com o
+  // contracheque.
+  `
+create table if not exists plano_classes (
+  id         bigint generated always as identity primary key,
+  uf         text not null,
+  classe     text not null,
+  subsidio   numeric(12,2),
+  -- Menor primeiro. A carreira começa na última classe e sobe até a especial,
+  -- então a ordem de exibição não sai do nome.
+  ordem      integer not null default 0
+);
+`,
+  "create index if not exists plano_classes_uf_idx on plano_classes (uf, ordem, id);",
 ];
 
 /** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */

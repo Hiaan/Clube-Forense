@@ -261,6 +261,9 @@ export async function coletar(): Promise<Relatorio> {
             confianca: detalhe.confianca,
             travado: detalhe.travado,
             imagemUrl: detalhe.imagemUrl,
+            planoOrgao: detalhe.planoOrgao,
+            planoAno: detalhe.planoAno,
+            planoFonte: detalhe.planoFonte,
           }
         : null,
     };

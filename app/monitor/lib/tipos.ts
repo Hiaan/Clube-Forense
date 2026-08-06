@@ -86,6 +86,10 @@ export interface DetalheCuradoria {
   travado: boolean;
   /** Imagem do estado escolhida no painel, mostrada no lugar da sigla. */
   imagemUrl: string | null;
+  /** Cabeçalho do plano de carreira; as classes vêm de plano_classes. */
+  planoOrgao: string | null;
+  planoAno: number | null;
+  planoFonte: string | null;
 }
 
 /** De onde saiu a curadoria nesta geração. */

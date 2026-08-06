@@ -6,9 +6,11 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import CampoFoto from "../../../graficos/CampoFoto";
+import EditorPlano from "./EditorPlano";
 import { enviarSemLimpar } from "../../../enviarSemLimpar";
 import { salvarEstadoAcao, type Resultado } from "../../../acoes";
 import type { EstadoCuradoria } from "../../../../lib/estadosRepo";
+import type { ClassePlano } from "../../../../lib/planoRepo";
 import { NIVEL_LABEL, type Nivel } from "../../../../monitor/lib/tipos";
 
 const ETAPAS: Nivel[] = [
@@ -55,12 +57,14 @@ export default function FormEstado({
   inicial,
   sugestoes,
   temBlob,
+  plano,
 }: {
   uf: string;
   nome: string;
   inicial: EstadoCuradoria | null;
   sugestoes: MencaoSugerida[];
   temBlob: boolean;
+  plano: ClassePlano[];
 }) {
   const [resultado, acao, salvando] = useActionState<Resultado | null, FormData>(
     salvarEstadoAcao,
@@ -291,6 +295,29 @@ export default function FormEstado({
             <input id="fonteUrl" name="fonteUrl" type="url" className={campo} defaultValue={v(inicial?.fonteUrl)} />
           </Campo>
         </div>
+      </section>
+
+      {/* ---------- Plano de carreira ---------- */}
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
+        <h2 className="mb-1 font-bold text-gray-900">Plano de cargos e carreiras</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          A tabela de classes e subsídios do estado. Aparece no site, no detalhe
+          deste estado.
+        </p>
+
+        <div className="mb-5 grid gap-4 sm:grid-cols-3">
+          <Campo nome="planoOrgao" label="Órgão" dica="Ex.: ITEP/RN">
+            <input id="planoOrgao" name="planoOrgao" className={campo} defaultValue={v(inicial?.planoOrgao)} />
+          </Campo>
+          <Campo nome="planoAno" label="Ano do plano">
+            <input id="planoAno" name="planoAno" type="number" className={campo} defaultValue={v(inicial?.planoAno)} />
+          </Campo>
+          <Campo nome="planoFonte" label="Fonte (link)">
+            <input id="planoFonte" name="planoFonte" type="url" className={campo} defaultValue={v(inicial?.planoFonte)} />
+          </Campo>
+        </div>
+
+        <EditorPlano inicial={plano} />
       </section>
 
       {/* ---------- Histórico ---------- */}

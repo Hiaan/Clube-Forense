@@ -19,6 +19,14 @@ const ESTRELA_D =
   "M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.2L12 17.3 5.8 21l1.6-7.2L2 9.1l7.1-.6z";
 
 /** A parte do estado que fica atrás do cadastro. */
+/** O plano de cargos e carreiras do estado, como sai no site. */
+export interface PlanoEstado {
+  orgao: string | null;
+  ano: number | null;
+  fonte: string | null;
+  classes: { classe: string; subsidio: number | null }[];
+}
+
 export interface DetalheEstado {
   ultimaMencao: string | null;
   destaque: { titulo: string; resumo: string; fonte: string } | null;
@@ -27,6 +35,8 @@ export interface DetalheEstado {
     ultimaProva: string | null;
     banca: string | null;
   } | null;
+  /** `null` quando o estado ainda não tem plano cadastrado. */
+  plano: PlanoEstado | null;
 }
 
 export interface EstadoMapa {
@@ -68,6 +78,64 @@ function formatarData(iso: string | null): string {
   });
 }
 
+/** Tabela do plano de cargos e carreiras do estado. */
+function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
+  const real = (v: number | null) =>
+    v == null
+      ? "—"
+      : v.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+          minimumFractionDigits: 2,
+        });
+
+  return (
+    <details className="mt-4 rounded-xl border border-white/10 bg-white/[0.04]" open>
+      <summary className="cursor-pointer list-none px-4 py-3">
+        <span className="text-sm font-bold text-white">Plano de cargos e carreiras</span>
+        <span className="ml-2 text-[11px] text-gray-400">
+          {[plano.orgao, plano.ano].filter(Boolean).join(" · ")}
+        </span>
+      </summary>
+
+      <div className="px-4 pb-4">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
+              <th className="pb-1 font-semibold">Classe</th>
+              <th className="pb-1 text-right font-semibold">Subsídio</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {plano.classes.map((c, i) => (
+              <tr key={`${c.classe}-${i}`}>
+                <td className="py-1.5 text-gray-300">{c.classe}</td>
+                <td
+                  className="py-1.5 text-right font-semibold text-white"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
+                >
+                  {real(c.subsidio)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {plano.fonte && (
+          <a
+            href={plano.fonte}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-[11px] text-[#ffcd07] hover:underline"
+          >
+            Ver a fonte ↗
+          </a>
+        )}
+      </div>
+    </details>
+  );
+}
+
 function corDoNivel(nivel: Nivel): string {
   return nivel === "sem" ? "#25211d" : NIVEL_COR[nivel];
 }
@@ -95,6 +163,7 @@ export default function MapaConcursos({
     ultimaMencao: detalheAtual?.ultimaMencao ?? null,
     destaque: detalheAtual?.destaque ?? null,
     historico: detalheAtual?.historico ?? null,
+    plano: detalheAtual?.plano ?? null,
   };
 
   /**
@@ -325,6 +394,10 @@ export default function MapaConcursos({
                     </p>
                   </div>
                 </div>
+              )}
+
+              {sel.plano && sel.plano.classes.length > 0 && (
+                <PlanoCarreira plano={sel.plano} />
               )}
 
               {aprovados[sel.uf] && (
