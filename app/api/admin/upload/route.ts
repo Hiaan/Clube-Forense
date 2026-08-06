@@ -67,10 +67,22 @@ export async function POST(req: Request): Promise<Response> {
     });
     return Response.json({ url });
   } catch (e) {
-    console.error("Falha ao subir imagem:", e instanceof Error ? e.message : e);
-    return erro(
-      e instanceof Error ? `Falha ao subir: ${e.message}` : "Falha ao subir a imagem.",
-      502,
-    );
+    const original = e instanceof Error ? e.message : String(e);
+    console.error("Falha ao subir imagem:", original);
+
+    // A store da Vercel nasce privada se você não marcar o contrário, e aí o
+    // envio é recusado com uma mensagem em inglês que não diz o que fazer. Como
+    // a foto aparece no site para qualquer visitante, o certo aqui é a store
+    // pública — a privada exigiria assinar uma URL temporária a cada visita.
+    if (/private store|public access/i.test(original)) {
+      return erro(
+        "A store de imagens foi criada como privada, e estas fotos aparecem no " +
+          "site. Crie uma store com acesso público na Vercel (Storage → Create " +
+          "Database → Blob), conecte ao projeto e publique de novo.",
+        502,
+      );
+    }
+
+    return erro(`Falha ao subir: ${original}`, 502);
   }
 }
