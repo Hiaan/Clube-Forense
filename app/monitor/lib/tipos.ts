@@ -150,14 +150,20 @@ export const NIVEL_LABEL: Record<Nivel, string> = {
 /**
  * Escala de calor da proximidade do edital: quanto mais perto, mais quente.
  *
- * Brasa apagada: cinza escuro (apenas estudos) → amarelo → laranja → vermelho
- * (edital na rua). É a mesma linguagem dos carrosséis do Clube, e substitui o
- * esquema antigo, que era um arco-íris — verde para edital, azul para estudo —
- * em que a cor não dizia nada sobre estar perto ou longe.
+ * Brasa apagada (apenas estudos) → amarelo → laranja → vermelho (edital na
+ * rua). É a mesma linguagem dos carrosséis do Clube, e substitui o esquema
+ * antigo, que era um arco-íris — verde para edital, azul para estudo — em que a
+ * cor não dizia nada sobre estar perto ou longe.
  *
- * O frio é cinza escuro, e não branco: o mapa é preto, e ali o branco é a cor
- * que mais salta — um estado que só está em estudo gritava mais que um com
- * edital na rua.
+ * Os cinco degraus quentes foram medidos em OKLCH, e não escolhidos a olho: a
+ * claridade sobe de 0,565 a 0,880 em passos iguais, o matiz gira de 27° a 95°
+ * também em passos iguais, e o croma cai de leve ao longo do caminho. É isso
+ * que faz a sequência parecer uma família, e não cinco cores avulsas.
+ *
+ * O frio é um marrom-acinzentado, e não branco nem cinza neutro: o mapa é
+ * preto, e ali o branco é a cor que mais salta — um estado que só está em
+ * estudo gritava mais que um com edital na rua. O tom terroso mantém a brasa
+ * apagada dentro da mesma família das acesas.
  *
  * Fora da escala ficam os dois níveis que não são etapa de funil: "menção
  * recente" e "sem novidades" usam cinza azulado, que não pertence à faixa
@@ -167,14 +173,14 @@ export const NIVEL_LABEL: Record<Nivel, string> = {
  * azulado já diz "isto não é uma etapa".
  */
 export const NIVEL_COR: Record<Nivel, string> = {
-  edital: "#e8112d", // vermelho — edital publicado
-  banca: "#f4511e", // vermelho-alaranjado — banca definida
-  comissao: "#fb8c00", // laranja
-  autorizado: "#ffc400", // âmbar
-  solicitado: "#ffe066", // amarelo
-  estudo: "#52525b", // cinza escuro — ainda em estudo
-  noticia: "#94a3b8", // cinza-azulado — fora da escala
-  sem: "#cbd5e1", // cinza claro — fora da escala (no mapa escurece para recuar)
+  edital: "#d22e2c", // vermelho — edital publicado
+  banca: "#e36300", // laranja queimado — banca definida
+  comissao: "#ef8f07", // laranja
+  autorizado: "#f6b632", // âmbar
+  solicitado: "#f6d653", // amarelo
+  estudo: "#5f5346", // marrom-acinzentado — brasa apagada
+  noticia: "#969fab", // cinza-azulado — fora da escala
+  sem: "#ced5de", // cinza claro — fora da escala (no mapa escurece para recuar)
 };
 
 /**

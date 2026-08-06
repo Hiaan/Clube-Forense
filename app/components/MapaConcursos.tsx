@@ -66,7 +66,7 @@ function formatarData(iso: string | null): string {
 }
 
 function corDoNivel(nivel: Nivel): string {
-  return nivel === "sem" ? "#26262b" : NIVEL_COR[nivel];
+  return nivel === "sem" ? "#25211d" : NIVEL_COR[nivel];
 }
 
 export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
@@ -185,7 +185,7 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                     // A sigla é escrita por cima do estado, e metade da escala
                     // de calor é clara demais para letra branca: num estado
                     // amarelo a sigla sumia.
-                    fill={semNovidade ? "#71717a" : NIVEL_TINTA[nivel]}
+                    fill={semNovidade ? "#736c64" : NIVEL_TINTA[nivel]}
                     pointerEvents="none"
                     style={{ userSelect: "none" }}
                   >
@@ -250,7 +250,7 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                 <span
                   className="rounded-full px-3 py-1 text-xs font-bold"
                   style={{
-                    backgroundColor: sel.nivel === "sem" ? "#3f3f46" : NIVEL_COR[sel.nivel],
+                    backgroundColor: sel.nivel === "sem" ? "#3d3833" : NIVEL_COR[sel.nivel],
                     // Metade da escala é clara demais para texto branco.
                     color: sel.nivel === "sem" ? "#ffffff" : NIVEL_TINTA[sel.nivel],
                   }}
@@ -269,7 +269,7 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                     className="h-full rounded-full transition-all"
                     style={{
                       width: `${sel.score}%`,
-                      backgroundColor: sel.nivel === "sem" ? "#3f3f46" : NIVEL_COR[sel.nivel],
+                      backgroundColor: sel.nivel === "sem" ? "#3d3833" : NIVEL_COR[sel.nivel],
                     }}
                   />
                 </div>
