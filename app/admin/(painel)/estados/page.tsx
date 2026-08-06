@@ -90,7 +90,7 @@ export default async function PainelEstados() {
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-2">
                       <span
-                        className="h-2 w-2 rounded-full"
+                        className="h-2 w-2 rounded-full ring-1 ring-black/10"
                         style={{ backgroundColor: NIVEL_COR[etapa] }}
                       />
                       <span className="text-gray-700">{NIVEL_LABEL[etapa]}</span>

@@ -147,15 +147,47 @@ export const NIVEL_LABEL: Record<Nivel, string> = {
   sem: "Sem novidades",
 };
 
+/**
+ * Escala de calor da proximidade do edital: quanto mais perto, mais quente.
+ *
+ * Vermelho (edital na rua) → laranja → âmbar → amarelo → quase branco (apenas
+ * estudos). É a mesma linguagem dos carrosséis do Clube, e substitui o esquema
+ * antigo, que era um arco-íris — verde para edital, azul para estudo — em que a
+ * cor não dizia nada sobre estar perto ou longe.
+ *
+ * A claridade cresce em passos parelhos (0,18 → 0,25 → 0,39 → 0,61 → 0,79 →
+ * 0,94), então a ordem se lê mesmo impressa em preto e branco.
+ *
+ * Fora da escala ficam os dois estados que não são etapa de funil: "menção
+ * recente" e "sem novidades" usam cinza, para não parecerem um degrau frio.
+ */
 export const NIVEL_COR: Record<Nivel, string> = {
-  edital: "#16a34a", // verde — aberto
-  banca: "#84cc16", // lima — iminente
-  comissao: "#ca8a04", // amarelo-ouro
-  autorizado: "#ea580c", // laranja
-  solicitado: "#8b5cf6", // violeta
-  estudo: "#2563eb", // azul
-  noticia: "#64748b", // cinza-azulado
-  sem: "#9ca3af", // cinza
+  edital: "#e8112d", // vermelho — edital publicado
+  banca: "#f4511e", // vermelho-alaranjado — banca definida
+  comissao: "#fb8c00", // laranja
+  autorizado: "#ffc400", // âmbar
+  solicitado: "#ffe57f", // amarelo claro
+  estudo: "#fff8e1", // quase branco — ainda em estudo
+  noticia: "#94a3b8", // cinza-azulado — fora da escala
+  sem: "#64748b", // cinza
+};
+
+/**
+ * Cor do texto escrito DENTRO de cada cor acima (etiquetas, pílulas).
+ *
+ * Metade da escala é clara demais para texto branco: numa etiqueta amarela ele
+ * sai ilegível. Cada nível carrega a tinta que passa de 4,5:1 sobre a própria
+ * cor, em vez de um branco fixo.
+ */
+export const NIVEL_TINTA: Record<Nivel, string> = {
+  edital: "#ffffff",
+  banca: "#111827",
+  comissao: "#111827",
+  autorizado: "#111827",
+  solicitado: "#111827",
+  estudo: "#111827",
+  noticia: "#111827",
+  sem: "#ffffff",
 };
 
 export const NIVEL_PESO: Record<Nivel, number> = {

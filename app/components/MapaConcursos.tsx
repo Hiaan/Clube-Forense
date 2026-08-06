@@ -10,7 +10,7 @@ import Avatar from "./Avatar";
 import BancaLink from "./BancaLink";
 import ModalCadastro from "./ModalCadastro";
 import { APROVADOS } from "../monitor/lib/aprovados";
-import { NIVEL_COR, NIVEL_LABEL, type Nivel } from "../monitor/lib/tipos";
+import { NIVEL_COR, NIVEL_LABEL, NIVEL_TINTA, type Nivel } from "../monitor/lib/tipos";
 import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
 
 // Estrela (viewBox 24) usada como selo de "aprovados do Clube" no mapa.
@@ -170,7 +170,8 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
               {/* Rótulos das siglas */}
               {Object.entries(MAPA_CENTROIDES).map(([uf, [x, y]]) => {
                 const e = porUf.get(uf);
-                const semNovidade = (e?.nivel ?? "sem") === "sem";
+                const nivel = e?.nivel ?? "sem";
+                const semNovidade = nivel === "sem";
                 if (ROTULO_PEQUENO.has(uf)) return null;
                 return (
                   <text
@@ -181,7 +182,10 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                     dominantBaseline="central"
                     fontSize={22}
                     fontWeight={700}
-                    fill={semNovidade ? "#71717a" : "#ffffff"}
+                    // A sigla é escrita por cima do estado, e metade da escala
+                    // de calor é clara demais para letra branca: num estado
+                    // amarelo a sigla sumia.
+                    fill={semNovidade ? "#71717a" : NIVEL_TINTA[nivel]}
                     pointerEvents="none"
                     style={{ userSelect: "none" }}
                   >
@@ -244,8 +248,12 @@ export default function MapaConcursos({ estados }: { estados: EstadoMapa[] }) {
                   </div>
                 </div>
                 <span
-                  className="rounded-full px-3 py-1 text-xs font-bold text-white"
-                  style={{ backgroundColor: sel.nivel === "sem" ? "#3f3f46" : NIVEL_COR[sel.nivel] }}
+                  className="rounded-full px-3 py-1 text-xs font-bold"
+                  style={{
+                    backgroundColor: sel.nivel === "sem" ? "#3f3f46" : NIVEL_COR[sel.nivel],
+                    // Metade da escala é clara demais para texto branco.
+                    color: sel.nivel === "sem" ? "#ffffff" : NIVEL_TINTA[sel.nivel],
+                  }}
                 >
                   {NIVEL_LABEL[sel.nivel]}
                 </span>

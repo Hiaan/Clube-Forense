@@ -126,7 +126,9 @@ export default async function MonitorPage() {
             >
               <div className="flex items-center gap-2">
                 <span
-                  className="h-2.5 w-2.5 rounded-full"
+                  // O anel segura os passos quase brancos da escala, que
+                  // sumiriam no cartão.
+                  className="h-2.5 w-2.5 rounded-full ring-1 ring-black/10"
                   style={{ backgroundColor: NIVEL_COR[nivel] }}
                 />
                 <span className="text-xs font-medium text-gray-500">

@@ -39,7 +39,7 @@ export default function Barras({
               <span className="flex min-w-0 items-baseline gap-2 text-sm text-gray-600">
                 <span
                   aria-hidden
-                  className="h-2 w-2 shrink-0 translate-y-[-1px] rounded-full"
+                  className="h-2 w-2 shrink-0 translate-y-[-1px] rounded-full ring-1 ring-black/10"
                   style={{ backgroundColor: b.cor }}
                 />
                 <span className="truncate">{b.rotulo}</span>
@@ -55,7 +55,9 @@ export default function Barras({
                 a ponta arredondada e o pé quadrado. */}
             <span className="mt-1.5 block h-2 w-full overflow-hidden rounded-[1px] bg-gray-100">
               <span
-                className="block h-full rounded-r"
+                // O anel segura os passos quase brancos da escala de calor,
+                // que sumiriam no trilho cinza.
+                className="block h-full rounded-r ring-1 ring-inset ring-black/10"
                 style={{
                   width: `${Math.max(2, (b.valor / max) * 100)}%`,
                   backgroundColor: b.cor,

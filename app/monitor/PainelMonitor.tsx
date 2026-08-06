@@ -9,6 +9,7 @@ import {
   type Nivel,
   NIVEL_COR,
   NIVEL_LABEL,
+  NIVEL_TINTA,
   type Relatorio,
 } from "./lib/tipos";
 
@@ -53,10 +54,10 @@ function TagInstagram({ rotulo = "Instagram" }: { rotulo?: string }) {
 function Pill({ nivel }: { nivel: Nivel }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold text-white"
-      style={{ backgroundColor: NIVEL_COR[nivel] }}
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-black/10"
+      style={{ backgroundColor: NIVEL_COR[nivel], color: NIVEL_TINTA[nivel] }}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
+      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
       {NIVEL_LABEL[nivel]}
     </span>
   );
@@ -92,7 +93,7 @@ function CartaoEstado({ estado }: { estado: EstadoStatus }) {
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
           <div
-            className="h-full rounded-full transition-all"
+            className="h-full rounded-full ring-1 ring-inset ring-black/10 transition-all"
             style={{ width: `${estado.score}%`, backgroundColor: NIVEL_COR[estado.nivel] }}
           />
         </div>
