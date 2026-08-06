@@ -20,6 +20,23 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Painel do admin (`/admin`)
+
+Onde a curadoria dos 27 estados é editada, a notícia principal de cada estado é
+escolhida e os cadastros feitos pelo mapa são consultados.
+
+Variáveis de ambiente, no projeto da Vercel:
+
+| Variável | Para quê |
+| --- | --- |
+| `DATABASE_URL` | Postgres (Neon) com a curadoria e os leads. Sem ela o site cai na curadoria embutida no código e o painel não grava. |
+| `ADMIN_EMAIL` | E-mail que entra no painel. |
+| `ADMIN_SENHA` | Senha do painel. Trocá-la derruba as sessões abertas. |
+| `CURADORIA_CSV_URL` | Planilha publicada em CSV. Usada só pelo botão "Importar da planilha". |
+
+Sem `ADMIN_EMAIL` e `ADMIN_SENHA` o login recusa qualquer tentativa — não há
+senha padrão, porque este repositório é público.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

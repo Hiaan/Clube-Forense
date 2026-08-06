@@ -98,6 +98,7 @@ export function mencoesCuradoria(): Mencao[] {
     data: `${VERIFICADO_EM}T12:00:00.000Z`,
     nivel: c.estagio,
     resumo: c.resumo,
+    daCuradoria: true,
   }));
 }
 
@@ -122,6 +123,7 @@ function mencoesDoBanco(linhas: EstadoCuradoria[]): Mencao[] {
       data: l.verificadoEm ?? l.atualizadoEm ?? new Date().toISOString(),
       nivel: l.etapa,
       resumo: l.noticiaResumo?.trim() || l.andamento,
+      daCuradoria: true,
     }));
 }
 

@@ -46,6 +46,16 @@ export interface Mencao {
    * pertencem a um concurso já encerrado e não contam para o estágio atual.
    */
   conclusiva?: boolean;
+  /**
+   * True quando a menção veio da curadoria (painel ou piso embutido), e não de
+   * uma busca. É o que o consolidador respeita num estado travado.
+   *
+   * Marca explícita, e não "a fonte começa com Curadoria": a fonte é editável
+   * no painel, e quem trocasse pelo nome do próprio blog derrubava o estágio do
+   * estado para "sem" — a única menção que o travamento deixa passar deixava de
+   * ser reconhecida.
+   */
+  daCuradoria?: boolean;
 }
 
 /** Histórico do último concurso com o cargo no estado (fonte: QConcursos). */

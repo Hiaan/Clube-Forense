@@ -30,13 +30,16 @@ export function sql(): Sql {
 }
 
 /**
- * SQL de criação das tabelas. Exportado como texto para poder ser testado
- * contra um Postgres de verdade, sem depender do driver da Neon.
+ * SQL de criação das tabelas, um comando por item. Exportado como texto para
+ * poder ser testado contra um Postgres de verdade, sem depender do driver da
+ * Neon — e em lista, e não num texto só, porque o driver HTTP manda um comando
+ * por chamada e um `split(";")` cortaria os blocos `do $$ ... $$` no meio.
  *
- * Tudo é `if not exists`: rodar de novo é inofensivo, então a inicialização
+ * Todo comando é idempotente: rodar de novo é inofensivo, então a inicialização
  * pode acontecer a cada boot sem migração manual.
  */
-export const ESQUEMA = `
+export const ESQUEMA: string[] = [
+  `
 create table if not exists estados (
   uf                          text primary key,
   etapa                       text not null default 'sem',
@@ -70,17 +73,33 @@ create table if not exists estados (
 
   atualizado_em               timestamptz not null default now()
 );
+`,
 
--- Restringe o que pode entrar em etapa e confianca: o painel usa lista
--- suspensa, mas a importação da planilha e o SQL direto não passam por ela.
-alter table estados drop constraint if exists estados_etapa_valida;
-alter table estados add constraint estados_etapa_valida
-  check (etapa in ('estudo','solicitado','autorizado','comissao','banca','edital','noticia','sem'));
+  // Restringe o que pode entrar em etapa e confianca: o painel usa lista
+  // suspensa, mas a importação da planilha e o SQL direto não passam por ela.
+  //
+  // Só adiciona se faltar. A versão antiga fazia `drop ... add` a cada chamada,
+  // e como isto roda em toda requisição, duas ao mesmo tempo colidiam ("já
+  // existe") — o erro derrubava a leitura e o site caía no piso embutido. Pior:
+  // entre o drop e o add a coluna ficava sem validação nenhuma.
+  `
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'estados_etapa_valida') then
+    alter table estados add constraint estados_etapa_valida
+      check (etapa in ('estudo','solicitado','autorizado','comissao','banca','edital','noticia','sem'));
+  end if;
+end $$;
+`,
+  `
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'estados_confianca_valida') then
+    alter table estados add constraint estados_confianca_valida
+      check (confianca in ('alta','media','baixa'));
+  end if;
+end $$;
+`,
 
-alter table estados drop constraint if exists estados_confianca_valida;
-alter table estados add constraint estados_confianca_valida
-  check (confianca in ('alta','media','baixa'));
-
+  `
 -- Quem se cadastrou pelo muro do mapa.
 --
 -- O cadastro em si vai para a plataforma de alunos, que é a fonte da verdade
@@ -101,16 +120,33 @@ create table if not exists leads (
   criado_em      timestamptz not null default now(),
   visto_em       timestamptz not null default now()
 );
+`,
 
-create index if not exists leads_criado_em_idx on leads (criado_em desc);
-create index if not exists leads_uf_idx on leads (uf_interesse);
-`;
+  "create index if not exists leads_criado_em_idx on leads (criado_em desc);",
+  "create index if not exists leads_uf_idx on leads (uf_interesse);",
+];
 
-/** Cria as tabelas se ainda não existirem. Seguro de chamar várias vezes. */
+/** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */
+let preparando: Promise<void> | null = null;
+
+/**
+ * Cria as tabelas se ainda não existirem. Seguro de chamar várias vezes.
+ *
+ * O resultado fica guardado: sem isso, cada leitura da página pagava uma ida ao
+ * banco por comando do esquema só para ouvir "já existe".
+ */
 export async function garantirEsquema(): Promise<void> {
-  const s = sql();
-  // O driver HTTP não aceita várias instruções num comando só.
-  for (const comando of ESQUEMA.split(";").map((c) => c.trim()).filter(Boolean)) {
-    await s.query(comando);
-  }
+  preparando ??= (async () => {
+    const s = sql();
+    try {
+      // O driver HTTP não aceita várias instruções num comando só.
+      for (const comando of ESQUEMA) await s.query(comando);
+    } catch (e) {
+      // Se falhou, a próxima chamada tenta de novo: guardar a falha deixaria o
+      // processo inteiro sem banco até ser reciclado.
+      preparando = null;
+      throw e;
+    }
+  })();
+  return preparando;
 }

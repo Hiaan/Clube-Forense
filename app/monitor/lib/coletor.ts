@@ -226,7 +226,7 @@ export async function coletar(): Promise<Relatorio> {
     // Científica SP/2026 — manchete de avanço, mas sem vaga de legista.
     const travado = curadoria.travadas.has(estado.uf);
     const detalhe = curadoria.detalhes.get(estado.uf);
-    const daCuradoria = mencoes.find((m) => m.fonte.startsWith("Curadoria"));
+    const daCuradoria = mencoes.find((m) => m.daCuradoria);
 
     let nivel: Nivel = "sem";
     let score = 0;
