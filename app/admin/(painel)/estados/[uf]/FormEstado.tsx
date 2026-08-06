@@ -5,10 +5,10 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 
-import { enviarSemLimpar } from "../enviarSemLimpar";
-import { salvarEstadoAcao, type Resultado } from "../acoes";
-import type { EstadoCuradoria } from "../../lib/estadosRepo";
-import { NIVEL_LABEL, type Nivel } from "../../monitor/lib/tipos";
+import { enviarSemLimpar } from "../../../enviarSemLimpar";
+import { salvarEstadoAcao, type Resultado } from "../../../acoes";
+import type { EstadoCuradoria } from "../../../../lib/estadosRepo";
+import { NIVEL_LABEL, type Nivel } from "../../../../monitor/lib/tipos";
 
 const ETAPAS: Nivel[] = [
   "sem", "estudo", "solicitado", "autorizado", "comissao", "banca", "edital", "noticia",
@@ -80,7 +80,7 @@ export default function FormEstado({
       <input type="hidden" name="uf" value={uf} />
 
       {/* ---------- Situação ---------- */}
-      <section className="rounded-2xl border border-gray-200 p-5">
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
         <h2 className="mb-4 font-bold text-gray-900">Situação</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Campo nome="etapa" label="Estágio do edital">
@@ -154,7 +154,7 @@ export default function FormEstado({
       </section>
 
       {/* ---------- Notícia principal ---------- */}
-      <section className="rounded-2xl border border-gray-200 p-5">
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
         <h2 className="font-bold text-gray-900">Notícia principal</h2>
         <p className="mt-1 text-sm text-gray-500">
           É o que aparece no topo do estado, no site. Deixe tudo em branco para o
@@ -244,7 +244,7 @@ export default function FormEstado({
       </section>
 
       {/* ---------- Concurso ---------- */}
-      <section className="rounded-2xl border border-gray-200 p-5">
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
         <h2 className="mb-4 font-bold text-gray-900">Concurso</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <Campo nome="vagasImediatas" label="Vagas imediatas">
@@ -278,7 +278,7 @@ export default function FormEstado({
       </section>
 
       {/* ---------- Histórico ---------- */}
-      <section className="rounded-2xl border border-gray-200 p-5">
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
         <h2 className="mb-1 font-bold text-gray-900">Histórico</h2>
         <p className="mb-4 text-sm text-gray-500">
           O certame anterior. A validade dele costuma ser o que trava o próximo.
@@ -305,7 +305,7 @@ export default function FormEstado({
       </section>
 
       {/* ---------- Salvar ---------- */}
-      <div className="sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 bg-white/95 py-4 backdrop-blur">
+      <div className="sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 bg-[#f8f9fb]/95 py-4 backdrop-blur">
         <div className="min-h-[20px]">
           {resultado && (
             <p
@@ -318,7 +318,7 @@ export default function FormEstado({
         </div>
         <div className="flex gap-3">
           <Link
-            href="/admin"
+            href="/admin/estados"
             className="rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100"
           >
             Voltar

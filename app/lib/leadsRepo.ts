@@ -90,6 +90,42 @@ export async function listarLeads(limite = 500): Promise<Lead[] | null> {
   }
 }
 
+export interface DiaLeads {
+  /** Data no formato AAAA-MM-DD. */
+  dia: string;
+  total: number;
+}
+
+/**
+ * Cadastros por dia, do mais antigo para o mais novo, com os dias vazios
+ * incluídos — um gráfico com buracos mente sobre o ritmo.
+ *
+ * O dia é o de Brasília, não o do servidor: um cadastro das 22h de São Paulo
+ * cairia no dia seguinte se contássemos em UTC.
+ */
+export async function leadsPorDia(dias = 14): Promise<DiaLeads[] | null> {
+  if (!bancoConfigurado()) return null;
+  try {
+    await garantirEsquema();
+    const linhas = (await sql().query(
+      `select to_char(d.dia, 'YYYY-MM-DD') as dia, count(l.email)::int as n
+         from generate_series(
+                (now() at time zone 'America/Sao_Paulo')::date - ($1::int - 1),
+                (now() at time zone 'America/Sao_Paulo')::date,
+                interval '1 day') as d(dia)
+         left join leads l
+           on (l.criado_em at time zone 'America/Sao_Paulo')::date = d.dia::date
+        group by d.dia
+        order by d.dia`,
+      [dias],
+    )) as Record<string, unknown>[];
+    return linhas.map((l) => ({ dia: String(l.dia), total: Number(l.n) }));
+  } catch (e) {
+    console.error("Falha ao agrupar leads por dia:", e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
 export interface ResumoLeads {
   total: number;
   /** Quantos cadastros vieram de cada estado, do maior para o menor. */

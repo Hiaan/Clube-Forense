@@ -1,12 +1,7 @@
 // Quem se cadastrou pelo muro do mapa.
 
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-
-import NavAdmin from "../NavAdmin";
-import { NOME_COOKIE_ADMIN, sessaoAdminValida } from "../../lib/admin";
-import { listarLeads, resumoLeads } from "../../lib/leadsRepo";
-import { ESTADO_POR_UF } from "../../monitor/lib/estados";
+import { listarLeads, resumoLeads } from "../../../lib/leadsRepo";
+import { ESTADO_POR_UF } from "../../../monitor/lib/estados";
 
 export const dynamic = "force-dynamic";
 
@@ -24,20 +19,17 @@ function quando(iso: string): string {
 }
 
 export default async function PainelLeads() {
-  const jar = await cookies();
-  if (!sessaoAdminValida(jar.get(NOME_COOKIE_ADMIN)?.value)) redirect("/admin/login");
-
   const [leads, resumo] = await Promise.all([listarLeads(), resumoLeads()]);
 
   if (leads === null) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8">
-        <NavAdmin atual="leads" />
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <>
+        <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
           Banco indisponível. Confira a variável <code>DATABASE_URL</code> do
           projeto na Vercel.
         </div>
-      </div>
+      </>
     );
   }
 
@@ -45,12 +37,10 @@ export default async function PainelLeads() {
   const topo = (resumo?.porUf ?? []).slice(0, TOP_UFS);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <NavAdmin atual="leads" />
-
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <>
+      <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Leads</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
           <p className="mt-1 text-sm text-gray-500">
             {total === 0
               ? "Ninguém se cadastrou ainda."
@@ -60,19 +50,19 @@ export default async function PainelLeads() {
         {leads.length > 0 && (
           <a
             href="/api/admin/leads"
-            className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+            className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
           >
             Baixar CSV
           </a>
         )}
-      </div>
+      </header>
 
       {topo.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
           {topo.map(({ uf, total: n }) => (
             <span
               key={uf}
-              className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-600"
+              className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600"
               title={ESTADO_POR_UF[uf]?.nome ?? uf}
             >
               <strong className="font-mono text-gray-900">{uf}</strong> {n}
@@ -82,7 +72,7 @@ export default async function PainelLeads() {
       )}
 
       {leads.length > 0 && (
-        <div className="overflow-x-auto rounded-2xl border border-gray-200">
+        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
           <table className="w-full min-w-[720px] text-sm">
             <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
               <tr>
@@ -117,6 +107,6 @@ export default async function PainelLeads() {
           </table>
         </div>
       )}
-    </div>
+    </>
   );
 }

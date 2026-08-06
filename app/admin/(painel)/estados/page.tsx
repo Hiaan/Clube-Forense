@@ -1,21 +1,17 @@
-// Lista dos 27 estados. Porta de entrada do painel.
+// Lista dos 27 estados.
 
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
-import BotaoImportar from "./BotaoImportar";
-import NavAdmin from "./NavAdmin";
-import { NOME_COOKIE_ADMIN, sessaoAdminValida } from "../lib/admin";
-import { lerEstados, type EstadoCuradoria } from "../lib/estadosRepo";
-import { ESTADOS } from "../monitor/lib/estados";
-import { NIVEL_COR, NIVEL_LABEL, NIVEL_PESO, type Nivel } from "../monitor/lib/tipos";
+import BotaoImportar from "../../BotaoImportar";
+import { lerEstados, type EstadoCuradoria } from "../../../lib/estadosRepo";
+import { ESTADOS } from "../../../monitor/lib/estados";
+import { NIVEL_COR, NIVEL_LABEL, NIVEL_PESO, type Nivel } from "../../../monitor/lib/tipos";
 
 export const dynamic = "force-dynamic";
 
 function formatarData(iso: string | null): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("pt-BR");
+  return new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR");
 }
 
 /** Quantos dias desde a última conferência humana. */
@@ -25,9 +21,6 @@ function diasDesde(iso: string | null): number | null {
 }
 
 export default async function PainelEstados() {
-  const jar = await cookies();
-  if (!sessaoAdminValida(jar.get(NOME_COOKIE_ADMIN)?.value)) redirect("/admin/login");
-
   const gravados = await lerEstados();
   const porUf = new Map<string, EstadoCuradoria>((gravados ?? []).map((e) => [e.uf, e]));
 
@@ -44,12 +37,10 @@ export default async function PainelEstados() {
   const preenchidos = linhas.filter((l) => l.dados).length;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <NavAdmin atual="estados" />
-
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <>
+      <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Estados</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Estados</h1>
           <p className="mt-1 text-sm text-gray-500">
             {gravados === null
               ? "Banco indisponível — o site está usando a curadoria embutida no código."
@@ -57,17 +48,17 @@ export default async function PainelEstados() {
           </p>
         </div>
         <BotaoImportar />
-      </div>
+      </header>
 
       {gravados !== null && preenchidos === 0 && (
-        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
           O banco está vazio. Clique em <strong>Importar da planilha</strong> para
           trazer os 27 estados — enquanto isso, o site usa a curadoria embutida no
           código.
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-2xl border border-gray-200">
+      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
             <tr>
@@ -125,7 +116,7 @@ export default async function PainelEstados() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
-                      href={`/admin/${uf}`}
+                      href={`/admin/estados/${uf}`}
                       className="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-gray-800"
                     >
                       Editar
@@ -137,6 +128,6 @@ export default async function PainelEstados() {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 }

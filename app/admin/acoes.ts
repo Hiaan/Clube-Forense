@@ -148,7 +148,8 @@ export async function salvarEstadoAcao(
     // quando o cache de 5 minutos vencesse.
     revalidatePath("/");
     revalidatePath("/admin");
-    revalidatePath(`/admin/${uf}`);
+    revalidatePath("/admin/estados");
+    revalidatePath(`/admin/estados/${uf}`);
 
     return { ok: true, mensagem: `${uf} salvo.` };
   } catch (e) {
@@ -202,6 +203,7 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
     const gravados = await salvarVarios(estados);
     revalidatePath("/");
     revalidatePath("/admin");
+    revalidatePath("/admin/estados");
 
     const aviso = r.avisos.length ? ` Avisos: ${r.avisos.join("; ")}` : "";
     return { ok: true, mensagem: `${gravados} estados importados da planilha.${aviso}` };
