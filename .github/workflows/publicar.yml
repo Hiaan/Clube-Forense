@@ -13,8 +13,14 @@ name: Publicar na Vercel
 # Em Settings → Secrets and variables → Actions → New repository secret:
 #
 #   VERCEL_TOKEN       vercel.com/account/tokens (crie um novo)
-#   VERCEL_ORG_ID      Vercel → Settings da conta → ID
+#   VERCEL_ORG_ID      o ID do DONO do projeto
 #   VERCEL_PROJECT_ID  projeto clube-forense → Settings → General → Project ID
+#
+# ATENÇÃO no VERCEL_ORG_ID: este projeto pertence à equipe "hianlucas", não à
+# conta pessoal. O ID certo é o da equipe (começa com `team_`), em Vercel →
+# Settings da EQUIPE → General. Usar o ID da conta pessoal faz o deploy falhar
+# com "Could not retrieve Project Settings" — foi o que aconteceu nas seis
+# primeiras tentativas. O token também precisa ter acesso a essa equipe.
 #
 # As variáveis do site (CURADORIA_CSV_URL etc.) NÃO entram aqui. O `vercel pull`
 # busca as que já estão cadastradas no projeto — este workflow nunca as vê.

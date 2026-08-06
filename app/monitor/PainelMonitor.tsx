@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import Avatar from "../components/Avatar";
 import type { AprovacaoSite } from "../lib/aprovadosSite";
@@ -76,9 +77,20 @@ function CartaoEstado({
     <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-900 text-sm font-bold text-[#ffcd07]">
-            {estado.uf}
-          </span>
+          {/* A mesma imagem do estado que aparece no mapa. Sem ela, a sigla. */}
+          {estado.curadoria?.imagemUrl ? (
+            <Image
+              src={estado.curadoria.imagemUrl}
+              alt={estado.nome}
+              width={44}
+              height={44}
+              className="h-11 w-11 shrink-0 rounded-xl object-cover"
+            />
+          ) : (
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-sm font-bold text-[#ffcd07]">
+              {estado.uf}
+            </span>
+          )}
           <div>
             <h3 className="font-semibold text-gray-900">{estado.nome}</h3>
             <p className="text-xs text-gray-500">
