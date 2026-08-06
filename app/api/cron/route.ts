@@ -3,6 +3,8 @@
 // Refaz a coleta e revalida a página /monitor para servir dados frescos.
 
 import { revalidatePath } from "next/cache";
+
+import { registrarColeta } from "../../lib/sistemaRepo";
 import { coletar } from "../../monitor/lib/coletor";
 import { dispararColetaInstagram } from "../../monitor/lib/instagram";
 
@@ -25,13 +27,25 @@ export async function GET(request: Request) {
   const instagram = await dispararColetaInstagram();
 
   const relatorio = await coletar();
+  const estadosComNovidade = relatorio.estados.filter((e) => e.nivel !== "sem").length;
+
+  // Fica gravado para o painel poder dizer quando o sistema checou por último —
+  // separado da conferência humana, que é outra data.
+  await registrarColeta({
+    em: relatorio.atualizadoEm,
+    estadosComNovidade,
+    fonteIndisponivel: relatorio.fonteIndisponivel,
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin");
   revalidatePath("/monitor");
   revalidatePath("/api/monitor");
 
   return Response.json({
     ok: true,
     atualizadoEm: relatorio.atualizadoEm,
-    estadosComNovidade: relatorio.estados.filter((e) => e.nivel !== "sem").length,
+    estadosComNovidade,
     fonteIndisponivel: relatorio.fonteIndisponivel,
     instagram,
   });

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { lerPlanos } from "./lib/planoRepo";
+import { lerUltimaColeta } from "./lib/sistemaRepo";
 import { NOME_COOKIE, sessaoValida } from "./lib/sessao";
 import PainelMonitor from "./monitor/PainelMonitor";
 import { BANCAS_LISTA } from "./monitor/lib/bancas";
@@ -45,11 +46,12 @@ const ORDEM_RESUMO: Nivel[] = [
 ];
 
 export default async function MonitorPage() {
-  const [relatorio, jar, aprovados, planos] = await Promise.all([
+  const [relatorio, jar, aprovados, planos, coleta] = await Promise.all([
     coletar(),
     cookies(),
     obterAprovadosSite(),
     lerPlanos(),
+    lerUltimaColeta(),
   ]);
   const liberado = sessaoValida(jar.get(NOME_COOKIE)?.value);
 
@@ -120,7 +122,10 @@ export default async function MonitorPage() {
             edital publicado.
           </p>
           <p className="mt-3 text-xs text-gray-400">
-            Atualizado em {formatarHora(relatorio.atualizadoEm)} ·{" "}
+            {/* A data é a da última coleta de verdade, e não a hora em que esta
+                página foi montada — como as buscas têm cache de uma hora, a
+                segunda diria "agora" mostrando notícia de 59 minutos atrás. */}
+            Notícias checadas em {formatarHora(coleta?.em ?? relatorio.atualizadoEm)} ·{" "}
             {relatorio.totalMencoes} menções monitoradas
           </p>
 

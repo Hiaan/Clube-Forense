@@ -177,6 +177,17 @@ create table if not exists plano_classes (
 );
 `,
   "create index if not exists plano_classes_uf_idx on plano_classes (uf, ordem, id);",
+
+  // Marcos do sistema, em chave/valor. Hoje guarda só quando a coleta de
+  // notícias rodou pela última vez; é um lugar para esse tipo de registro não
+  // virar uma tabela nova a cada necessidade.
+  `
+create table if not exists sistema (
+  chave         text primary key,
+  valor         text not null,
+  atualizado_em timestamptz not null default now()
+);
+`,
 ];
 
 /** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */

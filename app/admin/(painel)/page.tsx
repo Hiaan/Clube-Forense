@@ -8,6 +8,7 @@ import { Cartao, Numero } from "../graficos/Cartao";
 import LinhaLeads from "../graficos/LinhaLeads";
 import { lerEstados, type EstadoCuradoria } from "../../lib/estadosRepo";
 import { leadsPorDia, listarLeads, resumoLeads } from "../../lib/leadsRepo";
+import { lerUltimaColeta, type Coleta } from "../../lib/sistemaRepo";
 import { ESTADO_POR_UF } from "../../monitor/lib/estados";
 import { NIVEL_COR, NIVEL_LABEL, type Nivel } from "../../monitor/lib/tipos";
 
@@ -23,6 +24,25 @@ const A_CAMINHO: Nivel[] = ["banca", "comissao", "autorizado", "solicitado"];
 
 /** Depois disto, a conferência humana está velha. */
 const DIAS_PARA_CONFERIR = 60;
+
+/** Acima disto, a coleta automática provavelmente parou. */
+const HORAS_COLETA_ATRASADA = 6;
+
+/** True quando a coleta automática passou do intervalo esperado. */
+function coletaAtrasada(iso: string): boolean {
+  return (Date.now() - new Date(iso).getTime()) / 3_600_000 > HORAS_COLETA_ATRASADA;
+}
+
+/** "há 40 minutos", "há 3 horas", "há 2 dias" — do jeito que se fala. */
+function haQuantoTempo(iso: string): string {
+  const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+  if (min < 2) return "agora";
+  if (min < 60) return `há ${min} minutos`;
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `há ${horas} ${horas === 1 ? "hora" : "horas"}`;
+  const dias = Math.floor(horas / 24);
+  return `há ${dias} ${dias === 1 ? "dia" : "dias"}`;
+}
 
 function dias(iso: string | null): number | null {
   if (!iso) return null;
@@ -41,11 +61,12 @@ function nome(uf: string): string {
 }
 
 export default async function Dashboard() {
-  const [estados, resumo, porDia, recentes] = await Promise.all([
+  const [estados, resumo, porDia, recentes, coleta] = await Promise.all([
     lerEstados(),
     resumoLeads(),
     leadsPorDia(14),
     listarLeads(5),
+    lerUltimaColeta(),
   ]);
 
   if (estados === null) {
@@ -129,6 +150,8 @@ export default async function Dashboard() {
           <BotaoImportar />
         </div>
       )}
+
+      <ChecagemDoSistema coleta={coleta} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Numero
@@ -266,5 +289,50 @@ export default async function Dashboard() {
         )}
       </Cartao>
     </>
+  );
+}
+
+/**
+ * Quando o robô buscou notícias pela última vez.
+ *
+ * É outra data que a de "conferido em", que é quando VOCÊ olhou. Ela vem do
+ * cron, não da montagem da página: enquanto isto não existia, a tela mostrava a
+ * hora em que a página foi montada, e podia dizer "agora" exibindo notícia de
+ * uma hora atrás.
+ */
+function ChecagemDoSistema({ coleta }: { coleta: Coleta | null }) {
+  if (!coleta) {
+    return (
+      <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+        <strong>O sistema ainda não checou notícias sozinho.</strong> A rotina
+        horária existe, mas só passa a funcionar quando a variável{" "}
+        <code>MONITOR_BASE_URL</code> estiver definida no GitHub, em Settings →
+        Secrets and variables → Actions → Variables. Até lá, as notícias só são
+        buscadas quando alguém abre o site.
+      </div>
+    );
+  }
+
+  const atrasada = coletaAtrasada(coleta.em);
+
+  return (
+    <div
+      className={`mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-5 py-3 text-sm ${
+        atrasada
+          ? "border-amber-200 bg-amber-50 text-amber-800"
+          : "border-gray-200 bg-white text-gray-600"
+      }`}
+    >
+      <span>
+        Última checagem do sistema:{" "}
+        <strong className="text-gray-900">{haQuantoTempo(coleta.em)}</strong>
+        {atrasada && " — a rotina horária pode ter parado."}
+      </span>
+      <span className="text-xs text-gray-400">
+        {coleta.fonteIndisponivel
+          ? "nenhuma fonte externa respondeu nessa rodada"
+          : `${coleta.estadosComNovidade} estados com novidade`}
+      </span>
+    </div>
   );
 }
