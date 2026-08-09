@@ -18,7 +18,16 @@ import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
 const ESTRELA_D =
   "M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.2L12 17.3 5.8 21l1.6-7.2L2 9.1l7.1-.6z";
 
-/** A parte do estado que fica atrás do cadastro. */
+/** Os IMLs do estado, como saem no site. */
+export interface ImlsEstado {
+  /**
+   * Total informado no painel. Pode ser maior que a lista: dá para saber que o
+   * estado tem 20 unidades e conhecer o endereço de 8.
+   */
+  total: number | null;
+  unidades: { cidade: string; nome: string | null }[];
+}
+
 /** O plano de cargos e carreiras do estado, como sai no site. */
 export interface PlanoEstado {
   orgao: string | null;
@@ -27,6 +36,7 @@ export interface PlanoEstado {
   classes: { classe: string; subsidio: number | null }[];
 }
 
+/** A parte do estado que fica atrás do cadastro. */
 export interface DetalheEstado {
   ultimaMencao: string | null;
   destaque: { titulo: string; resumo: string; fonte: string } | null;
@@ -37,6 +47,8 @@ export interface DetalheEstado {
   } | null;
   /** `null` quando o estado ainda não tem plano cadastrado. */
   plano: PlanoEstado | null;
+  /** `null` quando ainda não se cadastrou nenhuma unidade. */
+  imls: ImlsEstado | null;
 }
 
 export interface EstadoMapa {
@@ -147,6 +159,48 @@ function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
   );
 }
 
+/** Onde ficam os IMLs do estado. Fechado por padrão, como o plano. */
+function DistribuicaoImls({ imls }: { imls: ImlsEstado }) {
+  const total = imls.total ?? imls.unidades.length;
+
+  return (
+    <details className="group mt-3 rounded-xl border border-white/10 bg-white/[0.04]">
+      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 transition hover:bg-white/[0.04]">
+        <span
+          aria-hidden
+          className="text-[10px] text-gray-500 transition-transform group-open:rotate-90"
+        >
+          ▶
+        </span>
+        <span className="text-sm font-bold text-white">Distribuição dos IMLs</span>
+        <span className="ml-auto text-[11px] text-gray-500">
+          {total} {total === 1 ? "unidade" : "unidades"}
+        </span>
+      </summary>
+
+      <div className="px-4 pb-4">
+        <ul className="flex flex-col divide-y divide-white/5">
+          {imls.unidades.map((u, i) => (
+            <li key={`${u.cidade}-${i}`} className="flex items-baseline gap-2 py-1.5">
+              <span className="text-sm text-gray-200">{u.cidade}</span>
+              {u.nome && <span className="text-[11px] text-gray-500">{u.nome}</span>}
+            </li>
+          ))}
+        </ul>
+
+        {/* Quando o total informado é maior que a lista, dizer isso é mais
+            honesto do que deixar a pessoa achar que são só estas. */}
+        {imls.total != null && imls.total > imls.unidades.length && (
+          <p className="mt-2 text-[11px] text-gray-500">
+            {imls.unidades.length} de {imls.total} unidades com cidade
+            identificada.
+          </p>
+        )}
+      </div>
+    </details>
+  );
+}
+
 function corDoNivel(nivel: Nivel): string {
   return nivel === "sem" ? "#25211d" : NIVEL_COR[nivel];
 }
@@ -175,6 +229,7 @@ export default function MapaConcursos({
     destaque: detalheAtual?.destaque ?? null,
     historico: detalheAtual?.historico ?? null,
     plano: detalheAtual?.plano ?? null,
+    imls: detalheAtual?.imls ?? null,
   };
 
   /**
@@ -409,6 +464,10 @@ export default function MapaConcursos({
 
               {sel.plano && sel.plano.classes.length > 0 && (
                 <PlanoCarreira plano={sel.plano} />
+              )}
+
+              {sel.imls && sel.imls.unidades.length > 0 && (
+                <DistribuicaoImls imls={sel.imls} />
               )}
 
               {aprovados[sel.uf] && (

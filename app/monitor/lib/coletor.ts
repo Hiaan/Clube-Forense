@@ -264,6 +264,7 @@ export async function coletar(): Promise<Relatorio> {
             planoOrgao: detalhe.planoOrgao,
             planoAno: detalhe.planoAno,
             planoFonte: detalhe.planoFonte,
+            imlsTotal: detalhe.imlsTotal,
           }
         : null,
     };

@@ -90,6 +90,8 @@ export interface DetalheCuradoria {
   planoOrgao: string | null;
   planoAno: number | null;
   planoFonte: string | null;
+  /** Total de IMLs do estado; as cidades vêm da tabela imls. */
+  imlsTotal: number | null;
 }
 
 /** De onde saiu a curadoria nesta geração. */

@@ -178,6 +178,24 @@ create table if not exists plano_classes (
 `,
   "create index if not exists plano_classes_uf_idx on plano_classes (uf, ordem, id);",
 
+  // Quantos IMLs o estado tem no total. Fica separado da lista de cidades
+  // porque uma coisa não implica a outra: dá para saber que são 20 unidades e
+  // conhecer o endereço de 8. Vazio aqui significa "conte as cidades".
+  "alter table estados add column if not exists imls_total integer;",
+
+  // Onde ficam os IMLs. É o que responde "se eu passar, onde posso ser lotado".
+  `
+create table if not exists imls (
+  id       bigint generated always as identity primary key,
+  uf       text not null,
+  cidade   text not null,
+  -- Nome da unidade, quando ela tem um ("IML Central", "Posto Regional").
+  nome     text,
+  ordem    integer not null default 0
+);
+`,
+  "create index if not exists imls_uf_idx on imls (uf, ordem, id);",
+
   // Marcos do sistema, em chave/valor. Hoje guarda só quando a coleta de
   // notícias rodou pela última vez; é um lugar para esse tipo de registro não
   // virar uma tabela nova a cada necessidade.

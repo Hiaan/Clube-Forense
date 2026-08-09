@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import FormEstado, { type MencaoSugerida } from "./FormEstado";
 import { blobConfigurado } from "../../../../lib/blob";
 import { lerEstado } from "../../../../lib/estadosRepo";
+import { lerImlsDoEstado } from "../../../../lib/imlsRepo";
 import { lerPlano } from "../../../../lib/planoRepo";
 import { coletar } from "../../../../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../../../../monitor/lib/estados";
@@ -28,10 +29,11 @@ export default async function EditarEstado({
   // A coleta é a mesma do site (cache de 1h nos feeds), então abrir esta tela
   // não dispara uma busca nova a cada clique. Se ela falhar, a edição continua
   // possível — só ficamos sem as sugestões.
-  const [gravado, relatorio, plano] = await Promise.all([
+  const [gravado, relatorio, plano, imls] = await Promise.all([
     lerEstado(uf),
     coletar().catch(() => null),
     lerPlano(uf),
+    lerImlsDoEstado(uf),
   ]);
 
   const doEstado = relatorio?.estados.find((e) => e.uf === uf) ?? null;
@@ -81,6 +83,7 @@ export default async function EditarEstado({
         sugestoes={sugestoes}
         temBlob={blobConfigurado()}
         plano={plano}
+        imls={imls}
       />
     </div>
   );

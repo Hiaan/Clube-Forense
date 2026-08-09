@@ -6,10 +6,12 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import CampoFoto from "../../../graficos/CampoFoto";
+import EditorImls from "./EditorImls";
 import EditorPlano from "./EditorPlano";
 import { enviarSemLimpar } from "../../../enviarSemLimpar";
 import { salvarEstadoAcao, type Resultado } from "../../../acoes";
 import type { EstadoCuradoria } from "../../../../lib/estadosRepo";
+import type { Iml } from "../../../../lib/imlsRepo";
 import type { ClassePlano } from "../../../../lib/planoRepo";
 import { NIVEL_LABEL, type Nivel } from "../../../../monitor/lib/tipos";
 
@@ -58,6 +60,7 @@ export default function FormEstado({
   sugestoes,
   temBlob,
   plano,
+  imls,
 }: {
   uf: string;
   nome: string;
@@ -65,6 +68,7 @@ export default function FormEstado({
   sugestoes: MencaoSugerida[];
   temBlob: boolean;
   plano: ClassePlano[];
+  imls: Iml[];
 }) {
   const [resultado, acao, salvando] = useActionState<Resultado | null, FormData>(
     salvarEstadoAcao,
@@ -318,6 +322,33 @@ export default function FormEstado({
         </div>
 
         <EditorPlano inicial={plano} />
+      </section>
+
+      {/* ---------- IMLs ---------- */}
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
+        <h2 className="mb-1 font-bold text-gray-900">Distribuição dos IMLs</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          Onde ficam as unidades. É o que responde “se eu passar, para onde posso
+          ser lotado”.
+        </p>
+
+        <div className="mb-5 max-w-xs">
+          <Campo
+            nome="imlsTotal"
+            label="Total de IMLs no estado"
+            dica="Deixe em branco para o site contar as cidades listadas abaixo."
+          >
+            <input
+              id="imlsTotal"
+              name="imlsTotal"
+              type="number"
+              className={campo}
+              defaultValue={v(inicial?.imlsTotal)}
+            />
+          </Campo>
+        </div>
+
+        <EditorImls inicial={imls} />
       </section>
 
       {/* ---------- Histórico ---------- */}

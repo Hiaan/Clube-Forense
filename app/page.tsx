@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
+import { lerImls } from "./lib/imlsRepo";
 import { lerPlanos } from "./lib/planoRepo";
 import { lerUltimaColeta } from "./lib/sistemaRepo";
 import { NOME_COOKIE, sessaoValida } from "./lib/sessao";
@@ -46,11 +47,12 @@ const ORDEM_RESUMO: Nivel[] = [
 ];
 
 export default async function MonitorPage() {
-  const [relatorio, jar, aprovados, planos, coleta] = await Promise.all([
+  const [relatorio, jar, aprovados, planos, imls, coleta] = await Promise.all([
     coletar(),
     cookies(),
     obterAprovadosSite(),
     lerPlanos(),
+    lerImls(),
     lerUltimaColeta(),
   ]);
   const liberado = sessaoValida(jar.get(NOME_COOKIE)?.value);
@@ -92,6 +94,9 @@ export default async function MonitorPage() {
                   fonte: e.curadoria?.planoFonte ?? null,
                   classes: planos[e.uf],
                 }
+              : null,
+            imls: imls?.[e.uf]?.length
+              ? { total: e.curadoria?.imlsTotal ?? null, unidades: imls[e.uf] }
               : null,
           }
         : null,

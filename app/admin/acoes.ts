@@ -18,6 +18,7 @@ import {
 } from "../lib/admin";
 import { apagarAprovado, salvarAprovado } from "../lib/aprovadosRepo";
 import { salvarEstado, salvarVarios, type EstadoCuradoria } from "../lib/estadosRepo";
+import { salvarImls, type Iml } from "../lib/imlsRepo";
 import { salvarPlano, type ClassePlano } from "../lib/planoRepo";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import type { Nivel } from "../monitor/lib/tipos";
@@ -126,6 +127,24 @@ function lerClasses(dados: FormData): ClassePlano[] {
   }
 }
 
+/** Mesma ideia do plano: a lista viaja como JSON num campo escondido. */
+function lerImls(dados: FormData): Iml[] {
+  const cru = String(dados.get("imls") ?? "").trim();
+  if (!cru) return [];
+  try {
+    const lista = JSON.parse(cru);
+    if (!Array.isArray(lista)) return [];
+    return lista
+      .map((i): Iml => ({
+        cidade: String(i?.cidade ?? "").trim(),
+        nome: String(i?.nome ?? "").trim() || null,
+      }))
+      .filter((i) => i.cidade);
+  } catch {
+    return [];
+  }
+}
+
 export async function salvarEstadoAcao(
   _anterior: Resultado | null,
   dados: FormData,
@@ -174,11 +193,13 @@ export async function salvarEstadoAcao(
       planoOrgao: texto(dados, "planoOrgao"),
       planoAno: numero(dados, "planoAno"),
       planoFonte: texto(dados, "planoFonte"),
+      imlsTotal: numero(dados, "imlsTotal"),
       atualizadoEm: null,
     };
 
     await salvarEstado(estado);
     await salvarPlano(uf, lerClasses(dados));
+    await salvarImls(uf, lerImls(dados));
 
     // O site inteiro depende desta curadoria; sem isto a mudança só apareceria
     // quando o cache de 5 minutos vencesse.
@@ -309,6 +330,7 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
       planoOrgao: null,
       planoAno: null,
       planoFonte: null,
+      imlsTotal: null,
       atualizadoEm: null,
     }));
 
