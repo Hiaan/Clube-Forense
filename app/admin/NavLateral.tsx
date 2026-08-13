@@ -14,6 +14,7 @@ const ITENS: { href: string; rotulo: string; icone: NomeIcone }[] = [
   { href: "/admin/estados", rotulo: "Estados", icone: "mapa" },
   { href: "/admin/aprovados", rotulo: "Aprovados", icone: "estrela" },
   { href: "/admin/leads", rotulo: "Leads", icone: "pessoas" },
+  { href: "/admin/vendas", rotulo: "Vendas", icone: "dinheiro" },
 ];
 
 const ITEM = "flex items-center gap-3 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition";

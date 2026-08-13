@@ -196,6 +196,49 @@ create table if not exists imls (
 `,
   "create index if not exists imls_uf_idx on imls (uf, ordem, id);",
 
+  // Vendas dos infoprodutos, espelhadas da Eduzz.
+  //
+  // A Eduzz é a fonte da verdade — isto é cópia, para o painel ter faturamento
+  // sem depender de a API dela responder no momento em que a página abre, e
+  // para conseguir olhar série histórica, que a tela deles não dá de graça.
+  //
+  // A chave é o id da fatura na Eduzz, não um id nosso: a mesma venda chega
+  // duas vezes por caminhos diferentes (o webhook avisa na hora, a sincronização
+  // diária varre o período de novo) e as duas precisam cair na mesma linha.
+  `
+create table if not exists vendas (
+  id             bigint primary key,
+  produto_id     bigint,
+  produto        text,
+  cliente_nome   text,
+  cliente_email  text,
+  -- Código numérico da Eduzz e o nome que ela mesma deu. Guardamos os dois
+  -- porque o código é estável para agrupar e o nome é o que o humano reconhece
+  -- na tela; traduzir código para texto aqui seria inventar um dicionário que a
+  -- Eduzz pode mudar sem avisar.
+  status         integer not null default 0,
+  status_nome    text not null default '',
+  -- Se a venda conta como dinheiro entrando. Derivado do status na hora de
+  -- gravar, e não na hora de ler, para o SQL dos relatórios não repetir a regra.
+  paga           boolean not null default false,
+  -- Líquido do produtor e o que o cliente pagou. numeric, nunca float: é
+  -- dinheiro, e erro de arredondamento aqui vira divergência com o extrato.
+  valor_liquido  numeric(12,2) not null default 0,
+  valor_bruto    numeric(12,2),
+  criada_em      timestamptz,
+  paga_em        timestamptz,
+  -- 'api' ou 'webhook'. O webhook manda menos campos que a API, então saber de
+  -- onde a linha veio explica por que ela pode estar incompleta.
+  fonte          text not null default 'api',
+  -- Resposta crua. A Eduzz acrescenta campo sem avisar, e sem isto a única
+  -- forma de recuperar um dado que não previmos seria varrer a API de novo.
+  bruto          jsonb,
+  atualizado_em  timestamptz not null default now()
+);
+`,
+  "create index if not exists vendas_criada_em_idx on vendas (criada_em desc);",
+  "create index if not exists vendas_paga_idx on vendas (paga, paga_em desc);",
+
   // Marcos do sistema, em chave/valor. Hoje guarda só quando a coleta de
   // notícias rodou pela última vez; é um lugar para esse tipo de registro não
   // virar uma tabela nova a cada necessidade.

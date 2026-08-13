@@ -1,0 +1,35 @@
+name: Sincronizar vendas da Eduzz
+
+# Rede de segurança do webhook: uma vez por dia relê os últimos 30 dias de
+# faturas na Eduzz e conserta o que a notificação de compra tiver perdido.
+# Usa as mesmas configurações do workflow do monitor (MONITOR_BASE_URL e o
+# secret CRON_SECRET).
+
+on:
+  schedule:
+    - cron: "20 6 * * *" # 06h20 UTC — 03h20 em Brasília, movimento baixo
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "Quantos dias reler (use um número grande para o backfill inicial)"
+        required: false
+        default: "30"
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acionar sincronização no site publicado
+        env:
+          BASE_URL: ${{ vars.MONITOR_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DIAS: ${{ inputs.dias || '30' }}
+        run: |
+          if [ -z "$BASE_URL" ]; then
+            echo "::warning::Defina a variável de repositório MONITOR_BASE_URL (ex.: https://seu-projeto.vercel.app)."
+            exit 0
+          fi
+          echo "Acionando $BASE_URL/api/cron/eduzz?dias=$DIAS ..."
+          curl -fsS "$BASE_URL/api/cron/eduzz?dias=$DIAS" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            && echo "" && echo "Sincronização acionada com sucesso."

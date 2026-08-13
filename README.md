@@ -34,6 +34,32 @@ Variáveis de ambiente, no projeto da Vercel:
 | `ADMIN_SENHA` | Senha do painel. Trocá-la derruba as sessões abertas. |
 | `CURADORIA_CSV_URL` | Planilha publicada em CSV. Usada só pelo botão "Importar da planilha". |
 
+### Vendas da Eduzz (`/admin/vendas`)
+
+As faturas dos infoprodutos são espelhadas da Eduzz por dois caminhos que se
+completam: o webhook avisa na hora e a sincronização diária relê os últimos 30
+dias para consertar o que a notificação tiver perdido.
+
+| Variável | Para quê |
+| --- | --- |
+| `EDUZZ_PUBLIC_KEY` | Public key da API, no painel da Eduzz em Ferramentas → API. |
+| `EDUZZ_API_KEY` | API key do mesmo lugar. Sem ela e a de cima, a sincronização não roda. |
+| `EDUZZ_EMAIL` | Só para contas antigas, em que o e-mail do produtor faz parte da credencial. |
+| `EDUZZ_WEBHOOK_TOKEN` | Chave de segurança cadastrada junto com a URL da notificação de compra. Sem ela a rota do webhook recusa tudo. |
+
+Na Eduzz, aponte a **notificação de compra** para
+`https://SEU-DOMINIO/api/webhooks/eduzz` e use a mesma chave de segurança da
+variável acima.
+
+O primeiro carregamento do histórico é manual, uma vez só:
+
+```
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  "https://SEU-DOMINIO/api/cron/eduzz?dias=730"
+```
+
+Depois disso o workflow `sincronizar-vendas.yml` cuida do dia a dia.
+
 Sem `ADMIN_EMAIL` e `ADMIN_SENHA` o login recusa qualquer tentativa — não há
 senha padrão, porque este repositório é público.
 
