@@ -212,16 +212,64 @@ function daLinha(l: Record<string, unknown>): Venda {
   };
 }
 
-/** Vendas mais recentes primeiro. `null` quando o banco não respondeu. */
-export async function listarVendas(limite = 300): Promise<Venda[] | null> {
+/**
+ * Recorte pedido pela tela: período e, opcionalmente, um produto.
+ *
+ * Datas em AAAA-MM-DD, interpretadas no fuso de Brasília e com as duas pontas
+ * incluídas — quem digita "01/08 a 31/08" espera o dia 31 inteiro, não até a
+ * meia-noite dele. `null` em qualquer ponta significa "sem limite desse lado",
+ * que é como "todo o histórico" se escreve.
+ */
+export interface Filtro {
+  de?: string | null;
+  ate?: string | null;
+  produtoId?: number | null;
+  /** Quando true, ignora as faturas não pagas. É o padrão dos relatórios de dinheiro. */
+  somentePagas?: boolean;
+}
+
+/**
+ * Monta o `where` e a lista de parâmetros a partir do filtro.
+ *
+ * A data considerada é a do pagamento, caindo para a de criação quando não há
+ * pagamento: é o dia em que o dinheiro entrou, que é o que o relatório mede. E
+ * a conversão para o fuso de Brasília acontece aqui, uma vez, para nenhuma
+ * consulta desta casa poder discordar de outra sobre em que dia a venda caiu.
+ */
+function recorte(f: Filtro, comecaEm = 1): { where: string; params: unknown[] } {
+  const partes: string[] = [];
+  const params: unknown[] = [];
+  const dia = "((coalesce(v.paga_em, v.criada_em) at time zone 'America/Sao_Paulo')::date)";
+
+  if (f.somentePagas !== false) partes.push("v.paga");
+  if (f.de) {
+    params.push(f.de);
+    partes.push(`${dia} >= $${comecaEm + params.length - 1}::date`);
+  }
+  if (f.ate) {
+    params.push(f.ate);
+    partes.push(`${dia} <= $${comecaEm + params.length - 1}::date`);
+  }
+  if (f.produtoId != null) {
+    params.push(f.produtoId);
+    partes.push(`v.produto_id = $${comecaEm + params.length - 1}`);
+  }
+
+  return { where: partes.length ? `where ${partes.join(" and ")}` : "", params };
+}
+
+/** Vendas do recorte, mais recentes primeiro. `null` quando o banco não respondeu. */
+export async function listarVendas(filtro: Filtro = {}, limite = 300): Promise<Venda[] | null> {
   if (!bancoConfigurado()) return null;
   try {
     await garantirEsquema();
+    const { where, params } = recorte(filtro);
     const linhas = (await sql().query(
-      `select * from vendas
-        order by coalesce(paga_em, criada_em) desc nulls last, id desc
-        limit $1`,
-      [limite],
+      `select v.* from vendas v
+        ${where}
+        order by coalesce(v.paga_em, v.criada_em) desc nulls last, v.id desc
+        limit $${params.length + 1}`,
+      [...params, limite],
     )) as Record<string, unknown>[];
     return linhas.map(daLinha);
   } catch (e) {
@@ -230,63 +278,144 @@ export async function listarVendas(limite = 300): Promise<Venda[] | null> {
   }
 }
 
+export interface Produto {
+  id: number;
+  nome: string;
+}
+
+/**
+ * Produtos que já apareceram em alguma venda, para a tela poder oferecer o
+ * filtro. Sai do próprio espelho, e não de uma consulta ao catálogo da Eduzz:
+ * um produto que nunca vendeu não tem o que ser recortado.
+ */
+export async function listarProdutos(): Promise<Produto[] | null> {
+  if (!bancoConfigurado()) return null;
+  try {
+    await garantirEsquema();
+    const linhas = (await sql().query(
+      `select produto_id as id, min(produto) as nome
+         from vendas where produto_id is not null
+        group by produto_id order by nome`,
+    )) as Record<string, unknown>[];
+    return linhas.map((l) => ({
+      id: Number(l.id),
+      nome: l.nome == null ? `Produto ${l.id}` : String(l.nome),
+    }));
+  } catch (e) {
+    console.error("Falha ao listar produtos:", e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
 export interface ResumoVendas {
-  /** Faturas pagas, no total. */
+  /** Vendas pagas no recorte. */
   pagas: number;
-  /** Faturas registradas, pagas ou não. */
-  total: number;
+  /** Faturas do recorte, pagas ou não — o denominador da conversão. */
+  faturas: number;
   /** Líquido somado das pagas, em reais. */
   faturamento: number;
-  /** Líquido das pagas nos últimos 30 dias. */
-  faturamento30: number;
-  /** Ranking por produto, do que mais faturou para o que menos faturou. */
-  porProduto: { produto: string; vendas: number; faturamento: number }[];
-  /** Quando o último registro foi atualizado, para a tela dizer se está fresco. */
+  /** Bruto somado, quando a Eduzz informou. Faturamento menos isto é a comissão dela. */
+  bruto: number;
+  /** Faturamento dividido pelas vendas pagas. Zero quando não houve venda. */
+  ticket: number;
+  /** Clientes distintos que compraram no recorte. */
+  clientes: number;
+  /** Quando o espelho foi atualizado pela última vez, para a tela dizer se está fresco. */
   atualizadoEm: string | null;
 }
 
-/** Números do topo da aba de vendas. */
-export async function resumoVendas(): Promise<ResumoVendas | null> {
+/** Números do topo, para o recorte pedido. */
+export async function resumoVendas(filtro: Filtro = {}): Promise<ResumoVendas | null> {
   if (!bancoConfigurado()) return null;
   try {
     await garantirEsquema();
     const s = sql();
-    const [totais, porProduto] = await Promise.all([
+    const pagas = recorte(filtro);
+    // O mesmo recorte, mas sem exigir venda paga: é o total de faturas emitidas,
+    // que sozinho não diz nada e ao lado das pagas vira taxa de conversão.
+    const todas = recorte({ ...filtro, somentePagas: false });
+
+    const [linhas, emitidas, atualizacao] = await Promise.all([
       s.query(
-        `select
-           count(*) filter (where paga)::int                            as pagas,
-           count(*)::int                                                as total,
-           coalesce(sum(valor_liquido) filter (where paga), 0)          as faturamento,
-           coalesce(sum(valor_liquido) filter (
-             where paga and coalesce(paga_em, criada_em) > now() - interval '30 days'
-           ), 0)                                                        as faturamento30,
-           max(atualizado_em)                                           as atualizado_em
-         from vendas`,
+        `select count(*)::int                                as pagas,
+                coalesce(sum(v.valor_liquido), 0)            as faturamento,
+                coalesce(sum(v.valor_bruto), 0)              as bruto,
+                count(distinct v.cliente_email)::int         as clientes
+           from vendas v ${pagas.where}`,
+        pagas.params,
       ),
-      s.query(
-        `select coalesce(produto, 'Sem nome') as produto,
-                count(*)::int as n,
-                coalesce(sum(valor_liquido), 0) as total
-           from vendas where paga
-          group by 1 order by total desc`,
-      ),
+      s.query(`select count(*)::int as n from vendas v ${todas.where}`, todas.params),
+      s.query("select max(atualizado_em) as em from vendas"),
     ]);
 
-    const t = (totais as Record<string, unknown>[])[0] ?? {};
+    const t = (linhas as Record<string, unknown>[])[0] ?? {};
+    const n = Number(t.pagas ?? 0);
+    const faturamento = Number(t.faturamento ?? 0);
+    const em = (atualizacao as Record<string, unknown>[])[0]?.em;
+
     return {
-      pagas: Number(t.pagas ?? 0),
-      total: Number(t.total ?? 0),
-      faturamento: Number(t.faturamento ?? 0),
-      faturamento30: Number(t.faturamento30 ?? 0),
-      porProduto: (porProduto as Record<string, unknown>[]).map((l) => ({
-        produto: String(l.produto),
-        vendas: Number(l.n),
-        faturamento: Number(l.total),
-      })),
-      atualizadoEm: t.atualizado_em ? new Date(String(t.atualizado_em)).toISOString() : null,
+      pagas: n,
+      faturas: Number((emitidas as Record<string, unknown>[])[0]?.n ?? 0),
+      faturamento,
+      bruto: Number(t.bruto ?? 0),
+      ticket: n > 0 ? faturamento / n : 0,
+      clientes: Number(t.clientes ?? 0),
+      atualizadoEm: em ? new Date(String(em)).toISOString() : null,
     };
   } catch (e) {
     console.error("Falha ao resumir vendas:", e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
+export interface ProdutoRanqueado {
+  produtoId: number | null;
+  produto: string;
+  vendas: number;
+  faturamento: number;
+  ticket: number;
+  /** Fatia do faturamento do recorte, de 0 a 1. */
+  fatia: number;
+}
+
+/**
+ * Quais produtos venderam mais no recorte, do maior faturamento para o menor.
+ *
+ * Ordena por dinheiro, e não por quantidade: um produto barato que vende muito
+ * lidera a contagem e some do caixa, e é o caixa que decide onde vale investir.
+ * A contagem vai junto, na mesma linha, para as duas leituras existirem.
+ */
+export async function rankingProdutos(filtro: Filtro = {}): Promise<ProdutoRanqueado[] | null> {
+  if (!bancoConfigurado()) return null;
+  try {
+    await garantirEsquema();
+    const { where, params } = recorte(filtro);
+    const linhas = (await sql().query(
+      `select v.produto_id as id,
+              coalesce(min(v.produto), 'Sem nome') as produto,
+              count(*)::int as n,
+              coalesce(sum(v.valor_liquido), 0) as total
+         from vendas v ${where}
+        group by v.produto_id
+        order by total desc`,
+      params,
+    )) as Record<string, unknown>[];
+
+    const soma = linhas.reduce((acc, l) => acc + Number(l.total ?? 0), 0);
+    return linhas.map((l) => {
+      const total = Number(l.total ?? 0);
+      const n = Number(l.n ?? 0);
+      return {
+        produtoId: l.id == null ? null : Number(l.id),
+        produto: String(l.produto),
+        vendas: n,
+        faturamento: total,
+        ticket: n > 0 ? total / n : 0,
+        fatia: soma > 0 ? total / soma : 0,
+      };
+    });
+  } catch (e) {
+    console.error("Falha ao ranquear produtos:", e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -299,31 +428,53 @@ export interface DiaVendas {
 }
 
 /**
- * Faturamento por dia, do mais antigo para o mais novo, com os dias sem venda
- * incluídos — igual à série de leads, e pelo mesmo motivo: um gráfico que pula
- * os dias vazios mente sobre o ritmo.
+ * Faturamento por dia do período, do mais antigo para o mais novo, com os dias
+ * sem venda incluídos — igual à série de leads, e pelo mesmo motivo: um gráfico
+ * que pula os dias vazios mente sobre o ritmo.
  *
- * O dia é o de Brasília, e a data considerada é a do pagamento (caindo para a
- * de criação quando não há pagamento): é o dia em que o dinheiro entrou.
+ * A série é gerada a partir das pontas do filtro, e não das datas que
+ * apareceram nas vendas: é o que faz um mês inteiro sem venda nenhuma aparecer
+ * como um mês vazio, e não como um gráfico em branco.
+ *
+ * Sem ponta definida, usa a primeira e a última venda do recorte; se nem isso
+ * existir, cai nos últimos 30 dias, para a tela ter um eixo.
  */
-export async function vendasPorDia(dias = 30): Promise<DiaVendas[] | null> {
+export async function vendasPorDia(filtro: Filtro = {}): Promise<DiaVendas[] | null> {
   if (!bancoConfigurado()) return null;
   try {
     await garantirEsquema();
+    const hoje = "(now() at time zone 'America/Sao_Paulo')::date";
+    const dia = "(coalesce(v.paga_em, v.criada_em) at time zone 'America/Sao_Paulo')::date";
+
+    // As pontas do período viram o eixo (os dois primeiros parâmetros); o resto
+    // do filtro entra na junção. As datas não precisam aparecer duas vezes: o
+    // eixo já recorta o que a junção pode alcançar.
+    const params: unknown[] = [filtro.de ?? null, filtro.ate ?? null];
+    const condicoes = [`${dia} = d.dia::date`];
+    if (filtro.somentePagas !== false) condicoes.push("v.paga");
+    if (filtro.produtoId != null) {
+      params.push(filtro.produtoId);
+      condicoes.push(`v.produto_id = $${params.length}`);
+    }
+
     const linhas = (await sql().query(
-      `select to_char(d.dia, 'YYYY-MM-DD') as dia,
+      `with periodo as (
+         select coalesce(
+                  $1::date,
+                  (select min((coalesce(paga_em, criada_em) at time zone 'America/Sao_Paulo')::date)
+                     from vendas where paga),
+                  ${hoje} - 29) as inicio,
+                coalesce($2::date, ${hoje}) as fim
+       )
+       select to_char(d.dia, 'YYYY-MM-DD') as dia,
               count(v.id)::int as n,
               coalesce(sum(v.valor_liquido), 0) as total
-         from generate_series(
-                (now() at time zone 'America/Sao_Paulo')::date - ($1::int - 1),
-                (now() at time zone 'America/Sao_Paulo')::date,
-                interval '1 day') as d(dia)
-         left join vendas v
-           on v.paga
-          and (coalesce(v.paga_em, v.criada_em) at time zone 'America/Sao_Paulo')::date = d.dia::date
+         from periodo p,
+              generate_series(p.inicio, greatest(p.inicio, p.fim), interval '1 day') as d(dia)
+         left join vendas v on ${condicoes.join(" and ")}
         group by d.dia
         order by d.dia`,
-      [dias],
+      params,
     )) as Record<string, unknown>[];
     return linhas.map((l) => ({
       dia: String(l.dia),
