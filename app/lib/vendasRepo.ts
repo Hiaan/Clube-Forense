@@ -420,6 +420,52 @@ export async function rankingProdutos(filtro: Filtro = {}): Promise<ProdutoRanqu
   }
 }
 
+export interface PeriodoVendas {
+  /** Primeiro dia do período, em AAAA-MM-DD. */
+  inicio: string;
+  vendas: number;
+  faturamento: number;
+}
+
+/**
+ * Faturamento agrupado por dia, semana ou mês, para casar com a série de gasto
+ * em anúncios e virar ROI.
+ *
+ * Sem preencher os períodos vazios, ao contrário da série do gráfico: quem
+ * junta as duas metades precisa do buraco visível, e não de um zero inventado
+ * de um lado que o outro lado não tem.
+ *
+ * `trunc` já vem de um mapa fechado em adsRepo — não é texto de usuário.
+ */
+export async function vendasPorPeriodo(
+  trunc: string,
+  filtro: Filtro = {},
+): Promise<PeriodoVendas[] | null> {
+  if (!bancoConfigurado()) return null;
+  try {
+    await garantirEsquema();
+    const { where, params } = recorte(filtro);
+    const dia = "(coalesce(v.paga_em, v.criada_em) at time zone 'America/Sao_Paulo')::date";
+    const linhas = (await sql().query(
+      `select to_char(date_trunc('${trunc}', ${dia}), 'YYYY-MM-DD') as inicio,
+              count(*)::int as n,
+              coalesce(sum(v.valor_liquido), 0) as total
+         from vendas v ${where}
+        group by 1 order by 1`,
+      params,
+    )) as Record<string, unknown>[];
+
+    return linhas.map((l) => ({
+      inicio: String(l.inicio),
+      vendas: Number(l.n),
+      faturamento: Number(l.total),
+    }));
+  } catch (e) {
+    console.error("Falha ao agrupar vendas por período:", e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
 export interface DiaVendas {
   /** Data no formato AAAA-MM-DD. */
   dia: string;

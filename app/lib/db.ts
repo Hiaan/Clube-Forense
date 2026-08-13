@@ -239,6 +239,33 @@ create table if not exists vendas (
   "create index if not exists vendas_criada_em_idx on vendas (criada_em desc);",
   "create index if not exists vendas_paga_idx on vendas (paga, paga_em desc);",
 
+  // Gasto com anúncios, um registro por campanha por dia.
+  //
+  // Existe para o faturamento da tabela acima poder ser dividido por alguma
+  // coisa: venda sem custo não é resultado, é movimento. Fica por dia, e não
+  // por mês, porque é o dia que permite refazer a conta em qualquer recorte —
+  // o contrário não dá.
+  //
+  // A chave é (dia, campanha): o Meta corrige os números dos últimos dias
+  // conforme atribui conversões, então a mesma linha é reescrita várias vezes
+  // antes de assentar, e um id sequencial criaria uma cópia a cada correção.
+  `
+create table if not exists gastos_ads (
+  dia          date not null,
+  -- 'meta' hoje. A coluna existe para o dia em que houver Google ou TikTok:
+  -- sem ela, a segunda plataforma exigiria uma tabela nova e um relatório novo.
+  plataforma   text not null default 'meta',
+  campanha_id  text not null,
+  campanha     text,
+  gasto        numeric(12,2) not null default 0,
+  impressoes   bigint not null default 0,
+  cliques      bigint not null default 0,
+  atualizado_em timestamptz not null default now(),
+  primary key (dia, plataforma, campanha_id)
+);
+`,
+  "create index if not exists gastos_ads_dia_idx on gastos_ads (dia desc);",
+
   // Marcos do sistema, em chave/valor. Hoje guarda só quando a coleta de
   // notícias rodou pela última vez; é um lugar para esse tipo de registro não
   // virar uma tabela nova a cada necessidade.

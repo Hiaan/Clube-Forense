@@ -60,6 +60,31 @@ curl -H "Authorization: Bearer $CRON_SECRET" \
 
 Depois disso o workflow `sincronizar-vendas.yml` cuida do dia a dia.
 
+### ROI (gasto no Meta Ads)
+
+O faturamento sozinho não diz se a operação ganha dinheiro. O painel puxa o
+gasto das campanhas pela API de Marketing do Meta e mostra ROI, ROAS e custo por
+venda, por dia, semana ou mês.
+
+| Variável | Para quê |
+| --- | --- |
+| `META_ACCESS_TOKEN` | Token de acesso com a permissão `ads_read`, gerado em developers.facebook.com para um app seu. Prefira um token de longa duração ou de usuário de sistema — o token curto vence em horas. |
+| `META_AD_ACCOUNT_ID` | ID da conta de anúncios (Gerenciador de Anúncios → Configurações). Aceita com ou sem o prefixo `act_`. |
+| `META_API_VERSAO` | Opcional. Padrão `v21.0`. |
+
+O carregamento inicial, uma vez:
+
+```
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  "https://SEU-DOMINIO/api/cron/meta-ads?dias=365"
+```
+
+Duas ressalvas que a tela respeita: o gasto é relido a cada dia porque o Meta
+corrige os números recentes conforme atribui conversões; e, ao filtrar por
+produto, o bloco de ROI some — a campanha leva a pessoa ao site, não a um item
+do catálogo, então dividir o faturamento de um produto pelo custo inteiro daria
+um número falso.
+
 Sem `ADMIN_EMAIL` e `ADMIN_SENHA` o login recusa qualquer tentativa — não há
 senha padrão, porque este repositório é público.
 

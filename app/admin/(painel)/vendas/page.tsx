@@ -7,7 +7,10 @@
 import Link from "next/link";
 
 import { Cartao, Numero } from "../../graficos/Cartao";
+import { granularidadeValida, resumoGastos, gastosPorCampanha } from "../../../lib/adsRepo";
 import { eduzzConfigurada } from "../../../lib/eduzzApi";
+import { metaAdsConfigurado } from "../../../lib/metaAdsApi";
+import { calcularRoi, serieRoi } from "../../../lib/roi";
 import {
   listarProdutos,
   listarVendas,
@@ -42,6 +45,25 @@ function diasAtras(n: number): string {
 
 function dataBr(iso: string): string {
   return iso.split("-").reverse().join("/");
+}
+
+/**
+ * Como cada linha da tabela de ROI se apresenta. A semana vira "12/08 a 18/08",
+ * e não "semana 33": ninguém sabe de cabeça quando a semana 33 começou.
+ */
+function rotuloPeriodo(inicio: string, granularidade: "dia" | "semana" | "mes"): string {
+  if (granularidade === "dia") return dataBr(inicio);
+  if (granularidade === "mes") {
+    const [ano, mes] = inicio.split("-");
+    const nome = new Date(Number(ano), Number(mes) - 1, 1).toLocaleDateString("pt-BR", {
+      month: "long",
+      year: "numeric",
+    });
+    return nome.charAt(0).toUpperCase() + nome.slice(1);
+  }
+  const fim = new Date(`${inicio}T12:00:00`);
+  fim.setDate(fim.getDate() + 6);
+  return `${dataBr(inicio)} a ${dataBr(fim.toISOString().slice(0, 10))}`;
 }
 
 function quando(iso: string | null): string {
@@ -94,13 +116,22 @@ export default async function PainelVendas({
   const produtoId = Number(texto("produto")) || null;
 
   const filtro: Filtro = { de, ate, produtoId };
+  // O gasto com anúncios não se divide por produto: a campanha leva a pessoa ao
+  // site, não a um item do catálogo. Filtrar por produto e continuar somando o
+  // custo inteiro daria um ROI falso — então, com produto escolhido, o bloco de
+  // ROI sai da tela em vez de mentir.
+  const granularidade = granularidadeValida(texto("por"));
+  const roiAplicavel = produtoId == null;
 
-  const [resumo, ranking, porDia, vendas, produtos] = await Promise.all([
+  const [resumo, ranking, porDia, vendas, produtos, gastos, campanhas, linhasRoi] = await Promise.all([
     resumoVendas(filtro),
     rankingProdutos(filtro),
     vendasPorDia(filtro),
     listarVendas(filtro),
     listarProdutos(),
+    roiAplicavel ? resumoGastos({ de, ate }) : Promise.resolve(null),
+    roiAplicavel ? gastosPorCampanha({ de, ate }) : Promise.resolve(null),
+    roiAplicavel ? serieRoi(granularidade, filtro, { de, ate }) : Promise.resolve(null),
   ]);
 
   if (resumo === null || ranking === null || vendas === null) {
@@ -114,6 +145,11 @@ export default async function PainelVendas({
       </>
     );
   }
+
+  // Os números de ROI do topo somam o período inteiro, e não a tabela abaixo:
+  // a tabela é a mesma conta fatiada, e refazê-la a partir das fatias herdaria
+  // qualquer período que a fatia tenha deixado de fora.
+  const total = calcularRoi(resumo.faturamento, gastos?.gasto ?? 0, resumo.pagas);
 
   const serie = porDia ?? [];
   const melhorDia = Math.max(1, ...serie.map((d) => d.faturamento));
@@ -250,6 +286,163 @@ export default async function PainelVendas({
           icone="pessoas"
         />
       </div>
+
+      {roiAplicavel && (
+        <>
+          <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Numero
+              rotulo="Investido em anúncios"
+              valor={moedaCurta(total.gasto)}
+              rodape={
+                gastos && gastos.cliques > 0
+                  ? `${gastos.cliques} clique(s) · CPC ${moeda(gastos.cpc)}`
+                  : "Meta Ads, no mesmo período"
+              }
+              icone="mapa"
+            />
+            <Numero
+              rotulo="ROI"
+              valor={total.roi == null ? "—" : `${total.roi > 0 ? "+" : ""}${total.roi.toFixed(0)}%`}
+              rodape={
+                total.roi == null
+                  ? "Sem gasto registrado no período"
+                  : `Lucro de ${moedaCurta(total.lucro)} sobre o investido`
+              }
+              icone="dinheiro"
+              destaque
+            />
+            <Numero
+              rotulo="ROAS"
+              valor={total.roas == null ? "—" : `${total.roas.toFixed(2)}×`}
+              rodape="Faturamento para cada real investido"
+              icone="painel"
+            />
+            <Numero
+              rotulo="Custo por venda"
+              valor={total.cac == null ? "—" : moeda(total.cac)}
+              rodape={
+                total.cac != null && resumo.ticket > 0
+                  ? `Ticket médio de ${moedaCurta(resumo.ticket)}`
+                  : "Investido dividido pelas vendas pagas"
+              }
+              icone="estrela"
+            />
+          </div>
+
+          {!metaAdsConfigurado() && (
+            <Aviso>
+              Gasto com anúncios ausente. Defina <code>META_ACCESS_TOKEN</code> e{" "}
+              <code>META_AD_ACCOUNT_ID</code> na Vercel e rode{" "}
+              <code>/api/cron/meta-ads?dias=365</code> — sem o custo, o ROI não
+              tem denominador.
+            </Aviso>
+          )}
+
+          <Cartao
+            className="mb-6"
+            titulo="ROI por período"
+            descricao="Faturamento da Eduzz contra o gasto no Meta, no mesmo corte de tempo"
+            acao={
+              <div className="flex gap-1">
+                {(["dia", "semana", "mes"] as const).map((g) => (
+                  <Link
+                    key={g}
+                    href={`/admin/vendas?${tudo ? "periodo=tudo" : `de=${de}&ate=${ate}`}&por=${g}`}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                      granularidade === g
+                        ? "bg-gray-900 text-white"
+                        : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {g === "dia" ? "Diário" : g === "semana" ? "Semanal" : "Mensal"}
+                  </Link>
+                ))}
+              </div>
+            }
+          >
+            {!linhasRoi || linhasRoi.length === 0 ? (
+              <p className="py-8 text-center text-sm text-gray-400">
+                Nada a comparar no período ainda.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[620px] text-sm">
+                  <thead className="text-left text-xs uppercase tracking-wide text-gray-500">
+                    <tr>
+                      <th className="py-2 font-semibold">Período</th>
+                      <th className="py-2 text-right font-semibold">Faturamento</th>
+                      <th className="py-2 text-right font-semibold">Investido</th>
+                      <th className="py-2 text-right font-semibold">Lucro</th>
+                      <th className="py-2 text-right font-semibold">ROI</th>
+                      <th className="py-2 text-right font-semibold">ROAS</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    className="divide-y divide-gray-100"
+                    style={{ fontVariantNumeric: "tabular-nums" }}
+                  >
+                    {linhasRoi.map((l) => (
+                      <tr key={l.inicio}>
+                        <td className="py-2.5 text-gray-700">
+                          {rotuloPeriodo(l.inicio, granularidade)}
+                          <span className="block text-xs text-gray-400">
+                            {l.vendas} venda(s)
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-right text-gray-900">
+                          {moeda(l.faturamento)}
+                        </td>
+                        <td className="py-2.5 text-right text-gray-600">{moeda(l.gasto)}</td>
+                        <td
+                          className={`py-2.5 text-right font-medium ${
+                            l.lucro < 0 ? "text-red-600" : "text-gray-900"
+                          }`}
+                        >
+                          {moeda(l.lucro)}
+                        </td>
+                        <td
+                          className={`py-2.5 text-right font-semibold ${
+                            l.roi == null
+                              ? "text-gray-400"
+                              : l.roi < 0
+                                ? "text-red-600"
+                                : "text-emerald-700"
+                          }`}
+                        >
+                          {l.roi == null ? "—" : `${l.roi > 0 ? "+" : ""}${l.roi.toFixed(0)}%`}
+                        </td>
+                        <td className="py-2.5 text-right text-gray-600">
+                          {l.roas == null ? "—" : `${l.roas.toFixed(2)}×`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Cartao>
+
+          {campanhas && campanhas.length > 0 && (
+            <Cartao
+              className="mb-6"
+              titulo="Onde o dinheiro foi"
+              descricao="Gasto por campanha no período"
+            >
+              <ul className="flex flex-col gap-2.5">
+                {campanhas.slice(0, 8).map((c) => (
+                  <li key={c.campanhaId} className="flex items-baseline justify-between gap-3">
+                    <span className="truncate text-sm text-gray-700">{c.campanha}</span>
+                    <span className="shrink-0 text-sm text-gray-500">
+                      <strong className="font-semibold text-gray-900">{moeda(c.gasto)}</strong>
+                      {c.cliques > 0 && ` · CPC ${moeda(c.cpc)}`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Cartao>
+          )}
+        </>
+      )}
 
       <Cartao
         className="mb-6"
