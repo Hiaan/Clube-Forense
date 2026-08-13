@@ -8,7 +8,10 @@
 //
 // Como no cliente da Eduzz, nada aqui lança: devolve `null` com o motivo no log.
 
-const VERSAO = process.env.META_API_VERSAO || "v21.0";
+// Versão da Graph API. O Meta aposenta uma versão a cada ~2 anos e o caminho
+// carrega a versão, então isto é variável de ambiente: trocar não deve exigir
+// publicar o site.
+const VERSAO = process.env.META_API_VERSAO || "v26.0";
 const BASE = `https://graph.facebook.com/${VERSAO}`;
 
 /** True quando o token e a conta estão no ambiente. */

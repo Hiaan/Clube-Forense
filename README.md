@@ -70,7 +70,7 @@ venda, por dia, semana ou mês.
 | --- | --- |
 | `META_ACCESS_TOKEN` | Token de acesso com a permissão `ads_read`, gerado em developers.facebook.com para um app seu. Prefira um token de longa duração ou de usuário de sistema — o token curto vence em horas. |
 | `META_AD_ACCOUNT_ID` | ID da conta de anúncios (Gerenciador de Anúncios → Configurações). Aceita com ou sem o prefixo `act_`. |
-| `META_API_VERSAO` | Opcional. Padrão `v21.0`. |
+| `META_API_VERSAO` | Opcional. Padrão `v26.0`. Serve para acompanhar a aposentadoria de versões da Graph API sem publicar o site. |
 
 O carregamento inicial, uma vez:
 
