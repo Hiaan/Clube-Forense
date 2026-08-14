@@ -166,12 +166,12 @@ export const AUTORA = {
 
 export const ENTREGAS = [
   "Curso completo do MEAP, do lançamento estrutural à entrega do projeto",
-  "Aulas de projetos reais, acompanhados do briefing à prancha final",
+  "Dois projetos estruturais desenvolvidos do zero, do briefing à prancha final",
+  "Aulas gravadas, para assistir no seu ritmo",
   "Módulo de precificação, com o método para formar o seu preço",
   "Módulo de captação e vendas, com abordagens prontas",
   "Modelos de proposta comercial e de contrato",
   "Suporte para tirar dúvidas técnicas durante o curso",
-  "Acesso por 12 meses, com atualizações incluídas", // PREENCHER: confirmar prazo
   "Certificado de conclusão",
 ];
 
@@ -184,7 +184,7 @@ export const FAQ = [
   {
     pergunta: "Qual software é usado?",
     resposta:
-      "As aulas seguem o fluxo de trabalho de um escritório de projeto estrutural. O raciocínio ensinado — concepção, análise e detalhamento — vale para qualquer software do mercado.",
+      "As aulas usam o Eberick, e um dos objetivos do curso é justamente você dominá-lo. O raciocínio ensinado — concepção, análise e detalhamento — vale para qualquer software do mercado.",
   },
   {
     pergunta: "Sou recém-formado. Consigo mesmo conseguir cliente?",
@@ -192,14 +192,14 @@ export const FAQ = [
       "Os módulos de posicionamento e prospecção existem justamente para isso: montar portfólio antes de ter carteira, definir preço sem histórico e abordar arquitetos e construtoras do zero.",
   },
   {
+    pergunta: "As aulas são ao vivo ou gravadas?",
+    resposta:
+      "Gravadas. Você assiste no seu ritmo, quantas vezes quiser, e volta na aula que precisar enquanto desenvolve os seus próprios projetos.",
+  },
+  {
     pergunta: "Como funciona o suporte?",
     resposta:
       "Você pode enviar suas dúvidas técnicas durante o curso e recebe retorno da equipe — inclusive sobre projetos que estiver desenvolvendo.",
-  },
-  {
-    pergunta: "Por quanto tempo tenho acesso?",
-    resposta:
-      "O acesso vale por 12 meses a partir da matrícula, incluindo as atualizações lançadas nesse período.", // PREENCHER: confirmar
   },
   {
     pergunta: "Recebo certificado?",

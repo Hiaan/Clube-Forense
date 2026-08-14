@@ -23,7 +23,7 @@ import {
 export const metadata: Metadata = {
   title: "MEAP — Método Estruturas de Alto Padrão | Queren Costa",
   description:
-    "Aprenda a desenvolver, precificar e vender projetos estruturais de alto padrão. Segurança técnica e clientes na mesma formação.",
+    "Aprenda a projetar, captar clientes e faturar com Projetos Estruturais de Alto Padrão.",
 };
 
 /**
@@ -428,9 +428,7 @@ export default function MeapPage() {
                   ou {PRECO.aVista} à vista
                 </p>
 
-                <Cta className="mt-7 w-full sm:w-auto">
-                  QUERO FAZER PARTE DO MEAP
-                </Cta>
+                <Cta className="mt-7 w-full sm:w-auto">{HERO.cta}</Cta>
 
                 <p className="mx-auto mt-6 max-w-md text-xs leading-relaxed text-white/60">
                   <strong className="font-semibold text-white/90">
@@ -487,7 +485,7 @@ export default function MeapPage() {
               {PRECO.aVista} à vista ou {PRECO.parcelado}, com 7 dias de
               garantia.
             </p>
-            <Cta className="mt-7 w-full sm:w-auto">QUERO FAZER PARTE DO MEAP</Cta>
+            <Cta className="mt-7 w-full sm:w-auto">{HERO.cta}</Cta>
           </div>
         </section>
 
