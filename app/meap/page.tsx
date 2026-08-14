@@ -4,11 +4,13 @@ import Image from "next/image";
 import {
   AUTORA,
   BARREIRAS,
+  BONUS,
   CHECKOUT_URL,
   CONTATO,
   DEPOIMENTOS,
   ENTREGAS,
   FAQ,
+  GARANTIA,
   HERO,
   MARCA,
   MODULOS,
@@ -19,6 +21,7 @@ import {
   PRECO,
   PROJETOS,
   SELOS,
+  SOZINHO,
 } from "./conteudo";
 
 // Página de vendas: nada aqui depende de requisição, então ela é estática e
@@ -116,6 +119,99 @@ function Selos({ className = "" }: { className?: string }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * Moldura de notebook. A tela recebe o print da área de membros quando houver;
+ * sem ele, mostra um mosaico de blocos que sugere a grade de módulos sem
+ * fingir uma captura que não existe.
+ */
+function Notebook({ imagem }: { imagem: string }) {
+  return (
+    <div className="mx-auto w-full max-w-xl">
+      {/* A tampa é um pouco mais estreita que a base — é isso que dá o volume
+          do aparelho. Alargar a base para além do container criava rolagem
+          horizontal na página inteira. */}
+      <div className="mx-auto w-[94%] rounded-xl border-[6px] border-[#0b1220] bg-[#0b1220] shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
+        <div className="relative aspect-16/10 overflow-hidden rounded-md bg-[#0f1626]">
+          {imagem ? (
+            <Image
+              src={imagem}
+              alt="Área de membros do MEAP"
+              fill
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              className="object-cover"
+            />
+          ) : (
+            <div aria-hidden className="grid h-full grid-cols-4 gap-1.5 p-3">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-sm bg-linear-to-br from-[#2c375b] to-[#141c2e]"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="mx-auto h-2.5 w-full rounded-b-xl bg-[#0b1220]" />
+    </div>
+  );
+}
+
+/** Moldura de celular com a conversa do grupo. */
+function Celular({
+  imagem,
+  grupo,
+  conversa,
+}: {
+  imagem: string;
+  grupo: string;
+  conversa: { de: "aluno" | "queren"; texto: string }[];
+}) {
+  return (
+    <div className="mx-auto w-full max-w-[16rem]">
+      <div className="rounded-[2.2rem] border-[10px] border-[#1e2637] bg-[#1e2637] shadow-[0_30px_70px_rgba(0,0,0,0.5)]">
+        <div className="relative aspect-9/19 overflow-hidden rounded-[1.5rem] bg-[#0b1220]">
+          {imagem ? (
+            <Image
+              src={imagem}
+              alt={`Conversa do ${grupo}`}
+              fill
+              sizes="256px"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full flex-col">
+              <div className="flex items-center gap-2 bg-[#141c2e] px-3 py-3">
+                <span className="h-6 w-6 shrink-0 rounded-full bg-[#25d366]/80" />
+                <span className="truncate text-[0.6rem] font-semibold text-white/85">
+                  {grupo}
+                </span>
+              </div>
+              {/* As mensagens encostam embaixo, como em conversa de verdade —
+                  senão o aparelho fica com um vazio no pé da tela. */}
+              <div className="flex flex-1 flex-col justify-end gap-2 p-2.5">
+                {conversa.map((m) => (
+                  <p
+                    key={m.texto}
+                    className={`max-w-[85%] rounded-lg px-2.5 py-1.5 text-[0.58rem] leading-snug ${
+                      m.de === "queren"
+                        ? "self-end bg-[#25d366]/20 text-white/85"
+                        : "self-start bg-white/10 text-white/75"
+                    }`}
+                  >
+                    {m.texto}
+                  </p>
+                ))}
+                <div className="mt-1.5 h-6 rounded-full bg-white/[0.07]" />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -434,6 +530,65 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
+        {/* Quebra de objeção — texto à esquerda, área de membros à direita */}
+        <section className="bg-[#0f1626]">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,44%)]">
+            <div>
+              <h2 className="font-sora text-2xl font-bold uppercase leading-tight tracking-tight text-[#ffc781] sm:text-3xl">
+                {SOZINHO.titulo}
+              </h2>
+              {SOZINHO.paragrafos.map((p) => (
+                <p
+                  key={p}
+                  className="mt-4 max-w-2xl leading-relaxed text-white/75"
+                >
+                  {p}
+                </p>
+              ))}
+              <Cta className="mt-9 w-full sm:w-auto">{HERO.cta}</Cta>
+            </div>
+
+            <Notebook imagem={SOZINHO.imagem} />
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Bônus — grupo de alunos */}
+        <section className="bg-[#1b243a]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="text-center">
+              <h2 className="font-sora text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                <span className="text-[#ffc781]">{BONUS.chamada}</span>{" "}
+                {BONUS.titulo}{" "}
+                <em className="font-bold italic text-[#ffc781]">
+                  {BONUS.tituloDestaque}
+                </em>
+              </h2>
+            </div>
+
+            <div className="card-dark mt-12 grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1fr_minmax(0,20rem)]">
+              <div>
+                <span className="inline-flex rounded-md border border-[#ffc781]/50 px-2.5 py-1 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#ffc781]">
+                  {BONUS.etiqueta}
+                </span>
+                <h3 className="mt-5 font-sora text-xl font-bold leading-snug text-white sm:text-2xl">
+                  {BONUS.headline}
+                </h3>
+                <p className="mt-4 max-w-xl leading-relaxed text-white/70">
+                  {BONUS.texto}
+                </p>
+              </div>
+
+              <Celular
+                imagem={BONUS.imagem}
+                grupo={BONUS.grupo}
+                conversa={BONUS.conversa}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------------- */}
         {/* Prova: projetos + depoimentos. A seção só aparece quando existe
             material real para mostrar — prova social vazia derruba a página
             inteira. */}
@@ -600,6 +755,29 @@ export default function MeapPage() {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Garantia — logo depois do preço, que é onde o medo aparece */}
+        <section className="bg-[#ffc781] text-[#2c375b]">
+          <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:py-20">
+            <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#2c375b] text-[#ffc781]">
+              <Icone nome="escudo" className="h-8 w-8" />
+            </span>
+            <p className="eyebrow eyebrow-on-peach mt-6">{GARANTIA.etiqueta}</p>
+            <h2 className="mt-3 font-sora text-2xl font-bold tracking-tight sm:text-4xl">
+              {GARANTIA.titulo}
+            </h2>
+            <p className="mt-3 font-sora text-lg font-bold sm:text-xl">
+              {GARANTIA.chamada}
+            </p>
+            <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-[#2c375b]/90">
+              {GARANTIA.texto}
+            </p>
+            <Cta variante="navy" className="mt-9 w-full sm:w-auto">
+              {HERO.cta}
+            </Cta>
           </div>
         </section>
 

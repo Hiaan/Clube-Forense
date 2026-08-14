@@ -248,6 +248,58 @@ export const AUTORA = {
   // ex.: [{ valor: "+300", rotulo: "alunos formados" }]
 };
 
+/** Seção de quebra de objeção, antes da oferta. */
+export const SOZINHO = {
+  titulo: "Sim, você até poderia tentar sozinho…",
+  paragrafos: [
+    "Mas também pode aprender direto com quem já vive disso e precisou bater muita cabeça até entender o que realmente funciona — para que você receba esse caminho muito mais “mastigado”.",
+    "No Método Estruturas de Alto Padrão, você aprende exatamente o que precisa para começar a atuar nesse mercado com mais segurança: desde toda a parte técnica até quanto cobrar, como precificar seu projeto e como apresentar esse serviço ao cliente.",
+    "E você não vai aprender apenas com exemplos teóricos.",
+    "Juntos, vamos desenvolver 2 projetos estruturais reais que foram contratados por clientes da minha empresa.",
+    "Você vai acompanhar o processo do início ao fim, entender as decisões tomadas em cada etapa e adquirir uma experiência muito mais próxima daquilo que realmente acontece no mercado.",
+    "Você não precisa esperar o seu primeiro cliente para começar a ter experiência com projetos reais.",
+  ],
+  /** PREENCHER: print da área de membros, para aparecer na tela do notebook. */
+  imagem: "",
+};
+
+/** Bônus do grupo de alunos. */
+export const BONUS = {
+  chamada: "E tem mais!",
+  titulo: "Segura esse bônus com",
+  tituloDestaque: "acesso vitalício",
+  etiqueta: "Grupo VIP",
+  headline: "Acesso vitalício ao nosso Grupo VIP no WhatsApp",
+  texto:
+    "Aqui todo mundo persegue a mesma coisa: fazer projetos estruturais de verdade. No grupo você tira dúvida técnica, mostra o que está desenvolvendo, vê o projeto dos outros alunos e evolui junto com quem está na mesma estrada. O acesso é vitalício — você entra uma vez e fica.",
+  /**
+   * PREENCHER: print real do grupo, para aparecer na tela do celular.
+   * Enquanto estiver vazio, o aparelho mostra a conversa de exemplo abaixo,
+   * que é ilustração de interface — não é conversa real de aluno e por isso
+   * não traz nome, elogio nem promessa de resultado.
+   */
+  imagem: "",
+  grupo: "MEAP · Grupo VIP",
+  conversa: [
+    { de: "aluno" as const, texto: "Posso engastar a laje na viga em balanço?" },
+    {
+      de: "queren" as const,
+      texto:
+        "Depende da continuidade. Em balanço eu reveria a carga antes — te mostro no projeto 02.",
+    },
+    { de: "aluno" as const, texto: "Fechou, vou refazer o lançamento hoje." },
+  ],
+};
+
+/** Garantia, logo depois do preço. */
+export const GARANTIA = {
+  etiqueta: "Risco zero",
+  titulo: "Garantia incondicional de 7 dias",
+  chamada: "Pode comprar sem medo.",
+  texto:
+    "Entre, assista às aulas, abra os projetos e veja por dentro. Se em até 7 dias você concluir que o MEAP não é para você, basta pedir o reembolso — sem formulário, sem justificativa e sem pergunta nenhuma. Devolvemos 100% do valor.",
+};
+
 export const OFERTA = {
   titulo: "Quanto você precisará investir?",
   apoio:
