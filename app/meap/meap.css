@@ -98,10 +98,19 @@
  * profundidade. Tudo em CSS — a página segue sem JavaScript.
  * ------------------------------------------------------------------------ */
 
+/* A faixa não tem fundo próprio: ela pinta metade com a cor da seção de cima e
+   metade com a de baixo, então a fita passa por cima da emenda entre as duas
+   como se estivesse sobreposta ao fundo. As cores chegam por variável, na
+   chamada do componente. */
 .meap .faixa-urgencia {
   position: relative;
-  height: 11rem;
+  height: 10rem;
   overflow: hidden; /* segura as pontas giradas: sem isso a página rola de lado */
+  background: linear-gradient(
+    to bottom,
+    var(--faixa-de) 0 50%,
+    var(--faixa-para) 50% 100%
+  );
 }
 
 .meap .faixa {
@@ -133,10 +142,10 @@
 .meap .faixa-trilho {
   display: flex;
   width: max-content;
-  animation: meap-rolar 26s linear infinite;
+  animation: meap-rolar 70s linear infinite;
 }
 .meap .faixa--fundo .faixa-trilho {
-  animation-duration: 38s;
+  animation-duration: 95s;
   animation-direction: reverse;
 }
 

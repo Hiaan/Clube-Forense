@@ -137,12 +137,12 @@ function AreaDeMembros({ imagem }: { imagem: string }) {
     // enquadramento em 16/10 corta o transparente de cima e de baixo, senão
     // sobraria quase metade da altura vazia.
     return (
-      <div className="relative mx-auto aspect-16/10 w-full max-w-xl">
+      <div className="relative mx-auto aspect-16/10 w-full max-w-2xl">
         <Image
           src={imagem}
           alt="Área de membros do MEAP"
           fill
-          sizes="(min-width: 1024px) 44vw, 100vw"
+          sizes="(min-width: 1024px) 52vw, 100vw"
           className="object-cover"
         />
       </div>
@@ -226,13 +226,85 @@ function Celular({
   );
 }
 
+/** Moldura de planilha, para o bônus de materiais editáveis. */
+function Planilha({
+  imagem,
+  arquivo,
+  colunas,
+  linhas,
+}: {
+  imagem: string;
+  arquivo: string;
+  colunas: string[];
+  linhas: string[][];
+}) {
+  return (
+    <div className="mx-auto w-full max-w-[20rem]">
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0b1220] shadow-[0_30px_70px_rgba(0,0,0,0.5)]">
+        {imagem ? (
+          <div className="relative aspect-4/3">
+            <Image
+              src={imagem}
+              alt={arquivo}
+              fill
+              sizes="320px"
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 border-b border-white/10 bg-[#141c2e] px-3 py-2.5">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-[#ffc781]" />
+              <span className="truncate text-[0.6rem] font-semibold text-white/80">
+                {arquivo}
+              </span>
+            </div>
+            <table className="w-full text-[0.58rem]">
+              <thead>
+                <tr className="bg-white/[0.06] text-white/60">
+                  {colunas.map((c) => (
+                    <th key={c} className="px-3 py-1.5 text-left font-semibold">
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {linhas.map((l, i) => (
+                  <tr
+                    key={l[0]}
+                    className={`border-t border-white/[0.06] ${
+                      i === linhas.length - 1
+                        ? "font-bold text-[#ffc781]"
+                        : "text-white/70"
+                    }`}
+                  >
+                    {l.map((celula, j) => (
+                      <td
+                        key={j}
+                        className={`px-3 py-2 ${j === 0 ? "" : "text-right"}`}
+                      >
+                        {celula}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /**
  * Faixa diagonal em movimento, com o gatilho de urgência.
  *
  * Cada trilho leva a lista duplicada porque a animação anda exatamente metade
  * dela — é o que faz o laço voltar ao início sem emenda visível.
  */
-function FaixaUrgencia() {
+function FaixaUrgencia({ de, para }: { de: string; para: string }) {
   const itens = Array.from({ length: URGENCIA.repeticoes }, (_, i) => i);
   const trilho = (
     <div className="faixa-trilho">
@@ -250,7 +322,10 @@ function FaixaUrgencia() {
   );
 
   return (
-    <div className="faixa-urgencia">
+    <div
+      className="faixa-urgencia"
+      style={{ "--faixa-de": de, "--faixa-para": para } as React.CSSProperties}
+    >
       <div className="faixa faixa--fundo">{trilho}</div>
       <div className="faixa faixa--frente">{trilho}</div>
     </div>
@@ -368,6 +443,8 @@ export default function MeapPage() {
             </div>
           </div>
         </section>
+
+        <FaixaUrgencia de="#1b243a" para="#ffc781" />
 
         {/* ---------------------------------------------------------------- */}
         {/* A oportunidade — faixa pêssego, como na captura */}
@@ -576,9 +653,70 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Quebra de objeção — texto à esquerda, área de membros à direita */}
+        {/* Bônus — um cartão por item, com a moldura trocando de lado */}
         <section className="bg-[#0f1626]">
-          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,44%)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="text-center">
+              <h2 className="font-sora text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                {BONUS.titulo}{" "}
+                <em className="font-bold italic text-[#ffc781]">
+                  {BONUS.tituloDestaque}
+                </em>{" "}
+                {BONUS.tituloFim}
+              </h2>
+            </div>
+
+            <div className="mt-12 space-y-6">
+              {BONUS.itens.map((item, i) => (
+                <div
+                  key={item.etiqueta}
+                  className="card-dark grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1fr_minmax(0,20rem)]"
+                >
+                  {/* No segundo cartão a moldura troca de lado, senão os dois
+                      blocos viram a mesma fileira repetida. */}
+                  <div className={i % 2 === 1 ? "lg:order-2" : ""}>
+                    <span className="inline-flex rounded-md border border-[#ffc781]/50 px-2.5 py-1 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#ffc781]">
+                      {item.etiqueta}
+                    </span>
+                    <h3 className="mt-5 font-sora text-xl font-bold leading-snug text-white sm:text-2xl">
+                      {item.headline}
+                    </h3>
+                    <p className="mt-4 max-w-xl leading-relaxed text-white/70">
+                      {item.texto}
+                    </p>
+                  </div>
+
+                  <div className={i % 2 === 1 ? "lg:order-1" : ""}>
+                    {item.tipo === "celular" ? (
+                      // Só o celular vaza o cartão: ele é bem mais alto que o
+                      // bloco, e é isso que dá o efeito. A planilha é baixa e
+                      // vazar ali só encolheria o cartão.
+                      <div className="lg:-my-20">
+                        <Celular
+                          imagem={item.imagem}
+                          grupo={item.grupo}
+                          conversa={item.conversa}
+                        />
+                      </div>
+                    ) : (
+                      <Planilha
+                        imagem={item.imagem}
+                        arquivo={item.arquivo}
+                        colunas={item.colunas}
+                        linhas={item.linhas}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Quebra de objeção — texto à esquerda, área de membros à direita */}
+        <section className="bg-[#1b243a]">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,52%)]">
             <div>
               <h2 className="font-sora text-2xl font-bold uppercase leading-tight tracking-tight text-[#ffc781] sm:text-3xl">
                 {SOZINHO.titulo}
@@ -595,48 +733,6 @@ export default function MeapPage() {
             </div>
 
             <AreaDeMembros imagem={SOZINHO.imagem} />
-          </div>
-        </section>
-
-        {/* ---------------------------------------------------------------- */}
-        {/* Bônus — grupo de alunos */}
-        <section className="bg-[#1b243a]">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
-            <div className="text-center">
-              <h2 className="font-sora text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                <span className="text-[#ffc781]">{BONUS.chamada}</span>{" "}
-                {BONUS.titulo}{" "}
-                <em className="font-bold italic text-[#ffc781]">
-                  {BONUS.tituloDestaque}
-                </em>
-              </h2>
-            </div>
-
-            <div className="card-dark mt-12 grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1fr_minmax(0,20rem)]">
-              <div>
-                <span className="inline-flex rounded-md border border-[#ffc781]/50 px-2.5 py-1 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#ffc781]">
-                  {BONUS.etiqueta}
-                </span>
-                <h3 className="mt-5 font-sora text-xl font-bold leading-snug text-white sm:text-2xl">
-                  {BONUS.headline}
-                </h3>
-                <p className="mt-4 max-w-xl leading-relaxed text-white/70">
-                  {BONUS.texto}
-                </p>
-              </div>
-
-              {/* A margem negativa faz o aparelho ficar mais alto que o
-                  cartão e vazar por cima e por baixo dele. Só a partir de
-                  `lg`, porque no empilhado o celular vem depois do texto e
-                  vazar ali só criaria colisão. */}
-              <div className="lg:-my-20">
-                <Celular
-                  imagem={BONUS.imagem}
-                  grupo={BONUS.grupo}
-                  conversa={BONUS.conversa}
-                />
-              </div>
-            </div>
           </div>
         </section>
 
@@ -747,7 +843,7 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        <FaixaUrgencia />
+        <FaixaUrgencia de="#2c375b" para="#0f1626" />
 
         {/* ---------------------------------------------------------------- */}
         {/* Oferta — a pergunta à esquerda, o cartão do preço no meio e o que
@@ -771,7 +867,14 @@ export default function MeapPage() {
 
               <div className="mt-6 border-t border-white/10 pt-6">
                 <p className="text-xs uppercase tracking-wider text-white/50">
-                  De <s className="text-[#ffc781]/70">{PRECO.ancora}</s>{" "}
+                  De
+                </p>
+                {/* O preço cheio é o contraste que faz o desconto ser lido:
+                    grande e em vermelho, riscado. */}
+                <p className="font-sora text-3xl font-extrabold leading-none text-[#ff6b6b] line-through sm:text-4xl">
+                  {PRECO.ancora}
+                </p>
+                <p className="mt-3 text-xs uppercase tracking-wider text-white/50">
                   {OFERTA.antes}
                 </p>
                 <p className="mt-3 font-sora text-4xl font-extrabold leading-none tracking-tight text-[#ffc781] sm:text-5xl">

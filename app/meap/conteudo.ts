@@ -267,31 +267,56 @@ export const SOZINHO = {
     "https://static.wixstatic.com/media/240889_b8f92219f4d64cf0ab69ebe7b39c2db7~mv2.png",
 };
 
-/** Bônus do grupo de alunos. */
+/** Bônus entregues junto com o curso. */
 export const BONUS = {
-  chamada: "E tem mais!",
-  titulo: "Segura esse",
+  titulo: "E ainda leve de",
   tituloDestaque: "bônus",
-  etiqueta: "Grupo VIP",
-  headline: "Nosso Grupo VIP no WhatsApp",
-  texto:
-    "Aqui todo mundo persegue a mesma coisa: fazer projetos estruturais de verdade. No grupo você tira dúvida técnica, mostra o que está desenvolvendo, vê o projeto dos outros alunos e evolui junto com quem está na mesma estrada.",
-  /**
-   * PREENCHER: print real do grupo, para aparecer na tela do celular.
-   * Enquanto estiver vazio, o aparelho mostra a conversa de exemplo abaixo,
-   * que é ilustração de interface — não é conversa real de aluno e por isso
-   * não traz nome, elogio nem promessa de resultado.
-   */
-  imagem: "",
-  grupo: "MEAP · Grupo VIP",
-  conversa: [
-    { de: "aluno" as const, texto: "Posso engastar a laje na viga em balanço?" },
+  tituloFim: "o acesso a",
+  itens: [
     {
-      de: "queren" as const,
+      tipo: "celular" as const,
+      etiqueta: "Grupo VIP",
+      headline: "Nosso Grupo VIP no WhatsApp",
       texto:
-        "Depende da continuidade. Em balanço eu reveria a carga antes — te mostro no projeto 02.",
+        "Aqui todo mundo persegue a mesma coisa: fazer projetos estruturais de verdade. No grupo você tira dúvida técnica, mostra o que está desenvolvendo, vê o projeto dos outros alunos e evolui junto com quem está na mesma estrada.",
+      /**
+       * PREENCHER: print real do grupo. Enquanto estiver vazio, o aparelho
+       * mostra a conversa de exemplo abaixo, que é ilustração de interface —
+       * não é conversa real de aluno e por isso não traz nome, elogio nem
+       * promessa de resultado.
+       */
+      imagem: "",
+      grupo: "MEAP · Grupo VIP",
+      conversa: [
+        {
+          de: "aluno" as const,
+          texto: "Posso engastar a laje na viga em balanço?",
+        },
+        {
+          de: "queren" as const,
+          texto:
+            "Depende da continuidade. Em balanço eu reveria a carga antes — te mostro no projeto 02.",
+        },
+        { de: "aluno" as const, texto: "Fechou, vou refazer o lançamento hoje." },
+      ],
     },
-    { de: "aluno" as const, texto: "Fechou, vou refazer o lançamento hoje." },
+    {
+      tipo: "planilha" as const,
+      etiqueta: "Materiais editáveis",
+      headline: "Planilha de precificação e modelos de proposta",
+      texto:
+        "Os mesmos arquivos que eu uso no escritório, liberados para você editar: a planilha que fecha o preço do projeto e os modelos de proposta comercial. É abrir, colocar os seus números e enviar para o cliente.",
+      /** PREENCHER: print real da planilha. Vazio, a página desenha um exemplo. */
+      imagem: "",
+      arquivo: "Precificação — Projeto Estrutural",
+      colunas: ["Item", "Qtd", "Valor"],
+      linhas: [
+        ["Lançamento estrutural", "1", "—"],
+        ["Dimensionamento", "1", "—"],
+        ["Detalhamento", "1", "—"],
+        ["Total da proposta", "", "—"],
+      ],
+    },
   ],
 };
 
