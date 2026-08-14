@@ -8,6 +8,9 @@
 /** Link do checkout. Trocar pela URL real da plataforma de pagamento. */
 export const CHECKOUT_URL = "#oferta"; // PREENCHER: URL do checkout
 
+/** Contato exibido no rodapé — o mesmo da página de captura. */
+export const CONTATO = "contato@engquerencosta.com";
+
 export const PRECO = {
   aVista: "R$ 497",
   parcelado: "12x de R$ 51,10",
@@ -15,7 +18,8 @@ export const PRECO = {
 };
 
 export const OPORTUNIDADE = {
-  titulo: "Existe um mercado inteiro dentro da engenharia esperando quem sabe projetar estruturas",
+  // Mesmo título da página de captura — quem chega de lá reconhece a promessa.
+  titulo: "A oportunidade que muitos engenheiros deixam passar",
   paragrafos: [
     "Toda obra precisa de projeto estrutural. Toda construtora, todo arquiteto e todo cliente de alto padrão precisam de alguém que assine, calcule e responda tecnicamente por aquilo. E, na prática, faltam engenheiros preparados para entregar esse serviço com segurança.",
     "É por isso que o projeto estrutural é uma das formas mais diretas de somar faturamento dentro da engenharia — sem abandonar a obra, o escritório ou o emprego que você já tem. Um único projeto bem posicionado já paga meses de estudo.",
@@ -119,11 +123,14 @@ export const DEPOIMENTOS: { nome: string; papel: string; texto: string }[] = [
 
 export const AUTORA = {
   nome: "Queren Costa",
-  chamada: "Engenheira civil, projetista estrutural e criadora do MEAP.",
+  chamada: "Especialista em Projetos Estruturais de Alto Padrão.",
   /** PREENCHER: foto da Queren em /public. */
   foto: "", // ex.: "/meap/queren.jpg"
+  // Bio da própria página de captura, para manter uma única voz entre as duas.
   paragrafos: [
-    "Queren Costa é engenheira civil e atua com projeto estrutural de residências e edificações de alto padrão. Foi da rotina de quem se formou sem saber projetar até construir uma carteira própria de clientes — e é exatamente esse caminho que ela ensina no MEAP.",
+    "Especialista em Projetos Estruturais de Alto Padrão, Queren Costa consolidou sua carreira transformando teoria complexa em resultado financeiro e em estruturas reais, entregues em várias construções de alto padrão.",
+    "Com anos de experiência no mercado, ela decidiu ensinar o caminho que percorreu: como dominar estruturas com segurança e faturar mais de R$ 7.000 extras por mês fazendo isso.",
+    "Sua metodologia foca no que realmente importa: a prática do escritório, a captação de clientes de alto valor e a execução técnica impecável que o mercado premium exige.",
   ],
   /** PREENCHER: números verificáveis. */
   numeros: [] as { valor: string; rotulo: string }[],

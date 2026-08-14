@@ -1,0 +1,106 @@
+/* Sistema visual da página do MEAP.
+ *
+ * As cores, as fontes e o botão foram tirados da landing page de captura
+ * (engquerencosta.com.br), medidos direto no navegador, para que a página de
+ * vendas seja lida como continuação dela e não como outro site:
+ *
+ *   #1B243A  navy do topo/hero        #FFC781  pêssego dos CTAs e da faixa clara
+ *   #2C375B  navy médio (2ª faixa)    #DAA520  dourado dos ✓ e dos rótulos
+ *   #0F1626  navy mais escuro         Sora 700 títulos · Inter corpo
+ *
+ * Tudo fica dentro de `.meap` porque o resto do site usa outra identidade
+ * (o amarelo do Clube Forense) e não pode ser afetado por esta rota.
+ */
+
+.meap {
+  --navy-900: #0f1626;
+  --navy-800: #1b243a;
+  --navy-600: #2c375b;
+  --peach: #ffc781;
+  --peach-dark: #f0ad63;
+  --gold: #daa520;
+
+  background: var(--navy-800);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  color: #fff;
+}
+
+.meap h1,
+.meap h2,
+.meap h3,
+.meap .font-sora {
+  font-family: var(--font-sora), var(--font-inter), sans-serif;
+}
+
+/* CTA principal — o mesmo botão pêssego da página de captura: cantos de 7px,
+   texto navy em Sora bold. */
+.meap .btn-peach {
+  background: var(--peach);
+  color: var(--navy-800);
+  font-family: var(--font-sora), sans-serif;
+  font-weight: 700;
+  border-radius: 7px;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 30px rgba(255, 199, 129, 0.18);
+}
+.meap .btn-peach:hover {
+  background: var(--peach-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 38px rgba(255, 199, 129, 0.3);
+}
+
+/* Variante para quando o fundo já é pêssego — a LP usa exatamente essa troca. */
+.meap .btn-navy {
+  background: var(--navy-600);
+  color: #fff;
+  font-family: var(--font-sora), sans-serif;
+  font-weight: 700;
+  border-radius: 7px;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 30px rgba(15, 22, 38, 0.25);
+}
+.meap .btn-navy:hover {
+  background: var(--navy-800);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 38px rgba(15, 22, 38, 0.35);
+}
+
+/* Rótulo pequeno acima dos títulos, em dourado — equivalente ao
+   "IMERSÃO GRATUITA PARA ENGENHEIROS CIVIS" da captura. */
+.meap .eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.meap .eyebrow-on-peach {
+  color: var(--navy-600);
+  opacity: 0.75;
+}
+
+/* Cartão sobre fundo escuro: vidro leve, borda que acende em pêssego. */
+.meap .card-dark {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.meap .card-dark:hover {
+  border-color: var(--peach);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* Cartão sobre a faixa pêssego. */
+.meap .card-peach {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(44, 55, 91, 0.18);
+  border-radius: 14px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.meap .card-peach:hover {
+  border-color: var(--navy-600);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(44, 55, 91, 0.18);
+}

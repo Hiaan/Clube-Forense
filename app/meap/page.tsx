@@ -6,6 +6,7 @@ import {
   BARREIRAS,
   BLOCOS,
   CHECKOUT_URL,
+  CONTATO,
   DEPOIMENTOS,
   ENTREGAS,
   FAQ,
@@ -23,21 +24,43 @@ export const metadata: Metadata = {
     "Aprenda a desenvolver, precificar e vender projetos estruturais de alto padrão. Segurança técnica e clientes na mesma formação.",
 };
 
-/** Botão de compra. Repetido ao longo da página, sempre com o mesmo destino. */
+/**
+ * CTA. Sobre as faixas pêssego o botão inverte para navy — é a mesma troca que
+ * a página de captura faz, e é o que mantém o contraste em qualquer fundo.
+ */
 function Cta({
   children,
+  variante = "peach",
   className = "",
 }: {
   children: React.ReactNode;
+  variante?: "peach" | "navy";
   className?: string;
 }) {
   return (
     <a
       href={CHECKOUT_URL}
-      className={`btn-yellow inline-flex items-center justify-center px-8 py-4 text-sm sm:text-base ${className}`}
+      className={`${
+        variante === "peach" ? "btn-peach" : "btn-navy"
+      } inline-flex items-center justify-center px-8 py-4 text-center text-sm leading-tight sm:text-base ${className}`}
     >
       {children}
     </a>
+  );
+}
+
+/** Rótulo curto acima do título da seção. */
+function Eyebrow({
+  children,
+  sobrePeach = false,
+}: {
+  children: React.ReactNode;
+  sobrePeach?: boolean;
+}) {
+  return (
+    <p className={`eyebrow ${sobrePeach ? "eyebrow-on-peach" : ""}`}>
+      {children}
+    </p>
   );
 }
 
@@ -47,44 +70,60 @@ export default function MeapPage() {
       {/* Barra fixa: em página de vendas longa, o CTA nunca pode ficar fora
           de alcance. No celular ela vira só a marca — o CTA fixo do rodapé
           cobre esse caso sem espremer o topo. */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b0b0d]/95 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#1b243a]/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <p className="text-lg font-black tracking-tight text-white">
-            ME<span className="text-[#ffcd07]">AP</span>
+          <p className="font-sora text-lg font-extrabold tracking-tight text-white">
+            ME<span className="text-[#ffc781]">AP</span>
           </p>
           <a
             href={CHECKOUT_URL}
-            className="btn-yellow hidden px-5 py-2.5 text-xs sm:inline-flex"
+            className="btn-peach hidden px-6 py-2.5 text-xs sm:inline-flex"
           >
-            Quero entrar para o MEAP
+            QUERO ENTRAR PARA O MEAP
           </a>
         </div>
       </header>
 
       <main className="pb-24 sm:pb-0">
         {/* ---------------------------------------------------------------- */}
-        {/* Hero */}
-        <section className="relative overflow-hidden bg-[#0b0b0d]">
+        {/* Hero — navy do topo da captura */}
+        <section className="relative overflow-hidden bg-[#1b243a]">
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#ffcd07] opacity-10 blur-3xl"
+            className="pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[#ffc781] opacity-[0.13] blur-3xl"
           />
           <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
-            <p className="section-label">Método de Engenharia Aplicada a Projetos</p>
-            <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">
+            <Eyebrow>Método de Engenharia Aplicada a Projetos</Eyebrow>
+            <h1 className="mt-5 text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-5xl">
               Transforme projetos estruturais em uma nova fonte de faturamento{" "}
-              <span className="text-[#ffcd07]">dentro da engenharia</span>
+              <span className="text-[#ffc781]">dentro da engenharia</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-gray-300 sm:text-lg">
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/75 sm:text-xl">
               A formação que une as duas pontas que faltam ao engenheiro:{" "}
-              <strong className="text-white">segurança técnica</strong> para
-              projetar e assinar, e{" "}
-              <strong className="text-white">método comercial</strong> para
-              conquistar clientes de alto padrão.
+              <strong className="font-semibold text-white">
+                segurança técnica
+              </strong>{" "}
+              para projetar e assinar, e{" "}
+              <strong className="font-semibold text-white">
+                método comercial
+              </strong>{" "}
+              para conquistar clientes de alto padrão.
             </p>
+
+            <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/80">
+              {["Projetar", "Posicionar", "Prospectar"].map((p) => (
+                <li key={p} className="flex items-center gap-2">
+                  <span aria-hidden className="text-[#daa520]">
+                    ✓
+                  </span>
+                  {p}
+                </li>
+              ))}
+            </ul>
+
             <div className="mt-9 flex flex-col items-center gap-3">
-              <Cta className="w-full sm:w-auto">Quero entrar para o MEAP</Cta>
-              <p className="text-xs text-gray-400">
+              <Cta className="w-full sm:w-auto">QUERO ENTRAR PARA O MEAP</Cta>
+              <p className="text-xs text-white/70">
                 {PRECO.aVista} à vista ou {PRECO.parcelado} · 7 dias de garantia
               </p>
             </div>
@@ -92,24 +131,29 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* A oportunidade */}
-        <section className="bg-white">
+        {/* A oportunidade — faixa pêssego, como na captura */}
+        <section className="bg-[#ffc781] text-[#2c375b]">
           <div className="mx-auto max-w-4xl px-4 py-16 sm:py-20">
-            <p className="section-label">A oportunidade</p>
-            <h2 className="mt-3 text-2xl font-bold leading-snug tracking-tight text-gray-900 sm:text-3xl">
-              {OPORTUNIDADE.titulo}
-            </h2>
+            <div className="text-center">
+              <Eyebrow sobrePeach>A oportunidade</Eyebrow>
+              <h2 className="mt-3 text-2xl font-bold leading-snug tracking-tight sm:text-4xl">
+                {OPORTUNIDADE.titulo}
+              </h2>
+            </div>
             {OPORTUNIDADE.paragrafos.map((p) => (
-              <p key={p} className="mt-5 leading-relaxed text-gray-600">
+              <p
+                key={p}
+                className="mt-5 text-base leading-relaxed text-[#2c375b]/90 sm:text-lg"
+              >
                 {p}
               </p>
             ))}
 
-            <div className="mt-8 rounded-2xl border border-[#ffcd07] bg-[#fff9db] p-6 sm:flex sm:items-center sm:gap-6">
-              <p className="whitespace-nowrap text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
+            <div className="mt-9 rounded-2xl bg-[#2c375b] p-6 text-white sm:flex sm:items-center sm:gap-6 sm:p-7">
+              <p className="whitespace-nowrap font-sora text-3xl font-extrabold tracking-tight text-[#ffc781] sm:text-4xl">
                 {OPORTUNIDADE.meta.valor}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-gray-700 sm:mt-0">
+              <p className="mt-2 text-sm leading-relaxed text-white/85 sm:mt-0 sm:text-base">
                 {OPORTUNIDADE.meta.texto}
               </p>
             </div>
@@ -117,93 +161,88 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Barreiras */}
-        <section className="bg-[#f8f9fb] border-y border-gray-200">
+        {/* Barreiras — navy médio */}
+        <section className="bg-[#2c375b]">
           <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-            <p className="section-label">O que está te impedindo hoje</p>
-            <h2 className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            <Eyebrow>O que está te impedindo hoje</Eyebrow>
+            <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-snug tracking-tight text-white sm:text-4xl">
               Não é falta de vontade. São quatro travas — e todas têm solução.
             </h2>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
               {BARREIRAS.map((b) => (
-                <div key={b.titulo} className="card-white p-6">
-                  <h3 className="text-base font-bold text-gray-900">
+                <div key={b.titulo} className="card-dark p-6">
+                  <h3 className="text-lg font-bold text-[#ffc781]">
                     {b.titulo}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                    {b.texto}
-                  </p>
+                  <p className="mt-2 leading-relaxed text-white/75">{b.texto}</p>
                 </div>
               ))}
             </div>
 
-            <p className="mx-auto mt-10 max-w-2xl text-center text-lg font-bold leading-snug text-gray-900">
+            <p className="mx-auto mt-10 max-w-2xl text-center font-sora text-lg font-bold leading-snug text-white sm:text-xl">
               Foi para resolver essas duas pontas — a{" "}
-              <span className="border-b-4 border-[#ffcd07]">técnica</span> e o{" "}
-              <span className="border-b-4 border-[#ffcd07]">mercado</span> — que
+              <span className="border-b-4 border-[#ffc781]">técnica</span> e o{" "}
+              <span className="border-b-4 border-[#ffc781]">mercado</span> — que
               nasceu o MEAP.
             </p>
           </div>
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Os 3 pilares */}
-        <section className="bg-[#0b0b0d]">
+        {/* Os 3 pilares — navy mais escuro */}
+        <section className="bg-[#0f1626]">
           <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
             <div className="text-center">
-              <p className="section-label">O Método MEAP</p>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              <Eyebrow>O Método MEAP</Eyebrow>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-4xl">
                 Três pilares, na ordem em que a carreira acontece
               </h2>
             </div>
 
             <div className="mt-12 grid gap-5 sm:grid-cols-3">
               {PILARES.map((p) => (
-                <div
-                  key={p.nome}
-                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-[#ffcd07]"
-                >
-                  <p className="text-3xl font-black text-[#ffcd07]">
+                <div key={p.nome} className="card-dark p-7">
+                  <p className="font-sora text-3xl font-extrabold text-[#ffc781]">
                     {p.numero}
                   </p>
                   <h3 className="mt-3 text-xl font-bold text-white">{p.nome}</h3>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-[#daa520]">
                     {p.resumo}
                   </p>
-                  <p className="mt-4 text-sm leading-relaxed text-gray-300">
+                  <p className="mt-4 text-sm leading-relaxed text-white/70">
                     {p.texto}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-10 text-center">
-              <Cta>Quero entrar para o MEAP</Cta>
+            <div className="mt-11 text-center">
+              <Cta>QUERO ENTRAR PARA O MEAP</Cta>
             </div>
           </div>
         </section>
 
         {/* ---------------------------------------------------------------- */}
         {/* O que você vai aprender */}
-        <section className="bg-white">
+        <section className="bg-[#1b243a]">
           <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-            <p className="section-label">O que você vai aprender</p>
-            <h2 className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            <Eyebrow>O que você vai aprender</Eyebrow>
+            <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-snug tracking-tight text-white sm:text-4xl">
               Do primeiro lançamento estrutural ao contrato assinado
             </h2>
 
             <ol className="mt-10 grid gap-4 sm:grid-cols-2">
               {BLOCOS.map((b, i) => (
-                <li key={b.titulo} className="card-white flex gap-4 p-6">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ffcd07] text-sm font-black text-gray-900">
+                <li key={b.titulo} className="card-dark flex gap-4 p-6">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ffc781] font-sora text-sm font-extrabold text-[#1b243a]">
                     {i + 1}
                   </span>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">
+                    <h3 className="text-base font-bold text-white">
                       {b.titulo}
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-gray-600">
+                    <p className="mt-1 text-sm leading-relaxed text-white/70">
                       {b.texto}
                     </p>
                   </div>
@@ -218,10 +257,10 @@ export default function MeapPage() {
             material real para mostrar — prova social vazia derruba a página
             inteira. */}
         {(PROJETOS.length > 0 || DEPOIMENTOS.length > 0) && (
-          <section className="border-y border-gray-200 bg-[#f8f9fb]">
+          <section className="bg-[#2c375b]">
             <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-              <p className="section-label">Projetos e resultados</p>
-              <h2 className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              <Eyebrow>Projetos e resultados</Eyebrow>
+              <h2 className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-4xl">
                 O que sai das mãos de quem faz o MEAP
               </h2>
 
@@ -230,7 +269,7 @@ export default function MeapPage() {
                   {PROJETOS.map((p) => (
                     <div
                       key={p.src}
-                      className="relative aspect-4/3 overflow-hidden rounded-2xl border border-gray-200 bg-white"
+                      className="relative aspect-4/3 overflow-hidden rounded-2xl border border-white/10"
                     >
                       <Image
                         src={p.src}
@@ -247,13 +286,13 @@ export default function MeapPage() {
               {DEPOIMENTOS.length > 0 && (
                 <div className="mt-10 grid gap-4 sm:grid-cols-2">
                   {DEPOIMENTOS.map((d) => (
-                    <figure key={d.nome} className="card-white p-6">
-                      <blockquote className="text-sm leading-relaxed text-gray-700">
+                    <figure key={d.nome} className="card-dark p-6">
+                      <blockquote className="leading-relaxed text-white/85">
                         “{d.texto}”
                       </blockquote>
-                      <figcaption className="mt-4 text-sm font-bold text-gray-900">
+                      <figcaption className="mt-4 font-sora text-sm font-bold text-[#ffc781]">
                         {d.nome}
-                        <span className="block text-xs font-medium text-gray-500">
+                        <span className="block font-sans text-xs font-medium text-white/60">
                           {d.papel}
                         </span>
                       </figcaption>
@@ -266,50 +305,51 @@ export default function MeapPage() {
         )}
 
         {/* ---------------------------------------------------------------- */}
-        {/* Quem é Queren Costa */}
-        <section className="bg-white">
+        {/* Quem é Queren Costa — navy escuro e nome em pêssego, como na captura */}
+        <section className="bg-[#0f1626]">
           {/* Sem foto, a coluna da esquerda sumiria e deixaria o texto espremido
               em metade da largura — daí o layout cair para uma coluna só. */}
           <div
-            className={`mx-auto grid max-w-5xl items-center gap-10 px-4 py-16 sm:py-20 ${
-              AUTORA.foto ? "sm:grid-cols-[minmax(0,320px)_1fr]" : "max-w-3xl"
+            className={`mx-auto grid items-center gap-10 px-4 py-16 sm:py-20 ${
+              AUTORA.foto
+                ? "max-w-5xl sm:grid-cols-[minmax(0,380px)_1fr]"
+                : "max-w-3xl"
             }`}
           >
             {AUTORA.foto ? (
-              <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-gray-200">
+              <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-white/10">
                 <Image
                   src={AUTORA.foto}
                   alt={AUTORA.nome}
                   fill
-                  sizes="(min-width: 640px) 320px, 100vw"
+                  sizes="(min-width: 640px) 380px, 100vw"
                   className="object-cover"
                 />
               </div>
             ) : null}
 
             <div>
-              <p className="section-label">Quem ensina</p>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              <Eyebrow>Quem ensina</Eyebrow>
+              <h2 className="mt-3 font-sora text-3xl font-bold tracking-tight text-[#ffc781] sm:text-5xl">
                 {AUTORA.nome}
               </h2>
-              <p className="mt-2 font-medium text-gray-700">{AUTORA.chamada}</p>
+              <p className="mt-3 text-lg font-semibold text-white">
+                {AUTORA.chamada}
+              </p>
               {AUTORA.paragrafos.map((p) => (
-                <p key={p} className="mt-4 leading-relaxed text-gray-600">
+                <p key={p} className="mt-4 leading-relaxed text-white/75">
                   {p}
                 </p>
               ))}
 
               {AUTORA.numeros.length > 0 && (
-                <div className="mt-7 grid grid-cols-3 gap-3">
+                <div className="mt-8 grid grid-cols-3 gap-3">
                   {AUTORA.numeros.map((n) => (
-                    <div
-                      key={n.rotulo}
-                      className="rounded-xl border border-gray-200 p-4"
-                    >
-                      <p className="text-2xl font-black text-gray-900">
+                    <div key={n.rotulo} className="card-dark p-4">
+                      <p className="font-sora text-2xl font-extrabold text-[#ffc781]">
                         {n.valor}
                       </p>
-                      <p className="mt-1 text-xs text-gray-500">{n.rotulo}</p>
+                      <p className="mt-1 text-xs text-white/60">{n.rotulo}</p>
                     </div>
                   ))}
                 </div>
@@ -319,24 +359,29 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Oferta */}
-        <section id="oferta" className="bg-[#0b0b0d]">
+        {/* Oferta — a segunda faixa pêssego, onde está o preço */}
+        {/* `scroll-mt` compensa a barra fixa: sem isso o link #oferta para com
+            o título escondido atrás dela. */}
+        <section
+          id="oferta"
+          className="scroll-mt-16 bg-[#ffc781] text-[#2c375b]"
+        >
           <div className="mx-auto max-w-4xl px-4 py-16 sm:py-20">
             <div className="text-center">
-              <p className="section-label">A oferta</p>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              <Eyebrow sobrePeach>A oferta</Eyebrow>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">
                 Tudo que você recebe ao entrar para o MEAP
               </h2>
             </div>
 
-            <div className="mt-10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
+            <div className="mt-10 overflow-hidden rounded-2xl bg-[#0f1626] text-white shadow-[0_24px_60px_rgba(15,22,38,0.28)]">
               <ul className="grid gap-px bg-white/10 sm:grid-cols-2">
                 {ENTREGAS.map((e) => (
                   <li
                     key={e}
-                    className="flex gap-3 bg-[#101014] p-5 text-sm leading-relaxed text-gray-200"
+                    className="flex gap-3 bg-[#0f1626] p-5 text-sm leading-relaxed text-white/85"
                   >
-                    <span aria-hidden className="font-black text-[#ffcd07]">
+                    <span aria-hidden className="font-bold text-[#daa520]">
                       ✓
                     </span>
                     {e}
@@ -345,22 +390,22 @@ export default function MeapPage() {
               </ul>
 
               <div className="border-t border-white/10 p-8 text-center">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-white/55">
                   De <s>{PRECO.ancora}</s> por
                 </p>
-                <p className="mt-2 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                <p className="mt-2 font-sora text-4xl font-extrabold tracking-tight text-[#ffc781] sm:text-5xl">
                   {PRECO.parcelado}
                 </p>
-                <p className="mt-1 text-sm text-gray-300">
+                <p className="mt-1 text-sm text-white/80">
                   ou {PRECO.aVista} à vista
                 </p>
 
                 <Cta className="mt-7 w-full sm:w-auto">
-                  Quero fazer parte do MEAP
+                  QUERO FAZER PARTE DO MEAP
                 </Cta>
 
-                <p className="mx-auto mt-6 max-w-md text-xs leading-relaxed text-gray-400">
-                  <strong className="text-gray-200">
+                <p className="mx-auto mt-6 max-w-md text-xs leading-relaxed text-white/60">
+                  <strong className="font-semibold text-white/90">
                     Garantia incondicional de 7 dias.
                   </strong>{" "}
                   Entre, assista às aulas e, se concluir que o MEAP não é para
@@ -375,62 +420,67 @@ export default function MeapPage() {
         {/* ---------------------------------------------------------------- */}
         {/* FAQ. <details> nativo mantém a página inteira como componente de
             servidor — nenhum JavaScript é enviado ao navegador por causa dela. */}
-        <section className="bg-white">
+        <section className="bg-[#1b243a]">
           <div className="mx-auto max-w-3xl px-4 py-16 sm:py-20">
-            <p className="section-label">Dúvidas frequentes</p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            <Eyebrow>Dúvidas frequentes</Eyebrow>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-4xl">
               O que costumam perguntar antes de entrar
             </h2>
 
-            <div className="mt-8 divide-y divide-gray-200 border-y border-gray-200">
+            <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
               {FAQ.map((f) => (
                 <details key={f.pergunta} className="group py-5">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-gray-900">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-sora text-base font-bold text-white">
                     {f.pergunta}
                     <span
                       aria-hidden
-                      className="shrink-0 text-xl text-[#e6b800] transition group-open:rotate-45"
+                      className="shrink-0 text-xl text-[#ffc781] transition group-open:rotate-45"
                     >
                       +
                     </span>
                   </summary>
-                  <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                  <p className="mt-3 leading-relaxed text-white/70">
                     {f.resposta}
                   </p>
                 </details>
               ))}
             </div>
-
-            <div className="mt-12 rounded-2xl bg-[#f8f9fb] p-8 text-center">
-              <h2 className="text-xl font-bold leading-snug tracking-tight text-gray-900 sm:text-2xl">
-                A obra do seu cliente já existe. Falta o engenheiro que assina a
-                estrutura.
-              </h2>
-              <p className="mx-auto mt-3 max-w-md text-sm text-gray-600">
-                {PRECO.aVista} à vista ou {PRECO.parcelado}, com 7 dias de
-                garantia.
-              </p>
-              <Cta className="mt-6 w-full sm:w-auto">
-                Quero fazer parte do MEAP
-              </Cta>
-            </div>
           </div>
         </section>
 
-        <footer className="border-t border-gray-100 bg-white">
-          <div className="mx-auto max-w-5xl px-4 py-8 text-xs leading-relaxed text-gray-400">
-            <p>
-              MEAP — Método de Engenharia Aplicada a Projetos · {AUTORA.nome}.
-              Os resultados citados dependem do empenho e do contexto de cada
-              aluno e não representam promessa de faturamento.
+        {/* CTA final */}
+        <section className="bg-[#0f1626]">
+          <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:py-20">
+            <h2 className="text-2xl font-bold leading-snug tracking-tight text-white sm:text-3xl">
+              A obra do seu cliente já existe. Falta o engenheiro que{" "}
+              <span className="text-[#ffc781]">assina a estrutura</span>.
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-white/70">
+              {PRECO.aVista} à vista ou {PRECO.parcelado}, com 7 dias de
+              garantia.
+            </p>
+            <Cta className="mt-7 w-full sm:w-auto">QUERO FAZER PARTE DO MEAP</Cta>
+          </div>
+        </section>
+
+        <footer className="bg-black">
+          <div className="mx-auto max-w-5xl px-4 py-9 text-center text-xs leading-relaxed text-white/45">
+            <p className="text-white/70">
+              Queren Costa Engenharia — Todos os Direitos Reservados
+            </p>
+            <p className="mt-1">{CONTATO}</p>
+            <p className="mx-auto mt-4 max-w-2xl">
+              MEAP — Método de Engenharia Aplicada a Projetos. Os resultados
+              citados dependem do empenho e do contexto de cada aluno e não
+              representam promessa de faturamento.
             </p>
           </div>
         </footer>
       </main>
 
       {/* CTA fixo no celular, onde a barra do topo não comporta o botão. */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 p-3 backdrop-blur sm:hidden">
-        <Cta className="w-full py-3.5">Quero entrar para o MEAP</Cta>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0f1626]/95 p-3 backdrop-blur sm:hidden">
+        <Cta className="w-full py-3.5">QUERO ENTRAR PARA O MEAP</Cta>
       </div>
     </>
   );
