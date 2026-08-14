@@ -317,6 +317,7 @@ export const ENTREGAS = [
   "Módulo de precificação, com o método para formar o seu preço",
   "Módulo de captação e vendas, com abordagens prontas",
   "Modelos de proposta comercial e de contrato",
+  "Acesso vitalício ao Grupo VIP no WhatsApp",
   "Suporte para tirar dúvidas técnicas durante o curso",
   "Certificado de conclusão",
 ];
@@ -345,7 +346,7 @@ export const FAQ = [
   {
     pergunta: "Como funciona o suporte?",
     resposta:
-      "Você pode enviar suas dúvidas técnicas durante o curso e recebe retorno da equipe — inclusive sobre projetos que estiver desenvolvendo.",
+      "Você pode enviar suas dúvidas técnicas durante o curso e recebe retorno da equipe — inclusive sobre projetos que estiver desenvolvendo. Fora isso, o Grupo VIP no WhatsApp é vitalício.",
   },
   {
     pergunta: "Recebo certificado?",
