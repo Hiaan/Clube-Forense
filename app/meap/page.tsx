@@ -280,17 +280,16 @@ export default function MeapPage() {
         {/* Hero — duas colunas: texto à esquerda, retrato à direita sobre um
             painel mais escuro com o grafismo geométrico. */}
         <section className="relative overflow-hidden bg-[#1b243a]">
-          {/* O painel escuro da direita e o brilho diagonal são desenhados no
-              fundo da seção para que, no celular (uma coluna só), eles
-              simplesmente não apareçam. */}
+          {/* Só um brilho difuso atrás do retrato. O painel escuro e o quadrado
+              vazado que existiam aqui recortavam um retângulo visível atrás da
+              foto, e como o PNG é vazado o resultado era a pessoa flutuando
+              dentro de uma caixa. Sem bordas, o fundo fica contínuo. */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 hidden lg:block"
           >
-            <div className="absolute inset-y-0 right-0 w-[35%] bg-[#0f1626]" />
-            <div className="absolute -top-32 left-[15%] h-[34rem] w-[34rem] rounded-full bg-[#2c375b] opacity-40 blur-3xl" />
-            {/* Grafismo: quadrado vazado atrás do retrato, como na arte. */}
-            <div className="absolute right-[14%] top-1/2 h-[27rem] w-[27rem] -translate-y-1/2 rotate-12 rounded-[2rem] border-[10px] border-white/[0.05]" />
+            <div className="absolute -top-40 left-[10%] h-[36rem] w-[36rem] rounded-full bg-[#2c375b] opacity-35 blur-3xl" />
+            <div className="absolute bottom-0 right-[6%] h-[30rem] w-[30rem] translate-y-1/3 rounded-full bg-[#2c375b] opacity-45 blur-3xl" />
           </div>
 
           <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-16 lg:grid-cols-[1fr_minmax(0,36%)] lg:gap-8 lg:py-20">
@@ -352,15 +351,19 @@ export default function MeapPage() {
 
             {/* O PNG é quadrado e o retrato ocupa só a faixa do meio, então o
                 enquadramento em 9/16 come as laterais transparentes — sem isso
-                quase metade da coluna ficaria vazia. */}
-            <div className="relative mx-auto aspect-9/16 w-full max-w-[17rem] lg:mx-0 lg:max-w-none lg:self-end">
+                quase metade da coluna ficaria vazia.
+
+                A margem negativa cancela o padding de baixo do container: o pé
+                da imagem passa a coincidir com o fim da seção, e a pessoa fica
+                apoiada na divisa com a faixa seguinte em vez de flutuar. */}
+            <div className="relative mx-auto -mb-14 aspect-9/16 w-full max-w-[15rem] self-end sm:-mb-16 lg:mx-0 lg:-mb-20 lg:max-w-none">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
                 fill
                 priority
-                sizes="(min-width: 1024px) 36vw, 17rem"
-                className="object-cover"
+                sizes="(min-width: 1024px) 36vw, 15rem"
+                className="object-cover object-bottom"
               />
             </div>
           </div>
