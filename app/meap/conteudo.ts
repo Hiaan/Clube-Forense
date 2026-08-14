@@ -41,7 +41,7 @@ export const HERO = {
 export const PRECO = {
   aVista: "R$ 497",
   parcelado: "12x de R$ 51,10",
-  ancora: "R$ 997", // PREENCHER: preço cheio, só se for verdadeiro
+  ancora: "R$ 997", // preço cheio, confirmado pela Queren
 };
 
 export const OPORTUNIDADE = {
@@ -52,7 +52,7 @@ export const OPORTUNIDADE = {
     "É uma oportunidade para aumentar o faturamento com projetos valorizados, sem precisar abandonar a atividade que você já exerce hoje.",
   ],
   meta: {
-    valor: "R$ 10 mil",
+    valor: "R$ 7 mil",
     texto:
       "é o valor base que você como engenheiro consegue adicionar por mês, sem abrir mão do que faz hoje.",
   },
@@ -266,12 +266,12 @@ export const SOZINHO = {
 /** Bônus do grupo de alunos. */
 export const BONUS = {
   chamada: "E tem mais!",
-  titulo: "Segura esse bônus com",
-  tituloDestaque: "acesso vitalício",
+  titulo: "Segura esse",
+  tituloDestaque: "bônus",
   etiqueta: "Grupo VIP",
-  headline: "Acesso vitalício ao nosso Grupo VIP no WhatsApp",
+  headline: "Nosso Grupo VIP no WhatsApp",
   texto:
-    "Aqui todo mundo persegue a mesma coisa: fazer projetos estruturais de verdade. No grupo você tira dúvida técnica, mostra o que está desenvolvendo, vê o projeto dos outros alunos e evolui junto com quem está na mesma estrada. O acesso é vitalício — você entra uma vez e fica.",
+    "Aqui todo mundo persegue a mesma coisa: fazer projetos estruturais de verdade. No grupo você tira dúvida técnica, mostra o que está desenvolvendo, vê o projeto dos outros alunos e evolui junto com quem está na mesma estrada.",
   /**
    * PREENCHER: print real do grupo, para aparecer na tela do celular.
    * Enquanto estiver vazio, o aparelho mostra a conversa de exemplo abaixo,
@@ -300,6 +300,13 @@ export const GARANTIA = {
     "Entre, assista às aulas, abra os projetos e veja por dentro. Se em até 7 dias você concluir que o MEAP não é para você, basta pedir o reembolso — sem formulário, sem justificativa e sem pergunta nenhuma. Devolvemos 100% do valor.",
 };
 
+/** Faixa diagonal em movimento, logo antes do preço. */
+export const URGENCIA = {
+  frase: "Condições exclusivas de lançamento",
+  /** Quantas vezes a frase se repete em cada volta da faixa. */
+  repeticoes: 6,
+};
+
 export const OFERTA = {
   titulo: "Quanto você precisará investir?",
   apoio:
@@ -317,7 +324,7 @@ export const ENTREGAS = [
   "Módulo de precificação, com o método para formar o seu preço",
   "Módulo de captação e vendas, com abordagens prontas",
   "Modelos de proposta comercial e de contrato",
-  "Acesso vitalício ao Grupo VIP no WhatsApp",
+  "Grupo VIP no WhatsApp, junto com os outros alunos",
   "Suporte para tirar dúvidas técnicas durante o curso",
   "Certificado de conclusão",
 ];
@@ -346,7 +353,7 @@ export const FAQ = [
   {
     pergunta: "Como funciona o suporte?",
     resposta:
-      "Você pode enviar suas dúvidas técnicas durante o curso e recebe retorno da equipe — inclusive sobre projetos que estiver desenvolvendo. Fora isso, o Grupo VIP no WhatsApp é vitalício.",
+      "Você pode enviar suas dúvidas técnicas durante o curso e recebe retorno da equipe — inclusive sobre projetos que estiver desenvolvendo. Fora isso, tem o Grupo VIP no WhatsApp.",
   },
   {
     pergunta: "Recebo certificado?",

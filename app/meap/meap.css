@@ -92,6 +92,80 @@
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
+/* ------------------------------------------------------------------------ *
+ * Faixa de urgência: duas tarjas diagonais que se cruzam e rolam sem parar.
+ * A de trás vai no sentido contrário e mais devagar, o que dá a leitura de
+ * profundidade. Tudo em CSS — a página segue sem JavaScript.
+ * ------------------------------------------------------------------------ */
+
+.meap .faixa-urgencia {
+  position: relative;
+  height: 11rem;
+  overflow: hidden; /* segura as pontas giradas: sem isso a página rola de lado */
+}
+
+.meap .faixa {
+  position: absolute;
+  top: 50%;
+  /* Mais larga que a tela para que as pontas giradas nunca apareçam. */
+  left: -8%;
+  width: 116%;
+  overflow: hidden;
+  padding: 0.7rem 0;
+}
+
+.meap .faixa--frente {
+  transform: translateY(-50%) rotate(-3.5deg);
+  background: var(--peach);
+  color: var(--navy-800);
+  z-index: 1;
+}
+
+.meap .faixa--fundo {
+  transform: translateY(-50%) rotate(3.5deg);
+  border-top: 1px solid rgba(255, 199, 129, 0.22);
+  border-bottom: 1px solid rgba(255, 199, 129, 0.22);
+  color: rgba(255, 199, 129, 0.28);
+}
+
+/* O trilho carrega o conteúdo duplicado; andar exatamente metade dele
+   devolve o ponto de partida, e é isso que faz o laço não ter emenda. */
+.meap .faixa-trilho {
+  display: flex;
+  width: max-content;
+  animation: meap-rolar 26s linear infinite;
+}
+.meap .faixa--fundo .faixa-trilho {
+  animation-duration: 38s;
+  animation-direction: reverse;
+}
+
+.meap .faixa-item {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding-right: 1.6rem;
+  font-family: var(--font-sora), sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@keyframes meap-rolar {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Quem pede menos movimento no sistema recebe a faixa parada. */
+@media (prefers-reduced-motion: reduce) {
+  .meap .faixa-trilho {
+    animation: none;
+  }
+}
+
 /* Cartão sobre a faixa pêssego. */
 .meap .card-peach {
   background: rgba(255, 255, 255, 0.55);

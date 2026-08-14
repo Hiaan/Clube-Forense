@@ -22,6 +22,7 @@ import {
   PROJETOS,
   SELOS,
   SOZINHO,
+  URGENCIA,
 } from "./conteudo";
 
 // Página de vendas: nada aqui depende de requisição, então ela é estática e
@@ -123,11 +124,27 @@ function Selos({ className = "" }: { className?: string }) {
 }
 
 /**
- * Moldura de notebook. A tela recebe o print da área de membros quando houver;
- * sem ele, mostra um mosaico de blocos que sugere a grade de módulos sem
- * fingir uma captura que não existe.
+ * Área de membros.
+ *
+ * Se `imagem` for preenchida, ela é exibida sozinha: a arte da área de membros
+ * já vem com os aparelhos desenhados, então enquadrá-la num notebook de CSS
+ * daria tela dentro de tela. Sem imagem, o notebook desenhado aqui segura o
+ * lugar com um mosaico, sem fingir uma captura que não existe.
  */
-function Notebook({ imagem }: { imagem: string }) {
+function AreaDeMembros({ imagem }: { imagem: string }) {
+  if (imagem) {
+    return (
+      <Image
+        src={imagem}
+        alt="Área de membros do MEAP"
+        width={1080}
+        height={1080}
+        sizes="(min-width: 1024px) 44vw, 100vw"
+        className="mx-auto h-auto w-full max-w-xl"
+      />
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-xl">
       {/* A tampa é um pouco mais estreita que a base — é isso que dá o volume
@@ -135,24 +152,14 @@ function Notebook({ imagem }: { imagem: string }) {
           horizontal na página inteira. */}
       <div className="mx-auto w-[94%] rounded-xl border-[6px] border-[#0b1220] bg-[#0b1220] shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
         <div className="relative aspect-16/10 overflow-hidden rounded-md bg-[#0f1626]">
-          {imagem ? (
-            <Image
-              src={imagem}
-              alt="Área de membros do MEAP"
-              fill
-              sizes="(min-width: 1024px) 40vw, 100vw"
-              className="object-cover"
-            />
-          ) : (
-            <div aria-hidden className="grid h-full grid-cols-4 gap-1.5 p-3">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-sm bg-linear-to-br from-[#2c375b] to-[#141c2e]"
-                />
-              ))}
-            </div>
-          )}
+          <div aria-hidden className="grid h-full grid-cols-4 gap-1.5 p-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-sm bg-linear-to-br from-[#2c375b] to-[#141c2e]"
+              />
+            ))}
+          </div>
         </div>
       </div>
       <div className="mx-auto h-2.5 w-full rounded-b-xl bg-[#0b1220]" />
@@ -211,6 +218,37 @@ function Celular({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Faixa diagonal em movimento, com o gatilho de urgência.
+ *
+ * Cada trilho leva a lista duplicada porque a animação anda exatamente metade
+ * dela — é o que faz o laço voltar ao início sem emenda visível.
+ */
+function FaixaUrgencia() {
+  const itens = Array.from({ length: URGENCIA.repeticoes }, (_, i) => i);
+  const trilho = (
+    <div className="faixa-trilho">
+      {[0, 1].map((volta) => (
+        <div key={volta} className="flex" aria-hidden={volta === 1}>
+          {itens.map((i) => (
+            <span key={i} className="faixa-item">
+              {URGENCIA.frase}
+              <span aria-hidden>✦</span>
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="faixa-urgencia">
+      <div className="faixa faixa--fundo">{trilho}</div>
+      <div className="faixa faixa--frente">{trilho}</div>
     </div>
   );
 }
@@ -548,7 +586,7 @@ export default function MeapPage() {
               <Cta className="mt-9 w-full sm:w-auto">{HERO.cta}</Cta>
             </div>
 
-            <Notebook imagem={SOZINHO.imagem} />
+            <AreaDeMembros imagem={SOZINHO.imagem} />
           </div>
         </section>
 
@@ -579,11 +617,17 @@ export default function MeapPage() {
                 </p>
               </div>
 
-              <Celular
-                imagem={BONUS.imagem}
-                grupo={BONUS.grupo}
-                conversa={BONUS.conversa}
-              />
+              {/* A margem negativa faz o aparelho ficar mais alto que o
+                  cartão e vazar por cima e por baixo dele. Só a partir de
+                  `lg`, porque no empilhado o celular vem depois do texto e
+                  vazar ali só criaria colisão. */}
+              <div className="lg:-my-20">
+                <Celular
+                  imagem={BONUS.imagem}
+                  grupo={BONUS.grupo}
+                  conversa={BONUS.conversa}
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -693,6 +737,9 @@ export default function MeapPage() {
             </div>
           </div>
         </section>
+
+        {/* ---------------------------------------------------------------- */}
+        <FaixaUrgencia />
 
         {/* ---------------------------------------------------------------- */}
         {/* Oferta — a pergunta à esquerda, o cartão do preço no meio e o que
