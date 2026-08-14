@@ -133,15 +133,19 @@ function Selos({ className = "" }: { className?: string }) {
  */
 function AreaDeMembros({ imagem }: { imagem: string }) {
   if (imagem) {
+    // A arte é quadrada, mas os aparelhos ocupam só a faixa central: o
+    // enquadramento em 16/10 corta o transparente de cima e de baixo, senão
+    // sobraria quase metade da altura vazia.
     return (
-      <Image
-        src={imagem}
-        alt="Área de membros do MEAP"
-        width={1080}
-        height={1080}
-        sizes="(min-width: 1024px) 44vw, 100vw"
-        className="mx-auto h-auto w-full max-w-xl"
-      />
+      <div className="relative mx-auto aspect-16/10 w-full max-w-xl">
+        <Image
+          src={imagem}
+          alt="Área de membros do MEAP"
+          fill
+          sizes="(min-width: 1024px) 44vw, 100vw"
+          className="object-contain"
+        />
+      </div>
     );
   }
 
@@ -346,16 +350,17 @@ export default function MeapPage() {
               </div>
             </div>
 
-            {/* O retrato encosta na base da seção no desktop, como na arte. */}
-            <div className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none lg:self-end">
+            {/* O PNG é quadrado e o retrato ocupa só a faixa do meio, então o
+                enquadramento em 9/16 come as laterais transparentes — sem isso
+                quase metade da coluna ficaria vazia. */}
+            <div className="relative mx-auto aspect-9/16 w-full max-w-[17rem] lg:mx-0 lg:max-w-none lg:self-end">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
-                width={942}
-                height={1134}
+                fill
                 priority
-                sizes="(min-width: 1024px) 42vw, 100vw"
-                className="h-auto w-full object-contain"
+                sizes="(min-width: 1024px) 36vw, 17rem"
+                className="object-contain"
               />
             </div>
           </div>

@@ -34,7 +34,9 @@ export const HERO = {
   ],
   cta: "QUERO ME INSCREVER AGORA",
   escassez: "Vagas limitadas — clique no botão e garanta a sua",
-  foto: "https://static.wixstatic.com/media/240889_aa45dec17d4846169413c931e6149148~mv2.png/v1/fill/w_942,h_1134,al_c,q_90,enc_auto/Queren%20desfoque.png",
+  // PNG recortado, 1080x1080, com o retrato ocupando a faixa central: as
+  // laterais são transparentes e a página corta elas no enquadramento.
+  foto: "https://static.wixstatic.com/media/240889_b5fd0a60139149eb901ee829d36b14c7~mv2.png",
   fotoAlt: "Queren Costa",
 };
 
@@ -259,8 +261,10 @@ export const SOZINHO = {
     "Você vai acompanhar o processo do início ao fim, entender as decisões tomadas em cada etapa e adquirir uma experiência muito mais próxima daquilo que realmente acontece no mercado.",
     "Você não precisa esperar o seu primeiro cliente para começar a ter experiência com projetos reais.",
   ],
-  /** PREENCHER: print da área de membros, para aparecer na tela do notebook. */
-  imagem: "",
+  // Arte da área de membros, 1080x1080 com fundo transparente. O conteúdo
+  // ocupa só a faixa do meio, então a página corta o vazio de cima e de baixo.
+  imagem:
+    "https://static.wixstatic.com/media/240889_b8f92219f4d64cf0ab69ebe7b39c2db7~mv2.png",
 };
 
 /** Bônus do grupo de alunos. */
