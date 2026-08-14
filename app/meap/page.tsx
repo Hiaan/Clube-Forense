@@ -143,7 +143,7 @@ function AreaDeMembros({ imagem }: { imagem: string }) {
           alt="Área de membros do MEAP"
           fill
           sizes="(min-width: 1024px) 44vw, 100vw"
-          className="object-contain"
+          className="object-cover"
         />
       </div>
     );
@@ -360,7 +360,7 @@ export default function MeapPage() {
                 fill
                 priority
                 sizes="(min-width: 1024px) 36vw, 17rem"
-                className="object-contain"
+                className="object-cover"
               />
             </div>
           </div>
