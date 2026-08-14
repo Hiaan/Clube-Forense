@@ -4,7 +4,6 @@ import Image from "next/image";
 import {
   AUTORA,
   BARREIRAS,
-  BLOCOS,
   CHECKOUT_URL,
   CONTATO,
   DEPOIMENTOS,
@@ -12,10 +11,14 @@ import {
   FAQ,
   HERO,
   MARCA,
+  MODULOS,
+  OFERTA,
   OPORTUNIDADE,
+  PERFIS,
   PILARES,
   PRECO,
   PROJETOS,
+  SELOS,
 } from "./conteudo";
 
 // Página de vendas: nada aqui depende de requisição, então ela é estática e
@@ -48,6 +51,71 @@ function Cta({
     >
       {children}
     </a>
+  );
+}
+
+/**
+ * Ícones desenhados à mão em SVG, para não trazer uma biblioteca inteira nem
+ * depender de arquivo externo. Todos usam o mesmo traço de 1,7px para ficarem
+ * visualmente irmãos.
+ */
+const DESENHOS = {
+  livro: "M4 5a2 2 0 0 1 2-2h9v18H6a2 2 0 0 1-2-2zM15 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3",
+  capelo: "M12 4 2 9l10 5 10-5zM6 12v4.5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V12",
+  dinheiro:
+    "M2 7h20v10H2zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M5.5 7v.01M18.5 17v.01",
+  maleta:
+    "M3 8h18v11H3zM9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18",
+  capacete:
+    "M3 16a9 9 0 0 1 18 0zM9 16V7.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 7.5V16M2 19h20",
+  moedas:
+    "M4 7c0-1.1 3.1-2 7-2s7 .9 7 2-3.1 2-7 2-7-.9-7-2M4 7v5c0 1.1 3.1 2 7 2s7-.9 7-2V7M4 12v5c0 1.1 3.1 2 7 2s7-.9 7-2v-5",
+  escudo: "M12 3 4 6v6c0 4.4 3.4 7.9 8 9 4.6-1.1 8-4.6 8-9V6zM9 12l2.2 2.2L15 10.5",
+  trofeu:
+    "M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1.5A3.5 3.5 0 0 0 7 11M17 6h3v1.5A3.5 3.5 0 0 1 17 11M10 19h4M12 14v5M8 21h8",
+  cadeado:
+    "M5 11h14v9H5zM8 11V7.5a4 4 0 0 1 8 0V11M12 15v2",
+} as const;
+
+function Icone({
+  nome,
+  className = "",
+}: {
+  nome: keyof typeof DESENHOS;
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.7}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <path d={DESENHOS[nome]} />
+    </svg>
+  );
+}
+
+/** Selos de compra segura, logo abaixo dos botões. */
+function Selos({ className = "" }: { className?: string }) {
+  return (
+    <ul
+      className={`flex flex-wrap items-center justify-center gap-x-7 gap-y-3 ${className}`}
+    >
+      {SELOS.map((s) => (
+        <li key={s.linha1} className="flex items-center gap-2">
+          <Icone nome={s.icone} className="h-7 w-7 text-white/45" />
+          <span className="text-[0.7rem] font-semibold uppercase leading-tight tracking-wide text-white/55">
+            {s.linha1}
+            <span className="block font-normal">{s.linha2}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -140,6 +208,7 @@ export default function MeapPage() {
                 <p className="mt-3 text-center text-xs font-medium text-white/75">
                   {HERO.escassez}
                 </p>
+                <Selos className="mt-5" />
               </div>
             </div>
 
@@ -162,16 +231,14 @@ export default function MeapPage() {
         {/* A oportunidade — faixa pêssego, como na captura */}
         <section className="bg-[#ffc781] text-[#2c375b]">
           <div className="mx-auto max-w-4xl px-4 py-16 sm:py-20">
-            <div className="text-center">
-              <Eyebrow sobrePeach>A oportunidade</Eyebrow>
-              <h2 className="mt-3 text-2xl font-bold leading-snug tracking-tight sm:text-4xl">
-                {OPORTUNIDADE.titulo}
-              </h2>
-            </div>
+            <Eyebrow sobrePeach>A oportunidade</Eyebrow>
+            <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-snug tracking-tight sm:text-3xl">
+              {OPORTUNIDADE.titulo}
+            </h2>
             {OPORTUNIDADE.paragrafos.map((p) => (
               <p
                 key={p}
-                className="mt-5 text-base leading-relaxed text-[#2c375b]/90 sm:text-lg"
+                className="mt-5 max-w-3xl text-base leading-relaxed text-[#2c375b]/90 sm:text-lg"
               >
                 {p}
               </p>
@@ -184,6 +251,49 @@ export default function MeapPage() {
               <p className="mt-2 text-sm leading-relaxed text-white/85 sm:mt-0 sm:text-base">
                 {OPORTUNIDADE.meta.texto}
               </p>
+            </div>
+
+            {/* Sobre o pêssego o botão inverte para navy, senão sumiria. */}
+            <Cta variante="navy" className="mt-8">
+              {HERO.cta}
+            </Cta>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Você se encaixa em algum perfil? */}
+        <section className="bg-[#0f1626]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="text-center">
+              <h2 className="font-sora text-2xl font-bold tracking-tight text-white sm:text-4xl">
+                {PERFIS.titulo}{" "}
+                <em className="font-bold italic text-[#ffc781]">
+                  {PERFIS.tituloDestaque}
+                </em>
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-white/70">
+                {PERFIS.chamada}
+              </p>
+            </div>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {PERFIS.itens.map((p) => (
+                <div key={p.titulo} className="card-dark p-7">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ffc781] text-[#1b243a]">
+                    <Icone nome={p.icone} className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-5 font-sora text-lg font-bold leading-snug text-white">
+                    {p.titulo}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/70">
+                    {p.texto}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Cta>{HERO.cta}</Cta>
             </div>
           </div>
         </section>
@@ -252,28 +362,71 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* O que você vai aprender */}
+        {/* Módulos — capas com o título vazado sobre a imagem */}
         <section className="bg-[#1b243a]">
-          <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
-            <Eyebrow>O que você vai aprender</Eyebrow>
-            <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-snug tracking-tight text-white sm:text-4xl">
-              Do primeiro lançamento estrutural ao contrato assinado
-            </h2>
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="text-center">
+              <Eyebrow>O que você vai aprender</Eyebrow>
+              <h2 className="mt-3 font-sora text-2xl font-bold tracking-tight text-white sm:text-4xl">
+                Do primeiro lançamento estrutural ao{" "}
+                <em className="font-bold italic text-[#ffc781]">
+                  contrato assinado
+                </em>
+              </h2>
+            </div>
 
-            <ol className="mt-10 grid gap-4 sm:grid-cols-2">
-              {BLOCOS.map((b, i) => (
-                <li key={b.titulo} className="card-dark flex gap-4 p-6">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ffc781] font-sora text-sm font-extrabold text-[#1b243a]">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <h3 className="text-base font-bold text-white">
-                      {b.titulo}
-                    </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-white/70">
-                      {b.texto}
-                    </p>
+            {/* Três colunas fecham as duas linhas com os seis módulos; com
+                quatro, a última linha ficaria pela metade. */}
+            <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {MODULOS.map((m) => (
+                <li
+                  key={m.numero}
+                  className="group overflow-hidden rounded-2xl border border-white/10 bg-[#0f1626] transition hover:border-[#ffc781]"
+                >
+                  <div className="relative aspect-3/4 overflow-hidden">
+                    {m.imagem ? (
+                      <Image
+                        src={m.imagem}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      // Sem capa ainda: um grafismo do próprio sistema segura o
+                      // lugar sem parecer imagem quebrada.
+                      <div
+                        aria-hidden
+                        className="absolute inset-0 bg-linear-to-br from-[#2c375b] to-[#0f1626]"
+                      >
+                        <div className="absolute -right-10 top-10 h-40 w-40 rotate-12 rounded-2xl border-[8px] border-white/[0.06]" />
+                        <div className="absolute -left-8 bottom-8 h-28 w-28 rotate-12 rounded-xl border-[8px] border-white/[0.04]" />
+                      </div>
+                    )}
+
+                    {/* Escurece a base para o título vazado ter contraste
+                        qualquer que seja a foto colocada depois. */}
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-linear-to-t from-[#0f1626] via-[#0f1626]/40 to-transparent"
+                    />
+
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                      <p className="font-sora text-xl font-extrabold uppercase leading-[0.95] tracking-tight text-white/85">
+                        {m.linha1}
+                      </p>
+                      <p className="font-sora text-xl font-extrabold uppercase leading-[0.95] tracking-tight text-[#ffc781]">
+                        {m.linha2}
+                      </p>
+                      <span className="mt-3 inline-flex rounded-md bg-[#ffc781] px-2.5 py-1 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#1b243a]">
+                        Módulo {m.numero}
+                      </span>
+                    </div>
                   </div>
+
+                  <p className="p-5 text-sm leading-relaxed text-white/70">
+                    {m.texto}
+                  </p>
                 </li>
               ))}
             </ol>
@@ -285,7 +438,7 @@ export default function MeapPage() {
             material real para mostrar — prova social vazia derruba a página
             inteira. */}
         {(PROJETOS.length > 0 || DEPOIMENTOS.length > 0) && (
-          <section className="bg-[#2c375b]">
+          <section className="bg-[#0f1626]">
             <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
               <Eyebrow>Projetos e resultados</Eyebrow>
               <h2 className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-4xl">
@@ -333,8 +486,8 @@ export default function MeapPage() {
         )}
 
         {/* ---------------------------------------------------------------- */}
-        {/* Quem é Queren Costa — navy escuro e nome em pêssego, como na captura */}
-        <section className="bg-[#0f1626]">
+        {/* Quem é Queren Costa — nome em pêssego, como na captura */}
+        <section className="bg-[#2c375b]">
           {/* Sem foto, a coluna da esquerda sumiria e deixaria o texto espremido
               em metade da largura — daí o layout cair para uma coluna só. */}
           <div
@@ -387,59 +540,66 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Oferta — a segunda faixa pêssego, onde está o preço */}
-        {/* `scroll-mt` compensa a barra fixa: sem isso o link #oferta para com
-            o título escondido atrás dela. */}
-        <section
-          id="oferta"
-          className="scroll-mt-16 bg-[#ffc781] text-[#2c375b]"
-        >
-          <div className="mx-auto max-w-4xl px-4 py-16 sm:py-20">
-            <div className="text-center">
-              <Eyebrow sobrePeach>A oferta</Eyebrow>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">
-                Tudo que você recebe ao entrar para o MEAP
+        {/* Oferta — a pergunta à esquerda, o cartão do preço no meio e o que
+            está incluso à direita. */}
+        <section id="oferta" className="scroll-mt-8 bg-[#0f1626]">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:py-20 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)] lg:gap-8">
+            <div>
+              <h2 className="font-sora text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
+                {OFERTA.titulo}
               </h2>
+              <p className="mt-5 text-sm leading-relaxed text-white/65">
+                {OFERTA.apoio}
+              </p>
             </div>
 
-            <div className="mt-10 overflow-hidden rounded-2xl bg-[#0f1626] text-white shadow-[0_24px_60px_rgba(15,22,38,0.28)]">
-              <ul className="grid gap-px bg-white/10 sm:grid-cols-2">
-                {ENTREGAS.map((e) => (
-                  <li
-                    key={e}
-                    className="flex gap-3 bg-[#0f1626] p-5 text-sm leading-relaxed text-white/85"
-                  >
-                    <span aria-hidden className="font-bold text-[#daa520]">
-                      ✓
-                    </span>
-                    {e}
-                  </li>
-                ))}
-              </ul>
+            <div className="rounded-2xl border border-[#ffc781]/40 bg-[#141c2e] p-7 text-center shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-9">
+              <p className="font-sora text-xl font-bold leading-tight text-white">
+                {OFERTA.produto}
+              </p>
+              <p className="mt-1 text-sm text-white/60">{OFERTA.produtoLinha2}</p>
 
-              <div className="border-t border-white/10 p-8 text-center">
-                <p className="text-sm text-white/55">
-                  De <s>{PRECO.ancora}</s> por
+              <div className="mt-6 border-t border-white/10 pt-6">
+                <p className="text-xs uppercase tracking-wider text-white/50">
+                  De <s className="text-[#ffc781]/70">{PRECO.ancora}</s>{" "}
+                  {OFERTA.antes}
                 </p>
-                <p className="mt-2 font-sora text-4xl font-extrabold tracking-tight text-[#ffc781] sm:text-5xl">
+                <p className="mt-3 font-sora text-4xl font-extrabold leading-none tracking-tight text-[#ffc781] sm:text-5xl">
                   {PRECO.parcelado}
                 </p>
-                <p className="mt-1 text-sm text-white/80">
+                <p className="mt-2 font-sora text-xl font-bold text-white sm:text-2xl">
                   ou {PRECO.aVista} à vista
                 </p>
+              </div>
 
-                <Cta className="mt-7 w-full sm:w-auto">{HERO.cta}</Cta>
+              <Cta className="mt-7 w-full">{OFERTA.ctaCartao}</Cta>
 
-                <p className="mx-auto mt-6 max-w-md text-xs leading-relaxed text-white/60">
-                  <strong className="font-semibold text-white/90">
-                    Garantia incondicional de 7 dias.
-                  </strong>{" "}
-                  Entre, assista às aulas e, se concluir que o MEAP não é para
-                  você, peça o reembolso dentro desse prazo e devolvemos 100% do
-                  valor.
-                </p>
+              <p className="mt-4 text-xs leading-relaxed text-white/55">
+                <strong className="font-semibold text-white/85">
+                  Garantia incondicional de 7 dias.
+                </strong>{" "}
+                Se concluir que o MEAP não é para você, peça o reembolso dentro
+                desse prazo e devolvemos 100% do valor.
+              </p>
+
+              <div className="mt-6 border-t border-white/10 pt-6">
+                <Selos />
               </div>
             </div>
+
+            <ul className="space-y-3">
+              {ENTREGAS.map((e) => (
+                <li
+                  key={e}
+                  className="flex gap-3 text-sm leading-relaxed text-white/80"
+                >
+                  <span aria-hidden className="font-bold text-[#ffc781]">
+                    ✓
+                  </span>
+                  {e}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

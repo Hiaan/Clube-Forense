@@ -46,17 +46,74 @@ export const PRECO = {
 
 export const OPORTUNIDADE = {
   // Mesmo título da página de captura — quem chega de lá reconhece a promessa.
-  titulo: "A oportunidade que muitos engenheiros deixam passar",
+  titulo: "A oportunidade que muitos engenheiros deixam passar.",
   paragrafos: [
-    "Toda obra precisa de projeto estrutural. Toda construtora, todo arquiteto e todo cliente de alto padrão precisam de alguém que assine, calcule e responda tecnicamente por aquilo. E, na prática, faltam engenheiros preparados para entregar esse serviço com segurança.",
-    "É por isso que o projeto estrutural é uma das formas mais diretas de somar faturamento dentro da engenharia — sem abandonar a obra, o escritório ou o emprego que você já tem. Um único projeto bem posicionado já paga meses de estudo.",
+    "Existe um mercado específico dentro dos projetos estruturais que combina clientes com maior poder de investimento, projetos de boa rentabilidade e complexidade acessível: o residencial de alto padrão.",
+    "É uma oportunidade para aumentar o faturamento com projetos valorizados, sem precisar abandonar a atividade que você já exerce hoje.",
   ],
   meta: {
-    valor: "R$ 7 mil",
+    valor: "R$ 10 mil",
     texto:
-      "é a faixa que um engenheiro estruturalista consegue somar por mês ao dominar projeto, precificação e captação — trabalhando nas próprias horas, em paralelo ao que já faz.",
+      "é o valor base que você como engenheiro consegue adicionar por mês, sem abrir mão do que faz hoje.",
   },
 };
+
+/**
+ * Seção "Você se encaixa em algum perfil abaixo?".
+ *
+ * `icone` referencia um dos desenhos declarados em `Icone`, dentro de page.tsx.
+ */
+export const PERFIS = {
+  titulo: "Você se encaixa em algum",
+  tituloDestaque: "perfil abaixo?",
+  chamada:
+    "Descubra como atuar no nicho mais rentável da engenharia estrutural — o mesmo que ainda passa despercebido pela maioria dos engenheiros.",
+  itens: [
+    {
+      icone: "livro" as const,
+      titulo: "Estudantes de Engenharia",
+      texto:
+        "Para quem quer sair da faculdade já sabendo projetar, e não só sabendo a teoria da prova.",
+    },
+    {
+      icone: "capelo" as const,
+      titulo: "Engenheiros e arquitetos recém-formados",
+      texto:
+        "Para entregar o primeiro projeto estrutural sem perder o sono e subir o nível do que você assina.",
+    },
+    {
+      icone: "dinheiro" as const,
+      titulo: "Para quem quer uma segunda renda",
+      texto:
+        "Para você que quer aprender a fazer projetos estruturais e ter uma segunda renda de pelo menos 7 mil extras.",
+    },
+    {
+      icone: "maleta" as const,
+      titulo: "Empreendedor",
+      texto:
+        "Iniciar ou empreender através do seu escritório de engenharia e faturar muito mais.",
+    },
+    {
+      icone: "capacete" as const,
+      titulo: "Engenheiros atuantes",
+      texto:
+        "Para reciclar e aplicar as normas vigentes na prática, em projeto de verdade — não em exemplo de sala de aula.",
+    },
+    {
+      icone: "moedas" as const,
+      titulo: "Quem quer faturar alto",
+      texto:
+        "Para quem quer virar referência em estruturas na sua região e cobrar como referência.",
+    },
+  ],
+};
+
+/** Selos de confiança, exibidos sob os botões de compra. */
+export const SELOS = [
+  { icone: "escudo" as const, linha1: "Compra", linha2: "Segura" },
+  { icone: "trofeu" as const, linha1: "Satisfação", linha2: "Garantida" },
+  { icone: "cadeado" as const, linha1: "Privacidade", linha2: "Protegida" },
+];
 
 export const BARREIRAS = [
   {
@@ -105,34 +162,61 @@ export const PILARES = [
   },
 ];
 
-export const BLOCOS = [
+/**
+ * Módulos do curso.
+ *
+ * O título é quebrado em duas linhas de propósito: a primeira sai em contorno
+ * vazado e a segunda em pêssego, que é o efeito das capas.
+ *
+ * PREENCHER: `imagem` aceita um caminho em /public (ex.: "/meap/modulo-01.jpg").
+ * Enquanto ficar vazio, o cartão usa um fundo gráfico no lugar da capa.
+ */
+export const MODULOS = [
   {
-    titulo: "Fundamentos e concepção estrutural",
+    numero: "01",
+    linha1: "Concepção",
+    linha2: "Estrutural",
+    imagem: "",
     texto:
       "Como nasce uma estrutura: leitura do projeto arquitetônico, escolha do sistema, lançamento de pilares e vigas, caminho das cargas.",
   },
   {
-    titulo: "Modelagem e dimensionamento",
+    numero: "02",
+    linha1: "Modelagem e",
+    linha2: "Dimensionamento",
+    imagem: "",
     texto:
-      "Modelagem no software, análise dos esforços, dimensionamento de lajes, vigas, pilares e fundações dentro das normas brasileiras.",
+      "Modelagem no Eberick, análise dos esforços e dimensionamento de lajes, vigas, pilares e fundações dentro das normas brasileiras.",
   },
   {
-    titulo: "Projetos reais de alto padrão",
+    numero: "03",
+    linha1: "Projetos de",
+    linha2: "Alto Padrão",
+    imagem: "",
     texto:
-      "Acompanhamento de projetos completos, do briefing à entrega, com as decisões e os ajustes reais que aparecem no meio do caminho.",
+      "Dois projetos completos desenvolvidos do zero, do briefing à entrega, com as decisões e os ajustes reais que aparecem no caminho.",
   },
   {
-    titulo: "Detalhamento e entrega",
+    numero: "04",
+    linha1: "Detalhamento",
+    linha2: "e Entrega",
+    imagem: "",
     texto:
       "Pranchas, armaduras, compatibilização e o pacote final que você entrega ao cliente e à obra — no padrão de um escritório profissional.",
   },
   {
-    titulo: "Precificação e propostas",
+    numero: "05",
+    linha1: "Precificação",
+    linha2: "e Propostas",
+    imagem: "",
     texto:
       "Como formar o seu preço, montar a proposta comercial e apresentar o orçamento sem competir por ser o mais barato.",
   },
   {
-    titulo: "Captação e fechamento de clientes",
+    numero: "06",
+    linha1: "Captação de",
+    linha2: "Clientes",
+    imagem: "",
     texto:
       "Prospecção ativa, parcerias com arquitetos e construtoras, portfólio, abordagem e condução da negociação até o fechamento.",
   },
@@ -162,6 +246,16 @@ export const AUTORA = {
   /** PREENCHER: números verificáveis. */
   numeros: [] as { valor: string; rotulo: string }[],
   // ex.: [{ valor: "+300", rotulo: "alunos formados" }]
+};
+
+export const OFERTA = {
+  titulo: "Quanto você precisará investir?",
+  apoio:
+    "Menos do que você cobra em um único projeto estrutural de alto padrão — e você pode dividir em até 12x no cartão.",
+  produto: "MEAP",
+  produtoLinha2: "Método Estruturas de Alto Padrão",
+  antes: "o MEAP sai por:",
+  ctaCartao: "QUERO GARANTIR MINHA VAGA",
 };
 
 export const ENTREGAS = [
