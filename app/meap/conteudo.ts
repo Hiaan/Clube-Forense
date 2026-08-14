@@ -11,6 +11,33 @@ export const CHECKOUT_URL = "#oferta"; // PREENCHER: URL do checkout
 /** Contato exibido no rodapé — o mesmo da página de captura. */
 export const CONTATO = "contato@engquerencosta.com";
 
+/**
+ * Imagens hospedadas no Wix, que é onde a página de captura já as serve.
+ *
+ * ATENÇÃO: enquanto apontarem para cá, esta página depende do site do Wix
+ * continuar no ar. Para cortar essa dependência, baixe os arquivos, coloque em
+ * `/public/meap/` e troque as URLs por caminhos locais (ex.: "/meap/queren.png").
+ */
+export const MARCA = {
+  logo: "https://static.wixstatic.com/media/240889_87af9e2b8b5743488bd1cf489270ee2e~mv2.png",
+  logoAlt: "Queren Costa Engenharia",
+};
+
+export const HERO = {
+  eyebrow: "MEAP – Método Estruturas de Alto Padrão",
+  sub: "que irão mudar para sempre sua realidade como engenheiro civil.",
+  bullets: [
+    "Dois Projetos Estruturais do Zero",
+    "Aulas Gravadas",
+    "Domine o Eberick",
+    "Aprenda a se Posicionar no mercado",
+  ],
+  cta: "QUERO ME INSCREVER AGORA",
+  escassez: "Vagas limitadas — clique no botão e garanta a sua",
+  foto: "https://static.wixstatic.com/media/240889_aa45dec17d4846169413c931e6149148~mv2.png/v1/fill/w_942,h_1134,al_c,q_90,enc_auto/Queren%20desfoque.png",
+  fotoAlt: "Queren Costa",
+};
+
 export const PRECO = {
   aVista: "R$ 497",
   parcelado: "12x de R$ 51,10",
@@ -124,8 +151,8 @@ export const DEPOIMENTOS: { nome: string; papel: string; texto: string }[] = [
 export const AUTORA = {
   nome: "Queren Costa",
   chamada: "Especialista em Projetos Estruturais de Alto Padrão.",
-  /** PREENCHER: foto da Queren em /public. */
-  foto: "", // ex.: "/meap/queren.jpg"
+  // Mesmo retrato usado na seção "Quem é Queren Costa" da captura.
+  foto: "https://static.wixstatic.com/media/240889_ba02552268b8448ebd215fa6dfd331db~mv2.png/v1/fill/w_603,h_754,al_c,q_90,enc_auto/IMG_2968_heic.png",
   // Bio da própria página de captura, para manter uma única voz entre as duas.
   paragrafos: [
     "Especialista em Projetos Estruturais de Alto Padrão, Queren Costa consolidou sua carreira transformando teoria complexa em resultado financeiro e em estruturas reais, entregues em várias construções de alto padrão.",

@@ -8,7 +8,12 @@ const nextConfig: NextConfig = {
     //
     // `**` casa qualquer número de subdomínios no começo, e é o que cobre as
     // duas formas de endereço que o Blob usa (com e sem o ".public.").
-    remotePatterns: [{ protocol: "https", hostname: "**.vercel-storage.com" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "**.vercel-storage.com" },
+      // Fotos da Queren na página do MEAP, servidas pelo Wix da página de
+      // captura enquanto não forem trazidas para /public.
+      { protocol: "https", hostname: "static.wixstatic.com" },
+    ],
   },
 };
 

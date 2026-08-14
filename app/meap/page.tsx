@@ -10,6 +10,8 @@ import {
   DEPOIMENTOS,
   ENTREGAS,
   FAQ,
+  HERO,
+  MARCA,
   OPORTUNIDADE,
   PILARES,
   PRECO,
@@ -19,7 +21,7 @@ import {
 // Página de vendas: nada aqui depende de requisição, então ela é estática e
 // serve do cache do CDN — o que importa numa página que recebe tráfego pago.
 export const metadata: Metadata = {
-  title: "MEAP — Método de Engenharia Aplicada a Projetos | Queren Costa",
+  title: "MEAP — Método Estruturas de Alto Padrão | Queren Costa",
   description:
     "Aprenda a desenvolver, precificar e vender projetos estruturais de alto padrão. Segurança técnica e clientes na mesma formação.",
 };
@@ -67,65 +69,91 @@ function Eyebrow({
 export default function MeapPage() {
   return (
     <>
-      {/* Barra fixa: em página de vendas longa, o CTA nunca pode ficar fora
-          de alcance. No celular ela vira só a marca — o CTA fixo do rodapé
-          cobre esse caso sem espremer o topo. */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#1b243a]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <p className="font-sora text-lg font-extrabold tracking-tight text-white">
-            ME<span className="text-[#ffc781]">AP</span>
-          </p>
-          <a
-            href={CHECKOUT_URL}
-            className="btn-peach hidden px-6 py-2.5 text-xs sm:inline-flex"
-          >
-            QUERO ENTRAR PARA O MEAP
-          </a>
-        </div>
-      </header>
-
       <main className="pb-24 sm:pb-0">
         {/* ---------------------------------------------------------------- */}
-        {/* Hero — navy do topo da captura */}
+        {/* Hero — duas colunas: texto à esquerda, retrato à direita sobre um
+            painel mais escuro com o grafismo geométrico. */}
         <section className="relative overflow-hidden bg-[#1b243a]">
+          {/* O painel escuro da direita e o brilho diagonal são desenhados no
+              fundo da seção para que, no celular (uma coluna só), eles
+              simplesmente não apareçam. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[#ffc781] opacity-[0.13] blur-3xl"
-          />
-          <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
-            <Eyebrow>Método de Engenharia Aplicada a Projetos</Eyebrow>
-            <h1 className="mt-5 text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-5xl">
-              Transforme projetos estruturais em uma nova fonte de faturamento{" "}
-              <span className="text-[#ffc781]">dentro da engenharia</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/75 sm:text-xl">
-              A formação que une as duas pontas que faltam ao engenheiro:{" "}
-              <strong className="font-semibold text-white">
-                segurança técnica
-              </strong>{" "}
-              para projetar e assinar, e{" "}
-              <strong className="font-semibold text-white">
-                método comercial
-              </strong>{" "}
-              para conquistar clientes de alto padrão.
-            </p>
+            className="pointer-events-none absolute inset-0 hidden lg:block"
+          >
+            <div className="absolute inset-y-0 right-0 w-[35%] bg-[#0f1626]" />
+            <div className="absolute -top-32 left-[15%] h-[34rem] w-[34rem] rounded-full bg-[#2c375b] opacity-40 blur-3xl" />
+            {/* Grafismo: quadrado vazado atrás do retrato, como na arte. */}
+            <div className="absolute right-[14%] top-1/2 h-[27rem] w-[27rem] -translate-y-1/2 rotate-12 rounded-[2rem] border-[10px] border-white/[0.05]" />
+          </div>
 
-            <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/80">
-              {["Projetar", "Posicionar", "Prospectar"].map((p) => (
-                <li key={p} className="flex items-center gap-2">
-                  <span aria-hidden className="text-[#daa520]">
-                    ✓
-                  </span>
-                  {p}
-                </li>
-              ))}
-            </ul>
+          <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-16 lg:grid-cols-[1fr_minmax(0,36%)] lg:gap-8 lg:py-20">
+            <div>
+              {/* eslint-disable-next-line @next/next/no-img-element --
+                  A logo vem do Wix já dimensionada; passar pelo otimizador do
+                  next/image não traria ganho e adicionaria um domínio remoto a
+                  mais para configurar. */}
+              <img
+                src={MARCA.logo}
+                alt={MARCA.logoAlt}
+                className="h-12 w-auto sm:h-14"
+              />
 
-            <div className="mt-9 flex flex-col items-center gap-3">
-              <Cta className="w-full sm:w-auto">QUERO ENTRAR PARA O MEAP</Cta>
-              <p className="text-xs text-white/70">
-                {PRECO.aVista} à vista ou {PRECO.parcelado} · 7 dias de garantia
+              <p className="eyebrow mt-7">{HERO.eyebrow}</p>
+
+              <h1 className="mt-3 max-w-xl font-sora text-3xl leading-[1.15] text-white sm:text-4xl lg:text-[2.6rem]">
+                Aprenda a{" "}
+                <strong className="font-bold">
+                  projetar, captar clientes e faturar
+                </strong>{" "}
+                com{" "}
+                <em className="font-bold italic">
+                  Projetos Estruturais de Alto Padrão.
+                </em>
+              </h1>
+
+              <p className="mt-5 max-w-xl leading-relaxed text-white/80">
+                Conquiste a{" "}
+                <em className="font-semibold italic text-white">
+                  segurança técnica
+                </em>{" "}
+                e o{" "}
+                <em className="font-semibold italic text-white">
+                  método comercial
+                </em>{" "}
+                {HERO.sub}
               </p>
+
+              <ul className="mt-6 grid max-w-xl gap-x-6 gap-y-2 text-sm font-medium text-white sm:grid-cols-2">
+                {HERO.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2">
+                    <span aria-hidden className="text-[#daa520]">
+                      ✓
+                    </span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-8 max-w-md">
+                <Cta className="w-full">{HERO.cta}</Cta>
+                <p className="mt-3 text-center text-xs font-medium text-white/75">
+                  {HERO.escassez}
+                </p>
+              </div>
+            </div>
+
+            {/* O retrato encosta na base da seção no desktop, como na arte. */}
+            <div className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none lg:self-end">
+              <Image
+                src={HERO.foto}
+                alt={HERO.fotoAlt}
+                width={942}
+                height={1134}
+                priority
+                sizes="(min-width: 1024px) 42vw, 100vw"
+                className="h-auto w-full object-contain"
+              />
             </div>
           </div>
         </section>
@@ -218,7 +246,7 @@ export default function MeapPage() {
             </div>
 
             <div className="mt-11 text-center">
-              <Cta>QUERO ENTRAR PARA O MEAP</Cta>
+              <Cta>{HERO.cta}</Cta>
             </div>
           </div>
         </section>
@@ -470,7 +498,7 @@ export default function MeapPage() {
             </p>
             <p className="mt-1">{CONTATO}</p>
             <p className="mx-auto mt-4 max-w-2xl">
-              MEAP — Método de Engenharia Aplicada a Projetos. Os resultados
+              MEAP — Método Estruturas de Alto Padrão. Os resultados
               citados dependem do empenho e do contexto de cada aluno e não
               representam promessa de faturamento.
             </p>
@@ -480,7 +508,7 @@ export default function MeapPage() {
 
       {/* CTA fixo no celular, onde a barra do topo não comporta o botão. */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0f1626]/95 p-3 backdrop-blur sm:hidden">
-        <Cta className="w-full py-3.5">QUERO ENTRAR PARA O MEAP</Cta>
+        <Cta className="w-full py-3.5">{HERO.cta}</Cta>
       </div>
     </>
   );
