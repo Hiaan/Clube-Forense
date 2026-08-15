@@ -431,14 +431,14 @@ export default function MeapPage() {
                 A margem negativa cancela o padding de baixo do container: o pé
                 da imagem passa a coincidir com o fim da seção, e a pessoa fica
                 apoiada na divisa com a faixa seguinte em vez de flutuar. */}
-            <div className="relative mx-auto -mb-14 aspect-9/16 w-full max-w-[15rem] self-end sm:-mb-16 lg:mx-0 lg:-mb-20 lg:max-w-none">
+            <div className="relative mx-auto -mb-14 aspect-9/16 w-full max-w-[14rem] self-end sm:-mb-16 lg:-mb-20 lg:ml-auto lg:mr-0 lg:max-w-[20rem]">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
                 fill
                 priority
-                sizes="(min-width: 1024px) 36vw, 15rem"
-                className="object-cover object-bottom"
+                sizes="(min-width: 1024px) 20rem, 14rem"
+                className="retrato-hero object-cover object-bottom"
               />
             </div>
           </div>

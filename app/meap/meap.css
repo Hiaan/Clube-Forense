@@ -92,6 +92,15 @@
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
+/* O PNG do retrato termina cortado na última linha do arquivo — a cadeira e os
+   pés ficam rentes à borda. Encostar na base da seção não resolve: continua um
+   corte seco. A máscara dissolve o último quinto da imagem no fundo, então o
+   recorte vira uma esfumaçada em vez de uma linha. */
+.meap .retrato-hero {
+  -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent 99%);
+  mask-image: linear-gradient(to bottom, #000 76%, transparent 99%);
+}
+
 /* ------------------------------------------------------------------------ *
  * Faixa de urgência: duas tarjas diagonais que se cruzam e rolam sem parar.
  * A de trás vai no sentido contrário e mais devagar, o que dá a leitura de
