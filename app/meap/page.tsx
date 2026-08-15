@@ -350,7 +350,7 @@ function Eyebrow({
 export default function MeapPage() {
   return (
     <>
-      <main className="pb-24 sm:pb-0">
+      <main>
         {/* ---------------------------------------------------------------- */}
         {/* Hero — duas colunas: texto à esquerda, retrato à direita sobre um
             painel mais escuro com o grafismo geométrico. */}
@@ -368,7 +368,9 @@ export default function MeapPage() {
           </div>
 
           <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-16 lg:grid-cols-[1fr_minmax(0,36%)] lg:gap-8 lg:py-20">
-            <div>
+            {/* No celular a coluna vira uma só e o texto centralizado lê melhor;
+                a partir de `lg`, com o retrato ao lado, volta para a esquerda. */}
+            <div className="text-center lg:text-left">
               {/* eslint-disable-next-line @next/next/no-img-element --
                   A logo vem do Wix já dimensionada; passar pelo otimizador do
                   next/image não traria ganho e adicionaria um domínio remoto a
@@ -376,12 +378,12 @@ export default function MeapPage() {
               <img
                 src={MARCA.logo}
                 alt={MARCA.logoAlt}
-                className="h-12 w-auto sm:h-14"
+                className="mx-auto h-12 w-auto sm:h-14 lg:mx-0"
               />
 
               <p className="eyebrow mt-7">{HERO.eyebrow}</p>
 
-              <h1 className="mt-3 max-w-xl font-sora text-3xl leading-[1.15] text-white sm:text-4xl lg:text-[2.6rem]">
+              <h1 className="mx-auto mt-3 max-w-xl font-sora lg:mx-0 text-3xl leading-[1.15] text-white sm:text-4xl lg:text-[2.6rem]">
                 Aprenda a{" "}
                 <strong className="font-bold">
                   projetar, captar clientes e faturar
@@ -392,7 +394,7 @@ export default function MeapPage() {
                 </em>
               </h1>
 
-              <p className="mt-5 max-w-xl leading-relaxed text-white/80">
+              <p className="mx-auto mt-5 max-w-xl leading-relaxed text-white/80 lg:mx-0">
                 Conquiste a{" "}
                 <em className="font-semibold italic text-white">
                   segurança técnica
@@ -404,7 +406,10 @@ export default function MeapPage() {
                 {HERO.sub}
               </p>
 
-              <ul className="mt-6 grid max-w-xl gap-x-6 gap-y-2 text-sm font-medium text-white sm:grid-cols-2">
+              {/* `w-fit` + `mx-auto` centralizam o bloco inteiro mas mantêm os
+                  itens alinhados entre si — centralizar cada linha deixaria os
+                  ✓ desencontrados. */}
+              <ul className="mx-auto mt-6 grid w-fit max-w-xl gap-x-6 gap-y-2 text-left text-sm font-medium text-white sm:grid-cols-2 lg:mx-0">
                 {HERO.bullets.map((b) => (
                   <li key={b} className="flex items-start gap-2">
                     <span aria-hidden className="text-[#daa520]">
@@ -415,7 +420,7 @@ export default function MeapPage() {
                 ))}
               </ul>
 
-              <div className="mt-8 max-w-md">
+              <div className="mx-auto mt-8 max-w-md lg:mx-0">
                 <Cta className="w-full">{HERO.cta}</Cta>
                 <p className="mt-3 text-center text-xs font-medium text-white/75">
                   {HERO.escassez}
@@ -999,11 +1004,6 @@ export default function MeapPage() {
           </div>
         </footer>
       </main>
-
-      {/* CTA fixo no celular, onde a barra do topo não comporta o botão. */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0f1626]/95 p-3 backdrop-blur sm:hidden">
-        <Cta className="w-full py-3.5">{HERO.cta}</Cta>
-      </div>
     </>
   );
 }
