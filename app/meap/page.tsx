@@ -428,33 +428,7 @@ export default function MeapPage() {
         {/* Hero — duas colunas: texto à esquerda, retrato à direita sobre um
             painel mais escuro com o grafismo geométrico. */}
         <section className="relative overflow-hidden bg-[#1b243a]">
-          {/* Faixa azul atrás do retrato, como na página de captura.
-              
-              Ela é do tamanho da seção porque nasce aqui dentro, com
-              `inset-y-0` — quem garante a altura é o próprio contêiner, não um
-              valor fixo. O contêiner interno repete a geometria da grade
-              (`max-w-6xl px-4`) para a faixa começar exatamente na coluna do
-              retrato, e o `right-[-50vw]` a faz sangrar até a borda da tela,
-              onde o `overflow-hidden` da seção apara a sobra.
-
-              Já existiu um painel aqui antes, e ele foi removido porque
-              recortava um retângulo visível atrás da foto vazada: a pessoa
-              ficava flutuando dentro de uma caixa. O que muda agora é que ela
-              vaza a faixa pela esquerda e pelo pé, então a borda deixa de ser
-              lida como moldura. Se o retrato for trocado por um mais estreito,
-              esse efeito volta. */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 hidden lg:block"
-          >
-            <div className="mx-auto h-full max-w-6xl px-4">
-              <div className="relative ml-auto h-full w-[36%]">
-                <div className="absolute inset-y-0 left-0 right-[-50vw] bg-[#2c375b]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Brilho difuso, por cima da faixa para suavizar a aresta dela. */}
+          {/* Só um brilho difuso no fundo da seção. */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 hidden lg:block"
@@ -526,19 +500,23 @@ export default function MeapPage() {
               </div>
             </div>
 
-            {/* O PNG é 4:5 e a caixa também, então o `cover` não apara nada —
-                ele fica para o caso de a foto ser trocada por uma de outra
-                proporção, e o `object-bottom` garante que o corte, se houver,
-                caia no topo e não nos pés.
+            {/* A faixa azul da página de captura é o próprio fundo desta caixa,
+                e não um painel à parte: assim ela é, por construção, do tamanho
+                exato da imagem em qualquer largura de tela. Foi o que resolveu
+                as duas coisas que quebravam a versão anterior — o painel de
+                altura inteira sobrava muito acima da cabeça dela, e o corte
+                reto da cadeira, que o PNG traz porque termina rente a ela,
+                agora cai exatamente na aresta de baixo do retângulo e é lido
+                como borda da faixa.
 
-                A margem negativa cancela o padding de baixo da seção: o pé da
-                imagem coincide com o fim da hero e a fita diagonal passa na
-                frente dela. Isso não é enfeite — o PNG termina rente à cadeira,
-                sem sobra transparente embaixo, então onde a caixa acaba aparece
-                um corte reto. Ancorar na base é o que esconde esse corte. Foi
-                por isso que a versão centralizada saiu: com a faixa atrás, o
-                corte ficava solto no meio dela. */}
-            <div className="relative mx-auto -mb-[8.5rem] aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-[9rem] lg:-mb-40 lg:ml-auto lg:mr-0 lg:max-w-[26rem]">
+                No celular não há faixa: ali a foto fica sobre o fundo da seção,
+                ancorada na base pela margem negativa, com a fita passando na
+                frente do corte.
+
+                O PNG é 4:5 e a caixa também, então o `cover` não apara nada —
+                ele fica para o caso de a foto ser trocada por uma de outra
+                proporção. */}
+            <div className="relative mx-auto -mb-[8.5rem] aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-[9rem] lg:mb-0 lg:ml-auto lg:mr-0 lg:max-w-[26rem] lg:self-center lg:bg-[#2c375b]">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
