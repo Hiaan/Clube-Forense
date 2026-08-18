@@ -167,6 +167,12 @@
   background: var(--peach);
   color: var(--navy-800);
   z-index: 1;
+  /* A sombra é o que separa a fita da seção de baixo na primeira faixa, onde
+     as duas são pêssego e sem ela a fita vira só a borda da seção. Ela sai
+     junto no `transform`, então cai perpendicular à fita e não à tela. Do lado
+     de cima ela morre no navy, que é o efeito desejado: a fita parece apoiada
+     sobre a troca de cor. Passar muito disso vira mancha no pêssego. */
+  box-shadow: 0 8px 22px rgba(15, 22, 38, 0.32);
 }
 
 .meap .faixa--fundo {
