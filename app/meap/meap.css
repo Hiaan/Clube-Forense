@@ -220,6 +220,27 @@
   }
 }
 
+/* Retrato da hero.
+ *
+ * O PNG termina rente à cadeira, sem sobra transparente embaixo, então sobre a
+ * faixa azul a aresta de baixo aparece como uma linha reta e denuncia o
+ * recorte. A máscara dissolve esse pé na cor da faixa, e a pessoa passa a
+ * emergir dela em vez de estar colada por cima.
+ *
+ * 40% foi escolha da Queren, comparando com 26% e 36%: a cadeira some inteira e
+ * o degradê sobe até as mãos dela, que é o que dissolve de vez a leitura de
+ * recorte colado. Baixar para perto de 26% devolve as mãos cheias e ainda
+ * cobre o corte, se um dia parecer forte demais.
+ *
+ * Só do `lg` para cima: no celular não há faixa, o pé da foto já cai no fim da
+ * seção e a fita diagonal passa na frente do corte. */
+@media (min-width: 64rem) {
+  .meap .retrato-hero {
+    -webkit-mask-image: linear-gradient(to top, transparent 0, #000 40%);
+    mask-image: linear-gradient(to top, transparent 0, #000 40%);
+  }
+}
+
 /* Trilho do carrossel de módulos: a barra de rolagem some porque as setas e o
    cartão cortado na borda já contam que dá para andar de lado, e a barra
    atravessando o pé dos cartões some com o arredondado deles. */
