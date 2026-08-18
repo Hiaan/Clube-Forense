@@ -316,7 +316,7 @@ function Planilha({
   linhas: string[][];
 }) {
   return (
-    <div className="mx-auto w-full max-w-[20rem]">
+    <div className={`mx-auto w-full ${imagem ? "max-w-[40rem]" : "max-w-[20rem]"}`}>
       <div
         className={
           imagem
@@ -333,7 +333,7 @@ function Planilha({
             alt={arquivo}
             width={1080}
             height={1080}
-            sizes="(min-width: 1024px) 20rem, 100vw"
+            sizes="(min-width: 1024px) 40rem, 100vw"
             className="h-auto w-full"
           />
         ) : (
@@ -706,9 +706,9 @@ export default function MeapPage() {
             <div className="text-center">
               <Eyebrow>O que você vai aprender</Eyebrow>
               <h2 className="mt-3 font-sora text-2xl font-bold tracking-tight text-white sm:text-4xl">
-                Do primeiro lançamento estrutural ao{" "}
+                Da teoria ao fechamento e entrega do seu{" "}
                 <em className="font-bold italic text-[#ffc781]">
-                  contrato assinado
+                  projeto estrutural
                 </em>
               </h2>
             </div>
@@ -812,7 +812,16 @@ export default function MeapPage() {
               {BONUS.itens.map((item, i) => (
                 <div
                   key={item.etiqueta}
-                  className="card-dark grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1fr_minmax(0,20rem)]"
+                  className={`card-dark grid items-center gap-10 p-8 sm:p-12 ${
+                    // O mockup da planilha é o dobro do celular, então a coluna
+                    // dele precisa abrir junto — senão o `max-w` da imagem não
+                    // teria onde caber. A pista larga vai na primeira posição
+                    // porque é lá que o `lg:order-1` joga a moldura deste
+                    // cartão; no do celular a moldura fica na segunda.
+                    item.tipo === "planilha"
+                      ? "lg:grid-cols-[minmax(0,40rem)_1fr]"
+                      : "lg:grid-cols-[1fr_minmax(0,20rem)]"
+                  }`}
                 >
                   {/* No segundo cartão a moldura troca de lado, senão os dois
                       blocos viram a mesma fileira repetida. */}
@@ -880,34 +889,19 @@ export default function MeapPage() {
                   {MENTORIA.chamada}
                 </p>
 
-                {/* Duas colunas a partir do `sm`: com uma só, a lista de seis
-                    itens empurrava o mockup para longe demais do título. */}
-                <ul className="mt-8 grid max-w-xl gap-x-6 gap-y-3 text-sm font-medium sm:grid-cols-2">
-                  {MENTORIA.beneficios.map((b) => (
-                    <li key={b} className="flex items-start gap-2">
-                      <span aria-hidden className="text-[#ffc781]">
-                        ✓
-                      </span>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
+                {/* O aviso de exclusividade vem em pêssego e não numa tarja: no
+                    preto a cor sozinha já separa, e a tarja roubava o peso do
+                    botão logo abaixo dela. */}
+                <p className="mt-7 max-w-xl font-sora text-sm font-bold leading-relaxed text-[#ffc781] sm:text-base">
+                  {MENTORIA.aviso}
+                </p>
+
+                <Cta className="mt-7 w-full sm:w-auto">{MENTORIA.cta}</Cta>
               </div>
 
               <MockupMentoria />
             </div>
 
-            {/* O rodapé da seção é a última coisa lida antes do preço, então
-                ele inverte: pêssego sobre o preto. Uma tarja navy aqui ficaria
-                a poucos níveis do fundo e deixaria de ser tarja. */}
-            <div className="mt-14 rounded-2xl bg-[#ffc781] px-6 py-9 text-center text-[#2c375b] sm:px-10">
-              <p className="mx-auto max-w-2xl font-sora text-sm font-bold leading-relaxed sm:text-base">
-                {MENTORIA.aviso}
-              </p>
-              <Cta variante="navy" className="mt-7 w-full sm:w-auto">
-                {MENTORIA.cta}
-              </Cta>
-            </div>
           </div>
         </section>
 

@@ -337,14 +337,6 @@ export const MENTORIA = {
     "E entrando agora, você ainda terá meu acompanhamento ao vivo a cada 15 dias.",
   chamada:
     "Uma mentoria que poderia facilmente custar mais de R$ 2.000, incluída sem nenhum custo extra para os 15 primeiros alunos do MEAP.",
-  beneficios: [
-    "Encontros ao vivo a cada 15 dias",
-    "Dúvidas sobre seus próprios projetos",
-    "Análises e decisões técnicas",
-    "Conteúdos complementares",
-    "Troca com os demais alunos",
-    "Acompanhamento direto com a Queren",
-  ],
   // 1080x1080 com fundo transparente: o notebook ocupa o meio e sobra vazio
   // nos cantos, que é onde as etiquetas flutuantes se encaixam sem cobrir a
   // tela.
@@ -359,7 +351,7 @@ export const MENTORIA = {
     por: "Hoje: R$ 0",
   },
   aviso:
-    "Essa condição é exclusiva da 1ª turma do MEAP e não pretendemos repeti-la nas próximas turmas.",
+    "Essa condição é EXCLUSIVA da 1ª turma do MEAP e não pretendemos repeti-la nas próximas turmas.",
   cta: "QUERO GARANTIR A MENTORIA + MEAP",
 };
 
