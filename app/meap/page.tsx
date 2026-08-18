@@ -436,13 +436,16 @@ export default function MeapPage() {
 
                 A margem negativa cancela o padding de baixo do container: o pé
                 da imagem passa a coincidir com o fim da seção, e a pessoa fica
-                apoiada na divisa com a faixa seguinte em vez de flutuar.
+                apoiada na divisa com a faixa seguinte em vez de flutuar. Isso
+                vale só até o `lg`; no desktop, onde a foto vira coluna ao lado
+                do texto, ela volta a respeitar o padding e centraliza na
+                vertical junto com o bloco de texto.
 
                 `sizes` é maior que a coluna porque, no `cover`, a imagem é
                 escalada pela altura e renderiza ~1,4x mais larga que o box —
                 pedir a largura do box devolveria um arquivo pequeno demais e a
                 foto sairia borrada. */}
-            <div className="relative mx-auto -mb-14 aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-16 lg:-mb-20 lg:ml-auto lg:mr-0 lg:max-w-[26rem]">
+            <div className="relative mx-auto -mb-14 aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-16 lg:mb-0 lg:ml-auto lg:mr-0 lg:max-w-[26rem] lg:self-center">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
