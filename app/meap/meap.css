@@ -98,24 +98,59 @@
  * profundidade. Tudo em CSS — a página segue sem JavaScript.
  * ------------------------------------------------------------------------ */
 
-/* A faixa não tem fundo próprio: ela pinta metade com a cor da seção de cima e
-   metade com a de baixo, então a fita passa por cima da emenda entre as duas
-   como se estivesse sobreposta ao fundo. As cores chegam por variável, na
-   chamada do componente. */
+/* A faixa não ocupa altura: ela é uma sobreposição na emenda entre as duas
+   seções, e são as seções de verdade que dão a cor de cima e a de baixo.
+   
+   Antes isto era um bloco de 10rem que pintava o próprio fundo, metade com a
+   cor de cima e metade com a de baixo. Essa emenda falsa era horizontal e a
+   fita é diagonal: as duas se afastavam para as pontas, e do lado direito
+   sobrava uma cunha da cor de cima aparecendo debaixo da fita. Quem troca a
+   cor agora é a `.faixa-cunha`, no mesmo ângulo da fita, então não sobra nada.
+
+   De quebra, a seção de cima passou a ir até a emenda de verdade. O bloco de
+   cor chapada cortava o brilho difuso da hero numa linha reta — um degrau de
+   uns 5 níveis por canal atravessando a borda direita — e esse degrau também
+   deixou de existir. */
 .meap .faixa-urgencia {
+  /* 100vw * tan(3,5°): o quanto a fita sobe de uma ponta à outra da tela.
+     Sai do mesmo ângulo do `rotate` lá embaixo — mexeu num, mexa no outro.
+     O `vw` conta a barra de rolagem e a fita não, o que desencontra as duas em
+     menos de 1px na ponta; é para isso que serve o 1px de sobra na fita. */
+  --subida: 6.12vw;
+
   position: relative;
-  height: 10rem;
-  overflow: hidden; /* segura as pontas giradas: sem isso a página rola de lado */
-  background: linear-gradient(
-    to bottom,
-    var(--faixa-de) 0 50%,
-    var(--faixa-para) 50% 100%
-  );
+  height: 0;
+  z-index: 1; /* as fitas por cima do fundo das duas seções vizinhas */
+}
+
+/* Triângulo com a cor da seção de baixo, cobrindo o pé da seção de cima até a
+   diagonal. A base pega a largura inteira, então a borda reta onde a seção de
+   cima termina fica escondida por baixo dele. */
+.meap .faixa-cunha {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(-1 * var(--subida));
+  height: var(--subida);
+  background: var(--faixa-para);
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+}
+
+/* Como a faixa tem altura zero, o `overflow: hidden` que segura as pontas
+   giradas mora aqui. A folga vertical acompanha a subida para que em tela
+   larga a fita já girada continue cabendo. */
+.meap .faixa-caixa {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(-8rem - var(--subida));
+  height: calc(16rem + 2 * var(--subida));
+  overflow: hidden;
 }
 
 .meap .faixa {
   position: absolute;
-  top: 50%;
+  top: 50%; /* o meio da caixa é a emenda entre as duas seções */
   /* Mais larga que a tela para que as pontas giradas nunca apareçam. */
   left: -8%;
   width: 116%;
@@ -123,15 +158,19 @@
   padding: 0.7rem 0;
 }
 
+/* `translateY(-100%)` encosta a base da fita na emenda e a metade da subida a
+   leva até a diagonal da cunha — é o que faz a fita ficar apoiada na troca de
+   cor em vez de pairar acima dela. O 1px de sobra evita o fio claro que a
+   suavização deixaria entre a fita e a cunha. */
 .meap .faixa--frente {
-  transform: translateY(-50%) rotate(-3.5deg);
+  transform: translateY(calc(-100% - var(--subida) / 2 + 1px)) rotate(-3.5deg);
   background: var(--peach);
   color: var(--navy-800);
   z-index: 1;
 }
 
 .meap .faixa--fundo {
-  transform: translateY(-50%) rotate(3.5deg);
+  transform: translateY(calc(-100% - var(--subida) / 2 + 1px)) rotate(3.5deg);
   border-top: 1px solid rgba(255, 199, 129, 0.22);
   border-bottom: 1px solid rgba(255, 199, 129, 0.22);
   color: rgba(255, 199, 129, 0.28);

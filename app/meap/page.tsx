@@ -304,7 +304,7 @@ function Planilha({
  * Cada trilho leva a lista duplicada porque a animação anda exatamente metade
  * dela — é o que faz o laço voltar ao início sem emenda visível.
  */
-function FaixaUrgencia({ de, para }: { de: string; para: string }) {
+function FaixaUrgencia({ para }: { para: string }) {
   const itens = Array.from({ length: URGENCIA.repeticoes }, (_, i) => i);
   const trilho = (
     <div className="faixa-trilho">
@@ -324,10 +324,13 @@ function FaixaUrgencia({ de, para }: { de: string; para: string }) {
   return (
     <div
       className="faixa-urgencia"
-      style={{ "--faixa-de": de, "--faixa-para": para } as React.CSSProperties}
+      style={{ "--faixa-para": para } as React.CSSProperties}
     >
-      <div className="faixa faixa--fundo">{trilho}</div>
-      <div className="faixa faixa--frente">{trilho}</div>
+      <div aria-hidden className="faixa-cunha" />
+      <div className="faixa-caixa">
+        <div className="faixa faixa--fundo">{trilho}</div>
+        <div className="faixa faixa--frente">{trilho}</div>
+      </div>
     </div>
   );
 }
@@ -367,7 +370,7 @@ export default function MeapPage() {
             <div className="absolute bottom-0 right-[6%] h-[30rem] w-[30rem] translate-y-1/3 rounded-full bg-[#2c375b] opacity-45 blur-3xl" />
           </div>
 
-          <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-16 lg:grid-cols-[1fr_minmax(0,36%)] lg:gap-8 lg:py-20">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-[8.5rem] sm:pt-16 sm:pb-[9rem] lg:grid-cols-[1fr_minmax(0,36%)] lg:gap-8 lg:pt-20 lg:pb-[10rem]">
             {/* No celular a coluna vira uma só e o texto centralizado lê melhor;
                 a partir de `lg`, com o retrato ao lado, volta para a esquerda. */}
             <div className="text-center lg:text-left">
@@ -434,11 +437,14 @@ export default function MeapPage() {
                 pelas bordas e o grafismo do "QC" cortado atrás dela, que é o
                 que dá a sensação de a foto continuar para fora do quadro.
 
-                A margem negativa cancela o padding de baixo do container: o pé
-                da imagem passa a coincidir com o fim da seção, e a pessoa fica
-                apoiada na divisa com a faixa seguinte em vez de flutuar. Isso
-                vale só até o `lg`; no desktop, onde a foto vira coluna ao lado
-                do texto, ela volta a respeitar o padding e centraliza na
+                A margem negativa desce a imagem para fora da área de
+                conteúdo, e o pé dela para onde o conteúdo da hero termina, logo
+                acima da fita, em vez de flutuar no meio da coluna. Ela é menor
+                que o padding de baixo porque parte desse padding é o respiro
+                que o bloco da faixa dava quando ainda ocupava altura própria.
+
+                Isso vale só até o `lg`; no desktop, onde a foto vira coluna ao
+                lado do texto, ela volta a respeitar o padding e centraliza na
                 vertical junto com o bloco de texto.
 
                 `sizes` é maior que a coluna porque, no `cover`, a imagem é
@@ -458,12 +464,12 @@ export default function MeapPage() {
           </div>
         </section>
 
-        <FaixaUrgencia de="#1b243a" para="#ffc781" />
+        <FaixaUrgencia para="#ffc781" />
 
         {/* ---------------------------------------------------------------- */}
         {/* A oportunidade — faixa pêssego, como na captura */}
         <section className="bg-[#ffc781] text-[#2c375b]">
-          <div className="mx-auto max-w-4xl px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-4xl px-4 pb-16 pt-[9rem] sm:pb-20 sm:pt-[10rem]">
             <Eyebrow sobrePeach>A oportunidade</Eyebrow>
             <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-snug tracking-tight sm:text-3xl">
               {OPORTUNIDADE.titulo}
@@ -808,7 +814,7 @@ export default function MeapPage() {
           {/* Sem foto, a coluna da esquerda sumiria e deixaria o texto espremido
               em metade da largura — daí o layout cair para uma coluna só. */}
           <div
-            className={`mx-auto grid items-center gap-10 px-4 py-16 sm:py-20 ${
+            className={`mx-auto grid items-center gap-10 px-4 pt-16 pb-[9rem] sm:pt-20 sm:pb-[10rem] ${
               AUTORA.foto
                 ? "max-w-5xl sm:grid-cols-[minmax(0,380px)_1fr]"
                 : "max-w-3xl"
@@ -857,13 +863,13 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        <FaixaUrgencia de="#2c375b" para="#0f1626" />
+        <FaixaUrgencia para="#0f1626" />
 
         {/* ---------------------------------------------------------------- */}
         {/* Oferta — a pergunta à esquerda, o cartão do preço no meio e o que
             está incluso à direita. */}
         <section id="oferta" className="scroll-mt-8 bg-[#0f1626]">
-          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:py-20 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)] lg:gap-8">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-[9rem] sm:pb-20 sm:pt-[10rem] lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)] lg:gap-8">
             <div>
               <h2 className="font-sora text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
                 {OFERTA.titulo}
