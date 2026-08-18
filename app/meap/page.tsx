@@ -428,7 +428,28 @@ export default function MeapPage() {
         {/* Hero — duas colunas: texto à esquerda, retrato à direita sobre um
             painel mais escuro com o grafismo geométrico. */}
         <section className="relative overflow-hidden bg-[#1b243a]">
-          {/* Só um brilho difuso no fundo da seção. */}
+          {/* Faixa azul atrás do retrato.
+
+              Ela repete a geometria da grade — mesmo `max-w-6xl px-4`, mesma
+              largura de coluna, mesmo alinhamento à direita — para ficar
+              exatamente sob a caixa da foto, sem depender de nenhum número
+              solto. O que muda é a vertical: `inset-0` a estica de ponta a
+              ponta da seção, enquanto o retrato segue centralizado dentro dela.
+
+              Como camada separada e não fundo da caixa, a faixa pode ser mais
+              alta que a foto. O preço disso é que a aresta de baixo do PNG
+              volta a aparecer sobre o azul, já que a imagem termina rente à
+              cadeira — é o mesmo comportamento da página de captura. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 hidden lg:block"
+          >
+            <div className="mx-auto h-full max-w-6xl px-4">
+              <div className="ml-auto h-full w-[36%] max-w-[26rem] bg-[#2c375b]" />
+            </div>
+          </div>
+
+          {/* Brilho difuso, por cima da faixa para suavizar as arestas dela. */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 hidden lg:block"
@@ -500,23 +521,21 @@ export default function MeapPage() {
               </div>
             </div>
 
-            {/* A faixa azul da página de captura é o próprio fundo desta caixa,
-                e não um painel à parte: assim ela é, por construção, do tamanho
-                exato da imagem em qualquer largura de tela. Foi o que resolveu
-                as duas coisas que quebravam a versão anterior — o painel de
-                altura inteira sobrava muito acima da cabeça dela, e o corte
-                reto da cadeira, que o PNG traz porque termina rente a ela,
-                agora cai exatamente na aresta de baixo do retângulo e é lido
-                como borda da faixa.
+            {/* A largura da faixa sai daqui: ela é desenhada com a mesma
+                largura de coluna e o mesmo alinhamento desta caixa, então as
+                duas coincidem na horizontal em qualquer tela. A foto fica
+                centralizada na vertical, e a faixa passa por cima e por baixo
+                dela até as bordas da seção.
 
                 No celular não há faixa: ali a foto fica sobre o fundo da seção,
                 ancorada na base pela margem negativa, com a fita passando na
-                frente do corte.
+                frente do corte. A faixa do desktop é uma camada à parte, logo
+                acima — aqui a caixa não pinta fundo nenhum.
 
                 O PNG é 4:5 e a caixa também, então o `cover` não apara nada —
                 ele fica para o caso de a foto ser trocada por uma de outra
                 proporção. */}
-            <div className="relative mx-auto -mb-[8.5rem] aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-[9rem] lg:mb-0 lg:ml-auto lg:mr-0 lg:max-w-[26rem] lg:self-center lg:bg-[#2c375b]">
+            <div className="relative mx-auto -mb-[8.5rem] aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-[9rem] lg:mb-0 lg:ml-auto lg:mr-0 lg:max-w-[26rem] lg:self-center">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
