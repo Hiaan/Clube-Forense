@@ -894,8 +894,11 @@ export default function MeapPage() {
               <h2 className="font-sora text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
                 {OFERTA.titulo}
               </h2>
-              <p className="mt-5 text-sm leading-relaxed text-white/65">
+              <p className="mt-5 max-w-sm font-sora text-lg font-bold leading-snug text-white sm:text-xl">
                 {OFERTA.apoio}
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-white/60">
+                Em até 12x no cartão.
               </p>
             </div>
 
@@ -925,7 +928,19 @@ export default function MeapPage() {
                 </p>
               </div>
 
-              <Cta className="mt-7 w-full">{OFERTA.ctaCartao}</Cta>
+              {/* O gatilho fica colado no botão, que é o último ponto antes
+                  do clique. O vermelho é o mesmo da etiqueta da seção da
+                  mentoria — repetir a cor é o que amarra as duas. */}
+              <div className="mt-7 rounded-xl border border-[#d92d20]/55 bg-[#d92d20]/15 p-4 text-left">
+                <p className="font-sora text-[0.6rem] font-bold uppercase tracking-wider text-[#ff9d94]">
+                  {OFERTA.gatilho.etiqueta}
+                </p>
+                <p className="mt-1.5 text-sm font-semibold leading-snug text-white">
+                  {OFERTA.gatilho.texto}
+                </p>
+              </div>
+
+              <Cta className="mt-5 w-full">{OFERTA.ctaCartao}</Cta>
 
               <p className="mt-4 text-xs leading-relaxed text-white/55">
                 <strong className="font-semibold text-white/85">

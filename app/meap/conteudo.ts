@@ -408,8 +408,17 @@ export const URGENCIA = {
 
 export const OFERTA = {
   titulo: "Quanto você precisará investir?",
-  apoio:
-    "Menos do que você cobra em um único projeto estrutural de alto padrão — e você pode dividir em até 12x no cartão.",
+  apoio: "Tudo isso pelo valor menor que o de uma pizza por mês.",
+  /**
+   * Gatilho da mentoria repetido dentro do cartão do preço, que é onde a
+   * decisão acontece. O número de vagas também aparece na hero, na seção da
+   * mentoria e no FAQ: mexeu aqui, confira os outros três.
+   */
+  gatilho: {
+    etiqueta: "Bônus da 1ª turma · 15 vagas",
+    texto:
+      "Os 15 primeiros inscritos entram na mentoria quinzenal ao vivo com a Queren. Depois disso, ela sai do pacote.",
+  },
   produto: "MEAP",
   produtoLinha2: "Método Estruturas de Alto Padrão",
   antes: "o MEAP sai por:",
