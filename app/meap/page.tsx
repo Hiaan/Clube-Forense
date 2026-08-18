@@ -193,7 +193,7 @@ function MockupMentoria() {
         width={1080}
         height={1080}
         sizes="(min-width: 1024px) 36rem, 100vw"
-        className="h-auto w-full drop-shadow-[0_25px_45px_rgba(27,36,58,0.25)]"
+        className="h-auto w-full"
       />
 
       <Etiqueta className="left-0 top-[16%]">
@@ -209,7 +209,7 @@ function MockupMentoria() {
       <Etiqueta className="bottom-[24%] left-[3%]">{cadencia}</Etiqueta>
 
       {/* O selo fica sobre o teclado, que é a área do PNG sem informação. */}
-      <div className="absolute bottom-[8%] right-0 rounded-xl bg-[#1b243a] px-4 py-3 text-center shadow-[0_14px_30px_rgba(27,36,58,0.35)]">
+      <div className="absolute bottom-[8%] right-0 rounded-xl border border-white/12 bg-[#1b243a] px-4 py-3 text-center shadow-[0_14px_30px_rgba(0,0,0,0.5)]">
         <p className="font-sora text-[0.55rem] font-bold uppercase tracking-wider text-[#ffc781]">
           {MENTORIA.selo.rotulo}
         </p>
@@ -828,10 +828,11 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Bônus da mentoria — seção própria em pêssego. Ela é o gatilho de
-            urgência antes do preço, e o pêssego é o que a separa das outras
-            duas seções de bônus, que são navy. */}
-        <section className="bg-[#ffc781] text-[#2c375b]">
+        {/* Bônus da mentoria — seção própria em preto. Ela é o gatilho de
+            urgência antes do preço, e o preto é a única cor da página que não
+            aparece em mais nenhuma seção: é o que a separa das outras duas de
+            bônus, que são navy. */}
+        <section className="bg-black text-white">
           <div className="mx-auto max-w-6xl px-4 pt-16 pb-[9rem] sm:pt-20 sm:pb-[10rem]">
             <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-14">
               <div>
@@ -843,7 +844,7 @@ export default function MeapPage() {
                   {MENTORIA.titulo}
                 </h2>
 
-                <p className="mt-4 max-w-xl leading-relaxed text-[#2c375b]/85">
+                <p className="mt-4 max-w-xl leading-relaxed text-white/75">
                   {MENTORIA.chamada}
                 </p>
 
@@ -852,7 +853,7 @@ export default function MeapPage() {
                 <ul className="mt-8 grid max-w-xl gap-x-6 gap-y-3 text-sm font-medium sm:grid-cols-2">
                   {MENTORIA.beneficios.map((b) => (
                     <li key={b} className="flex items-start gap-2">
-                      <span aria-hidden className="text-[#1b243a]">
+                      <span aria-hidden className="text-[#ffc781]">
                         ✓
                       </span>
                       {b}
@@ -864,13 +865,16 @@ export default function MeapPage() {
               <MockupMentoria />
             </div>
 
-            {/* O rodapé da seção é uma tarja navy: é a última coisa lida antes
-                do preço, e o contraste com o pêssego é o que a segura. */}
-            <div className="mt-14 rounded-2xl bg-[#1b243a] px-6 py-9 text-center sm:px-10">
-              <p className="mx-auto max-w-2xl font-sora text-sm font-bold leading-relaxed text-white sm:text-base">
+            {/* O rodapé da seção é a última coisa lida antes do preço, então
+                ele inverte: pêssego sobre o preto. Uma tarja navy aqui ficaria
+                a poucos níveis do fundo e deixaria de ser tarja. */}
+            <div className="mt-14 rounded-2xl bg-[#ffc781] px-6 py-9 text-center text-[#2c375b] sm:px-10">
+              <p className="mx-auto max-w-2xl font-sora text-sm font-bold leading-relaxed sm:text-base">
                 {MENTORIA.aviso}
               </p>
-              <Cta className="mt-7 w-full sm:w-auto">{MENTORIA.cta}</Cta>
+              <Cta variante="navy" className="mt-7 w-full sm:w-auto">
+                {MENTORIA.cta}
+              </Cta>
             </div>
           </div>
         </section>
