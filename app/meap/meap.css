@@ -220,6 +220,16 @@
   }
 }
 
+/* Trilho do carrossel de módulos: a barra de rolagem some porque as setas e o
+   cartão cortado na borda já contam que dá para andar de lado, e a barra
+   atravessando o pé dos cartões some com o arredondado deles. */
+.meap .trilho-modulos {
+  scrollbar-width: none;
+}
+.meap .trilho-modulos::-webkit-scrollbar {
+  display: none;
+}
+
 /* Cartão sobre a faixa pêssego. */
 .meap .card-peach {
   background: rgba(255, 255, 255, 0.55);

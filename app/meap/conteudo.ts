@@ -12,6 +12,21 @@ export const CHECKOUT_URL = "#oferta"; // PREENCHER: URL do checkout
 export const CONTATO = "contato@engquerencosta.com";
 
 /**
+ * WhatsApp do botão flutuante.
+ *
+ * CONFERIR: o número veio como "+55 83 8600-8392", que tem 8 dígitos depois do
+ * DDD. Celular no Brasil tem 9 e começa em 9, então provavelmente falta o 9 —
+ * seria 5583986008392. Está no ar exatamente como foi passado; se o link não
+ * abrir a conversa certa, é este dígito.
+ */
+export const WHATSAPP = {
+  /** Só dígitos, no formato que o wa.me espera: DDI + DDD + número. */
+  numero: "558386008392",
+  exibicao: "+55 83 8600-8392",
+  mensagem: "Olá! Vim pela página do MEAP e quero saber mais sobre o curso.",
+};
+
+/**
  * Imagens hospedadas no Wix, que é onde a página de captura já as serve.
  *
  * ATENÇÃO: enquanto apontarem para cá, esta página depende do site do Wix
@@ -25,15 +40,17 @@ export const MARCA = {
 
 export const HERO = {
   eyebrow: "MEAP – Método Estruturas de Alto Padrão",
-  sub: "que irão mudar para sempre sua realidade como engenheiro civil.",
+  sub: "que irão mudar sua realidade como engenheiro(a) civil.",
   bullets: [
-    "Dois Projetos Estruturais do Zero",
-    "Aulas Gravadas",
-    "Domine o Eberick",
-    "Aprenda a se Posicionar no mercado",
+    "Desenvolva 2 Projetos Estruturais Reais do Início ao Fim",
+    "Aprenda a Precificar e Vender Seus Projetos",
+    "Tenha Mais Segurança Para Atuar no Mercado",
+    "Aulas Gravadas + Grupo Exclusivo no WhatsApp",
+    "Planilhas, PDFs e Materiais Práticos",
+    "Bônus: Mentoria Quinzenal ao Vivo",
   ],
   cta: "QUERO ME INSCREVER AGORA",
-  escassez: "Vagas limitadas — clique no botão e garanta a sua",
+  escassez: "Mentoria quinzenal ao vivo para os 15 primeiros — garanta a sua vaga",
   // PNG recortado, 1080x1350, com o grafismo do "QC" já embutido atrás dela.
   // Fica no repositório em vez de vir do Wix: o next/image só otimiza o que
   // pode ler, e servir local também tira uma dependência externa do caminho
@@ -52,13 +69,13 @@ export const OPORTUNIDADE = {
   // Mesmo título da página de captura — quem chega de lá reconhece a promessa.
   titulo: "A oportunidade que muitos engenheiros deixam passar.",
   paragrafos: [
-    "Existe um mercado específico dentro dos projetos estruturais que combina clientes com maior poder de investimento, projetos de boa rentabilidade e complexidade acessível: o residencial de alto padrão.",
+    "Existe um mercado específico dentro dos projetos estruturais que combina clientes com maior poder de investimento, projetos de boa rentabilidade e complexidade acessível: projetos estruturais de alto padrão.",
     "É uma oportunidade para aumentar o faturamento com projetos valorizados, sem precisar abandonar a atividade que você já exerce hoje.",
   ],
   meta: {
     valor: "R$ 7 mil",
     texto:
-      "é o valor base que você como engenheiro consegue adicionar por mês, sem abrir mão do que faz hoje.",
+      "é o valor médio que você como engenheiro consegue adicionar por mês, sem abrir mão do que faz hoje.",
   },
 };
 
@@ -77,13 +94,13 @@ export const PERFIS = {
       icone: "livro" as const,
       titulo: "Estudantes de Engenharia",
       texto:
-        "Para quem quer sair da faculdade já sabendo projetar, e não só sabendo a teoria da prova.",
+        "Para quem quer sair da faculdade já dominando uma área de excelente retorno financeiro e entrar com o pé direito no mercado.",
     },
     {
       icone: "capelo" as const,
-      titulo: "Engenheiros e arquitetos recém-formados",
+      titulo: "Engenheiros recém-formados",
       texto:
-        "Para entregar o primeiro projeto estrutural sem perder o sono e subir o nível do que você assina.",
+        "Para quem quer dar os primeiros passos em projetos estruturais com segurança, método e experiência prática em projetos reais.",
     },
     {
       icone: "dinheiro" as const,
@@ -101,13 +118,13 @@ export const PERFIS = {
       icone: "capacete" as const,
       titulo: "Engenheiros atuantes",
       texto:
-        "Para reciclar e aplicar as normas vigentes na prática, em projeto de verdade — não em exemplo de sala de aula.",
+        "Para quem já está no mercado, mas quer ganhar mais segurança técnica, aprimorar seus projetos e atuar com serviços de maior valor.",
     },
     {
       icone: "moedas" as const,
-      titulo: "Quem quer faturar alto",
+      titulo: "Quem quer atuar no mercado de alto padrão",
       texto:
-        "Para quem quer virar referência em estruturas na sua região e cobrar como referência.",
+        "Para quem quer trabalhar com clientes que valorizam o serviço, aumentar o ticket dos projetos e construir uma atuação mais rentável.",
     },
   ],
 };
@@ -148,21 +165,21 @@ export const PILARES = [
     nome: "Projetar",
     resumo: "Segurança e domínio técnico",
     texto:
-      "Concepção, lançamento, modelagem, dimensionamento e detalhamento. Você aprende a tomar decisão estrutural com critério — e a defender cada uma delas.",
+      "Concepção, lançamento, modelagem, dimensionamento e detalhamento. Aprenda a tomar decisões estruturais com critério e segurança em cada etapa do projeto.",
   },
   {
     numero: "02",
     nome: "Posicionar",
-    resumo: "Do projeto ao serviço valorizado",
+    resumo: "Transforme projeto em um serviço valorizado",
     texto:
-      "Como apresentar, precificar e empacotar o seu projeto para que o cliente enxergue valor técnico, e não uma planilha de preço mais barato.",
+      "Aprenda como apresentar, precificar e valorizar seu trabalho para que o cliente enxergue o valor técnico da sua entrega — e não escolha apenas pelo menor preço.",
   },
   {
     numero: "03",
     nome: "Prospectar",
-    resumo: "Encontrar, abordar e fechar",
+    resumo: "Encontre, aborde e feche",
     texto:
-      "Onde estão os clientes de alto padrão, como chegar até eles, o que falar na primeira conversa e como conduzir a proposta até a assinatura.",
+      "Entenda onde estão os clientes do mercado de alto padrão, como chegar até eles, o que falar e como conduzir a negociação até o fechamento.",
   },
 ];
 
@@ -174,10 +191,21 @@ export const PILARES = [
  *
  * PREENCHER: `imagem` aceita um caminho em /public (ex.: "/meap/modulo-01.jpg").
  * Enquanto ficar vazio, o cartão usa um fundo gráfico no lugar da capa.
+ *
+ * REVISAR: os títulos vieram da Queren; as descrições foram escritas a partir
+ * deles e ainda não foram conferidas contra o conteúdo real de cada módulo.
  */
 export const MODULOS = [
   {
     numero: "01",
+    linha1: "Apresentação",
+    linha2: "e Boas-vindas",
+    imagem: "",
+    texto:
+      "Como o curso funciona, o que você vai desenvolver em cada etapa e o que deixar preparado antes de começar.",
+  },
+  {
+    numero: "02",
     linha1: "Concepção",
     linha2: "Estrutural",
     imagem: "",
@@ -185,44 +213,46 @@ export const MODULOS = [
       "Como nasce uma estrutura: leitura do projeto arquitetônico, escolha do sistema, lançamento de pilares e vigas, caminho das cargas.",
   },
   {
-    numero: "02",
-    linha1: "Modelagem e",
-    linha2: "Dimensionamento",
-    imagem: "",
-    texto:
-      "Modelagem no Eberick, análise dos esforços e dimensionamento de lajes, vigas, pilares e fundações dentro das normas brasileiras.",
-  },
-  {
     numero: "03",
-    linha1: "Projetos de",
-    linha2: "Alto Padrão",
+    linha1: "Iniciando o",
+    linha2: "primeiro projeto",
     imagem: "",
     texto:
-      "Dois projetos completos desenvolvidos do zero, do briefing à entrega, com as decisões e os ajustes reais que aparecem no caminho.",
+      "O ponto de partida de um projeto real: recebimento do arquitetônico, definições iniciais e o lançamento da estrutura.",
   },
   {
     numero: "04",
-    linha1: "Detalhamento",
-    linha2: "e Entrega",
+    linha1: "Desenvolvendo o",
+    linha2: "primeiro projeto",
     imagem: "",
     texto:
-      "Pranchas, armaduras, compatibilização e o pacote final que você entrega ao cliente e à obra — no padrão de um escritório profissional.",
+      "Modelagem, análise dos esforços e dimensionamento de lajes, vigas, pilares e fundações dentro das normas brasileiras.",
   },
   {
     numero: "05",
-    linha1: "Precificação",
-    linha2: "e Propostas",
+    linha1: "Otimizando o",
+    linha2: "primeiro projeto",
     imagem: "",
     texto:
-      "Como formar o seu preço, montar a proposta comercial e apresentar o orçamento sem competir por ser o mais barato.",
+      "Ajuste do modelo e revisão das decisões: as escolhas que deixam o projeto mais eficiente sem abrir mão da segurança.",
   },
   {
     numero: "06",
-    linha1: "Captação de",
-    linha2: "Clientes",
+    linha1: "Finalizando o",
+    linha2: "primeiro projeto",
     imagem: "",
     texto:
-      "Prospecção ativa, parcerias com arquitetos e construtoras, portfólio, abordagem e condução da negociação até o fechamento.",
+      "Detalhamento, pranchas, armaduras e o pacote final que você entrega ao cliente e à obra.",
+  },
+  {
+    numero: "Bônus",
+    // Sem `linha1`: o cartão imprime só a segunda linha quando esta vem vazia,
+    // e "Empreendedorismo" não tem por onde ser quebrado em duas.
+    linha1: "",
+    linha2: "Empreendedorismo",
+    imagem: "",
+    texto:
+      "Precificação, proposta comercial, captação de clientes e a condução da negociação até o fechamento.",
   },
 ];
 
@@ -275,6 +305,18 @@ export const BONUS = {
   tituloDestaque: "bônus",
   tituloFim: "o acesso a",
   itens: [
+    {
+      // O bônus que sustenta a urgência da página: é o único item com vaga
+      // contada, e o número aparece na hero, no preço e no FAQ.
+      tipo: "mentoria" as const,
+      etiqueta: "Só para os 15 primeiros",
+      headline: "Mentoria quinzenal ao vivo com a Queren",
+      texto:
+        "A cada quinze dias, um encontro ao vivo no Google Meet fechado para os 15 primeiros inscritos. Você leva as suas dúvidas de projeto, acompanha o que os outros alunos estão desenvolvendo e recebe conteúdo que não entra nas aulas gravadas.",
+      vagas: "15",
+      cadencia: "A cada 15 dias",
+      plataforma: "Google Meet",
+    },
     {
       tipo: "celular" as const,
       etiqueta: "Grupo VIP",
@@ -357,7 +399,7 @@ export const ENTREGAS = [
   "Modelos de proposta comercial e de contrato",
   "Grupo VIP no WhatsApp, junto com os outros alunos",
   "Suporte para tirar dúvidas técnicas durante o curso",
-  "Certificado de conclusão",
+  "Mentoria quinzenal ao vivo no Google Meet — bônus para os 15 primeiros",
 ];
 
 export const FAQ = [
@@ -379,7 +421,7 @@ export const FAQ = [
   {
     pergunta: "As aulas são ao vivo ou gravadas?",
     resposta:
-      "Gravadas. Você assiste no seu ritmo, quantas vezes quiser, e volta na aula que precisar enquanto desenvolve os seus próprios projetos.",
+      "As aulas do curso são gravadas: você assiste no seu ritmo, quantas vezes quiser, e volta na aula que precisar enquanto desenvolve os seus próprios projetos. Ao vivo há a mentoria quinzenal, que é bônus para os 15 primeiros inscritos.",
   },
   {
     pergunta: "Como funciona o suporte?",
@@ -387,8 +429,9 @@ export const FAQ = [
       "Você pode enviar suas dúvidas técnicas durante o curso e recebe retorno da equipe — inclusive sobre projetos que estiver desenvolvendo. Fora isso, tem o Grupo VIP no WhatsApp.",
   },
   {
-    pergunta: "Recebo certificado?",
-    resposta: "Sim, você recebe certificado de conclusão ao final do curso.",
+    pergunta: "Como funciona a mentoria quinzenal?",
+    resposta:
+      "São encontros ao vivo no Google Meet, a cada quinze dias, para tirar dúvidas de projeto e aprofundar conteúdo que não cabe nas aulas gravadas. É um bônus exclusivo para os 15 primeiros inscritos: quem entrar depois recebe todo o resto do curso, mas não a mentoria.",
   },
   {
     pergunta: "E se eu não gostar?",
