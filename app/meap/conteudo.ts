@@ -37,6 +37,9 @@ export const WHATSAPP = {
   mensagem: "Olá! Vim pela página do MEAP e quero saber mais sobre o curso.",
 };
 
+/** ID do Pixel da Meta (Facebook/Instagram Ads), carregado no layout do /meap. */
+export const META_PIXEL_ID = "1349310623486348";
+
 /**
  * Imagens hospedadas no Wix, que é onde a página de captura já as serve.
  *
@@ -333,7 +336,7 @@ export const MENTORIA = {
   titulo:
     "E entrando agora, você ainda terá meu acompanhamento ao vivo a cada 15 dias.",
   chamada:
-    "Uma mentoria que poderia facilmente custar mais de R$ 2.000, incluída sem nenhum custo extra para os 15 primeiros alunos do MEAP.",
+    "São 4 encontros ao vivo, um a cada 15 dias — uma mentoria que poderia facilmente custar mais de R$ 2.000, incluída sem nenhum custo extra para os 15 primeiros alunos do MEAP.",
   // 1080x1080 com fundo transparente: o notebook ocupa o meio e sobra vazio
   // nos cantos, que é onde as etiquetas flutuantes se encaixam sem cobrir a
   // tela.
@@ -428,7 +431,7 @@ export const FAQ = [
   {
     pergunta: "Como funciona a mentoria quinzenal?",
     resposta:
-      "São encontros ao vivo no Google Meet, a cada quinze dias, para tirar dúvidas de projeto e aprofundar conteúdo que não cabe nas aulas gravadas. É um bônus exclusivo para os 15 primeiros inscritos: quem entrar depois recebe todo o resto do curso, mas não a mentoria.",
+      "São 4 encontros ao vivo no Google Meet, um a cada quinze dias, para tirar dúvidas de projeto e aprofundar conteúdo que não cabe nas aulas gravadas. É um bônus exclusivo para os 15 primeiros inscritos: quem entrar depois recebe todo o resto do curso, mas não a mentoria.",
   },
   {
     pergunta: "E se eu não gostar?",
