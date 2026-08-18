@@ -5,8 +5,19 @@
 // dados reais (números, depoimentos, imagens de projetos). Nada aqui pode ir ao
 // ar como prova social sem ser verdadeiro — troque antes de publicar.
 
-/** Link do checkout. Trocar pela URL real da plataforma de pagamento. */
-export const CHECKOUT_URL = "#oferta"; // PREENCHER: URL do checkout
+/**
+ * Checkout na Hotmart.
+ *
+ * Só o botão de dentro do cartão do preço aponta para cá. Todos os outros
+ * botões da página levam para a seção da oferta (`#oferta`), para a pessoa ver
+ * o preço e o que está incluso antes de sair da página — quem manda o tráfego
+ * frio direto para o checkout perde a leitura da oferta.
+ */
+export const CHECKOUT_URL =
+  "https://pay.hotmart.com/S107175977E?off=ocburh69&bid=1787074079347";
+
+/** Âncora da seção da oferta, para onde vão os demais botões. */
+export const ANCORA_OFERTA = "#oferta";
 
 /** Contato exibido no rodapé — o mesmo da página de captura. */
 export const CONTATO = "contato@engquerencosta.com";
@@ -61,7 +72,7 @@ export const HERO = {
 
 export const PRECO = {
   aVista: "R$ 497",
-  parcelado: "12x de R$ 51,10",
+  parcelado: "12x de R$ 51,40",
   ancora: "R$ 997", // preço cheio, confirmado pela Queren
 };
 
@@ -186,74 +197,36 @@ export const PILARES = [
 /**
  * Módulos do curso.
  *
- * O título é quebrado em duas linhas de propósito: a primeira sai em contorno
- * vazado e a segunda em pêssego, que é o efeito das capas.
+ * As artes já trazem o nome do módulo e a numeração dentro da própria imagem,
+ * então o cartão do carrossel não imprime título nem descrição: qualquer texto
+ * ao lado repetiria o que está no JPEG.
  *
- * PREENCHER: `imagem` aceita um caminho em /public (ex.: "/meap/modulo-01.jpg").
- * Enquanto ficar vazio, o cartão usa um fundo gráfico no lugar da capa.
- *
- * REVISAR: os títulos vieram da Queren; as descrições foram escritas a partir
- * deles e ainda não foram conferidas contra o conteúdo real de cada módulo.
+ * O `alt` carrega o que está escrito na arte, e não uma descrição genérica. É o
+ * único lugar onde esse texto existe em HTML — sem ele, nem leitor de tela nem
+ * buscador têm como saber o que são os doze cartões.
  */
 export const MODULOS = [
+  { imagem: "/modulos/1.jpg", alt: "Módulo 1 — Apresentações e boas-vindas" },
+  { imagem: "/modulos/2.jpg", alt: "Módulo 2 — Concepção estrutural" },
+  { imagem: "/modulos/3.jpg", alt: "Módulo 3 — Iniciando o primeiro projeto" },
   {
-    numero: "01",
-    linha1: "Apresentação",
-    linha2: "e Boas-vindas",
-    imagem: "",
-    texto:
-      "Como o curso funciona, o que você vai desenvolver em cada etapa e o que deixar preparado antes de começar.",
+    imagem: "/modulos/4.jpg",
+    alt: "Módulo 4 — Desenvolvendo o primeiro projeto",
   },
+  { imagem: "/modulos/5.jpg", alt: "Módulo 5 — Otimizando o primeiro projeto" },
+  { imagem: "/modulos/6.jpg", alt: "Módulo 6 — Finalizando o primeiro projeto" },
+  { imagem: "/modulos/7.jpg", alt: "Módulo 7 — Iniciando o segundo projeto" },
   {
-    numero: "02",
-    linha1: "Concepção",
-    linha2: "Estrutural",
-    imagem: "",
-    texto:
-      "Como nasce uma estrutura: leitura do projeto arquitetônico, escolha do sistema, lançamento de pilares e vigas, caminho das cargas.",
+    imagem: "/modulos/8.jpg",
+    alt: "Módulo 8 — Desenvolvendo o segundo projeto",
   },
+  { imagem: "/modulos/9.jpg", alt: "Módulo 9 — Otimizando o segundo projeto" },
   {
-    numero: "03",
-    linha1: "Iniciando o",
-    linha2: "primeiro projeto",
-    imagem: "",
-    texto:
-      "O ponto de partida de um projeto real: recebimento do arquitetônico, definições iniciais e o lançamento da estrutura.",
+    imagem: "/modulos/10.jpg",
+    alt: "Módulo 10 — Finalizando o segundo projeto",
   },
-  {
-    numero: "04",
-    linha1: "Desenvolvendo o",
-    linha2: "primeiro projeto",
-    imagem: "",
-    texto:
-      "Modelagem, análise dos esforços e dimensionamento de lajes, vigas, pilares e fundações dentro das normas brasileiras.",
-  },
-  {
-    numero: "05",
-    linha1: "Otimizando o",
-    linha2: "primeiro projeto",
-    imagem: "",
-    texto:
-      "Ajuste do modelo e revisão das decisões: as escolhas que deixam o projeto mais eficiente sem abrir mão da segurança.",
-  },
-  {
-    numero: "06",
-    linha1: "Finalizando o",
-    linha2: "primeiro projeto",
-    imagem: "",
-    texto:
-      "Detalhamento, pranchas, armaduras e o pacote final que você entrega ao cliente e à obra.",
-  },
-  {
-    numero: "Bônus",
-    // Sem `linha1`: o cartão imprime só a segunda linha quando esta vem vazia,
-    // e "Empreendedorismo" não tem por onde ser quebrado em duas.
-    linha1: "",
-    linha2: "Empreendedorismo",
-    imagem: "",
-    texto:
-      "Precificação, proposta comercial, captação de clientes e a condução da negociação até o fechamento.",
-  },
+  { imagem: "/modulos/11.jpg", alt: "Módulo bônus — Empreendedorismo" },
+  { imagem: "/modulos/12.jpg", alt: "Módulo bônus — Planilhas, PDFs e mais" },
 ];
 
 /** PREENCHER: renders/projetos reais. `src` deve apontar para /public. */
@@ -338,8 +311,8 @@ export const BONUS = {
       headline: "Planilha de precificação e modelos de proposta",
       texto:
         "Os mesmos arquivos que eu uso no escritório, liberados para você editar: a planilha que fecha o preço do projeto e os modelos de proposta comercial. É abrir, colocar os seus números e enviar para o cliente.",
-      /** PREENCHER: print real da planilha. Vazio, a página desenha um exemplo. */
-      imagem: "",
+      // Mockup do notebook com a planilha aberta e os ícones de PDF e Excel.
+      imagem: "/bonus-planilha.png",
       arquivo: "Precificação — Projeto Estrutural",
       colunas: ["Item", "Qtd", "Valor"],
       linhas: [
@@ -375,7 +348,7 @@ export const MENTORIA = {
   // 1080x1080 com fundo transparente: o notebook ocupa o meio e sobra vazio
   // nos cantos, que é onde as etiquetas flutuantes se encaixam sem cobrir a
   // tela.
-  imagem: "/notebook2.png",
+  imagem: "/mentoria.png",
   imagemAlt:
     "Notebook aberto numa chamada do Google Meet, com um projeto estrutural sendo revisado na tela",
   // Lidas nesta ordem pelo mockup: vagas, ao vivo, cadência.

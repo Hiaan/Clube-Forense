@@ -4,6 +4,7 @@ import Image from "next/image";
 import { CarrosselModulos } from "./carrossel-modulos";
 
 import {
+  ANCORA_OFERTA,
   AUTORA,
   BARREIRAS,
   BONUS,
@@ -39,19 +40,25 @@ export const metadata: Metadata = {
 /**
  * CTA. Sobre as faixas pêssego o botão inverte para navy — é a mesma troca que
  * a página de captura faz, e é o que mantém o contraste em qualquer fundo.
+ *
+ * Por padrão o botão leva para a seção da oferta, não para o checkout: só o
+ * botão de dentro do cartão do preço recebe `href={CHECKOUT_URL}`. É lá que a
+ * pessoa já viu o valor, o parcelamento e o que está incluso.
  */
 function Cta({
   children,
   variante = "peach",
   className = "",
+  href = ANCORA_OFERTA,
 }: {
   children: React.ReactNode;
   variante?: "peach" | "navy";
   className?: string;
+  href?: string;
 }) {
   return (
     <a
-      href={CHECKOUT_URL}
+      href={href}
       className={`${
         variante === "peach" ? "btn-peach" : "btn-navy"
       } inline-flex items-center justify-center px-8 py-4 text-center text-sm leading-tight sm:text-base ${className}`}
@@ -310,17 +317,25 @@ function Planilha({
 }) {
   return (
     <div className="mx-auto w-full max-w-[20rem]">
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0b1220] shadow-[0_30px_70px_rgba(0,0,0,0.5)]">
+      <div
+        className={
+          imagem
+            ? ""
+            : "overflow-hidden rounded-xl border border-white/10 bg-[#0b1220] shadow-[0_30px_70px_rgba(0,0,0,0.5)]"
+        }
+      >
         {imagem ? (
-          <div className="relative aspect-4/3">
-            <Image
-              src={imagem}
-              alt={arquivo}
-              fill
-              sizes="320px"
-              className="object-cover"
-            />
-          </div>
+          // O mockup vem com fundo transparente, então ele aparece solto: a
+          // moldura escura do cartão é só para o desenho de exemplo abaixo, que
+          // finge ser uma janela de planilha.
+          <Image
+            src={imagem}
+            alt={arquivo}
+            width={1080}
+            height={1080}
+            sizes="(min-width: 1024px) 20rem, 100vw"
+            className="h-auto w-full"
+          />
         ) : (
           <>
             <div className="flex items-center gap-2 border-b border-white/10 bg-[#141c2e] px-3 py-2.5">
@@ -953,7 +968,9 @@ export default function MeapPage() {
                 </p>
               </div>
 
-              <Cta className="mt-5 w-full">{OFERTA.ctaCartao}</Cta>
+              <Cta className="mt-5 w-full" href={CHECKOUT_URL}>
+                {OFERTA.ctaCartao}
+              </Cta>
 
               <p className="mt-4 text-xs leading-relaxed text-white/55">
                 <strong className="font-semibold text-white/85">

@@ -8,10 +8,10 @@ import { MODULOS } from "./conteudo";
 /**
  * Carrossel dos módulos.
  *
- * Os cartões eram uma grade empilhada de três colunas. Como carrossel eles
- * ficam numa única fileira que rola de lado, e o cartão seguinte aparece pela
- * metade na borda — é o que avisa que existe mais coisa ali sem precisar de
- * legenda.
+ * Cada cartão é só a arte do módulo: o nome e a numeração já vêm impressos na
+ * própria imagem, então não há título nem descrição ao lado. Eles ficam numa
+ * fileira que rola de lado, com o cartão seguinte aparecendo pela metade na
+ * borda — é o que avisa que existe mais coisa ali sem precisar de legenda.
  *
  * A rolagem em si é CSS (`scroll-snap`), então funciona no dedo e no trackpad
  * mesmo antes do JavaScript carregar. O JavaScript entra para as setas, para
@@ -117,55 +117,21 @@ export function CarrosselModulos() {
       >
         {MODULOS.map((m) => (
           <li
-            key={m.numero}
-            className="group w-[15rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#0f1626] transition hover:border-[#ffc781] sm:w-[17rem] lg:w-[19rem]"
+            key={m.imagem}
+            className="w-[15rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 transition hover:border-[#ffc781] sm:w-[17rem] lg:w-[19rem]"
           >
-            <div className="relative aspect-3/4 overflow-hidden">
-              {m.imagem ? (
-                <Image
-                  src={m.imagem}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 19rem, (min-width: 640px) 17rem, 15rem"
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                />
-              ) : (
-                // Sem capa ainda: um grafismo do próprio sistema segura o lugar
-                // sem parecer imagem quebrada.
-                <div
-                  aria-hidden
-                  className="absolute inset-0 bg-linear-to-br from-[#2c375b] to-[#0f1626]"
-                >
-                  <div className="absolute -right-10 top-10 h-40 w-40 rotate-12 rounded-2xl border-[8px] border-white/[0.06]" />
-                  <div className="absolute -left-8 bottom-8 h-28 w-28 rotate-12 rounded-xl border-[8px] border-white/[0.04]" />
-                </div>
-              )}
-
-              {/* Escurece a base para o título vazado ter contraste qualquer que
-                  seja a foto colocada depois. */}
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-linear-to-t from-[#0f1626] via-[#0f1626]/40 to-transparent"
+            {/* 9:16, que é a proporção em que as artes foram feitas: assim elas
+                entram inteiras, sem o `cover` cortar o título que está impresso
+                no pé de cada uma. */}
+            <div className="relative aspect-9/16">
+              <Image
+                src={m.imagem}
+                alt={m.alt}
+                fill
+                sizes="(min-width: 1024px) 19rem, (min-width: 640px) 17rem, 15rem"
+                className="object-cover"
               />
-
-              <div className="absolute inset-x-0 bottom-0 p-4">
-                {m.linha1 && (
-                  <p className="font-sora text-xl font-extrabold uppercase leading-[0.95] tracking-tight text-white/85">
-                    {m.linha1}
-                  </p>
-                )}
-                <p className="font-sora text-xl font-extrabold uppercase leading-[0.95] tracking-tight text-[#ffc781]">
-                  {m.linha2}
-                </p>
-                <span className="mt-3 inline-flex rounded-md bg-[#ffc781] px-2.5 py-1 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#1b243a]">
-                  Módulo {m.numero}
-                </span>
-              </div>
             </div>
-
-            <p className="p-5 text-sm leading-relaxed text-white/70">
-              {m.texto}
-            </p>
           </li>
         ))}
       </ol>
