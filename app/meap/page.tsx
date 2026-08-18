@@ -836,7 +836,11 @@ export default function MeapPage() {
           <div className="mx-auto max-w-6xl px-4 pt-16 pb-[9rem] sm:pt-20 sm:pb-[10rem]">
             <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-14">
               <div>
-                <span className="inline-flex rounded-md bg-[#daa520] px-3 py-1.5 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#1b243a]">
+                {/* Vermelho em vez do dourado do resto da página: é a única
+                    etiqueta de escassez que existe aqui, e sair da paleta é o
+                    que faz ela ser lida como aviso e não como rótulo. O tom é
+                    fechado para o texto branco passar em contraste. */}
+                <span className="inline-flex rounded-md bg-[#d92d20] px-3 py-1.5 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-white">
                   {MENTORIA.tag}
                 </span>
 
