@@ -429,20 +429,26 @@ export default function MeapPage() {
               </div>
             </div>
 
-            {/* O PNG é quadrado e o retrato ocupa só a faixa do meio, então o
-                enquadramento em 9/16 come as laterais transparentes — sem isso
-                quase metade da coluna ficaria vazia.
+            {/* O PNG é 4:5 e a coluna é 9/16, então o `cover` casa pela altura
+                e apara ~15% de cada lado. É de propósito: sobra a mesa saindo
+                pelas bordas e o grafismo do "QC" cortado atrás dela, que é o
+                que dá a sensação de a foto continuar para fora do quadro.
 
                 A margem negativa cancela o padding de baixo do container: o pé
                 da imagem passa a coincidir com o fim da seção, e a pessoa fica
-                apoiada na divisa com a faixa seguinte em vez de flutuar. */}
+                apoiada na divisa com a faixa seguinte em vez de flutuar.
+
+                `sizes` é maior que a coluna porque, no `cover`, a imagem é
+                escalada pela altura e renderiza ~1,4x mais larga que o box —
+                pedir a largura do box devolveria um arquivo pequeno demais e a
+                foto sairia borrada. */}
             <div className="relative mx-auto -mb-14 aspect-9/16 w-full max-w-[14rem] self-end sm:-mb-16 lg:-mb-20 lg:ml-auto lg:mr-0 lg:max-w-[20rem]">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
                 fill
                 priority
-                sizes="(min-width: 1024px) 20rem, 14rem"
+                sizes="(min-width: 1024px) 30rem, 22rem"
                 className="retrato-hero object-cover object-bottom"
               />
             </div>

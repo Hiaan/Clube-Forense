@@ -34,9 +34,11 @@ export const HERO = {
   ],
   cta: "QUERO ME INSCREVER AGORA",
   escassez: "Vagas limitadas — clique no botão e garanta a sua",
-  // PNG recortado, 1080x1080, com o retrato ocupando a faixa central: as
-  // laterais são transparentes e a página corta elas no enquadramento.
-  foto: "https://static.wixstatic.com/media/240889_b5fd0a60139149eb901ee829d36b14c7~mv2.png",
+  // PNG recortado, 1080x1350, com o grafismo do "QC" já embutido atrás dela.
+  // Fica no repositório em vez de vir do Wix: o next/image só otimiza o que
+  // pode ler, e servir local também tira uma dependência externa do caminho
+  // crítico da hero.
+  foto: "/queren-hero.png",
   fotoAlt: "Queren Costa",
 };
 
