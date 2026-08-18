@@ -259,12 +259,10 @@ export const AUTORA = {
 export const SOZINHO = {
   titulo: "Sim, você até poderia tentar sozinho…",
   paragrafos: [
-    "Mas também pode aprender direto com quem já vive disso e precisou bater muita cabeça até entender o que realmente funciona — para que você receba esse caminho muito mais “mastigado”.",
-    "No Método Estruturas de Alto Padrão, você aprende exatamente o que precisa para começar a atuar nesse mercado com mais segurança: desde toda a parte técnica até quanto cobrar, como precificar seu projeto e como apresentar esse serviço ao cliente.",
-    "E você não vai aprender apenas com exemplos teóricos.",
-    "Juntos, vamos desenvolver 2 projetos estruturais reais que foram contratados por clientes da minha empresa.",
-    "Você vai acompanhar o processo do início ao fim, entender as decisões tomadas em cada etapa e adquirir uma experiência muito mais próxima daquilo que realmente acontece no mercado.",
-    "Você não precisa esperar o seu primeiro cliente para começar a ter experiência com projetos reais.",
+    "Mas pode aprender direto com quem já vive disso e já descobriu, na prática, o que realmente funciona.",
+    "No MEAP, você aprende o caminho técnico e comercial para atuar com mais segurança, precificar corretamente e apresentar seus projetos ao cliente.",
+    "E não fica só na teoria: vamos desenvolver juntos 2 projetos estruturais reais, contratados por clientes da minha empresa, do início ao fim.",
+    "Assim, você começa a ganhar experiência prática antes mesmo de conquistar o seu primeiro cliente.",
   ],
   // Arte da área de membros, 1080x1080 com fundo transparente. O conteúdo
   // ocupa só a faixa do meio, então a página corta o vazio de cima e de baixo.

@@ -706,9 +706,9 @@ export default function MeapPage() {
             <div className="text-center">
               <Eyebrow>O que você vai aprender</Eyebrow>
               <h2 className="mt-3 font-sora text-2xl font-bold tracking-tight text-white sm:text-4xl">
-                Da teoria ao fechamento e entrega do seu{" "}
+                Da teoria ao fechamento e à entrega do seu{" "}
                 <em className="font-bold italic text-[#ffc781]">
-                  projeto estrutural
+                  projeto estrutural.
                 </em>
               </h2>
             </div>
