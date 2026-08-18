@@ -428,10 +428,33 @@ export default function MeapPage() {
         {/* Hero — duas colunas: texto à esquerda, retrato à direita sobre um
             painel mais escuro com o grafismo geométrico. */}
         <section className="relative overflow-hidden bg-[#1b243a]">
-          {/* Só um brilho difuso atrás do retrato. O painel escuro e o quadrado
-              vazado que existiam aqui recortavam um retângulo visível atrás da
-              foto, e como o PNG é vazado o resultado era a pessoa flutuando
-              dentro de uma caixa. Sem bordas, o fundo fica contínuo. */}
+          {/* Faixa azul atrás do retrato, como na página de captura.
+              
+              Ela é do tamanho da seção porque nasce aqui dentro, com
+              `inset-y-0` — quem garante a altura é o próprio contêiner, não um
+              valor fixo. O contêiner interno repete a geometria da grade
+              (`max-w-6xl px-4`) para a faixa começar exatamente na coluna do
+              retrato, e o `right-[-50vw]` a faz sangrar até a borda da tela,
+              onde o `overflow-hidden` da seção apara a sobra.
+
+              Já existiu um painel aqui antes, e ele foi removido porque
+              recortava um retângulo visível atrás da foto vazada: a pessoa
+              ficava flutuando dentro de uma caixa. O que muda agora é que ela
+              vaza a faixa pela esquerda e pelo pé, então a borda deixa de ser
+              lida como moldura. Se o retrato for trocado por um mais estreito,
+              esse efeito volta. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 hidden lg:block"
+          >
+            <div className="mx-auto h-full max-w-6xl px-4">
+              <div className="relative ml-auto h-full w-[36%]">
+                <div className="absolute inset-y-0 left-0 right-[-50vw] bg-[#2c375b]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Brilho difuso, por cima da faixa para suavizar a aresta dela. */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 hidden lg:block"
@@ -503,26 +526,19 @@ export default function MeapPage() {
               </div>
             </div>
 
-            {/* O PNG é 4:5 e a coluna é 9/16, então o `cover` casa pela altura
-                e apara ~15% de cada lado. É de propósito: sobra a mesa saindo
-                pelas bordas e o grafismo do "QC" cortado atrás dela, que é o
-                que dá a sensação de a foto continuar para fora do quadro.
+            {/* O PNG é 4:5 e a caixa também, então o `cover` não apara nada —
+                ele fica para o caso de a foto ser trocada por uma de outra
+                proporção, e o `object-bottom` garante que o corte, se houver,
+                caia no topo e não nos pés.
 
-                A margem negativa desce a imagem para fora da área de
-                conteúdo, e o pé dela para onde o conteúdo da hero termina, logo
-                acima da fita, em vez de flutuar no meio da coluna. Ela é menor
-                que o padding de baixo porque parte desse padding é o respiro
-                que o bloco da faixa dava quando ainda ocupava altura própria.
-
-                Isso vale só até o `lg`; no desktop, onde a foto vira coluna ao
-                lado do texto, ela volta a respeitar o padding e centraliza na
-                vertical junto com o bloco de texto.
-
-                `sizes` é maior que a coluna porque, no `cover`, a imagem é
-                escalada pela altura e renderiza ~1,4x mais larga que o box —
-                pedir a largura do box devolveria um arquivo pequeno demais e a
-                foto sairia borrada. */}
-            <div className="relative mx-auto -mb-14 aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-16 lg:mb-0 lg:ml-auto lg:mr-0 lg:max-w-[26rem] lg:self-center">
+                A margem negativa cancela o padding de baixo da seção: o pé da
+                imagem coincide com o fim da hero e a fita diagonal passa na
+                frente dela. Isso não é enfeite — o PNG termina rente à cadeira,
+                sem sobra transparente embaixo, então onde a caixa acaba aparece
+                um corte reto. Ancorar na base é o que esconde esse corte. Foi
+                por isso que a versão centralizada saiu: com a faixa atrás, o
+                corte ficava solto no meio dela. */}
+            <div className="relative mx-auto -mb-[8.5rem] aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-[9rem] lg:-mb-40 lg:ml-auto lg:mr-0 lg:max-w-[26rem]">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
