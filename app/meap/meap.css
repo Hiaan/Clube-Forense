@@ -92,13 +92,39 @@
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
-/* O PNG do retrato termina cortado na última linha do arquivo — a cadeira e os
-   pés ficam rentes à borda. Encostar na base da seção não resolve: continua um
-   corte seco. A máscara dissolve o último quinto da imagem no fundo, então o
-   recorte vira uma esfumaçada em vez de uma linha. */
+/* O retrato é recortado nos três lados que encostam na borda do container.
+   Embaixo, porque o PNG termina na última linha do arquivo e a mesa ficaria
+   rente. Nas laterais, porque o enquadramento apara ~15% de cada lado e tanto
+   a mesa quanto o grafismo do "QC" batiam num corte reto — o conjunto lia como
+   um retângulo colado no fundo em vez de uma foto que continua para fora.
+
+   São duas máscaras sobrepostas, uma vertical e uma horizontal, combinadas com
+   `intersect`: um ponto só fica opaco se as duas o considerarem opaco. Sem o
+   composite elas se somariam e o resultado seria o oposto — a borda voltaria a
+   aparecer. `source-in` é a grafia antiga da mesma coisa, para WebKit. */
 .meap .retrato-hero {
-  -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent 99%);
-  mask-image: linear-gradient(to bottom, #000 76%, transparent 99%);
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 70%, transparent 98%),
+    linear-gradient(
+      to right,
+      transparent 0,
+      #000 13%,
+      #000 87%,
+      transparent 100%
+    );
+  mask-image:
+    linear-gradient(to bottom, #000 70%, transparent 98%),
+    linear-gradient(
+      to right,
+      transparent 0,
+      #000 13%,
+      #000 87%,
+      transparent 100%
+    );
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /* ------------------------------------------------------------------------ *
