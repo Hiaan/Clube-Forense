@@ -442,13 +442,13 @@ export default function MeapPage() {
                 escalada pela altura e renderiza ~1,4x mais larga que o box —
                 pedir a largura do box devolveria um arquivo pequeno demais e a
                 foto sairia borrada. */}
-            <div className="relative mx-auto -mb-14 aspect-9/16 w-full max-w-[14rem] self-end sm:-mb-16 lg:-mb-20 lg:ml-auto lg:mr-0 lg:max-w-[20rem]">
+            <div className="relative mx-auto -mb-14 aspect-4/5 w-full max-w-[18rem] self-end sm:-mb-16 lg:-mb-20 lg:ml-auto lg:mr-0 lg:max-w-[26rem]">
               <Image
                 src={HERO.foto}
                 alt={HERO.fotoAlt}
                 fill
                 priority
-                sizes="(min-width: 1024px) 30rem, 22rem"
+                sizes="(min-width: 1024px) 26rem, 18rem"
                 className="retrato-hero object-cover object-bottom"
               />
             </div>
