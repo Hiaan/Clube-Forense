@@ -808,7 +808,7 @@ export default function MeapPage() {
               </h2>
             </div>
 
-            <div className="mt-12 space-y-6">
+            <div className="mt-12 space-y-10 sm:space-y-16">
               {BONUS.itens.map((item, i) => (
                 <div
                   key={item.etiqueta}
@@ -850,12 +850,20 @@ export default function MeapPage() {
                         />
                       </div>
                     ) : (
-                      <Planilha
-                        imagem={item.imagem}
-                        arquivo={item.arquivo}
-                        colunas={item.colunas}
-                        linhas={item.linhas}
-                      />
+                      // Mesmo tratamento do celular: a margem negativa tira o
+                      // mockup da conta da altura, então o cartão passa a ser
+                      // medido pelo texto e o notebook sai por cima e por baixo
+                      // dele. Aqui ela é maior porque o PNG tem uns 150px de
+                      // vazio transparente em cada ponta — sem passar disso, o
+                      // cartão encolhia mas nada aparecia para fora.
+                      <div className="lg:-my-48">
+                        <Planilha
+                          imagem={item.imagem}
+                          arquivo={item.arquivo}
+                          colunas={item.colunas}
+                          linhas={item.linhas}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

@@ -251,6 +251,12 @@
   display: none;
 }
 
+/* O `draggable={false}` resolve no Chrome e no Firefox; o Safari só obedece a
+   esta propriedade, e sem ela o gesto de arrastar vira arrasto da imagem. */
+.meap .trilho-modulos img {
+  -webkit-user-drag: none;
+}
+
 /* Cartão sobre a faixa pêssego. */
 .meap .card-peach {
   background: rgba(255, 255, 255, 0.55);

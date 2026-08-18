@@ -102,6 +102,10 @@ export function CarrosselModulos() {
         onPointerMove={arrastar}
         onPointerUp={soltarArrasto}
         onPointerCancel={soltarArrasto}
+        // Sem isto o navegador entende o gesto como "arrastar a imagem" e sai
+        // carregando o JPEG pela tela em vez de rolar o trilho. O `pointermove`
+        // não resolve porque o `dragstart` nasce do mousedown, antes dele.
+        onDragStart={(e) => e.preventDefault()}
         tabIndex={0}
         role="region"
         aria-label="Módulos do curso"
@@ -129,6 +133,7 @@ export function CarrosselModulos() {
                 alt={m.alt}
                 fill
                 sizes="(min-width: 1024px) 19rem, (min-width: 640px) 17rem, 15rem"
+                draggable={false}
                 className="object-cover"
               />
             </div>
