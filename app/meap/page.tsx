@@ -136,23 +136,27 @@ function Selos({ className = "" }: { className?: string }) {
 /**
  * Área de membros.
  *
- * Se `imagem` for preenchida, ela é exibida sozinha: a arte da área de membros
- * já vem com os aparelhos desenhados, então enquadrá-la num notebook de CSS
- * daria tela dentro de tela. Sem imagem, o notebook desenhado aqui segura o
- * lugar com um mosaico, sem fingir uma captura que não existe.
+ * Se `imagem` for preenchida, ela é exibida sozinha: a arte já vem com os
+ * aparelhos desenhados, então enquadrá-la num notebook de CSS daria tela
+ * dentro de tela. Sem imagem, o notebook desenhado aqui segura o lugar com um
+ * mosaico, sem fingir uma captura que não existe.
  */
 function AreaDeMembros({ imagem }: { imagem: string }) {
   if (imagem) {
-    // A arte é quadrada, mas os aparelhos ocupam só a faixa central: o
-    // enquadramento em 16/10 corta o transparente de cima e de baixo, senão
-    // sobraria quase metade da altura vazia.
+    // 16:9, a proporção nativa do GIF: sem cortar nada, então o `cover`
+    // vira só um `object-fit` de segurança para o caso de a arte trocar.
+    // `unoptimized` é o caminho documentado para GIF animado — sem ele o
+    // otimizador ainda preserva a animação, mas arriscar não compensa aqui.
+    // `max-w-3xl` (em vez do `max-w-2xl` da arte antiga) é para não sobrar
+    // moldura demais num vídeo, que pede mais espaço que uma imagem estática.
     return (
-      <div className="relative mx-auto aspect-16/10 w-full max-w-2xl">
+      <div className="relative mx-auto aspect-16/9 w-full max-w-3xl overflow-hidden rounded-lg">
         <Image
           src={imagem}
           alt="Área de membros do MEAP"
           fill
-          sizes="(min-width: 1024px) 52vw, 100vw"
+          unoptimized
+          sizes="(min-width: 1024px) 55vw, 100vw"
           className="object-cover"
         />
       </div>
@@ -720,9 +724,15 @@ export default function MeapPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Quebra de objeção — texto à esquerda, área de membros à direita.
             Navy médio porque os módulos, logo acima, são navy 800: sem a troca
-            as duas seções encostariam sem divisa nenhuma. */}
+            as duas seções encostariam sem divisa nenhuma.
+
+            A coluna do vídeo é mais larga que a do texto (58% contra os 52%
+            de antes, quando essa coluna segurava uma arte estática): um vídeo
+            pequeno demais não convence ninguém de que a área de membros é
+            real, e o texto ao lado ainda cabe confortável em quatro
+            parágrafos curtos. */}
         <section className="bg-[#2c375b]">
-          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,52%)]">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,58%)]">
             <div>
               <h2 className="font-sora text-2xl font-bold uppercase leading-tight tracking-tight text-[#ffc781] sm:text-3xl">
                 {SOZINHO.titulo}

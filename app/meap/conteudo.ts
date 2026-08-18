@@ -264,10 +264,9 @@ export const SOZINHO = {
     "E não fica só na teoria: vamos desenvolver juntos 2 projetos estruturais reais, contratados por clientes da minha empresa, do início ao fim.",
     "Assim, você começa a ganhar experiência prática antes mesmo de conquistar o seu primeiro cliente.",
   ],
-  // Arte da área de membros, 1080x1080 com fundo transparente. O conteúdo
-  // ocupa só a faixa do meio, então a página corta o vazio de cima e de baixo.
-  imagem:
-    "https://static.wixstatic.com/media/240889_b8f92219f4d64cf0ab69ebe7b39c2db7~mv2.png",
+  // GIF da área de membros, 1138x640 (16:9) — nativo, sem faixa vazia para
+  // cortar.
+  imagem: "/area-membros.gif",
 };
 
 /** Bônus entregues junto com o curso. */
