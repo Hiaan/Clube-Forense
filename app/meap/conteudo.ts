@@ -306,18 +306,6 @@ export const BONUS = {
   tituloFim: "o acesso a",
   itens: [
     {
-      // O bônus que sustenta a urgência da página: é o único item com vaga
-      // contada, e o número aparece na hero, no preço e no FAQ.
-      tipo: "mentoria" as const,
-      etiqueta: "Só para os 15 primeiros",
-      headline: "Mentoria quinzenal ao vivo com a Queren",
-      texto:
-        "A cada quinze dias, um encontro ao vivo no Google Meet fechado para os 15 primeiros inscritos. Você leva as suas dúvidas de projeto, acompanha o que os outros alunos estão desenvolvendo e recebe conteúdo que não entra nas aulas gravadas.",
-      vagas: "15",
-      cadencia: "A cada 15 dias",
-      plataforma: "Google Meet",
-    },
-    {
       tipo: "celular" as const,
       etiqueta: "Grupo VIP",
       headline: "Nosso Grupo VIP no WhatsApp",
@@ -362,6 +350,44 @@ export const BONUS = {
       ],
     },
   ],
+};
+
+/**
+ * Bônus da mentoria — seção própria, em pêssego, entre os bônus e a oferta.
+ *
+ * É o gatilho de urgência da página. O número de vagas repete na linha abaixo
+ * do CTA da hero, no que está incluso e no FAQ: mexeu aqui, confira os três.
+ */
+export const MENTORIA = {
+  tag: "Bônus exclusivo · 1ª turma",
+  titulo:
+    "E entrando agora, você ainda terá meu acompanhamento ao vivo a cada 15 dias.",
+  chamada:
+    "Uma mentoria que poderia facilmente custar mais de R$ 2.000, incluída sem nenhum custo extra para os 15 primeiros alunos do MEAP.",
+  beneficios: [
+    "Encontros ao vivo a cada 15 dias",
+    "Dúvidas sobre seus próprios projetos",
+    "Análises e decisões técnicas",
+    "Conteúdos complementares",
+    "Troca com os demais alunos",
+    "Acompanhamento direto com a Queren",
+  ],
+  // 1080x1080 com fundo transparente: o notebook ocupa o meio e sobra vazio
+  // nos cantos, que é onde as etiquetas flutuantes se encaixam sem cobrir a
+  // tela.
+  imagem: "/notebook2.png",
+  imagemAlt:
+    "Notebook aberto numa chamada do Google Meet, com um projeto estrutural sendo revisado na tela",
+  // Lidas nesta ordem pelo mockup: vagas, ao vivo, cadência.
+  etiquetas: ["15 vagas", "Ao vivo", "A cada 15 dias"],
+  selo: {
+    rotulo: "Valor estimado",
+    de: "R$ 2.000+",
+    por: "Hoje: R$ 0",
+  },
+  aviso:
+    "Essa condição é exclusiva da 1ª turma do MEAP e não pretendemos repeti-la nas próximas turmas.",
+  cta: "QUERO GARANTIR A MENTORIA + MEAP",
 };
 
 /** Garantia, logo depois do preço. */

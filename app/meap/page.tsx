@@ -15,6 +15,7 @@ import {
   GARANTIA,
   HERO,
   MARCA,
+  MENTORIA,
   OFERTA,
   OPORTUNIDADE,
   PERFIS,
@@ -174,57 +175,69 @@ function AreaDeMembros({ imagem }: { imagem: string }) {
 }
 
 /**
- * Cartão do bônus da mentoria: uma chamada de vídeo estilizada.
+ * Mockup da mentoria: o print do notebook com as etiquetas em volta.
  *
- * Os quadros dos participantes são abstratos de propósito. Colocar rosto ou
- * nome ali seria inventar aluno, e a página inteira segue a regra de não usar
- * prova social que não seja real.
+ * O PNG é 1080x1080 com fundo transparente e o notebook ocupa só o miolo, então
+ * as etiquetas se encaixam no vazio dos cantos sem cobrir a tela. As posições
+ * são em porcentagem justamente por isso: acompanham a imagem em qualquer
+ * largura, em vez de descolarem dela.
  */
-function Mentoria({
-  vagas,
-  cadencia,
-  plataforma,
-}: {
-  vagas: string;
-  cadencia: string;
-  plataforma: string;
-}) {
+function MockupMentoria() {
+  const [vagas, aoVivo, cadencia] = MENTORIA.etiquetas;
+
   return (
-    <div className="mx-auto w-full max-w-sm">
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b1220] shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
-        <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-[#ff5f57]" />
-          <span className="font-sora text-[0.6rem] font-bold uppercase tracking-wider text-white/70">
-            Ao vivo
-          </span>
-          <span className="ml-auto text-[0.6rem] text-white/45">
-            {plataforma}
-          </span>
-        </div>
+    <div className="relative mx-auto w-full max-w-xl">
+      <Image
+        src={MENTORIA.imagem}
+        alt={MENTORIA.imagemAlt}
+        width={1080}
+        height={1080}
+        sizes="(min-width: 1024px) 36rem, 100vw"
+        className="h-auto w-full drop-shadow-[0_25px_45px_rgba(27,36,58,0.25)]"
+      />
 
-        {/* O quadro maior é o da Queren; os menores são os alunos. */}
-        <div aria-hidden className="grid grid-cols-3 gap-1.5 p-3">
-          <div className="col-span-2 row-span-2 aspect-4/3 rounded-lg bg-linear-to-br from-[#2c375b] to-[#141c2e]" />
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-4/3 rounded-lg bg-linear-to-br from-[#233053] to-[#111827]"
-            />
-          ))}
-        </div>
+      <Etiqueta className="left-0 top-[16%]">
+        <span
+          aria-hidden
+          className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#ff5f57]"
+        />
+        {aoVivo}
+      </Etiqueta>
 
-        <div className="flex items-center gap-4 border-t border-white/10 px-4 py-4">
-          <p className="font-sora text-3xl font-extrabold leading-none text-[#ffc781]">
-            {vagas}
-          </p>
-          <p className="text-[0.7rem] leading-snug text-white/70">
-            vagas na mentoria
-            <br />
-            <span className="text-white/45">{cadencia}</span>
-          </p>
-        </div>
+      <Etiqueta className="right-[2%] top-[8%]">{vagas}</Etiqueta>
+
+      <Etiqueta className="bottom-[24%] left-[3%]">{cadencia}</Etiqueta>
+
+      {/* O selo fica sobre o teclado, que é a área do PNG sem informação. */}
+      <div className="absolute bottom-[8%] right-0 rounded-xl bg-[#1b243a] px-4 py-3 text-center shadow-[0_14px_30px_rgba(27,36,58,0.35)]">
+        <p className="font-sora text-[0.55rem] font-bold uppercase tracking-wider text-[#ffc781]">
+          {MENTORIA.selo.rotulo}
+        </p>
+        <p className="mt-1 font-sora text-sm font-bold text-white/50 line-through">
+          {MENTORIA.selo.de}
+        </p>
+        <p className="font-sora text-base font-extrabold text-[#ffc781]">
+          {MENTORIA.selo.por}
+        </p>
       </div>
     </div>
+  );
+}
+
+/** Etiqueta flutuante em volta do mockup da mentoria. */
+function Etiqueta({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className: string;
+}) {
+  return (
+    <span
+      className={`absolute inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 font-sora text-[0.55rem] font-bold uppercase tracking-wider text-[#1b243a] shadow-[0_10px_22px_rgba(27,36,58,0.22)] sm:text-[0.65rem] ${className}`}
+    >
+      {children}
+    </span>
   );
 }
 
@@ -677,75 +690,10 @@ export default function MeapPage() {
         </section>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Bônus — um cartão por item, com a moldura trocando de lado */}
-        <section className="bg-[#0f1626]">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
-            <div className="text-center">
-              <h2 className="font-sora text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                {BONUS.titulo}{" "}
-                <em className="font-bold italic text-[#ffc781]">
-                  {BONUS.tituloDestaque}
-                </em>{" "}
-                {BONUS.tituloFim}
-              </h2>
-            </div>
-
-            <div className="mt-12 space-y-6">
-              {BONUS.itens.map((item, i) => (
-                <div
-                  key={item.etiqueta}
-                  className="card-dark grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1fr_minmax(0,20rem)]"
-                >
-                  {/* No segundo cartão a moldura troca de lado, senão os dois
-                      blocos viram a mesma fileira repetida. */}
-                  <div className={i % 2 === 1 ? "lg:order-2" : ""}>
-                    <span className="inline-flex rounded-md border border-[#ffc781]/50 px-2.5 py-1 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#ffc781]">
-                      {item.etiqueta}
-                    </span>
-                    <h3 className="mt-5 font-sora text-xl font-bold leading-snug text-white sm:text-2xl">
-                      {item.headline}
-                    </h3>
-                    <p className="mt-4 max-w-xl leading-relaxed text-white/70">
-                      {item.texto}
-                    </p>
-                  </div>
-
-                  <div className={i % 2 === 1 ? "lg:order-1" : ""}>
-                    {item.tipo === "mentoria" ? (
-                      <Mentoria
-                        vagas={item.vagas}
-                        cadencia={item.cadencia}
-                        plataforma={item.plataforma}
-                      />
-                    ) : item.tipo === "celular" ? (
-                      // Só o celular vaza o cartão: ele é bem mais alto que o
-                      // bloco, e é isso que dá o efeito. A planilha é baixa e
-                      // vazar ali só encolheria o cartão.
-                      <div className="lg:-my-20">
-                        <Celular
-                          imagem={item.imagem}
-                          grupo={item.grupo}
-                          conversa={item.conversa}
-                        />
-                      </div>
-                    ) : (
-                      <Planilha
-                        imagem={item.imagem}
-                        arquivo={item.arquivo}
-                        colunas={item.colunas}
-                        linhas={item.linhas}
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ---------------------------------------------------------------- */}
-        {/* Quebra de objeção — texto à esquerda, área de membros à direita */}
-        <section className="bg-[#1b243a]">
+        {/* Quebra de objeção — texto à esquerda, área de membros à direita.
+            Navy médio porque os módulos, logo acima, são navy 800: sem a troca
+            as duas seções encostariam sem divisa nenhuma. */}
+        <section className="bg-[#2c375b]">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_minmax(0,52%)]">
             <div>
               <h2 className="font-sora text-2xl font-bold uppercase leading-tight tracking-tight text-[#ffc781] sm:text-3xl">
@@ -819,60 +767,114 @@ export default function MeapPage() {
         )}
 
         {/* ---------------------------------------------------------------- */}
-        {/* Quem é Queren Costa — nome em pêssego, como na captura */}
-        <section className="bg-[#2c375b]">
-          {/* Sem foto, a coluna da esquerda sumiria e deixaria o texto espremido
-              em metade da largura — daí o layout cair para uma coluna só. */}
-          <div
-            className={`mx-auto grid items-center gap-10 px-4 pt-16 pb-[9rem] sm:pt-20 sm:pb-[10rem] ${
-              AUTORA.foto
-                ? "max-w-5xl sm:grid-cols-[minmax(0,380px)_1fr]"
-                : "max-w-3xl"
-            }`}
-          >
-            {AUTORA.foto ? (
-              <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-white/10">
-                <Image
-                  src={AUTORA.foto}
-                  alt={AUTORA.nome}
-                  fill
-                  sizes="(min-width: 640px) 380px, 100vw"
-                  className="object-cover"
-                />
-              </div>
-            ) : null}
-
-            <div>
-              <Eyebrow>Quem ensina</Eyebrow>
-              <h2 className="mt-3 font-sora text-3xl font-bold tracking-tight text-[#ffc781] sm:text-5xl">
-                {AUTORA.nome}
+        {/* Bônus — um cartão por item, com a moldura trocando de lado */}
+        <section className="bg-[#1b243a]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="text-center">
+              <h2 className="font-sora text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                {BONUS.titulo}{" "}
+                <em className="font-bold italic text-[#ffc781]">
+                  {BONUS.tituloDestaque}
+                </em>{" "}
+                {BONUS.tituloFim}
               </h2>
-              <p className="mt-3 text-lg font-semibold text-white">
-                {AUTORA.chamada}
-              </p>
-              {AUTORA.paragrafos.map((p) => (
-                <p key={p} className="mt-4 leading-relaxed text-white/75">
-                  {p}
-                </p>
-              ))}
+            </div>
 
-              {AUTORA.numeros.length > 0 && (
-                <div className="mt-8 grid grid-cols-3 gap-3">
-                  {AUTORA.numeros.map((n) => (
-                    <div key={n.rotulo} className="card-dark p-4">
-                      <p className="font-sora text-2xl font-extrabold text-[#ffc781]">
-                        {n.valor}
-                      </p>
-                      <p className="mt-1 text-xs text-white/60">{n.rotulo}</p>
-                    </div>
-                  ))}
+            <div className="mt-12 space-y-6">
+              {BONUS.itens.map((item, i) => (
+                <div
+                  key={item.etiqueta}
+                  className="card-dark grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1fr_minmax(0,20rem)]"
+                >
+                  {/* No segundo cartão a moldura troca de lado, senão os dois
+                      blocos viram a mesma fileira repetida. */}
+                  <div className={i % 2 === 1 ? "lg:order-2" : ""}>
+                    <span className="inline-flex rounded-md border border-[#ffc781]/50 px-2.5 py-1 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#ffc781]">
+                      {item.etiqueta}
+                    </span>
+                    <h3 className="mt-5 font-sora text-xl font-bold leading-snug text-white sm:text-2xl">
+                      {item.headline}
+                    </h3>
+                    <p className="mt-4 max-w-xl leading-relaxed text-white/70">
+                      {item.texto}
+                    </p>
+                  </div>
+
+                  <div className={i % 2 === 1 ? "lg:order-1" : ""}>
+                    {item.tipo === "celular" ? (
+                      // Só o celular vaza o cartão: ele é bem mais alto que o
+                      // bloco, e é isso que dá o efeito. A planilha é baixa e
+                      // vazar ali só encolheria o cartão.
+                      <div className="lg:-my-20">
+                        <Celular
+                          imagem={item.imagem}
+                          grupo={item.grupo}
+                          conversa={item.conversa}
+                        />
+                      </div>
+                    ) : (
+                      <Planilha
+                        imagem={item.imagem}
+                        arquivo={item.arquivo}
+                        colunas={item.colunas}
+                        linhas={item.linhas}
+                      />
+                    )}
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </section>
 
         {/* ---------------------------------------------------------------- */}
+        {/* Bônus da mentoria — seção própria em pêssego. Ela é o gatilho de
+            urgência antes do preço, e o pêssego é o que a separa das outras
+            duas seções de bônus, que são navy. */}
+        <section className="bg-[#ffc781] text-[#2c375b]">
+          <div className="mx-auto max-w-6xl px-4 pt-16 pb-[9rem] sm:pt-20 sm:pb-[10rem]">
+            <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-14">
+              <div>
+                <span className="inline-flex rounded-md bg-[#daa520] px-3 py-1.5 font-sora text-[0.65rem] font-bold uppercase tracking-wider text-[#1b243a]">
+                  {MENTORIA.tag}
+                </span>
+
+                <h2 className="mt-5 max-w-xl font-sora text-2xl font-bold leading-snug tracking-tight sm:text-3xl">
+                  {MENTORIA.titulo}
+                </h2>
+
+                <p className="mt-4 max-w-xl leading-relaxed text-[#2c375b]/85">
+                  {MENTORIA.chamada}
+                </p>
+
+                {/* Duas colunas a partir do `sm`: com uma só, a lista de seis
+                    itens empurrava o mockup para longe demais do título. */}
+                <ul className="mt-8 grid max-w-xl gap-x-6 gap-y-3 text-sm font-medium sm:grid-cols-2">
+                  {MENTORIA.beneficios.map((b) => (
+                    <li key={b} className="flex items-start gap-2">
+                      <span aria-hidden className="text-[#1b243a]">
+                        ✓
+                      </span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <MockupMentoria />
+            </div>
+
+            {/* O rodapé da seção é uma tarja navy: é a última coisa lida antes
+                do preço, e o contraste com o pêssego é o que a segura. */}
+            <div className="mt-14 rounded-2xl bg-[#1b243a] px-6 py-9 text-center sm:px-10">
+              <p className="mx-auto max-w-2xl font-sora text-sm font-bold leading-relaxed text-white sm:text-base">
+                {MENTORIA.aviso}
+              </p>
+              <Cta className="mt-7 w-full sm:w-auto">{MENTORIA.cta}</Cta>
+            </div>
+          </div>
+        </section>
+
         <FaixaUrgencia para="#0f1626" />
 
         {/* ---------------------------------------------------------------- */}
@@ -946,6 +948,61 @@ export default function MeapPage() {
           </div>
         </section>
 
+        {/* ---------------------------------------------------------------- */}
+        {/* Quem é Queren Costa — nome em pêssego, como na captura */}
+        <section className="bg-[#2c375b]">
+          {/* Sem foto, a coluna da esquerda sumiria e deixaria o texto espremido
+              em metade da largura — daí o layout cair para uma coluna só. */}
+          <div
+            className={`mx-auto grid items-center gap-10 px-4 py-16 sm:py-20 ${
+              AUTORA.foto
+                ? "max-w-5xl sm:grid-cols-[minmax(0,380px)_1fr]"
+                : "max-w-3xl"
+            }`}
+          >
+            {AUTORA.foto ? (
+              <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-white/10">
+                <Image
+                  src={AUTORA.foto}
+                  alt={AUTORA.nome}
+                  fill
+                  sizes="(min-width: 640px) 380px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            ) : null}
+
+            <div>
+              <Eyebrow>Quem ensina</Eyebrow>
+              <h2 className="mt-3 font-sora text-3xl font-bold tracking-tight text-[#ffc781] sm:text-5xl">
+                {AUTORA.nome}
+              </h2>
+              <p className="mt-3 text-lg font-semibold text-white">
+                {AUTORA.chamada}
+              </p>
+              {AUTORA.paragrafos.map((p) => (
+                <p key={p} className="mt-4 leading-relaxed text-white/75">
+                  {p}
+                </p>
+              ))}
+
+              {AUTORA.numeros.length > 0 && (
+                <div className="mt-8 grid grid-cols-3 gap-3">
+                  {AUTORA.numeros.map((n) => (
+                    <div key={n.rotulo} className="card-dark p-4">
+                      <p className="font-sora text-2xl font-extrabold text-[#ffc781]">
+                        {n.valor}
+                      </p>
+                      <p className="mt-1 text-xs text-white/60">{n.rotulo}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------------- */}
         {/* ---------------------------------------------------------------- */}
         {/* Garantia — logo depois do preço, que é onde o medo aparece */}
         <section className="bg-[#ffc781] text-[#2c375b]">

@@ -14,14 +14,18 @@ import { MODULOS } from "./conteudo";
  * legenda.
  *
  * A rolagem em si é CSS (`scroll-snap`), então funciona no dedo e no trackpad
- * mesmo antes do JavaScript carregar. O JavaScript entra só para as setas e
- * para saber quando desligá-las nas pontas, que é o que falta a quem está no
- * mouse.
+ * mesmo antes do JavaScript carregar. O JavaScript entra para as setas, para
+ * saber quando desligá-las nas pontas e para o arrastar com o mouse — que é o
+ * que falta a quem não tem tela de toque nem trackpad.
  */
 export function CarrosselModulos() {
   const trilho = useRef<HTMLOListElement>(null);
   const [noInicio, setNoInicio] = useState(true);
   const [noFim, setNoFim] = useState(false);
+  const [arrastando, setArrastando] = useState(false);
+  // Fora do estado de propósito: isto muda a cada `pointermove` e re-renderizar
+  // o carrossel inteiro a cada pixel arrastado engasgaria a rolagem.
+  const gesto = useRef({ x: 0, scroll: 0 });
 
   const medir = useCallback(() => {
     const el = trilho.current;
@@ -56,15 +60,60 @@ export function CarrosselModulos() {
     });
   }, []);
 
+  // Só o mouse é sequestrado. No dedo e na caneta a rolagem nativa já faz isso
+  // melhor do que qualquer coisa que eu escrevesse aqui, e roda fora da thread
+  // principal.
+  const comecarArrasto = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse" || !trilho.current) return;
+    gesto.current = { x: e.clientX, scroll: trilho.current.scrollLeft };
+    setArrastando(true);
+    trilho.current.setPointerCapture(e.pointerId);
+  }, []);
+
+  const arrastar = useCallback(
+    (e: React.PointerEvent) => {
+      if (!arrastando || !trilho.current) return;
+      // `preventDefault` evita que o gesto vire seleção de texto no meio dos
+      // cartões, que é o que acontece quando se arrasta por cima da descrição.
+      e.preventDefault();
+      trilho.current.scrollLeft =
+        gesto.current.scroll - (e.clientX - gesto.current.x);
+    },
+    [arrastando],
+  );
+
+  const soltarArrasto = useCallback(
+    (e: React.PointerEvent) => {
+      if (!arrastando || !trilho.current) return;
+      setArrastando(false);
+      if (trilho.current.hasPointerCapture(e.pointerId)) {
+        trilho.current.releasePointerCapture(e.pointerId);
+      }
+    },
+    [arrastando],
+  );
+
   return (
     <div className="relative mt-12">
       <ol
         ref={trilho}
         onScroll={medir}
+        onPointerDown={comecarArrasto}
+        onPointerMove={arrastar}
+        onPointerUp={soltarArrasto}
+        onPointerCancel={soltarArrasto}
         tabIndex={0}
         role="region"
         aria-label="Módulos do curso"
-        className="trilho-modulos flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2 outline-hidden focus-visible:ring-2 focus-visible:ring-[#ffc781]/60"
+        // Enquanto arrasta: sem encaixe, senão o `scroll-snap` puxa o trilho de
+        // volta a cada pixel e o gesto vira um cabo de guerra; sem rolagem
+        // suave, que atrasaria a imagem em relação ao ponteiro; e sem seleção
+        // de texto, que deixaria os cartões azuis no caminho.
+        className={`trilho-modulos flex gap-5 overflow-x-auto pb-2 outline-hidden focus-visible:ring-2 focus-visible:ring-[#ffc781]/60 ${
+          arrastando
+            ? "cursor-grabbing select-none"
+            : "cursor-grab snap-x snap-mandatory scroll-smooth"
+        }`}
       >
         {MODULOS.map((m) => (
           <li
