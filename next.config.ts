@@ -15,6 +15,42 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "static.wixstatic.com" },
     ],
   },
+
+  /**
+   * No domínio da Queren a raiz serve a página do MEAP.
+   *
+   * Este repositório atende dois sites: `/` é o Monitor de Concursos do Clube
+   * Forense e `/meap` é a página de vendas. Como os dois saem do mesmo código,
+   * a regra precisa olhar o host — sem isso, apontar o domínio para cá faria a
+   * visitante cair no monitor de concursos.
+   *
+   * É `rewrite` e não `redirect` de propósito: a URL continua sendo a raiz do
+   * domínio, sem `/meap` aparecendo na barra. O caminho `/meap` segue
+   * respondendo normalmente, então os links já existentes não quebram.
+   *
+   * Precisa ser `beforeFiles`. A forma curta de `rewrites` cai em `afterFiles`,
+   * que só roda quando nenhuma rota casou — e `/` casa, porque a página do
+   * monitor existe. `beforeFiles` roda antes do sistema de arquivos e é o único
+   * lugar de onde dá para sobrepor uma página que já existe.
+   */
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/",
+          has: [
+            {
+              type: "host",
+              value: "(www\\.)?engquerencosta\\.com\\.br",
+            },
+          ],
+          destination: "/meap",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
 };
 
 export default nextConfig;
