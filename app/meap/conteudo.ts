@@ -13,8 +13,7 @@
  * o preço e o que está incluso antes de sair da página — quem manda o tráfego
  * frio direto para o checkout perde a leitura da oferta.
  */
-export const CHECKOUT_URL =
-  "https://pay.hotmart.com/S107175977E?off=ocburh69&bid=1787074079347";
+export const CHECKOUT_URL = "https://pay.hotmart.com/S107175977E?checkoutMode=10";
 
 /** Âncora da seção da oferta, para onde vão os demais botões. */
 export const ANCORA_OFERTA = "#oferta";
