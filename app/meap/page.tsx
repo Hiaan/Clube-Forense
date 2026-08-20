@@ -494,12 +494,10 @@ export default function MeapPage() {
               <p className="eyebrow mt-7">{HERO.eyebrow}</p>
 
               <h1 className="mx-auto mt-3 max-w-xl font-sora lg:mx-0 text-3xl leading-[1.15] text-white sm:text-4xl lg:text-[2.6rem]">
-                Aprenda a{" "}
+                O método completo para{" "}
                 <strong className="font-bold">
-                  projetar, captar clientes e faturar, pelo menos R$ 7.000,00
-                  extras,
+                  desenvolver, precificar e vender
                 </strong>{" "}
-                com{" "}
                 <em className="font-bold italic">
                   Projetos Estruturais de Alto Padrão.
                 </em>
