@@ -36,13 +36,8 @@ export const WHATSAPP = {
   mensagem: "Olá! Vim pela página do MEAP e quero saber mais sobre o curso.",
 };
 
-/**
- * IDs dos Pixels da Meta (Facebook/Instagram Ads), carregados no layout do
- * /meap. Mais de uma conta de anúncios rastreando a mesma página — cada uma
- * recebe seu próprio `fbq('init', ...)`, e o `PageView` dispara uma vez só,
- * contabilizado para todos.
- */
-export const META_PIXEL_IDS = ["1349310623486348", "1418450733433542"];
+/** ID do Pixel da Meta (Facebook/Instagram Ads), carregado no layout do /meap. */
+export const META_PIXEL_ID = "1418450733433542";
 
 /**
  * Imagens hospedadas no Wix, que é onde a página de captura já as serve.

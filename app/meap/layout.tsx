@@ -1,7 +1,7 @@
 import Script from "next/script";
 import { Inter, Sora } from "next/font/google";
 
-import { META_PIXEL_IDS } from "./conteudo";
+import { META_PIXEL_ID } from "./conteudo";
 import "./meap.css";
 
 // As duas fontes da landing page de captura. Vêm por next/font, que baixa e
@@ -40,28 +40,25 @@ export default function MeapLayout({
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-          ${META_PIXEL_IDS.map((id) => `fbq('init', '${id}');`).join("\n          ")}
+          fbq('init', '${META_PIXEL_ID}');
           fbq('track', 'PageView');
         `}
       </Script>
       {/* Só entra se o JavaScript não carregar — o script acima já contabiliza
-          o PageView para a imensa maioria dos visitantes. Um <noscript> por
-          pixel, como a própria Meta pede quando há mais de um ID. */}
-      {META_PIXEL_IDS.map((id) => (
-        <noscript key={id}>
-          {/* eslint-disable-next-line @next/next/no-img-element --
-              Pixel de rastreamento de 1x1: next/image otimizaria uma imagem
-              que não é para ser vista, e ainda exigiria liberar o domínio da
-              Meta em remotePatterns por causa de um `<img>` invisível. */}
-          <img
-            height="1"
-            width="1"
-            alt=""
-            style={{ display: "none" }}
-            src={`https://www.facebook.com/tr?id=${id}&ev=PageView&noscript=1`}
-          />
-        </noscript>
-      ))}
+          o PageView para a imensa maioria dos visitantes. */}
+      <noscript>
+        {/* eslint-disable-next-line @next/next/no-img-element --
+            Pixel de rastreamento de 1x1: next/image otimizaria uma imagem que
+            não é para ser vista, e ainda exigiria liberar o domínio da Meta
+            em remotePatterns por causa de um `<img>` invisível. */}
+        <img
+          height="1"
+          width="1"
+          alt=""
+          style={{ display: "none" }}
+          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+        />
+      </noscript>
 
       {children}
     </div>
