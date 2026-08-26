@@ -196,6 +196,15 @@ create table if not exists imls (
 `,
   "create index if not exists imls_uf_idx on imls (uf, ordem, id);",
 
+  // Texto livre sobre a distribuição — o que a lista de cidades não conta:
+  // regionais, plantões, para onde os aprovados costumam ser lotados.
+  "alter table estados add column if not exists imls_texto text;",
+
+  // Link do edital. Um campo só para os dois casos: enquanto não sai, aponta
+  // para o último edital; quando sai, para o novo. O rótulo no site muda com o
+  // estágio, então não faz falta uma segunda coluna dizendo qual dos dois é.
+  "alter table estados add column if not exists edital_url text;",
+
   // Marcos do sistema, em chave/valor. Hoje guarda só quando a coleta de
   // notícias rodou pela última vez; é um lugar para esse tipo de registro não
   // virar uma tabela nova a cada necessidade.

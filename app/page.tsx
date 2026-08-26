@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
+import Cabecalho from "./components/Cabecalho";
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { lerImls } from "./lib/imlsRepo";
@@ -95,23 +96,29 @@ export default async function MonitorPage() {
                   classes: planos[e.uf],
                 }
               : null,
-            imls: imls?.[e.uf]?.length
-              ? { total: e.curadoria?.imlsTotal ?? null, unidades: imls[e.uf] }
-              : null,
+            // Cidades, total e texto são independentes: dá para descrever a
+            // rede sem ter mapeado uma cidade sequer, e o botão "Ver IMLs"
+            // precisa aparecer nos três casos.
+            imls:
+              imls?.[e.uf]?.length ||
+              e.curadoria?.imlsTexto ||
+              e.curadoria?.imlsTotal != null
+                ? {
+                    total: e.curadoria?.imlsTotal ?? null,
+                    texto: e.curadoria?.imlsTexto ?? null,
+                    unidades: imls?.[e.uf] ?? [],
+                  }
+                : null,
+            editalUrl: e.curadoria?.editalUrl ?? null,
           }
         : null,
   }));
 
   return (
     <>
+      <Cabecalho liberado={liberado} />
+
       {/* Abertura: mapa interativo (radar) */}
-      <header className="bg-[#0b0b0d] pt-10">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="text-lg font-black tracking-tight text-white">
-            <span className="text-[#ffcd07]">Clube</span>Forense
-          </p>
-        </div>
-      </header>
       <MapaConcursos estados={estadosMapa} aprovados={aprovados} />
 
       {/* Painel detalhado */}
@@ -171,7 +178,11 @@ export default async function MonitorPage() {
         {/* O painel é detalhe puro — todas as menções de todos os estados.
             Deixá-lo aberto anularia o cadastro pedido no mapa logo acima. */}
         {liberado ? (
-          <PainelMonitor relatorio={relatorio} aprovados={aprovados} />
+          <PainelMonitor
+            relatorio={relatorio}
+            aprovados={aprovados}
+            imls={imls ?? {}}
+          />
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center">
             <p className="text-lg font-bold text-gray-900">

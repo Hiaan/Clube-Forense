@@ -62,6 +62,38 @@ export async function registrarLead(lead: NovoLead): Promise<boolean> {
   }
 }
 
+/**
+ * Marca que um lead já conhecido voltou. Diferente de `registrarLead`, não cria
+ * linha nem toca no nome: quem entra pelo login informa só e-mail e senha, e
+ * gravar um nome vazio por cima do que a pessoa digitou no cadastro seria
+ * destruir o dado.
+ *
+ * Devolve `false` quando o e-mail não está na tabela — é assim que o login sabe
+ * que essa pessoa nunca se cadastrou aqui.
+ */
+export async function marcarRetornoLead(
+  email: string,
+  ufInteresse: string | null,
+): Promise<boolean> {
+  if (!bancoConfigurado()) return false;
+  try {
+    await garantirEsquema();
+    const linhas = (await sql().query(
+      `update leads set
+         uf_interesse = coalesce($2, uf_interesse),
+         vezes = vezes + 1,
+         visto_em = now()
+       where email = $1
+       returning email`,
+      [email.trim().toLowerCase(), ufInteresse?.toUpperCase() || null],
+    )) as unknown[];
+    return linhas.length > 0;
+  } catch (e) {
+    console.error("Falha ao marcar retorno do lead:", e instanceof Error ? e.message : e);
+    return false;
+  }
+}
+
 function daLinha(l: Record<string, unknown>): Lead {
   return {
     email: String(l.email),

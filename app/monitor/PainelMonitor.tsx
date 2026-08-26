@@ -3,7 +3,10 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import Avatar from "../components/Avatar";
+import BotaoEdital from "../components/BotaoEdital";
+import BotaoImls from "../components/BotaoImls";
 import type { AprovacaoSite } from "../lib/aprovadosSite";
+import type { ImlsPorUf } from "../lib/imlsRepo";
 import BancaLink from "../components/BancaLink";
 import {
   type EstadoStatus,
@@ -67,12 +70,23 @@ function Pill({ nivel }: { nivel: Nivel }) {
 function CartaoEstado({
   estado,
   aprovados,
+  unidades,
 }: {
   estado: EstadoStatus;
   aprovados: Record<string, AprovacaoSite>;
+  /** IMLs deste estado. Vazio quando nenhuma cidade foi cadastrada ainda. */
+  unidades: { cidade: string; nome: string | null }[];
 }) {
   const [aberto, setAberto] = useState(false);
   const temInstagram = estado.mencoes.some((m) => ehInstagram(m.fonte));
+
+  // Cidades, total e texto são independentes: dá para descrever a rede sem ter
+  // mapeado uma cidade sequer, e o botão precisa aparecer nos três casos.
+  const temImls =
+    unidades.length > 0 ||
+    Boolean(estado.curadoria?.imlsTexto) ||
+    estado.curadoria?.imlsTotal != null;
+  const editalUrl = estado.curadoria?.editalUrl ?? null;
   return (
     <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
@@ -170,6 +184,25 @@ function CartaoEstado({
         </div>
       )}
 
+      {(temImls || editalUrl) && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {temImls && (
+            <BotaoImls
+              tema="claro"
+              estado={estado.nome}
+              imls={{
+                total: estado.curadoria?.imlsTotal ?? null,
+                texto: estado.curadoria?.imlsTexto ?? null,
+                unidades,
+              }}
+            />
+          )}
+          {editalUrl && (
+            <BotaoEdital tema="claro" url={editalUrl} nivel={estado.nivel} />
+          )}
+        </div>
+      )}
+
       {estado.mencoes.length > 0 && (
         <button
           type="button"
@@ -218,9 +251,12 @@ function CartaoEstado({
 export default function PainelMonitor({
   relatorio,
   aprovados,
+  imls,
 }: {
   relatorio: Relatorio;
   aprovados: Record<string, AprovacaoSite>;
+  /** IMLs por UF. Vem do servidor junto com o relatório. */
+  imls: ImlsPorUf;
 }) {
   const [filtro, setFiltro] = useState<Nivel | "todos">("todos");
   const [soInstagram, setSoInstagram] = useState(false);
@@ -300,7 +336,12 @@ export default function PainelMonitor({
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {estadosVisiveis.map((e) => (
-            <CartaoEstado key={e.uf} estado={e} aprovados={aprovados} />
+            <CartaoEstado
+              key={e.uf}
+              estado={e}
+              aprovados={aprovados}
+              unidades={imls[e.uf] ?? []}
+            />
           ))}
         </div>
       )}

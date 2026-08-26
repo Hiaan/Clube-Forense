@@ -92,6 +92,10 @@ export interface DetalheCuradoria {
   planoFonte: string | null;
   /** Total de IMLs do estado; as cidades vêm da tabela imls. */
   imlsTotal: number | null;
+  /** Texto livre sobre a distribuição das unidades. */
+  imlsTexto: string | null;
+  /** Link do edital — o publicado quando há, o anterior enquanto não sai. */
+  editalUrl: string | null;
 }
 
 /** De onde saiu a curadoria nesta geração. */
