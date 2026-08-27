@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
 import Cabecalho from "./components/Cabecalho";
+import FundoConstelacao from "./components/FundoConstelacao";
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { lerImls } from "./lib/imlsRepo";
@@ -116,10 +117,14 @@ export default async function MonitorPage() {
 
   return (
     <>
-      <Cabecalho liberado={liberado} />
-
-      {/* Abertura: mapa interativo (radar) */}
-      <MapaConcursos estados={estadosMapa} aprovados={aprovados} />
+      {/* Abertura: cabeçalho e mapa dividem o mesmo fundo preto, e é este
+          bloco que dá a área do canvas da constelação — por isso a cor de
+          fundo mora aqui, e não em cada um deles. */}
+      <div className="relative bg-[#0b0b0d]">
+        <FundoConstelacao />
+        <Cabecalho liberado={liberado} />
+        <MapaConcursos estados={estadosMapa} aprovados={aprovados} />
+      </div>
 
       {/* Painel detalhado */}
       <main id="painel" className="mx-auto max-w-6xl px-4 py-10 sm:py-14">

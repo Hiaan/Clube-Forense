@@ -261,7 +261,7 @@ export default function MapaConcursos({
   }
 
   return (
-    <section className="bg-[#0b0b0d] py-12 sm:py-16" id="radar">
+    <section className="relative z-10 py-12 sm:py-16" id="radar">
       <div className="mx-auto max-w-5xl px-4">
         <div className="mb-8 text-center">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffcd07]">

@@ -22,7 +22,7 @@ export default function Cabecalho({ liberado }: { liberado: boolean }) {
   const [entrando, setEntrando] = useState(false);
 
   return (
-    <header className="bg-[#0b0b0d] pt-6">
+    <header className="relative z-10 pt-6">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 sm:flex-row sm:justify-between">
         <p className="text-lg font-black tracking-tight text-white">
           <span className="text-[#ffcd07]">Clube</span>Forense
