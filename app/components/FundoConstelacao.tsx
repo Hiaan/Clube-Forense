@@ -1,7 +1,7 @@
 "use client";
 
 // Fundo de constelação da abertura: pontos à deriva no preto, ligados por
-// linhas quando ficam perto, e o ponteiro do mouse virando mais um nó.
+// linhas quando ficam perto, atraídos pelo ponteiro do mouse.
 //
 // É desenho em canvas, e não CSS: as linhas dependem da distância entre pares
 // de pontos, que muda a cada quadro. Em DOM seriam centenas de elementos
@@ -20,26 +20,47 @@
 import { useEffect, useRef } from "react";
 
 /** Amarelo da marca (#ffcd07) em RGB, para compor a opacidade linha a linha. */
-const COR = "255, 205, 7";
+const AMBAR = "255, 205, 7";
+/**
+ * Parte dos pontos é branca. Só âmbar, a malha vira um véu monocromático e
+ * some no fundo; o branco cria os poucos pontos de brilho que dão profundidade.
+ */
+const BRANCO = "255, 255, 255";
+const PROPORCAO_BRANCOS = 0.35;
 
 /** Distância máxima para ligar dois pontos, e para o ponteiro atrair. */
 const DIST_LIGACAO = 130;
-const DIST_PONTEIRO = 170;
+const DIST_PONTEIRO = 175;
+
+/**
+ * Atração pelo ponteiro. A força entra numa velocidade SEPARADA da deriva
+ * base, que decai a cada quadro: assim o ponto é puxado enquanto o mouse está
+ * perto e volta a vagar sozinho quando ele sai, em vez de acelerar para sempre
+ * ou de parar de vez por causa do atrito.
+ */
+const RAIO_ATRACAO = 230;
+const FORCA_ATRACAO = 0.05;
+const DECAIMENTO = 0.9;
 
 /**
  * Um ponto a cada N pixels de área, até um teto. A densidade constante evita
  * que a tela de um monitor grande vire uma malha fechada, e o teto segura o
  * custo do laço, que é quadrático no número de pontos.
  */
-const AREA_POR_PONTO = 17_000;
-const MAX_PONTOS = 110;
+const AREA_POR_PONTO = 15_000;
+const MAX_PONTOS = 120;
 
 interface Ponto {
   x: number;
   y: number;
+  /** Deriva base, constante — é ela que mantém o movimento sem o mouse. */
   vx: number;
   vy: number;
+  /** Empurrão do ponteiro, somado à deriva e decaindo a cada quadro. */
+  ax: number;
+  ay: number;
   r: number;
+  cor: string;
 }
 
 export default function FundoConstelacao() {
@@ -61,19 +82,22 @@ export default function FundoConstelacao() {
     let pedido = 0;
     let naTela = true;
 
+    function quantosPontos() {
+      return Math.min(MAX_PONTOS, Math.round((largura * altura) / AREA_POR_PONTO));
+    }
+
     function semear() {
-      const quantos = Math.min(
-        MAX_PONTOS,
-        Math.round((largura * altura) / AREA_POR_PONTO),
-      );
-      pontos = Array.from({ length: quantos }, () => ({
+      pontos = Array.from({ length: quantosPontos() }, () => ({
         x: Math.random() * largura,
         y: Math.random() * altura,
         // Devagar de propósito: o fundo é ambiente, não deve competir com o
         // texto que está por cima.
         vx: (Math.random() - 0.5) * 0.22,
         vy: (Math.random() - 0.5) * 0.22,
-        r: 0.8 + Math.random() * 1.4,
+        ax: 0,
+        ay: 0,
+        r: 0.9 + Math.random() * 1.5,
+        cor: Math.random() < PROPORCAO_BRANCOS ? BRANCO : AMBAR,
       }));
     }
 
@@ -90,15 +114,10 @@ export default function FundoConstelacao() {
       // "Cargos e Carreiras" ou troca de estado no mapa, e resemear a cada uma
       // dessas fazia o fundo inteiro piscar e se reorganizar — um susto visual
       // causado por um clique que não tem nada a ver com ele.
-      const alvoPontos = Math.min(
-        MAX_PONTOS,
-        Math.round((largura * altura) / AREA_POR_PONTO),
-      );
-      if (Math.abs(alvoPontos - pontos.length) > 6) {
+      if (Math.abs(quantosPontos() - pontos.length) > 6) {
         semear();
         return;
       }
-      // Mantendo os pontos, os que ficaram fora da nova caixa voltam para dentro.
       for (const p of pontos) {
         if (p.x > largura) p.x = Math.random() * largura;
         if (p.y > altura) p.y = Math.random() * altura;
@@ -109,18 +128,16 @@ export default function FundoConstelacao() {
       ctx!.clearRect(0, 0, largura, altura);
 
       // As linhas primeiro, os pontos depois: assim nenhum traço corta um
-      // ponto ao meio.
+      // ponto ao meio, e o brilho dos pontos fica por cima da malha.
+      ctx!.lineWidth = 1;
       for (let i = 0; i < pontos.length; i++) {
         const a = pontos[i];
 
         for (let j = i + 1; j < pontos.length; j++) {
           const b = pontos[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const d = Math.hypot(dx, dy);
+          const d = Math.hypot(a.x - b.x, a.y - b.y);
           if (d > DIST_LIGACAO) continue;
-          ctx!.strokeStyle = `rgba(${COR}, ${0.16 * (1 - d / DIST_LIGACAO)})`;
-          ctx!.lineWidth = 1;
+          ctx!.strokeStyle = `rgba(${AMBAR}, ${0.2 * (1 - d / DIST_LIGACAO)})`;
           ctx!.beginPath();
           ctx!.moveTo(a.x, a.y);
           ctx!.lineTo(b.x, b.y);
@@ -129,12 +146,9 @@ export default function FundoConstelacao() {
 
         // O ponteiro é mais um nó, e liga mais forte que os pares entre si —
         // é o que faz o fundo parecer responder a quem está ali.
-        const dxm = a.x - ponteiro.x;
-        const dym = a.y - ponteiro.y;
-        const dm = Math.hypot(dxm, dym);
+        const dm = Math.hypot(a.x - ponteiro.x, a.y - ponteiro.y);
         if (dm < DIST_PONTEIRO) {
-          ctx!.strokeStyle = `rgba(${COR}, ${0.34 * (1 - dm / DIST_PONTEIRO)})`;
-          ctx!.lineWidth = 1;
+          ctx!.strokeStyle = `rgba(${AMBAR}, ${0.42 * (1 - dm / DIST_PONTEIRO)})`;
           ctx!.beginPath();
           ctx!.moveTo(a.x, a.y);
           ctx!.lineTo(ponteiro.x, ponteiro.y);
@@ -142,18 +156,35 @@ export default function FundoConstelacao() {
         }
       }
 
+      // O halo é o que separa um ponto de um pixel sujo na tela. Sai caro em
+      // canvas, então vale só para os pontos — são poucas dezenas.
       for (const p of pontos) {
-        ctx!.fillStyle = `rgba(${COR}, 0.55)`;
+        ctx!.shadowBlur = 8;
+        ctx!.shadowColor = `rgba(${p.cor}, 0.9)`;
+        ctx!.fillStyle = `rgba(${p.cor}, ${p.cor === BRANCO ? 0.75 : 0.62})`;
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx!.fill();
       }
+      ctx!.shadowBlur = 0;
     }
 
     function passo() {
       for (const p of pontos) {
-        p.x += p.vx;
-        p.y += p.vy;
+        const dx = ponteiro.x - p.x;
+        const dy = ponteiro.y - p.y;
+        const d = Math.hypot(dx, dy);
+        if (d < RAIO_ATRACAO && d > 1) {
+          const f = (FORCA_ATRACAO * (1 - d / RAIO_ATRACAO)) / d;
+          p.ax += dx * f;
+          p.ay += dy * f;
+        }
+        p.ax *= DECAIMENTO;
+        p.ay *= DECAIMENTO;
+
+        p.x += p.vx + p.ax;
+        p.y += p.vy + p.ay;
+
         // Atravessa a borda e reaparece do outro lado: sem isso os pontos se
         // acumulariam nos cantos depois de alguns minutos.
         if (p.x < -10) p.x = largura + 10;
@@ -216,10 +247,23 @@ export default function FundoConstelacao() {
   }, []);
 
   return (
-    <canvas
-      ref={ref}
-      aria-hidden
-      className="pointer-events-none absolute inset-0 h-full w-full"
-    />
+    <>
+      {/* Luz âmbar difusa por trás de tudo. É CSS, e não canvas: é um degradê
+          parado, e redesenhá-lo 60 vezes por segundo seria desperdício. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(70% 55% at 22% 12%, rgba(255, 205, 7, 0.09), transparent 68%), " +
+            "radial-gradient(55% 45% at 82% 62%, rgba(255, 150, 20, 0.05), transparent 70%)",
+        }}
+      />
+      <canvas
+        ref={ref}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full"
+      />
+    </>
   );
 }

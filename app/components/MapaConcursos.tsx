@@ -155,7 +155,7 @@ function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
       {/* Fechado por padrão: a tabela inteira aberta enchia o card e empurrava
           a notícia e os aprovados para fora da tela. Quem quer o salário
           clica. */}
-      <details className="group mt-4 rounded-xl border border-white/10 bg-white/[0.04]">
+      <details className="group mt-4 rounded-xl border border-white/10 bg-white/[0.05]">
         <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 transition hover:bg-white/[0.04]">
           <span
             aria-hidden
@@ -388,7 +388,10 @@ export default function MapaConcursos({
 
           {/* Painel do estado selecionado */}
           {sel && (
-            <div className="w-full min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+            // Opaco, e não translúcido: o fundo de constelação passa por
+            // trás desta seção, e um card transparente deixava as linhas
+            // cruzarem a notícia e a tabela de salários.
+            <div className="w-full min-w-0 rounded-2xl border border-white/10 bg-[#121215] p-6">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   {sel.imagemUrl ? (
