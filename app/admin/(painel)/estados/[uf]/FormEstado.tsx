@@ -326,15 +326,28 @@ export default function FormEstado({
           deste estado.
         </p>
 
-        <div className="mb-5 grid gap-4 sm:grid-cols-3">
+        <div className="mb-5 grid gap-4 sm:grid-cols-2">
           <Campo nome="planoOrgao" label="Órgão" dica="Ex.: ITEP/RN">
             <input id="planoOrgao" name="planoOrgao" className={campo} defaultValue={v(inicial?.planoOrgao)} />
           </Campo>
           <Campo nome="planoAno" label="Ano do plano">
             <input id="planoAno" name="planoAno" type="number" className={campo} defaultValue={v(inicial?.planoAno)} />
           </Campo>
-          <Campo nome="planoFonte" label="Fonte (link)">
-            <input id="planoFonte" name="planoFonte" type="url" className={campo} defaultValue={v(inicial?.planoFonte)} />
+        </div>
+
+        <div className="mb-5">
+          <Campo
+            nome="planoFonte"
+            label="Fonte da tabela"
+            dica="Lei, anexo e data de vigência — por extenso, não um link. Aparece embaixo da tabela no site. Ex.: “Lei nº 15.395/2026, Anexo IV — vigente desde 01/01/2026. Subsídio (valor cheio, sem gratificações).”"
+          >
+            <textarea
+              id="planoFonte"
+              name="planoFonte"
+              rows={2}
+              className={campo}
+              defaultValue={v(inicial?.planoFonte)}
+            />
           </Campo>
         </div>
 

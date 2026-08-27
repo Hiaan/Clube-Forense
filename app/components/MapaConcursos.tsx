@@ -129,17 +129,17 @@ function TabelaPlano({ classes }: { classes: PlanoEstado["classes"] }) {
   );
 }
 
-function LinkFonte({ href }: { href: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="mt-2 inline-block text-[11px] text-[#ffcd07] hover:underline"
-    >
-      Ver a fonte ↗
-    </a>
-  );
+/**
+ * De onde saiu a tabela: lei, anexo e data de vigência.
+ *
+ * Texto, e não link. O campo já foi um endereço e virava um "Ver a fonte ↗",
+ * mas o levantamento das leis estaduais guarda a referência por extenso — e
+ * como link ela virava um href quebrado, do tipo "Lei nº 15.395/2026, Anexo
+ * IV". Escrita por extenso a fonte também serve a quem lê no celular sem
+ * querer sair da página.
+ */
+function Fonte({ texto }: { texto: string }) {
+  return <p className="mt-2 text-[11px] leading-relaxed text-gray-500">{texto}</p>;
 }
 
 /** Tabela do plano de cargos e carreiras do estado. */
@@ -186,7 +186,7 @@ function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
             </button>
           )}
 
-          {plano.fonte && !passou && <LinkFonte href={plano.fonte} />}
+          {plano.fonte && !passou && <Fonte texto={plano.fonte} />}
         </div>
       </details>
 
@@ -201,7 +201,7 @@ function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
         >
           <div className="mt-4">
             <TabelaPlano classes={plano.classes} />
-            {plano.fonte && <LinkFonte href={plano.fonte} />}
+            {plano.fonte && <Fonte texto={plano.fonte} />}
           </div>
         </Modal>
       )}
