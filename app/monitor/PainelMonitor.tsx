@@ -193,6 +193,7 @@ function CartaoEstado({
               imls={{
                 total: estado.curadoria?.imlsTotal ?? null,
                 texto: estado.curadoria?.imlsTexto ?? null,
+                fonte: estado.curadoria?.imlsFonte ?? null,
                 unidades,
               }}
             />

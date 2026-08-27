@@ -296,6 +296,7 @@ export async function coletar(): Promise<Relatorio> {
             planoFonte: detalhe.planoFonte,
             imlsTotal: detalhe.imlsTotal,
             imlsTexto: detalhe.imlsTexto,
+            imlsFonte: detalhe.imlsFonte,
             editalUrl: detalhe.editalUrl,
           }
         : null,

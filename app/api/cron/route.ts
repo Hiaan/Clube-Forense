@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { semearImls } from "../../lib/imlsRepo";
 import { semearPlanos } from "../../lib/planoRepo";
 import { registrarColeta } from "../../lib/sistemaRepo";
 import { coletar } from "../../monitor/lib/coletor";
@@ -30,6 +31,9 @@ export async function GET(request: Request) {
   // Leva para o banco os planos de carreira que estão no código, nos estados que
   // ainda não têm nenhum. Depois da primeira vez isto não faz nada.
   const planosSemeados = await semearPlanos();
+
+  // Mesma ideia para a distribuição dos IMLs.
+  const imlsSemeados = await semearImls();
 
   const relatorio = await coletar();
   const estadosComNovidade = relatorio.estados.filter((e) => e.nivel !== "sem").length;
@@ -67,5 +71,6 @@ export async function GET(request: Request) {
     fonteIndisponivel: relatorio.fonteIndisponivel,
     instagram,
     planosSemeados,
+    imlsSemeados,
   });
 }

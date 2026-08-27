@@ -48,6 +48,8 @@ export interface EstadoCuradoria {
   imlsTotal: number | null;
   /** Texto livre sobre a distribuição das unidades, escrito no painel. */
   imlsTexto: string | null;
+  /** De onde saiu a distribuição dos IMLs, por extenso. */
+  imlsFonte: string | null;
   /** Link do edital — o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
   atualizadoEm: string | null;
@@ -97,6 +99,7 @@ function daLinha(l: Record<string, unknown>): EstadoCuradoria {
     planoFonte: texto(l.plano_fonte),
     imlsTotal: l.imls_total == null ? null : Number(l.imls_total),
     imlsTexto: texto(l.imls_texto),
+    imlsFonte: texto(l.imls_fonte),
     editalUrl: texto(l.edital_url),
     atualizadoEm: l.atualizado_em ? new Date(String(l.atualizado_em)).toISOString() : null,
   };
@@ -111,7 +114,7 @@ const COLUNAS = [
   "verificado_em", "travado", "observacao",
   "noticia_titulo", "noticia_resumo", "noticia_fonte", "noticia_link",
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
-  "imls_texto", "edital_url",
+  "imls_texto", "imls_fonte", "edital_url",
 ] as const;
 
 function paraValores(e: EstadoCuradoria): unknown[] {
@@ -125,7 +128,7 @@ function paraValores(e: EstadoCuradoria): unknown[] {
     d(e.verificadoEm), e.travado, e.observacao,
     e.noticiaTitulo, e.noticiaResumo, e.noticiaFonte, e.noticiaLink,
     e.imagemUrl, e.planoOrgao, e.planoAno, e.planoFonte, e.imlsTotal,
-    e.imlsTexto, e.editalUrl,
+    e.imlsTexto, e.imlsFonte, e.editalUrl,
   ];
 }
 
@@ -135,7 +138,7 @@ const COLUNAS_NOTICIA = new Set([
   // A imagem e o plano de carreira também são escolhas feitas aqui, e a
   // planilha não os conhece.
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
-  "imls_texto", "edital_url",
+  "imls_texto", "imls_fonte", "edital_url",
 ]);
 
 /**

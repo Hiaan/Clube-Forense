@@ -394,6 +394,22 @@ export default function FormEstado({
           </Campo>
         </div>
 
+        <div className="mb-5">
+          <Campo
+            nome="imlsFonte"
+            label="Fonte da distribuição"
+            dica="Órgão, documento e data — por extenso, não um link. Aparece no fim do “Ver IMLs”. Ex.: “Carta de Serviços do ITEP/RN, edição 2026.”"
+          >
+            <textarea
+              id="imlsFonte"
+              name="imlsFonte"
+              rows={2}
+              className={campo}
+              defaultValue={v(inicial?.imlsFonte)}
+            />
+          </Campo>
+        </div>
+
         <EditorImls inicial={imls} />
       </section>
 

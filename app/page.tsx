@@ -107,6 +107,7 @@ export default async function MonitorPage() {
                 ? {
                     total: e.curadoria?.imlsTotal ?? null,
                     texto: e.curadoria?.imlsTexto ?? null,
+                    fonte: e.curadoria?.imlsFonte ?? null,
                     unidades: imls?.[e.uf] ?? [],
                   }
                 : null,

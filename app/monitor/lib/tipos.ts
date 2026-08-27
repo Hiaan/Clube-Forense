@@ -104,6 +104,8 @@ export interface DetalheCuradoria {
   imlsTotal: number | null;
   /** Texto livre sobre a distribuição das unidades. */
   imlsTexto: string | null;
+  /** De onde saiu a distribuição dos IMLs, por extenso. */
+  imlsFonte: string | null;
   /** Link do edital — o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
 }

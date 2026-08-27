@@ -200,6 +200,11 @@ create table if not exists imls (
   // regionais, plantões, para onde os aprovados costumam ser lotados.
   "alter table estados add column if not exists imls_texto text;",
 
+  // De onde saiu a distribuição dos IMLs: órgão, documento e data, por extenso.
+  // Mesma regra do plano de carreira — número sem procedência é boato, e a tela
+  // mostra a fonte junto da lista.
+  "alter table estados add column if not exists imls_fonte text;",
+
   // Link do edital. Um campo só para os dois casos: enquanto não sai, aponta
   // para o último edital; quando sai, para o novo. O rótulo no site muda com o
   // estágio, então não faz falta uma segunda coluna dizendo qual dos dois é.

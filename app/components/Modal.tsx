@@ -9,6 +9,7 @@
 // esconder nada.
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export default function Modal({
   titulo,
@@ -45,7 +46,21 @@ export default function Modal({
     };
   }, [aoFechar]);
 
-  return (
+  // Vai para o fim do <body>, e não fica onde foi escrito.
+  //
+  // `position: fixed` e `z-50` não bastam: um ancestral com `position:
+  // relative` e z-index próprio cria um contexto de empilhamento, e o z-50
+  // passa a valer só DENTRO dele. Foi o que aconteceu quando o cabeçalho e o
+  // radar ganharam `z-10` para ficar sobre o fundo de constelação — os dois
+  // empatados, o radar vence por vir depois no DOM, e a tela de login, que
+  // nasce dentro do cabeçalho, ficou ATRÁS do mapa: dava para ver o formulário,
+  // mas o clique em "Entrar" era interceptado pelos botões do card do estado.
+  //
+  // No body o pop-up não depende de onde foi montado, o que vale para os três
+  // que existem hoje e para qualquer outro depois.
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
       onClick={aoFechar}
@@ -83,6 +98,7 @@ export default function Modal({
 
         {rodape}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

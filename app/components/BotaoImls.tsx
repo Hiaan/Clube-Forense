@@ -23,6 +23,8 @@ export interface ImlsEstado {
   total: number | null;
   /** Como a rede é organizada, escrito no painel. O que a lista não conta. */
   texto: string | null;
+  /** De onde saiu, por extenso. Texto, e não link — é lei, portaria ou portal. */
+  fonte: string | null;
   unidades: { cidade: string; nome: string | null }[];
 }
 
@@ -90,6 +92,12 @@ export default function BotaoImls({
             <p className="mt-3 text-[11px] text-gray-500">
               {imls.unidades.length} de {imls.total} unidades com cidade
               identificada.
+            </p>
+          )}
+
+          {imls.fonte && (
+            <p className="mt-3 border-t border-white/10 pt-3 text-[11px] leading-relaxed text-gray-500">
+              {imls.fonte}
             </p>
           )}
         </Modal>
