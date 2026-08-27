@@ -99,7 +99,20 @@ function doisAnosAtras(): string {
 /** Intervalo mínimo entre scrapes: ~1/dia, mesmo se o cron for acionado de hora em hora. */
 const INTERVALO_MIN_HORAS = 20;
 
-export type ResultadoDisparo = "disparado" | "aguardando-intervalo" | "nao-configurado" | "falha";
+/**
+ * O que aconteceu ao tentar disparar o scrape.
+ *
+ * A falha carrega o status HTTP porque as causas prováveis são bem diferentes
+ * entre si e exigem ações opostas — 401 é token inválido, 402/403 costuma ser
+ * crédito esgotado ou actor pago, 404 é slug de actor errado. Um "falha" seco
+ * obriga a adivinhar, e adivinhar sai caro.
+ */
+export type ResultadoDisparo =
+  | "disparado"
+  | "aguardando-intervalo"
+  | "nao-configurado"
+  | `falha ${number}`
+  | "falha de rede";
 
 /** Consulta quando começou o último run (qualquer status). Null se nunca rodou. */
 async function inicioDoUltimoRun(token: string): Promise<number | null> {
@@ -156,9 +169,16 @@ export async function dispararColetaInstagram(): Promise<ResultadoDisparo> {
         cache: "no-store",
       },
     );
-    return resp.ok ? "disparado" : "falha";
-  } catch {
-    return "falha";
+    if (resp.ok) return "disparado";
+    // O corpo diz o motivo em texto; vale o log, mesmo que a resposta do cron
+    // só carregue o número.
+    console.error(
+      `Apify recusou o disparo (${resp.status}): ${(await resp.text()).slice(0, 300)}`,
+    );
+    return `falha ${resp.status}`;
+  } catch (e) {
+    console.error(`Apify inalcançável: ${e instanceof Error ? e.message : e}`);
+    return "falha de rede";
   }
 }
 

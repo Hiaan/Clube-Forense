@@ -42,10 +42,23 @@ export async function GET(request: Request) {
   revalidatePath("/monitor");
   revalidatePath("/api/monitor");
 
+  // A data da menção mais nova é o que responde "está chegando notícia?" —
+  // `estadosComNovidade` não responde, porque conta também os estados cujo
+  // único sinal é a curadoria, que está sempre lá. Sem esta linha, a única
+  // forma de saber era abrir o site e reparar nas datas.
+  const maisRecente = relatorio.estados
+    .flatMap((e) => e.mencoes)
+    .map((m) => m.data)
+    .filter((d): d is string => Boolean(d))
+    .sort()
+    .at(-1);
+
   return Response.json({
     ok: true,
     atualizadoEm: relatorio.atualizadoEm,
     estadosComNovidade,
+    totalMencoes: relatorio.totalMencoes,
+    mencaoMaisRecente: maisRecente ?? null,
     fonteIndisponivel: relatorio.fonteIndisponivel,
     instagram,
   });
