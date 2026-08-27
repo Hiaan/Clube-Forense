@@ -5,6 +5,7 @@
 // existe estado intermediário com metade das classes velhas e metade novas.
 
 import { bancoConfigurado, garantirEsquema, sql } from "./db";
+import { PLANOS_BASE } from "./planosBase";
 
 export interface ClassePlano {
   classe: string;
@@ -56,6 +57,65 @@ export async function lerPlano(uf: string): Promise<ClassePlano[]> {
     console.error("Falha ao ler plano de carreira:", e instanceof Error ? e.message : e);
     return [];
   }
+}
+
+/**
+ * Copia para o banco os planos que estão no código, um estado por vez, e só
+ * onde ainda não há plano nenhum.
+ *
+ * O `where not exists` é o ponto todo: um estado editado à mão no painel nunca
+ * é tocado, mesmo que o levantamento embutido tenha outra tabela. Sem isso, um
+ * deploy desfaria a curadoria de quem corrigiu um valor na semana passada.
+ *
+ * Roda pelo cron, e não a cada requisição: são 17 estados e quase 200 linhas,
+ * e depois da primeira vez o trabalho é só descobrir que não há o que fazer.
+ *
+ * Devolve quais UFs foram semeadas. Nunca lança: falhar aqui não pode derrubar
+ * o cron, que tem outras coisas a fazer.
+ */
+export async function semearPlanos(): Promise<string[]> {
+  if (!bancoConfigurado()) return [];
+  const semeados: string[] = [];
+
+  try {
+    await garantirEsquema();
+    const s = sql();
+
+    for (const [uf, plano] of Object.entries(PLANOS_BASE)) {
+      const jaTem = (await s.query(
+        "select 1 from plano_classes where uf = $1 limit 1",
+        [uf],
+      )) as unknown[];
+      if (jaTem.length > 0) continue;
+
+      await s.transaction([
+        ...plano.classes
+          .filter((c) => c.classe.trim())
+          .map((c, i) =>
+            s.query(
+              "insert into plano_classes (uf, classe, subsidio, ordem) values ($1, $2, $3, $4)",
+              [uf, c.classe, c.subsidio, i],
+            ),
+          ),
+        // O cabeçalho só é preenchido se estiver vazio: quem escreveu o órgão à
+        // mão no painel continua com o texto dele.
+        s.query(
+          `update estados set
+             plano_orgao = coalesce(plano_orgao, $2),
+             plano_ano   = coalesce(plano_ano, $3),
+             plano_fonte = coalesce(plano_fonte, $4)
+           where uf = $1`,
+          [uf, plano.orgao, plano.ano, plano.fonte],
+        ),
+      ]);
+
+      semeados.push(uf);
+    }
+  } catch (e) {
+    console.error("Falha ao semear os planos de carreira:", e instanceof Error ? e.message : e);
+  }
+
+  return semeados;
 }
 
 /**

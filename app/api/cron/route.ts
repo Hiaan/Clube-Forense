@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { semearPlanos } from "../../lib/planoRepo";
 import { registrarColeta } from "../../lib/sistemaRepo";
 import { coletar } from "../../monitor/lib/coletor";
 import { dispararColetaInstagram } from "../../monitor/lib/instagram";
@@ -25,6 +26,10 @@ export async function GET(request: Request) {
   // trava interna de ~1 disparo/dia, então é seguro chamar o cron de hora em
   // hora. A coleta abaixo lê o resultado do último run já concluído.
   const instagram = await dispararColetaInstagram();
+
+  // Leva para o banco os planos de carreira que estão no código, nos estados que
+  // ainda não têm nenhum. Depois da primeira vez isto não faz nada.
+  const planosSemeados = await semearPlanos();
 
   const relatorio = await coletar();
   const estadosComNovidade = relatorio.estados.filter((e) => e.nivel !== "sem").length;
@@ -61,5 +66,6 @@ export async function GET(request: Request) {
     mencaoMaisRecente: maisRecente ?? null,
     fonteIndisponivel: relatorio.fonteIndisponivel,
     instagram,
+    planosSemeados,
   });
 }
