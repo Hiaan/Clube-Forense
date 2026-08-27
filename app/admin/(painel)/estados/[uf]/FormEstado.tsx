@@ -299,6 +299,23 @@ export default function FormEstado({
             <input id="fonteUrl" name="fonteUrl" type="url" className={campo} defaultValue={v(inicial?.fonteUrl)} />
           </Campo>
         </div>
+
+        <div className="mt-4">
+          <Campo
+            nome="editalUrl"
+            label="Link do edital"
+            dica="Um campo só para os dois casos: enquanto o edital não sai, aponte para o último; quando sair, troque. O site muda o rótulo do botão sozinho, conforme o estágio."
+          >
+            <input
+              id="editalUrl"
+              name="editalUrl"
+              type="url"
+              className={campo}
+              placeholder="https://…"
+              defaultValue={v(inicial?.editalUrl)}
+            />
+          </Campo>
+        </div>
       </section>
 
       {/* ---------- Plano de carreira ---------- */}
@@ -344,6 +361,22 @@ export default function FormEstado({
               type="number"
               className={campo}
               defaultValue={v(inicial?.imlsTotal)}
+            />
+          </Campo>
+        </div>
+
+        <div className="mb-5">
+          <Campo
+            nome="imlsTexto"
+            label="Como a rede é organizada"
+            dica="Aparece no topo do “Ver IMLs”, antes da lista. É onde cabe o que a lista de cidades não conta: regionais, plantões, para onde os aprovados costumam ser lotados."
+          >
+            <textarea
+              id="imlsTexto"
+              name="imlsTexto"
+              rows={4}
+              className={campo}
+              defaultValue={v(inicial?.imlsTexto)}
             />
           </Campo>
         </div>

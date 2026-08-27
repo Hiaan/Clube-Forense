@@ -194,6 +194,8 @@ export async function salvarEstadoAcao(
       planoAno: numero(dados, "planoAno"),
       planoFonte: texto(dados, "planoFonte"),
       imlsTotal: numero(dados, "imlsTotal"),
+      imlsTexto: texto(dados, "imlsTexto"),
+      editalUrl: texto(dados, "editalUrl"),
       atualizadoEm: null,
     };
 
@@ -331,6 +333,8 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
       planoAno: null,
       planoFonte: null,
       imlsTotal: null,
+      imlsTexto: null,
+      editalUrl: null,
       atualizadoEm: null,
     }));
 

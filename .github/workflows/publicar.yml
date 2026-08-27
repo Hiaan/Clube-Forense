@@ -10,17 +10,21 @@ name: Publicar na Vercel
 # alcança a Vercel normalmente e publica por conta própria.
 #
 # CONFIGURAÇÃO (uma vez só)
-# Em Settings → Secrets and variables → Actions → New repository secret:
+# Um segredo, só um. Em Settings → Secrets and variables → Actions:
 #
-#   VERCEL_TOKEN       vercel.com/account/tokens (crie um novo)
-#   VERCEL_ORG_ID      o ID do DONO do projeto
-#   VERCEL_PROJECT_ID  projeto clube-forense → Settings → General → Project ID
+#   VERCEL_TOKEN   vercel.com/account/tokens → Create Token
 #
-# ATENÇÃO no VERCEL_ORG_ID: este projeto pertence à equipe "hianlucas", não à
-# conta pessoal. O ID certo é o da equipe (começa com `team_`), em Vercel →
-# Settings da EQUIPE → General. Usar o ID da conta pessoal faz o deploy falhar
-# com "Could not retrieve Project Settings" — foi o que aconteceu nas seis
-# primeiras tentativas. O token também precisa ter acesso a essa equipe.
+# Os IDs abaixo, em env, cobrem os dois tipos de token que a Vercel emite —
+# o de equipe e o de projeto (aquele criado entrando pela setinha do "hian" e
+# escolhendo clube-forense). O de projeto NÃO tem usuário associado: com ele,
+# `vercel whoami` responde "User not found" e `vercel link --scope` falha com
+# 404. Por isso aqui não há link nenhum; os IDs vão direto, que é o caminho
+# que funciona para os dois.
+#
+# CUIDADO: existe outro projeto na mesma equipe, chamado "meap", conectado a
+# ESTE repositório no GitHub mas servindo engquerencosta.com.br. Não é o Clube
+# Forense. É por isso que o VERCEL_PROJECT_ID abaixo está fixo e conferido —
+# publicar no projeto errado troca o site errado.
 #
 # As variáveis do site (CURADORIA_CSV_URL etc.) NÃO entram aqui. O `vercel pull`
 # busca as que já estão cadastradas no projeto — este workflow nunca as vê.
@@ -45,27 +49,40 @@ jobs:
   publicar:
     runs-on: ubuntu-latest
     env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      # Identificam o projeto; não autorizam nada. Sem um token válido a Vercel
+      # os ignora, então não são segredo — e ficam à vista de propósito: como
+      # segredos, ninguém conseguia conferir se estavam certos, e foi
+      # exatamente essa cegueira que custou onze execuções falhadas. Estes dois
+      # foram lidos da API da Vercel, e o projeto é o que responde por
+      # clube-forense-three.vercel.app.
+      VERCEL_ORG_ID: team_oC9ouzmp2nyfMiZXcQUkGK9t
+      VERCEL_PROJECT_ID: prj_nF3Nuik4bT6aWNpNAgYRNhs2FNFr
 
     steps:
-      # Sem isto, um segredo faltando só apareceria como erro obscuro do CLI
-      # lá adiante. Aqui a mensagem diz exatamente o que cadastrar.
-      - name: Conferir os segredos
+      # Sem isto, o token faltando só apareceria como erro obscuro do CLI lá
+      # adiante. Aqui a mensagem diz exatamente o que cadastrar.
+      - name: Conferir o segredo
         env:
           TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          ORG: ${{ secrets.VERCEL_ORG_ID }}
-          PROJETO: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          faltando=""
-          [ -n "$TOKEN" ] || faltando="$faltando VERCEL_TOKEN"
-          [ -n "$ORG" ] || faltando="$faltando VERCEL_ORG_ID"
-          [ -n "$PROJETO" ] || faltando="$faltando VERCEL_PROJECT_ID"
-          if [ -n "$faltando" ]; then
-            echo "::error::Faltam estes segredos:$faltando — cadastre em Settings → Secrets and variables → Actions."
+          if [ -z "$TOKEN" ]; then
+            echo "::error::Falta o segredo VERCEL_TOKEN — cadastre em Settings → Secrets and variables → Actions."
             exit 1
           fi
-          echo "Os três segredos estão presentes."
+
+          # O FORMATO do token, nunca o valor. O GitHub esconde o segredo
+          # inteiro no log, mas não um pedaço dele nem sua contagem — e é
+          # justamente isso que distingue as três coisas que a Vercel reporta
+          # com a mesma frase: colado pela metade, colado com quebra de linha,
+          # e revogado. Sem isto, cada tentativa custa uma ida e volta.
+          echo "Começa com: $(printf %s "$TOKEN" | cut -c1-4)   (esperado: vcp_)"
+          echo "Caracteres: $(printf %s "$TOKEN" | wc -c)       (esperado: 28 ou mais)"
+          case "$TOKEN" in
+            *[[:space:]]*)
+              echo "::warning::O valor tem espaço ou quebra de linha no meio — recolar costuma resolver." ;;
+            *)
+              echo "Sem espaços." ;;
+          esac
 
       - name: Baixar o código
         uses: actions/checkout@v4
@@ -79,8 +96,23 @@ jobs:
       - name: Instalar o CLI da Vercel
         run: npm install --global vercel@latest
 
+      # Só informação, nunca derruba o build: diz que tipo de token está em uso.
+      #
+      # "User not found" AQUI É NORMAL para um token de projeto — ele não tem
+      # usuário associado. Não é sinal de token inválido, e foi o que nos
+      # confundiu por uma rodada inteira. O que vale é o passo seguinte.
+      - name: Que tipo de token é este
+        run: |
+          if vercel whoami --token="${{ secrets.VERCEL_TOKEN }}" 2>/dev/null; then
+            echo "→ Token de conta/equipe."
+          else
+            echo "→ Token de projeto (sem usuário associado). Normal."
+          fi
+
       # Traz a configuração do projeto e as variáveis de ambiente já cadastradas
-      # na Vercel — é assim que CURADORIA_CSV_URL entra no build.
+      # na Vercel — é assim que CURADORIA_CSV_URL entra no build. Os IDs do env
+      # acima é que dizem qual projeto; não há `vercel link` porque ele exige
+      # resolver um usuário, coisa que um token de projeto não tem.
       - name: Buscar a configuração do projeto
         run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
 

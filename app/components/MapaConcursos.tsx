@@ -6,10 +6,13 @@
 // notícias do monitor).
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import BancaLink from "./BancaLink";
-import ModalCadastro from "./ModalCadastro";
+import BotaoEdital from "./BotaoEdital";
+import BotaoImls, { type ImlsEstado } from "./BotaoImls";
+import Modal from "./Modal";
+import ModalAcesso from "./ModalAcesso";
 import { NIVEL_COR, NIVEL_LABEL, NIVEL_TINTA, type Nivel } from "../monitor/lib/tipos";
 import type { AprovacaoSite } from "../lib/aprovadosSite";
 import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
@@ -18,15 +21,7 @@ import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
 const ESTRELA_D =
   "M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7.2L12 17.3 5.8 21l1.6-7.2L2 9.1l7.1-.6z";
 
-/** Os IMLs do estado, como saem no site. */
-export interface ImlsEstado {
-  /**
-   * Total informado no painel. Pode ser maior que a lista: dá para saber que o
-   * estado tem 20 unidades e conhecer o endereço de 8.
-   */
-  total: number | null;
-  unidades: { cidade: string; nome: string | null }[];
-}
+export type { ImlsEstado };
 
 /** O plano de cargos e carreiras do estado, como sai no site. */
 export interface PlanoEstado {
@@ -49,6 +44,8 @@ export interface DetalheEstado {
   plano: PlanoEstado | null;
   /** `null` quando ainda não se cadastrou nenhuma unidade. */
   imls: ImlsEstado | null;
+  /** Link do edital: o publicado quando há, o anterior enquanto não sai. */
+  editalUrl: string | null;
 }
 
 export interface EstadoMapa {
@@ -90,114 +87,184 @@ function formatarData(iso: string | null): string {
   });
 }
 
-/** Tabela do plano de cargos e carreiras do estado. */
-function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
-  const real = (v: number | null) =>
-    v == null
-      ? "—"
-      : v.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-          minimumFractionDigits: 2,
-        });
+/**
+ * Quantas classes cabem no card antes de a tabela dominar tudo o que está
+ * abaixo dela. Passando disso, o resto vai para o pop-up.
+ */
+const CLASSES_NO_CARD = 7;
 
+function reais(v: number | null): string {
+  return v == null
+    ? "—"
+    : v.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2,
+      });
+}
+
+function TabelaPlano({ classes }: { classes: PlanoEstado["classes"] }) {
   return (
-    // Fechado por padrão: a tabela inteira aberta enchia o card e empurrava a
-    // notícia e os aprovados para fora da tela. Quem quer o salário clica.
-    <details className="group mt-4 rounded-xl border border-white/10 bg-white/[0.04]">
-      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 transition hover:bg-white/[0.04]">
-        <span
-          aria-hidden
-          className="text-[10px] text-gray-500 transition-transform group-open:rotate-90"
-        >
-          ▶
-        </span>
-        <span className="text-sm font-bold text-white">Cargos e Carreiras</span>
-        <span className="text-[11px] text-gray-400">
-          {[plano.orgao, plano.ano].filter(Boolean).join(" · ")}
-        </span>
-        <span className="ml-auto text-[11px] text-gray-500">
-          {plano.classes.length} classes
-        </span>
-      </summary>
-
-      <div className="px-4 pb-4">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
-              <th className="pb-1 font-semibold">Classe</th>
-              <th className="pb-1 text-right font-semibold">Subsídio</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {plano.classes.map((c, i) => (
-              <tr key={`${c.classe}-${i}`}>
-                <td className="py-1.5 text-gray-300">{c.classe}</td>
-                <td
-                  className="py-1.5 text-right font-semibold text-white"
-                  style={{ fontVariantNumeric: "tabular-nums" }}
-                >
-                  {real(c.subsidio)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {plano.fonte && (
-          <a
-            href={plano.fonte}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block text-[11px] text-[#ffcd07] hover:underline"
-          >
-            Ver a fonte ↗
-          </a>
-        )}
-      </div>
-    </details>
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
+          <th className="pb-1 font-semibold">Classe</th>
+          <th className="pb-1 text-right font-semibold">Subsídio</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-white/5">
+        {classes.map((c, i) => (
+          <tr key={`${c.classe}-${i}`}>
+            <td className="py-1.5 text-gray-300">{c.classe}</td>
+            <td
+              className="py-1.5 text-right font-semibold text-white"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {reais(c.subsidio)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
-/** Onde ficam os IMLs do estado. Fechado por padrão, como o plano. */
-function DistribuicaoImls({ imls }: { imls: ImlsEstado }) {
-  const total = imls.total ?? imls.unidades.length;
+function LinkFonte({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-2 inline-block text-[11px] text-[#ffcd07] hover:underline"
+    >
+      Ver a fonte ↗
+    </a>
+  );
+}
+
+/** Tabela do plano de cargos e carreiras do estado. */
+function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
+  const [verTudo, setVerTudo] = useState(false);
+
+  const passou = plano.classes.length > CLASSES_NO_CARD;
+  const visiveis = passou ? plano.classes.slice(0, CLASSES_NO_CARD) : plano.classes;
+  const cabecalho = [plano.orgao, plano.ano].filter(Boolean).join(" · ");
 
   return (
-    <details className="group mt-3 rounded-xl border border-white/10 bg-white/[0.04]">
-      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 transition hover:bg-white/[0.04]">
-        <span
-          aria-hidden
-          className="text-[10px] text-gray-500 transition-transform group-open:rotate-90"
+    <>
+      {/* Fechado por padrão: a tabela inteira aberta enchia o card e empurrava
+          a notícia e os aprovados para fora da tela. Quem quer o salário
+          clica. */}
+      <details className="group mt-4 rounded-xl border border-white/10 bg-white/[0.05]">
+        <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 transition hover:bg-white/[0.04]">
+          <span
+            aria-hidden
+            className="text-[10px] text-gray-500 transition-transform group-open:rotate-90"
+          >
+            ▶
+          </span>
+          <span className="text-sm font-bold text-white">Cargos e Carreiras</span>
+          <span className="text-[11px] text-gray-400">{cabecalho}</span>
+          <span className="ml-auto text-[11px] text-gray-500">
+            {plano.classes.length} classes
+          </span>
+        </summary>
+
+        <div className="px-4 pb-4">
+          <TabelaPlano classes={visiveis} />
+
+          {/* Carreiras longas existem — algumas passam de vinte classes.
+              Cortar em sete e jogar o resto no pop-up mantém o card do estado
+              legível sem esconder nada de quem quer a tabela toda. */}
+          {passou && (
+            <button
+              type="button"
+              onClick={() => setVerTudo(true)}
+              className="mt-3 w-full rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-[#ffcd07] transition hover:bg-white/[0.06]"
+            >
+              Ver as {plano.classes.length} classes
+            </button>
+          )}
+
+          {plano.fonte && !passou && <LinkFonte href={plano.fonte} />}
+        </div>
+      </details>
+
+      {/* Fora do <details> de propósito: fechar a seção com o pop-up aberto
+          esconderia o pop-up junto, porque um details fechado some com tudo
+          que não é o summary. */}
+      {verTudo && (
+        <Modal
+          sobretitulo={cabecalho || undefined}
+          titulo="Cargos e Carreiras"
+          aoFechar={() => setVerTudo(false)}
         >
-          ▶
-        </span>
-        <span className="text-sm font-bold text-white">Distribuição dos IMLs</span>
-        <span className="ml-auto text-[11px] text-gray-500">
-          {total} {total === 1 ? "unidade" : "unidades"}
-        </span>
-      </summary>
+          <div className="mt-4">
+            <TabelaPlano classes={plano.classes} />
+            {plano.fonte && <LinkFonte href={plano.fonte} />}
+          </div>
+        </Modal>
+      )}
+    </>
+  );
+}
 
-      <div className="px-4 pb-4">
-        <ul className="flex flex-col divide-y divide-white/5">
-          {imls.unidades.map((u, i) => (
-            <li key={`${u.cidade}-${i}`} className="flex items-baseline gap-2 py-1.5">
-              <span className="text-sm text-gray-200">{u.cidade}</span>
-              {u.nome && <span className="text-[11px] text-gray-500">{u.nome}</span>}
-            </li>
-          ))}
-        </ul>
+/** Quantas linhas do resumo cabem antes de o texto dominar o card. */
+const LINHAS_RESUMO = 3;
 
-        {/* Quando o total informado é maior que a lista, dizer isso é mais
-            honesto do que deixar a pessoa achar que são só estas. */}
-        {imls.total != null && imls.total > imls.unidades.length && (
-          <p className="mt-2 text-[11px] text-gray-500">
-            {imls.unidades.length} de {imls.total} unidades com cidade
-            identificada.
-          </p>
-        )}
-      </div>
-    </details>
+/**
+ * Resumo da notícia, cortado em três linhas com "ler mais".
+ *
+ * O botão só aparece quando o texto realmente passa do corte — um "ler mais"
+ * sob duas linhas é ruído, e a diferença entre resumo curto e longo não dá
+ * para prever daqui: depende da largura da tela e da fonte, então é medida no
+ * próprio elemento.
+ */
+function ResumoNoticia({ texto }: { texto: string }) {
+  const [aberto, setAberto] = useState(false);
+  const [passa, setPassa] = useState(false);
+  const ref = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // Compara com a altura de três linhas, e não com a altura visível: aberto,
+    // o parágrafo não tem corte nenhum, e a comparação com clientHeight diria
+    // que ele não passa — o botão sumiria justamente para quem acabou de
+    // usá-lo, deixando o texto expandido sem como fechar.
+    //
+    // Quem mede é o ResizeObserver, inclusive na primeira vez: ele dispara
+    // sozinho ao começar a observar. Medir aqui direto seria mudar estado
+    // dentro do efeito, que o React desaconselha e o lint barra.
+    const observador = new ResizeObserver(() => {
+      const linha = parseFloat(getComputedStyle(el).lineHeight) || 16;
+      setPassa(el.scrollHeight > linha * LINHAS_RESUMO + 2);
+    });
+    observador.observe(el);
+    return () => observador.disconnect();
+  }, []);
+
+  return (
+    <>
+      <p
+        ref={ref}
+        className={`mt-2 break-words text-xs leading-relaxed text-gray-400 [overflow-wrap:anywhere] ${
+          aberto ? "" : "line-clamp-3"
+        }`}
+      >
+        {texto}
+      </p>
+      {passa && (
+        <button
+          type="button"
+          onClick={() => setAberto((v) => !v)}
+          className="mt-1 text-[11px] font-semibold text-[#ffcd07] hover:underline"
+        >
+          {aberto ? "Ler menos" : "Ler mais"}
+        </button>
+      )}
+    </>
   );
 }
 
@@ -230,6 +297,7 @@ export default function MapaConcursos({
     historico: detalheAtual?.historico ?? null,
     plano: detalheAtual?.plano ?? null,
     imls: detalheAtual?.imls ?? null,
+    editalUrl: detalheAtual?.editalUrl ?? null,
   };
 
   /**
@@ -252,7 +320,7 @@ export default function MapaConcursos({
   }
 
   return (
-    <section className="bg-[#0b0b0d] py-12 sm:py-16" id="radar">
+    <section className="relative z-10 py-12 sm:py-16" id="radar">
       <div className="mx-auto max-w-5xl px-4">
         <div className="mb-8 text-center">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffcd07]">
@@ -379,7 +447,10 @@ export default function MapaConcursos({
 
           {/* Painel do estado selecionado */}
           {sel && (
-            <div className="w-full min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+            // Opaco, e não translúcido: o fundo de constelação passa por
+            // trás desta seção, e um card transparente deixava as linhas
+            // cruzarem a notícia e a tabela de salários.
+            <div className="w-full min-w-0 rounded-2xl border border-white/10 bg-[#121215] p-6">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   {sel.imagemUrl ? (
@@ -466,8 +537,13 @@ export default function MapaConcursos({
                 <PlanoCarreira plano={sel.plano} />
               )}
 
-              {sel.imls && sel.imls.unidades.length > 0 && (
-                <DistribuicaoImls imls={sel.imls} />
+              {(sel.imls || sel.editalUrl) && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {sel.imls && <BotaoImls imls={sel.imls} estado={sel.nome} />}
+                  {sel.editalUrl && (
+                    <BotaoEdital url={sel.editalUrl} nivel={sel.nivel} />
+                  )}
+                </div>
               )}
 
               {aprovados[sel.uf] && (
@@ -528,9 +604,10 @@ export default function MapaConcursos({
                   <p className="text-sm font-semibold leading-snug text-white">
                     {sel.destaque.titulo}
                   </p>
-                  <p className="mt-2 break-words text-xs leading-relaxed text-gray-400 line-clamp-6 [overflow-wrap:anywhere]">
-                    {sel.destaque.resumo}
-                  </p>
+                  {/* `key` remonta o resumo ao trocar de estado no mapa, que
+                      é como o React zera "aberto" sem um efeito só para isso —
+                      senão o estado novo herdaria o expandido do anterior. */}
+                  <ResumoNoticia key={sel.uf} texto={sel.destaque.resumo} />
                   <p className="mt-2 text-[11px] font-medium text-gray-500">
                     Fonte: {sel.destaque.fonte}
                   </p>
@@ -556,11 +633,11 @@ export default function MapaConcursos({
       </div>
 
       {pedindoCadastro && (
-        <ModalCadastro
+        <ModalAcesso
           estado={porUf.get(pedindoCadastro)?.nome ?? null}
           uf={pedindoCadastro}
-          onFechar={() => setPedindoCadastro(null)}
-          onSucesso={aposCadastro}
+          aoFechar={() => setPedindoCadastro(null)}
+          aoEntrar={aposCadastro}
         />
       )}
     </section>

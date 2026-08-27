@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
+import Cabecalho from "./components/Cabecalho";
+import FundoConstelacao from "./components/FundoConstelacao";
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { lerImls } from "./lib/imlsRepo";
@@ -73,13 +75,13 @@ export default async function MonitorPage() {
       liberado || e.uf === destaque
         ? {
             ultimaMencao: e.ultimaMencao,
-            destaque: e.mencoes[0]
-              ? {
-                  titulo: e.mencoes[0].titulo,
-                  resumo: e.mencoes[0].resumo,
-                  fonte: e.mencoes[0].fonte,
-                }
-              : null,
+            // O coletor já promove a notícia escolhida no painel ao topo;
+            // procurá-la aqui de novo é barato e deixa a regra explícita onde
+            // ela é lida, em vez de depender de ordenação feita longe daqui.
+            destaque: (() => {
+              const d = e.mencoes.find((m) => m.escolhidaNoPainel) ?? e.mencoes[0];
+              return d ? { titulo: d.titulo, resumo: d.resumo, fonte: d.fonte } : null;
+            })(),
             historico: e.historico
               ? {
                   ultimoEdital: e.historico.ultimoEdital,
@@ -95,24 +97,34 @@ export default async function MonitorPage() {
                   classes: planos[e.uf],
                 }
               : null,
-            imls: imls?.[e.uf]?.length
-              ? { total: e.curadoria?.imlsTotal ?? null, unidades: imls[e.uf] }
-              : null,
+            // Cidades, total e texto são independentes: dá para descrever a
+            // rede sem ter mapeado uma cidade sequer, e o botão "Ver IMLs"
+            // precisa aparecer nos três casos.
+            imls:
+              imls?.[e.uf]?.length ||
+              e.curadoria?.imlsTexto ||
+              e.curadoria?.imlsTotal != null
+                ? {
+                    total: e.curadoria?.imlsTotal ?? null,
+                    texto: e.curadoria?.imlsTexto ?? null,
+                    unidades: imls?.[e.uf] ?? [],
+                  }
+                : null,
+            editalUrl: e.curadoria?.editalUrl ?? null,
           }
         : null,
   }));
 
   return (
     <>
-      {/* Abertura: mapa interativo (radar) */}
-      <header className="bg-[#0b0b0d] pt-10">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="text-lg font-black tracking-tight text-white">
-            <span className="text-[#ffcd07]">Clube</span>Forense
-          </p>
-        </div>
-      </header>
-      <MapaConcursos estados={estadosMapa} aprovados={aprovados} />
+      {/* Abertura: cabeçalho e mapa dividem o mesmo fundo preto, e é este
+          bloco que dá a área do canvas da constelação — por isso a cor de
+          fundo mora aqui, e não em cada um deles. */}
+      <div className="relative bg-[#0b0b0d]">
+        <FundoConstelacao />
+        <Cabecalho liberado={liberado} />
+        <MapaConcursos estados={estadosMapa} aprovados={aprovados} />
+      </div>
 
       {/* Painel detalhado */}
       <main id="painel" className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
@@ -171,7 +183,11 @@ export default async function MonitorPage() {
         {/* O painel é detalhe puro — todas as menções de todos os estados.
             Deixá-lo aberto anularia o cadastro pedido no mapa logo acima. */}
         {liberado ? (
-          <PainelMonitor relatorio={relatorio} aprovados={aprovados} />
+          <PainelMonitor
+            relatorio={relatorio}
+            aprovados={aprovados}
+            imls={imls ?? {}}
+          />
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center">
             <p className="text-lg font-bold text-gray-900">
