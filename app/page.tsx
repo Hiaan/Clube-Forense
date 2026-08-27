@@ -75,13 +75,13 @@ export default async function MonitorPage() {
       liberado || e.uf === destaque
         ? {
             ultimaMencao: e.ultimaMencao,
-            destaque: e.mencoes[0]
-              ? {
-                  titulo: e.mencoes[0].titulo,
-                  resumo: e.mencoes[0].resumo,
-                  fonte: e.mencoes[0].fonte,
-                }
-              : null,
+            // O coletor já promove a notícia escolhida no painel ao topo;
+            // procurá-la aqui de novo é barato e deixa a regra explícita onde
+            // ela é lida, em vez de depender de ordenação feita longe daqui.
+            destaque: (() => {
+              const d = e.mencoes.find((m) => m.escolhidaNoPainel) ?? e.mencoes[0];
+              return d ? { titulo: d.titulo, resumo: d.resumo, fonte: d.fonte } : null;
+            })(),
             historico: e.historico
               ? {
                   ultimoEdital: e.historico.ultimoEdital,

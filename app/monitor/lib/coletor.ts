@@ -32,6 +32,32 @@ import {
 const TIMEOUT_MS = 12_000;
 /** Corte duro: só entram menções dos últimos 2 anos. */
 const JANELA_MAX_DIAS = 730;
+
+/** Quantas menções por estado o site mostra. Mais que isso vira rolagem. */
+const MAX_MENCOES = 8;
+
+/**
+ * A ordem em que as menções de um estado aparecem no site, a partir da lista
+ * já ordenada por data (mais nova primeiro).
+ *
+ * Cronológica, com uma exceção: a notícia escrita no painel vai para o topo,
+ * onde quer que esteja a data dela. Sem isso a escolha editorial só aparecia
+ * quando por acaso fosse a mais recente — qualquer matéria nova do Google a
+ * empurrava para baixo, e passando de oito menções ela sumia de vez, porque o
+ * corte vinha depois da ordenação por data.
+ *
+ * Fora daqui e exportada para poder ser testada sem rede: reproduzir em
+ * desenvolvimento um estado com notícia coletada mais recente que a escolhida
+ * exigiria as fontes externas, que nem sempre estão ao alcance.
+ */
+export function paraExibir(ordenadas: Mencao[]): Mencao[] {
+  const escolhida = ordenadas.find((m) => m.escolhidaNoPainel);
+  if (!escolhida) return ordenadas.slice(0, MAX_MENCOES);
+  return [escolhida, ...ordenadas.filter((m) => m !== escolhida)].slice(
+    0,
+    MAX_MENCOES,
+  );
+}
 /** Até aqui a menção pesa "cheio" no score; depois decai. */
 const DIAS_RELEVANTES = 120;
 
@@ -243,8 +269,12 @@ export async function coletar(): Promise<Relatorio> {
       nome: estado.nome,
       nivel,
       score: Math.round(score),
+      // A data da última movimentação vem da lista em ordem cronológica, e
+      // não da lista exibida: a notícia principal é promovida ao topo logo
+      // abaixo, e sem esta linha "última movimentação" passaria a mostrar a
+      // data em que alguém conferiu o estado, e não a do fato mais recente.
       ultimaMencao: mencoes[0]?.data ?? null,
-      mencoes: mencoes.slice(0, 8),
+      mencoes: paraExibir(mencoes),
       diarioOficial: estado.diarioOficial,
       historico: HISTORICO_CONCURSOS[estado.uf] ?? null,
       curadoria: detalhe

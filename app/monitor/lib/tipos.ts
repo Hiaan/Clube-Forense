@@ -56,6 +56,16 @@ export interface Mencao {
    * ser reconhecida.
    */
   daCuradoria?: boolean;
+  /**
+   * True quando esta é a notícia principal escrita no painel — a escolha
+   * editorial, e não uma coletada.
+   *
+   * Precisa ser uma marca própria, e não "veio da curadoria": todo estado tem
+   * uma menção de curadoria (o andamento), mas só é destaque quem preencheu o
+   * título no painel. O resto continua sendo escolhido pelo robô, que é o que
+   * o próprio formulário promete a quem deixa os campos em branco.
+   */
+  escolhidaNoPainel?: boolean;
 }
 
 /** Histórico do último concurso com o cargo no estado (fonte: QConcursos). */

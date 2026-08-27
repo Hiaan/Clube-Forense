@@ -124,6 +124,7 @@ function mencoesDoBanco(linhas: EstadoCuradoria[]): Mencao[] {
       nivel: l.etapa,
       resumo: l.noticiaResumo?.trim() || l.andamento,
       daCuradoria: true,
+      escolhidaNoPainel: Boolean(l.noticiaTitulo?.trim()),
     }));
 }
 
