@@ -6,7 +6,7 @@
 // notícias do monitor).
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import BancaLink from "./BancaLink";
 import BotaoEdital from "./BotaoEdital";
@@ -204,6 +204,65 @@ function PlanoCarreira({ plano }: { plano: PlanoEstado }) {
             {plano.fonte && <LinkFonte href={plano.fonte} />}
           </div>
         </Modal>
+      )}
+    </>
+  );
+}
+
+/** Quantas linhas do resumo cabem antes de o texto dominar o card. */
+const LINHAS_RESUMO = 3;
+
+/**
+ * Resumo da notícia, cortado em três linhas com "ler mais".
+ *
+ * O botão só aparece quando o texto realmente passa do corte — um "ler mais"
+ * sob duas linhas é ruído, e a diferença entre resumo curto e longo não dá
+ * para prever daqui: depende da largura da tela e da fonte, então é medida no
+ * próprio elemento.
+ */
+function ResumoNoticia({ texto }: { texto: string }) {
+  const [aberto, setAberto] = useState(false);
+  const [passa, setPassa] = useState(false);
+  const ref = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // Compara com a altura de três linhas, e não com a altura visível: aberto,
+    // o parágrafo não tem corte nenhum, e a comparação com clientHeight diria
+    // que ele não passa — o botão sumiria justamente para quem acabou de
+    // usá-lo, deixando o texto expandido sem como fechar.
+    //
+    // Quem mede é o ResizeObserver, inclusive na primeira vez: ele dispara
+    // sozinho ao começar a observar. Medir aqui direto seria mudar estado
+    // dentro do efeito, que o React desaconselha e o lint barra.
+    const observador = new ResizeObserver(() => {
+      const linha = parseFloat(getComputedStyle(el).lineHeight) || 16;
+      setPassa(el.scrollHeight > linha * LINHAS_RESUMO + 2);
+    });
+    observador.observe(el);
+    return () => observador.disconnect();
+  }, []);
+
+  return (
+    <>
+      <p
+        ref={ref}
+        className={`mt-2 break-words text-xs leading-relaxed text-gray-400 [overflow-wrap:anywhere] ${
+          aberto ? "" : "line-clamp-3"
+        }`}
+      >
+        {texto}
+      </p>
+      {passa && (
+        <button
+          type="button"
+          onClick={() => setAberto((v) => !v)}
+          className="mt-1 text-[11px] font-semibold text-[#ffcd07] hover:underline"
+        >
+          {aberto ? "Ler menos" : "Ler mais"}
+        </button>
       )}
     </>
   );
@@ -545,9 +604,10 @@ export default function MapaConcursos({
                   <p className="text-sm font-semibold leading-snug text-white">
                     {sel.destaque.titulo}
                   </p>
-                  <p className="mt-2 break-words text-xs leading-relaxed text-gray-400 line-clamp-6 [overflow-wrap:anywhere]">
-                    {sel.destaque.resumo}
-                  </p>
+                  {/* `key` remonta o resumo ao trocar de estado no mapa, que
+                      é como o React zera "aberto" sem um efeito só para isso —
+                      senão o estado novo herdaria o expandido do anterior. */}
+                  <ResumoNoticia key={sel.uf} texto={sel.destaque.resumo} />
                   <p className="mt-2 text-[11px] font-medium text-gray-500">
                     Fonte: {sel.destaque.fonte}
                   </p>
