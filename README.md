@@ -22,6 +22,8 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Painel do admin (`/admin`)
 
+Publicado em <https://clube-forense-three.vercel.app/admin>.
+
 Onde a curadoria dos 27 estados é editada, a notícia principal de cada estado é
 escolhida e os cadastros feitos pelo mapa são consultados.
 
@@ -48,14 +50,14 @@ dias para consertar o que a notificação tiver perdido.
 | `EDUZZ_WEBHOOK_TOKEN` | Chave de segurança cadastrada junto com a URL da notificação de compra. Sem ela a rota do webhook recusa tudo. |
 
 Na Eduzz, aponte a **notificação de compra** para
-`https://SEU-DOMINIO/api/webhooks/eduzz` e use a mesma chave de segurança da
+`https://clube-forense-three.vercel.app/api/webhooks/eduzz` e use a mesma chave de segurança da
 variável acima.
 
 O primeiro carregamento do histórico é manual, uma vez só:
 
 ```
 curl -H "Authorization: Bearer $CRON_SECRET" \
-  "https://SEU-DOMINIO/api/cron/eduzz?dias=730"
+  "https://clube-forense-three.vercel.app/api/cron/eduzz?dias=730"
 ```
 
 Depois disso o workflow `sincronizar-vendas.yml` cuida do dia a dia.
@@ -76,7 +78,7 @@ O carregamento inicial, uma vez:
 
 ```
 curl -H "Authorization: Bearer $CRON_SECRET" \
-  "https://SEU-DOMINIO/api/cron/meta-ads?dias=365"
+  "https://clube-forense-three.vercel.app/api/cron/meta-ads?dias=365"
 ```
 
 Duas ressalvas que a tela respeita: o gasto é relido a cada dia porque o Meta
