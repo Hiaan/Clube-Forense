@@ -68,7 +68,20 @@ jobs:
             echo "::error::Falta o segredo VERCEL_TOKEN — cadastre em Settings → Secrets and variables → Actions."
             exit 1
           fi
-          echo "O token está presente."
+
+          # O FORMATO do token, nunca o valor. O GitHub esconde o segredo
+          # inteiro no log, mas não um pedaço dele nem sua contagem — e é
+          # justamente isso que distingue as três coisas que a Vercel reporta
+          # com a mesma frase: colado pela metade, colado com quebra de linha,
+          # e revogado. Sem isto, cada tentativa custa uma ida e volta.
+          echo "Começa com: $(printf %s "$TOKEN" | cut -c1-4)   (esperado: vcp_)"
+          echo "Caracteres: $(printf %s "$TOKEN" | wc -c)       (esperado: 28 ou mais)"
+          case "$TOKEN" in
+            *[[:space:]]*)
+              echo "::warning::O valor tem espaço ou quebra de linha no meio — recolar costuma resolver." ;;
+            *)
+              echo "Sem espaços." ;;
+          esac
 
       - name: Baixar o código
         uses: actions/checkout@v4
