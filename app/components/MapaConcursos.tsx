@@ -13,6 +13,7 @@ import BotaoEdital from "./BotaoEdital";
 import BotaoImls, { type ImlsEstado } from "./BotaoImls";
 import Modal from "./Modal";
 import ModalAcesso from "./ModalAcesso";
+import SeletorEstado from "./SeletorEstado";
 import { NIVEL_COR, NIVEL_LABEL, NIVEL_TINTA, type Nivel } from "../monitor/lib/tipos";
 import type { AprovacaoSite } from "../lib/aprovadosSite";
 import { MAPA_CENTROIDES, MAPA_PATHS, MAPA_VIEWBOX } from "./mapaBrasilPaths";
@@ -324,15 +325,33 @@ export default function MapaConcursos({
       <div className="mx-auto max-w-5xl px-4">
         <div className="mb-8 text-center">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#ffcd07]">
-            Radar de Concursos
+            Radar · Médico-Legista
           </p>
+          {/* O verbo fica do NOSSO lado. "Saiba as novidades" pede uma ação de
+              quem lê; a mensagem é o contrário — ele não precisa fazer nada.
+              E são 26 estados MAIS o Distrito Federal: o DF não é estado, e
+              quem lê isto estuda direito constitucional para a prova. */}
           <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
-            Onde o edital de Médico-Legista está mais perto de sair?
+            Vigiamos os 26 estados e o DF. Você só olha o mapa.
           </h2>
+          {/* O subtítulo é o que PROVA a promessa: "buscamos tudo por você" é
+              genérico, nomear as fontes e a frequência é verificável. */}
           <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-400">
-            Clique no seu estado e veja a situação resumida — estágio do edital,
-            última movimentação, histórico e os aprovados do Clube Forense.
+            Notícias, diários oficiais, sites das bancas e o Instagram dos
+            governos — checados de hora em hora. Escolha o seu estado e veja em
+            que pé está o edital.
           </p>
+        </div>
+
+        {/* Acima do mapa, e não abaixo: no celular, embaixo ele só apareceria
+            depois de uma tela inteira de rolagem, que é justamente quem mais
+            precisa dele. */}
+        <div className="mb-6">
+          <SeletorEstado
+            estados={estados}
+            ufSelecionada={ufSelecionada}
+            aoEscolher={abrirEstado}
+          />
         </div>
 
         <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,420px)_1fr] lg:justify-items-center">

@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Monitor de Concursos — Médico-Legista | Clube Forense",
   description:
-    "Radar dos concursos para perito médico-legista nos 27 estados: estágio do edital (estudo, autorização, comissão, banca, edital), curadoria verificada e notícias atualizadas.",
+    "Radar dos concursos para perito médico-legista nas 27 unidades federativas: estágio do edital (estudo, autorização, comissão, banca, edital), curadoria verificada e notícias atualizadas.",
 };
 
 function formatarHora(iso: string): string {
@@ -135,7 +135,7 @@ export default async function MonitorPage() {
           </h1>
           <p className="mt-2 max-w-2xl text-gray-600">
             Rastreamento dos concursos que envolvem o cargo de{" "}
-            <strong>médico-legista</strong> nos 27 estados, no funil real do
+            <strong>médico-legista</strong> nos 26 estados e no DF, no funil real do
             edital: estudo → solicitação → autorização → comissão → banca →
             edital publicado.
           </p>
@@ -192,7 +192,7 @@ export default async function MonitorPage() {
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center">
             <p className="text-lg font-bold text-gray-900">
-              Painel completo dos 27 estados
+              Painel completo dos 26 estados e do DF
             </p>
             <p className="mx-auto mt-2 max-w-md text-sm text-gray-600">
               Todas as menções coletadas, com fonte e data, filtráveis por

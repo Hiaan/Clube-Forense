@@ -7,7 +7,7 @@ const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Monitor de Concursos — Médico-Legista | Clube Forense",
   description:
-    "Radar dos concursos para perito médico-legista nos 27 estados: estágio do edital, curadoria verificada e notícias atualizadas.",
+    "Radar dos concursos para perito médico-legista nas 27 unidades federativas: estágio do edital, curadoria verificada e notícias atualizadas.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
