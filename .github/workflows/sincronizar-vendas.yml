@@ -1,0 +1,53 @@
+name: Sincronizar vendas e anúncios
+
+# Uma vez por dia relê os últimos 30 dias dos dois lados do ROI: as faturas na
+# Eduzz (consertando o que a notificação de compra tiver perdido) e o gasto das
+# campanhas no Meta (que reescreve os números recentes conforme atribui
+# conversões).
+# Usa as mesmas configurações do workflow do monitor (MONITOR_BASE_URL e o
+# secret CRON_SECRET).
+
+on:
+  schedule:
+    - cron: "20 6 * * *" # 06h20 UTC — 03h20 em Brasília, movimento baixo
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "Quantos dias reler (use um número grande para o backfill inicial)"
+        required: false
+        default: "30"
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acionar sincronização das vendas
+        env:
+          BASE_URL: ${{ vars.MONITOR_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DIAS: ${{ inputs.dias || '30' }}
+        run: |
+          if [ -z "$BASE_URL" ]; then
+            echo "::warning::Defina a variável de repositório MONITOR_BASE_URL (ex.: https://seu-projeto.vercel.app)."
+            exit 0
+          fi
+          echo "Acionando $BASE_URL/api/cron/eduzz?dias=$DIAS ..."
+          curl -fsS "$BASE_URL/api/cron/eduzz?dias=$DIAS" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            && echo "" && echo "Vendas sincronizadas."
+
+      - name: Acionar sincronização do gasto com anúncios
+        # Passo separado, e sem `if: success()`, porque a Eduzz cair não é razão
+        # para o custo do Meta ficar desatualizado — e um ROI com faturamento
+        # velho e custo novo mente menos que um ROI com custo faltando.
+        if: always()
+        env:
+          BASE_URL: ${{ vars.MONITOR_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DIAS: ${{ inputs.dias || '30' }}
+        run: |
+          if [ -z "$BASE_URL" ]; then exit 0; fi
+          echo "Acionando $BASE_URL/api/cron/meta-ads?dias=$DIAS ..."
+          curl -fsS "$BASE_URL/api/cron/meta-ads?dias=$DIAS" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            && echo "" && echo "Gasto com anúncios sincronizado."

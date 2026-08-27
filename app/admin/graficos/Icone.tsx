@@ -10,6 +10,7 @@ export type NomeIcone =
   | "pessoas"
   | "estrela"
   | "relogio"
+  | "dinheiro"
   | "externo"
   | "sair";
 
@@ -41,6 +42,13 @@ const CAMINHOS: Record<NomeIcone, React.ReactNode> = {
     <>
       <circle cx="12" cy="12" r="8.5" />
       <path d="M12 7.5V12l3 1.8" />
+    </>
+  ),
+  dinheiro: (
+    <>
+      <rect x="2.5" y="6" width="19" height="12" rx="2" />
+      <circle cx="12" cy="12" r="2.75" />
+      <path d="M6 12h.01M18 12h.01" />
     </>
   ),
   externo: (
