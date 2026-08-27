@@ -99,12 +99,20 @@ export async function semearPlanos(): Promise<string[]> {
           ),
         // O cabeçalho só é preenchido se estiver vazio: quem escreveu o órgão à
         // mão no painel continua com o texto dele.
+        //
+        // Insert, e não update: nem todo estado tem linha em `estados` — ela só
+        // nasce quando alguém salva o estado no painel ou importa a planilha.
+        // Com `update ... where uf = $1`, esses estados recebiam as classes e
+        // perdiam o cabeçalho em silêncio, ficando com a tabela de salários sem
+        // fonte nenhuma. Um salário sem fonte é exatamente o que este
+        // levantamento existe para não ser.
         s.query(
-          `update estados set
-             plano_orgao = coalesce(plano_orgao, $2),
-             plano_ano   = coalesce(plano_ano, $3),
-             plano_fonte = coalesce(plano_fonte, $4)
-           where uf = $1`,
+          `insert into estados (uf, plano_orgao, plano_ano, plano_fonte)
+           values ($1, $2, $3, $4)
+           on conflict (uf) do update set
+             plano_orgao = coalesce(estados.plano_orgao, excluded.plano_orgao),
+             plano_ano   = coalesce(estados.plano_ano, excluded.plano_ano),
+             plano_fonte = coalesce(estados.plano_fonte, excluded.plano_fonte)`,
           [uf, plano.orgao, plano.ano, plano.fonte],
         ),
       ]);
