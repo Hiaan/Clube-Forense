@@ -280,6 +280,116 @@ create table if not exists gastos_ads (
 `,
   "create index if not exists gastos_ads_dia_idx on gastos_ads (dia desc);",
 
+  // ------------------------------------------------------------------------
+  // Ranking de provas
+  // ------------------------------------------------------------------------
+  //
+  // Quando a prova de um estado acontece, o candidato lança o próprio
+  // cartão-resposta aqui e vê como foi diante de quem também lançou. São quatro
+  // tabelas porque são quatro coisas de vidas diferentes: a prova (cadastrada
+  // antes), as matérias (a estrutura do caderno), o gabarito (que costuma sair
+  // dias depois) e as respostas (que chegam na mesma tarde).
+  //
+  // Separar o gabarito das respostas é o que permite o caso normal: a pessoa
+  // lança as respostas no domingo, o gabarito sai na quarta, e a correção
+  // acontece sem ninguém precisar voltar e digitar de novo.
+  `
+create table if not exists provas (
+  id           bigint generated always as identity primary key,
+  uf           text not null,
+  titulo       text not null,
+  data_prova   date,
+  -- Como o caderno é respondido: 'abcde', 'abcd' ou 'ce' (certo/errado).
+  estilo       text not null default 'abcde',
+  -- Estilo Cebraspe: cada errada anula uma certa. Muda a nota, não o cartão.
+  penalidade   boolean not null default false,
+  -- Cadernos/tipos ("Tipo 1, Tipo 2" ou "Branco, Amarelo"), separados por
+  -- vírgula. Vazio quando a prova é única — que é o caso mais comum.
+  tipos        text not null default '',
+  -- É esta coluna que faz o botão aparecer no mapa. Fica no controle do painel
+  -- de propósito: só quem sabe que a prova está acontecendo deve abri-la.
+  aberta       boolean not null default false,
+  -- Vagas do edital e inscritos confirmados pela banca. Os dois juntos são o
+  -- que permite estimar a nota de corte; sem eles, o ranking mostra só a
+  -- distribuição de quem respondeu.
+  vagas        integer,
+  inscritos    integer,
+  criada_em    timestamptz not null default now(),
+  atualizada_em timestamptz not null default now()
+);
+`,
+  "create index if not exists provas_uf_idx on provas (uf, id desc);",
+
+  // A estrutura do caderno: cada matéria ocupa uma faixa de questões. É daqui
+  // que sai o cartão-resposta na tela e a nota por matéria.
+  `
+create table if not exists prova_materias (
+  id          bigint generated always as identity primary key,
+  prova_id    bigint not null references provas(id) on delete cascade,
+  nome        text not null,
+  questao_de  integer not null,
+  questao_ate integer not null,
+  -- Peso da matéria na nota final. numeric, e não float: é o multiplicador de
+  -- uma nota que decide vaga.
+  peso        numeric(6,2) not null default 1,
+  ordem       integer not null default 0
+);
+`,
+  "create index if not exists prova_materias_idx on prova_materias (prova_id, ordem, id);",
+
+  // O gabarito, uma linha por questão. `tipo` vazio quando a prova é única.
+  // 'A'..'E' ou 'C'/'E'; '*' marca questão anulada, que conta certo para todos.
+  `
+create table if not exists prova_gabaritos (
+  prova_id  bigint not null references provas(id) on delete cascade,
+  tipo      text not null default '',
+  questao   integer not null,
+  correta   text not null,
+  primary key (prova_id, tipo, questao)
+);
+`,
+
+  // O cartão-resposta de cada pessoa.
+  //
+  // A chave é (prova, e-mail): a mesma pessoa corrigindo o que digitou não pode
+  // virar dois lugares no ranking. `respostas` é jsonb ({"1":"A","2":"C"}) e não
+  // uma linha por questão — são até duas centenas por cartão, sempre lidas
+  // juntas, e nunca consultadas uma a uma.
+  //
+  // acertos/erros/nota ficam gravados em vez de calculados na leitura porque o
+  // ranking ordena por eles: recalcular 300 cartões a cada abertura de página
+  // seria pagar de novo, a cada visita, uma conta que só muda quando o gabarito
+  // muda.
+  `
+create table if not exists prova_respostas (
+  id            bigint generated always as identity primary key,
+  prova_id      bigint not null references provas(id) on delete cascade,
+  email         text not null,
+  -- Como a pessoa quer ser chamada no ranking. Nunca o e-mail: o ranking é
+  -- visto por outros candidatos.
+  apelido       text not null,
+  tipo          text not null default '',
+  respostas     jsonb not null default '{}'::jsonb,
+  acertos       integer,
+  erros         integer,
+  nota          numeric(8,2),
+  corrigido_em  timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  unique (prova_id, email)
+);
+`,
+  "create index if not exists prova_respostas_ranking_idx on prova_respostas (prova_id, nota desc nulls last, criado_em);",
+
+  // Nota de corte do estado, mostrada no card do mapa.
+  //
+  // É independente do ranking: aqui vai o número oficial, o do concurso passado
+  // ou o que a curadoria apurar. Só aparece com `nota_corte_visivel` marcado —
+  // um número desses sem contexto vira boato, e o rótulo é o contexto.
+  "alter table estados add column if not exists nota_corte numeric(8,2);",
+  "alter table estados add column if not exists nota_corte_rotulo text;",
+  "alter table estados add column if not exists nota_corte_visivel boolean not null default false;",
+
   // Marcos do sistema, em chave/valor. Hoje guarda só quando a coleta de
   // notícias rodou pela última vez; é um lugar para esse tipo de registro não
   // virar uma tabela nova a cada necessidade.

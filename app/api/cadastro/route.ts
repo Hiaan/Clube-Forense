@@ -112,7 +112,9 @@ export async function POST(request: Request) {
       console.error(`Lead não registrado (cadastro seguiu normalmente): ${email}`);
     }
 
-    const sessao = criarSessao();
+    // Com o e-mail: é ele que o ranking usa para saber de quem é cada
+    // cartão-resposta e mostrar "sua posição".
+    const sessao = criarSessao(email);
     return Response.json(
       { ok: true, mensagem: "Cadastro realizado com sucesso." },
       {

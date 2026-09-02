@@ -20,6 +20,15 @@ import { apagarAprovado, salvarAprovado } from "../lib/aprovadosRepo";
 import { salvarEstado, salvarVarios, type EstadoCuradoria } from "../lib/estadosRepo";
 import { salvarImls, type Iml } from "../lib/imlsRepo";
 import { salvarPlano, type ClassePlano } from "../lib/planoRepo";
+import {
+  apagarProva,
+  lerProva,
+  recorrigirProva,
+  salvarGabarito,
+  salvarMaterias,
+  salvarProva,
+} from "../lib/provasRepo";
+import { interpretarGabarito, type EstiloProva, type MateriaProva } from "../lib/ranking";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import type { Nivel } from "../monitor/lib/tipos";
 
@@ -197,6 +206,9 @@ export async function salvarEstadoAcao(
       imlsTexto: texto(dados, "imlsTexto"),
       imlsFonte: texto(dados, "imlsFonte"),
       editalUrl: texto(dados, "editalUrl"),
+      notaCorte: numero(dados, "notaCorte"),
+      notaCorteRotulo: texto(dados, "notaCorteRotulo"),
+      notaCorteVisivel: dados.get("notaCorteVisivel") === "on",
       atualizadoEm: null,
     };
 
@@ -337,6 +349,9 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
       imlsTexto: null,
       imlsFonte: null,
       editalUrl: null,
+      notaCorte: null,
+      notaCorteRotulo: null,
+      notaCorteVisivel: false,
       atualizadoEm: null,
     }));
 
@@ -350,4 +365,220 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
   } catch (e) {
     return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na importação." };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Provas do ranking
+// ---------------------------------------------------------------------------
+
+const ESTILOS: EstiloProva[] = ["abcde", "abcd", "ce"];
+
+/**
+ * As matérias viajam como JSON num campo escondido — mesma solução do plano de
+ * carreira e da lista de IMLs, pelo mesmo motivo: é uma tabela de tamanho
+ * variável dentro de um formulário.
+ */
+function lerMaterias(dados: FormData): MateriaProva[] {
+  const cru = String(dados.get("materias") ?? "").trim();
+  if (!cru) return [];
+  try {
+    const lista = JSON.parse(cru);
+    if (!Array.isArray(lista)) return [];
+    return lista
+      .map((m): MateriaProva => {
+        const peso = Number(m?.peso);
+        return {
+          nome: String(m?.nome ?? "").trim(),
+          questaoDe: Math.max(1, Math.trunc(Number(m?.questaoDe) || 0)),
+          questaoAte: Math.max(1, Math.trunc(Number(m?.questaoAte) || 0)),
+          peso: Number.isFinite(peso) && peso > 0 ? peso : 1,
+        };
+      })
+      .filter((m) => m.nome && m.questaoAte >= m.questaoDe);
+  } catch {
+    return [];
+  }
+}
+
+/** Cria a prova só com o essencial e leva para a tela de edição. */
+export async function criarProvaAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  let id: number;
+  try {
+    await exigirAdmin();
+
+    const uf = String(dados.get("uf") ?? "").trim().toUpperCase();
+    if (!/^[A-Z]{2}$/.test(uf)) return { ok: false, mensagem: "Escolha o estado." };
+
+    const titulo = String(dados.get("titulo") ?? "").trim();
+    if (!titulo) return { ok: false, mensagem: "Dê um nome à prova." };
+
+    id = await salvarProva(null, {
+      uf,
+      titulo,
+      dataProva: texto(dados, "dataProva"),
+      estilo: "abcde",
+      penalidade: false,
+      tipos: "",
+      // Nasce fechada: abrir é o que faz o botão aparecer no mapa, e isso
+      // precisa ser um ato deliberado, depois de as matérias existirem.
+      aberta: false,
+      vagas: null,
+      inscritos: null,
+    });
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao criar." };
+  }
+
+  // Fora do try: `redirect` funciona lançando, e o catch acima o engoliria.
+  revalidatePath("/admin/provas");
+  redirect(`/admin/provas/${id}`);
+}
+
+export async function salvarProvaAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const id = Number(String(dados.get("id") ?? ""));
+    if (!Number.isInteger(id) || id <= 0) return { ok: false, mensagem: "Prova inválida." };
+
+    const uf = String(dados.get("uf") ?? "").trim().toUpperCase();
+    if (!/^[A-Z]{2}$/.test(uf)) return { ok: false, mensagem: "Escolha o estado." };
+
+    const titulo = String(dados.get("titulo") ?? "").trim();
+    if (!titulo) return { ok: false, mensagem: "Dê um nome à prova." };
+
+    const estiloBruto = String(dados.get("estilo") ?? "abcde");
+    const estilo = (ESTILOS.includes(estiloBruto as EstiloProva)
+      ? estiloBruto
+      : "abcde") as EstiloProva;
+
+    const materias = lerMaterias(dados);
+    const aberta = dados.get("aberta") === "on";
+    if (aberta && materias.length === 0) {
+      return {
+        ok: false,
+        mensagem:
+          "Cadastre ao menos uma matéria antes de abrir a prova — sem elas não há cartão-resposta para preencher.",
+      };
+    }
+
+    await salvarProva(id, {
+      uf,
+      titulo,
+      dataProva: texto(dados, "dataProva"),
+      estilo,
+      penalidade: dados.get("penalidade") === "on",
+      tipos: String(dados.get("tipos") ?? "").trim(),
+      aberta,
+      vagas: numero(dados, "vagas"),
+      inscritos: numero(dados, "inscritos"),
+    });
+    await salvarMaterias(id, materias);
+
+    // Peso, faixa de questões e penalidade entram na conta da nota: mexer neles
+    // sem recorrigir deixaria o ranking mostrando notas de uma regra que não
+    // vale mais.
+    const corrigidos = await recorrigirProva(id);
+
+    revalidatePath("/");
+    revalidatePath("/ranking");
+    revalidatePath(`/ranking/${uf}`);
+    revalidatePath("/admin/provas");
+    revalidatePath(`/admin/provas/${id}`);
+
+    return {
+      ok: true,
+      mensagem: corrigidos
+        ? `Prova salva. ${corrigidos} cartão(ões) recorrigido(s).`
+        : "Prova salva.",
+    };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao salvar." };
+  }
+}
+
+/**
+ * Cola o gabarito de um tipo de prova e recorrige todo mundo.
+ *
+ * É a ação que fecha o ciclo: as respostas chegam no domingo, o gabarito na
+ * quarta, e ninguém precisa reenviar nada.
+ */
+export async function salvarGabaritoAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const id = Number(String(dados.get("id") ?? ""));
+    if (!Number.isInteger(id) || id <= 0) return { ok: false, mensagem: "Prova inválida." };
+
+    const prova = await lerProva(id);
+    if (!prova) return { ok: false, mensagem: "Prova não encontrada." };
+
+    const tipo = String(dados.get("tipo") ?? "").trim();
+    if (tipo && !prova.tipos.includes(tipo)) {
+      return { ok: false, mensagem: `“${tipo}” não é um tipo desta prova.` };
+    }
+
+    const primeira = prova.materias.length
+      ? Math.min(...prova.materias.map((m) => m.questaoDe))
+      : 1;
+    const { gabarito, ignorados } = interpretarGabarito(
+      String(dados.get("gabarito") ?? ""),
+      prova.estilo,
+      primeira,
+    );
+
+    await salvarGabarito(id, tipo, gabarito);
+    const corrigidos = await recorrigirProva(id);
+
+    revalidatePath("/ranking");
+    revalidatePath(`/ranking/${prova.uf}`);
+    revalidatePath(`/admin/provas/${id}`);
+
+    const quantas = Object.keys(gabarito).length;
+    if (quantas === 0) {
+      return { ok: true, mensagem: "Gabarito apagado. Os cartões ficaram sem nota." };
+    }
+
+    // Os ignorados são mostrados, e não engolidos: é assim que se descobre que
+    // o PDF da banca trouxe um "12 X" no meio das respostas.
+    const aviso = ignorados.length
+      ? ` Não entendi: ${ignorados.slice(0, 8).join(", ")}${ignorados.length > 8 ? "…" : ""}.`
+      : "";
+    return {
+      ok: true,
+      mensagem: `${quantas} questões no gabarito, ${corrigidos} cartão(ões) corrigido(s).${aviso}`,
+    };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao salvar." };
+  }
+}
+
+export async function apagarProvaAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const id = Number(String(dados.get("id") ?? ""));
+    if (!Number.isInteger(id) || id <= 0) return { ok: false, mensagem: "Prova inválida." };
+
+    await apagarProva(id);
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao remover." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/ranking");
+  revalidatePath("/admin/provas");
+  redirect("/admin/provas");
 }

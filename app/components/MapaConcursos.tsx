@@ -6,6 +6,7 @@
 // notícias do monitor).
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import BancaLink from "./BancaLink";
@@ -47,6 +48,11 @@ export interface DetalheEstado {
   imls: ImlsEstado | null;
   /** Link do edital: o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
+  /**
+   * Nota de corte cadastrada no painel. Já vem filtrada pela visibilidade — o
+   * que o painel não quis mostrar nem chega até aqui.
+   */
+  notaCorte: { valor: number; rotulo: string | null } | null;
 }
 
 export interface EstadoMapa {
@@ -63,6 +69,13 @@ export interface EstadoMapa {
    * código-fonte da página.
    */
   detalhe: DetalheEstado | null;
+  /**
+   * Prova do estado no ranking, quando existe. Fica FORA de `detalhe` de
+   * propósito: o convite para participar é o que dá vontade de entrar, e
+   * escondê-lo atrás do cadastro seria esconder justamente o chamariz. A página
+   * do ranking é que decide o que mostrar a quem ainda não entrou.
+   */
+  ranking: { aberta: boolean } | null;
 }
 
 const LEGENDA: Nivel[] = [
@@ -299,6 +312,7 @@ export default function MapaConcursos({
     plano: detalheAtual?.plano ?? null,
     imls: detalheAtual?.imls ?? null,
     editalUrl: detalheAtual?.editalUrl ?? null,
+    notaCorte: detalheAtual?.notaCorte ?? null,
   };
 
   /**
@@ -552,15 +566,49 @@ export default function MapaConcursos({
                 </div>
               )}
 
+              {sel.notaCorte && (
+                <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                    Nota de corte
+                  </p>
+                  <p className="mt-0.5 text-xl font-black text-white">
+                    {sel.notaCorte.valor.toLocaleString("pt-BR")}
+                  </p>
+                  {sel.notaCorte.rotulo && (
+                    <p className="mt-0.5 text-[11px] text-gray-400">
+                      {sel.notaCorte.rotulo}
+                    </p>
+                  )}
+                </div>
+              )}
+
               {sel.plano && sel.plano.classes.length > 0 && (
                 <PlanoCarreira plano={sel.plano} />
               )}
 
-              {(sel.imls || sel.editalUrl) && (
+              {(sel.imls || sel.editalUrl || sel.ranking) && (
                 <div className="mt-3 flex flex-wrap gap-2">
+                  {/* Primeiro na fila quando a prova está acontecendo: nesse dia
+                      é a única coisa que a pessoa veio fazer aqui. */}
+                  {sel.ranking?.aberta && (
+                    <Link
+                      href={`/ranking/${sel.uf}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#ffcd07] px-3.5 py-2 text-xs font-bold text-gray-900 transition hover:brightness-95"
+                    >
+                      Participar do ranking →
+                    </Link>
+                  )}
                   {sel.imls && <BotaoImls imls={sel.imls} estado={sel.nome} />}
                   {sel.editalUrl && (
                     <BotaoEdital url={sel.editalUrl} nivel={sel.nivel} />
+                  )}
+                  {sel.ranking && !sel.ranking.aberta && (
+                    <Link
+                      href={`/ranking/${sel.uf}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-white/[0.08]"
+                    >
+                      Ranking e notas
+                    </Link>
                   )}
                 </div>
               )}

@@ -9,6 +9,7 @@ export type NomeIcone =
   | "mapa"
   | "pessoas"
   | "estrela"
+  | "podio"
   | "relogio"
   | "dinheiro"
   | "externo"
@@ -38,6 +39,14 @@ const CAMINHOS: Record<NomeIcone, React.ReactNode> = {
     </>
   ),
   estrela: <path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8L12 3.5Z" />,
+  // Pódio: três degraus, o do meio mais alto. É o ranking.
+  podio: (
+    <>
+      <rect x="9" y="4" width="6" height="16" rx="1" />
+      <rect x="3" y="10" width="6" height="10" rx="1" />
+      <rect x="15" y="13" width="6" height="7" rx="1" />
+    </>
+  ),
   relogio: (
     <>
       <circle cx="12" cy="12" r="8.5" />

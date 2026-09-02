@@ -413,6 +413,55 @@ export default function FormEstado({
         <EditorImls inicial={imls} />
       </section>
 
+      {/* ---------- Nota de corte ---------- */}
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
+        <h2 className="mb-1 font-bold text-gray-900">Nota de corte</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          Aparece no card do estado, no mapa. É o número oficial — do concurso
+          passado ou do atual. Não se confunde com a estimativa do ranking, que
+          o próprio sistema calcula a partir dos cartões enviados.
+        </p>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Campo nome="notaCorte" label="Nota de corte" dica="Use ponto ou vírgula. Ex.: 72,5">
+            <input
+              id="notaCorte"
+              name="notaCorte"
+              inputMode="decimal"
+              className={campo}
+              defaultValue={v(inicial?.notaCorte)}
+            />
+          </Campo>
+          <Campo
+            nome="notaCorteRotulo"
+            label="O que é essa nota"
+            dica="Aparece embaixo do número. Ex.: “Ampla concorrência — PC-MA 2019”."
+          >
+            <input
+              id="notaCorteRotulo"
+              name="notaCorteRotulo"
+              className={campo}
+              defaultValue={v(inicial?.notaCorteRotulo)}
+            />
+          </Campo>
+        </div>
+
+        <label className="mt-4 flex items-start gap-3 rounded-xl bg-gray-50 p-3">
+          <input
+            type="checkbox"
+            name="notaCorteVisivel"
+            defaultChecked={inicial?.notaCorteVisivel ?? false}
+            className="mt-0.5 h-4 w-4"
+          />
+          <span className="text-sm text-gray-700">
+            <strong>Mostrar no site</strong> — sem isto marcado o número fica
+            guardado aqui e não aparece para ninguém. É o interruptor: nota de
+            corte sem contexto vira boato, e às vezes você tem o número antes de
+            ter certeza do que ele significa.
+          </span>
+        </label>
+      </section>
+
       {/* ---------- Histórico ---------- */}
       <section className="rounded-2xl border border-gray-200 bg-white p-5">
         <h2 className="mb-1 font-bold text-gray-900">Histórico</h2>

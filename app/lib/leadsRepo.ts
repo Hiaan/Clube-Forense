@@ -107,6 +107,27 @@ function daLinha(l: Record<string, unknown>): Lead {
 }
 
 /** Leads mais recentes primeiro. `null` quando o banco não respondeu. */
+/**
+ * O nome que a pessoa deu no cadastro. Serve para sugerir o apelido do ranking
+ * já preenchido — ninguém quer digitar o próprio nome de novo.
+ *
+ * `null` quando não há lead (quem entrou pelo login sem nunca ter se cadastrado
+ * aqui) ou quando o banco falhou; nos dois casos o campo abre vazio.
+ */
+export async function nomeDoLead(email: string): Promise<string | null> {
+  if (!bancoConfigurado()) return null;
+  try {
+    await garantirEsquema();
+    const linhas = (await sql().query("select nome from leads where email = $1", [
+      email.trim().toLowerCase(),
+    ])) as Record<string, unknown>[];
+    const nome = linhas[0]?.nome;
+    return nome ? String(nome) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function listarLeads(limite = 500): Promise<Lead[] | null> {
   if (!bancoConfigurado()) return null;
   try {

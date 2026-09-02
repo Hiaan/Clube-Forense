@@ -1,12 +1,13 @@
 "use client";
 
-// Cabeçalho do site: a marca e os três caminhos que a pessoa pode querer daqui.
+// Cabeçalho do site: a marca e os caminhos que a pessoa pode querer daqui.
 //
 // O "Entrar" existe para quem já é aluno não precisar esbarrar no muro antes de
 // ser convidado a entrar — antes, a única porta era clicar num estado bloqueado
 // e esperar o pop-up aparecer. Depois de entrar ele some, porque não há mais
 // nada para liberar.
 
+import Link from "next/link";
 import { useState } from "react";
 
 import ModalAcesso from "./ModalAcesso";
@@ -29,6 +30,11 @@ export default function Cabecalho({ liberado }: { liberado: boolean }) {
         </p>
 
         <nav className="flex flex-wrap items-center justify-center gap-2">
+          {/* Link interno, e não <a>: é página nossa, e o Link evita recarregar
+              o site inteiro para ir ao ranking e voltar. */}
+          <Link href="/ranking" className={externo}>
+            Ranking e Notas
+          </Link>
           <a href={PLATAFORMA} target="_blank" rel="noopener noreferrer" className={externo}>
             Plataforma do aluno ↗
           </a>

@@ -108,6 +108,9 @@ export interface DetalheCuradoria {
   imlsFonte: string | null;
   /** Link do edital — o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
+  /** Nota de corte do estado, e o que ela é. `null` quando o painel não quis mostrar. */
+  notaCorte: number | null;
+  notaCorteRotulo: string | null;
 }
 
 /** De onde saiu a curadoria nesta geração. */

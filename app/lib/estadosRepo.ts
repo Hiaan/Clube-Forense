@@ -52,6 +52,14 @@ export interface EstadoCuradoria {
   imlsFonte: string | null;
   /** Link do edital — o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
+  /**
+   * Nota de corte mostrada no card do estado. Só aparece com `notaCorteVisivel`
+   * marcado: um número desses sem contexto vira boato, e `notaCorteRotulo` é o
+   * contexto ("Ampla concorrência, concurso de 2019").
+   */
+  notaCorte: number | null;
+  notaCorteRotulo: string | null;
+  notaCorteVisivel: boolean;
   atualizadoEm: string | null;
 }
 
@@ -101,6 +109,9 @@ function daLinha(l: Record<string, unknown>): EstadoCuradoria {
     imlsTexto: texto(l.imls_texto),
     imlsFonte: texto(l.imls_fonte),
     editalUrl: texto(l.edital_url),
+    notaCorte: numero(l.nota_corte),
+    notaCorteRotulo: texto(l.nota_corte_rotulo),
+    notaCorteVisivel: Boolean(l.nota_corte_visivel),
     atualizadoEm: l.atualizado_em ? new Date(String(l.atualizado_em)).toISOString() : null,
   };
 }
@@ -115,6 +126,7 @@ const COLUNAS = [
   "noticia_titulo", "noticia_resumo", "noticia_fonte", "noticia_link",
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
   "imls_texto", "imls_fonte", "edital_url",
+  "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
 ] as const;
 
 function paraValores(e: EstadoCuradoria): unknown[] {
@@ -129,6 +141,7 @@ function paraValores(e: EstadoCuradoria): unknown[] {
     e.noticiaTitulo, e.noticiaResumo, e.noticiaFonte, e.noticiaLink,
     e.imagemUrl, e.planoOrgao, e.planoAno, e.planoFonte, e.imlsTotal,
     e.imlsTexto, e.imlsFonte, e.editalUrl,
+    e.notaCorte, e.notaCorteRotulo, e.notaCorteVisivel,
   ];
 }
 
@@ -139,6 +152,7 @@ const COLUNAS_NOTICIA = new Set([
   // planilha não os conhece.
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
   "imls_texto", "imls_fonte", "edital_url",
+  "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
 ]);
 
 /**

@@ -7,6 +7,7 @@ import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { lerImls } from "./lib/imlsRepo";
 import { lerPlanos } from "./lib/planoRepo";
+import { lerProvaPorUf } from "./lib/provasRepo";
 import { lerUltimaColeta } from "./lib/sistemaRepo";
 import { NOME_COOKIE, sessaoValida } from "./lib/sessao";
 import PainelMonitor from "./monitor/PainelMonitor";
@@ -49,13 +50,14 @@ const ORDEM_RESUMO: Nivel[] = [
 ];
 
 export default async function MonitorPage() {
-  const [relatorio, jar, aprovados, planos, imls, coleta] = await Promise.all([
+  const [relatorio, jar, aprovados, planos, imls, coleta, provas] = await Promise.all([
     coletar(),
     cookies(),
     obterAprovadosSite(),
     lerPlanos(),
     lerImls(),
     lerUltimaColeta(),
+    lerProvaPorUf(),
   ]);
   const liberado = sessaoValida(jar.get(NOME_COOKIE)?.value);
 
@@ -112,8 +114,18 @@ export default async function MonitorPage() {
                   }
                 : null,
             editalUrl: e.curadoria?.editalUrl ?? null,
+            notaCorte:
+              e.curadoria?.notaCorte != null
+                ? {
+                    valor: e.curadoria.notaCorte,
+                    rotulo: e.curadoria.notaCorteRotulo,
+                  }
+                : null,
           }
         : null,
+    // Fora do `detalhe`: o convite para o ranking aparece para todo mundo, e é
+    // a página do ranking que pede o cadastro na hora de lançar o cartão.
+    ranking: provas[e.uf] ? { aberta: provas[e.uf].aberta } : null,
   }));
 
   return (

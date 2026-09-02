@@ -36,8 +36,10 @@ function erro(mensagem: string, status: number, extra: object = {}) {
   return Response.json({ ok: false, mensagem, ...extra }, { status });
 }
 
-function abrirSessao() {
-  const sessao = criarSessao();
+function abrirSessao(email: string) {
+  // O e-mail vai dentro do cookie: o ranking precisa saber de quem é cada
+  // cartão-resposta, e este é o único momento em que sabemos.
+  const sessao = criarSessao(email);
   return Response.json(
     { ok: true, mensagem: "Acesso liberado." },
     {
@@ -112,7 +114,7 @@ export async function POST(request: Request) {
     if (!confere) return erro("E-mail ou senha incorretos.", 401);
 
     await marcarRetornoLead(email, uf);
-    return abrirSessao();
+    return abrirSessao(email);
   }
 
   // Modo 2. `precisaCadastro` diz ao front para já abrir o formulário completo
@@ -124,5 +126,5 @@ export async function POST(request: Request) {
     });
   }
 
-  return abrirSessao();
+  return abrirSessao(email);
 }
