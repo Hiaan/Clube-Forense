@@ -66,6 +66,8 @@ export interface EstadoCuradoria {
   taf: boolean | null;
   /** O que caiu para médico-legista, em texto livre. */
   materias: string | null;
+  /** As fases do certame. Não confundir com `etapa`, que é o estágio do funil. */
+  etapasConcurso: string | null;
   /** True quando a ficha descreve o concurso anterior, e não o atual. */
   infoAnterior: boolean;
   atualizadoEm: string | null;
@@ -124,6 +126,7 @@ function daLinha(l: Record<string, unknown>): EstadoCuradoria {
     // Três estados: o banco devolve null quando ninguém informou.
     taf: l.taf == null ? null : Boolean(l.taf),
     materias: texto(l.materias),
+    etapasConcurso: texto(l.etapas_concurso),
     infoAnterior: Boolean(l.info_anterior),
     atualizadoEm: l.atualizado_em ? new Date(String(l.atualizado_em)).toISOString() : null,
   };
@@ -140,7 +143,7 @@ const COLUNAS = [
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
   "imls_texto", "imls_fonte", "edital_url",
   "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
-  "salario_final", "taf", "materias", "info_anterior",
+  "salario_final", "taf", "materias", "etapas_concurso", "info_anterior",
 ] as const;
 
 function paraValores(e: EstadoCuradoria): unknown[] {
@@ -156,7 +159,7 @@ function paraValores(e: EstadoCuradoria): unknown[] {
     e.imagemUrl, e.planoOrgao, e.planoAno, e.planoFonte, e.imlsTotal,
     e.imlsTexto, e.imlsFonte, e.editalUrl,
     e.notaCorte, e.notaCorteRotulo, e.notaCorteVisivel,
-    e.salarioFinal, e.taf, e.materias, e.infoAnterior,
+    e.salarioFinal, e.taf, e.materias, e.etapasConcurso, e.infoAnterior,
   ];
 }
 
@@ -168,7 +171,7 @@ const COLUNAS_NOTICIA = new Set([
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
   "imls_texto", "imls_fonte", "edital_url",
   "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
-  "salario_final", "taf", "materias", "info_anterior",
+  "salario_final", "taf", "materias", "etapas_concurso", "info_anterior",
 ]);
 
 /**

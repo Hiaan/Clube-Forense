@@ -42,12 +42,27 @@ function faixa(inicial: number | null, final: number | null): string | null {
   return null;
 }
 
-/** Vagas: imediatas e CR são coisas diferentes e a pessoa precisa das duas. */
+/**
+ * Vagas: o total na frente, a divisão entre parênteses.
+ *
+ * "80 vagas (25 imediatas e 55 CR)" e não "25 imediatas + 55 em cadastro de
+ * reserva". O número que a pessoa procura, e que ela vai repetir para os
+ * amigos, é o total — mas ele sozinho engana, porque metade costuma ser
+ * cadastro de reserva. Os dois juntos, nessa ordem, dão a manchete e a letra
+ * miúda de uma vez.
+ */
 function vagas(imediatas: number | null, cr: number | null): string | null {
-  const partes: string[] = [];
-  if (imediatas != null) partes.push(`${imediatas} imediata${imediatas === 1 ? "" : "s"}`);
-  if (cr != null) partes.push(`${cr} em cadastro de reserva`);
-  return partes.length ? partes.join(" + ") : null;
+  if (imediatas != null && cr != null) {
+    const total = imediatas + cr;
+    return `${total} ${total === 1 ? "vaga" : "vagas"} (${imediatas} imediatas e ${cr} CR)`;
+  }
+  // Com um número só não há total a somar: dizer qual dos dois é continua
+  // sendo a informação, e é o que muda a decisão de prestar.
+  if (imediatas != null) {
+    return `${imediatas} ${imediatas === 1 ? "vaga imediata" : "vagas imediatas"}`;
+  }
+  if (cr != null) return `${cr} em cadastro de reserva`;
+  return null;
 }
 
 function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
@@ -119,6 +134,17 @@ export default function BotaoInfo({
               <Linha key={l.rotulo} rotulo={l.rotulo} valor={l.valor} />
             ))}
           </div>
+
+          {ficha.etapasConcurso && (
+            <div className="mt-5 border-t border-white/10 pt-4">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500">
+                Etapas do concurso
+              </p>
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-gray-300">
+                {ficha.etapasConcurso}
+              </p>
+            </div>
+          )}
 
           {ficha.materias && (
             <div className="mt-5 border-t border-white/10 pt-4">

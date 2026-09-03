@@ -101,6 +101,7 @@ function CartaoEstado({
     banca: estado.curadoria?.banca ?? estado.historico?.banca ?? null,
     taf: estado.curadoria?.taf ?? null,
     materias: estado.curadoria?.materias ?? null,
+    etapasConcurso: estado.curadoria?.etapasConcurso ?? null,
     cargaHoraria: estado.curadoria?.cargaHoraria ?? null,
     inscricoesAte: estado.curadoria?.inscricoesAte ?? null,
     dataProva: estado.curadoria?.dataProva ?? null,

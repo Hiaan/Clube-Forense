@@ -217,6 +217,7 @@ export async function salvarEstadoAcao(
         return v === "sim" ? true : v === "nao" ? false : null;
       })(),
       materias: texto(dados, "materias"),
+      etapasConcurso: texto(dados, "etapasConcurso"),
       infoAnterior: dados.get("infoAnterior") === "on",
       atualizadoEm: null,
     };
@@ -364,6 +365,7 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
       salarioFinal: null,
       taf: null,
       materias: null,
+      etapasConcurso: null,
       infoAnterior: false,
       atualizadoEm: null,
     }));

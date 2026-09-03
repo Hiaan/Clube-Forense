@@ -296,6 +296,15 @@ create table if not exists gastos_ads (
   // candidato é a lista como o edital a escreve.
   "alter table estados add column if not exists materias text;",
 
+  // As fases do certame, em texto livre: objetiva, discursiva, TAF, títulos,
+  // psicotécnico, investigação social, curso de formação.
+  //
+  // `etapas_concurso`, e não `etapas`: a coluna `etapa` (singular) já existe
+  // nesta tabela e é o estágio do funil do edital. Duas colunas com nomes
+  // separados por um "s" e significados sem relação nenhuma é armadilha para
+  // quem escrever SQL aqui daqui a seis meses.
+  "alter table estados add column if not exists etapas_concurso text;",
+
   // Liga o aviso de que a ficha descreve o concurso ANTERIOR. Enquanto o edital
   // novo não sai, é o dado que existe — e mostrá-lo sem dizer de quando é seria
   // deixar a pessoa estudar para uma prova que já passou.

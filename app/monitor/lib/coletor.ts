@@ -305,6 +305,7 @@ export async function coletar(): Promise<Relatorio> {
             salarioFinal: detalhe.salarioFinal,
             taf: detalhe.taf,
             materias: detalhe.materias,
+            etapasConcurso: detalhe.etapasConcurso,
             infoAnterior: detalhe.infoAnterior,
             ultimoEdital: detalhe.ultimoEdital,
           }

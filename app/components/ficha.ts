@@ -19,6 +19,8 @@ export interface FichaConcurso {
   /** `null` é "não conferimos", e não "não tem". */
   taf: boolean | null;
   materias: string | null;
+  /** As fases do certame, uma por linha. */
+  etapasConcurso: string | null;
   cargaHoraria: number | null;
   inscricoesAte: string | null;
   dataProva: string | null;
@@ -46,6 +48,7 @@ export function fichaTemConteudo(f: FichaConcurso): boolean {
     f.taf != null ||
     Boolean(f.banca) ||
     Boolean(f.materias) ||
+    Boolean(f.etapasConcurso) ||
     Boolean(f.especialidades) ||
     Boolean(f.inscricoesAte) ||
     Boolean(f.dataProva)

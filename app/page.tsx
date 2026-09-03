@@ -136,6 +136,7 @@ export default async function MonitorPage() {
               banca: e.curadoria?.banca ?? e.historico?.banca ?? null,
               taf: e.curadoria?.taf ?? null,
               materias: e.curadoria?.materias ?? null,
+              etapasConcurso: e.curadoria?.etapasConcurso ?? null,
               cargaHoraria: e.curadoria?.cargaHoraria ?? null,
               inscricoesAte: e.curadoria?.inscricoesAte ?? null,
               dataProva: e.curadoria?.dataProva ?? null,

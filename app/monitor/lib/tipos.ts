@@ -117,6 +117,8 @@ export interface DetalheCuradoria {
   taf: boolean | null;
   /** O que caiu para médico-legista, em texto livre. */
   materias: string | null;
+  /** As fases do certame — objetiva, TAF, títulos, curso de formação. */
+  etapasConcurso: string | null;
   /** True quando a ficha é do concurso anterior. */
   infoAnterior: boolean;
   /** Data do último edital (ISO), para nomear de quando é a ficha antiga. */

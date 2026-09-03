@@ -274,7 +274,11 @@ export default function FormEstado({
           <Campo nome="vagasImediatas" label="Vagas imediatas">
             <input id="vagasImediatas" name="vagasImediatas" type="number" className={campo} defaultValue={v(inicial?.vagasImediatas)} />
           </Campo>
-          <Campo nome="vagasCr" label="Cadastro de reserva">
+          <Campo
+            nome="vagasCr"
+            label="Cadastro de reserva"
+            dica="Somado às imediatas na ficha: 25 + 55 aparece como “80 vagas (25 imediatas e 55 CR)”."
+          >
             <input id="vagasCr" name="vagasCr" type="number" className={campo} defaultValue={v(inicial?.vagasCr)} />
           </Campo>
           <Campo nome="salarioInicial" label="Salário inicial (R$)">
@@ -441,6 +445,22 @@ export default function FormEstado({
               <option value="sim">Sim, tem TAF</option>
               <option value="nao">Não tem TAF</option>
             </select>
+          </Campo>
+        </div>
+
+        <div className="mb-5">
+          <Campo
+            nome="etapasConcurso"
+            label="Etapas do concurso"
+            dica="Uma por linha: prova objetiva, discursiva, TAF, títulos, psicotécnico, investigação social, curso de formação. Quem só sabe da objetiva se planeja errado."
+          >
+            <textarea
+              id="etapasConcurso"
+              name="etapasConcurso"
+              rows={4}
+              className={campo}
+              defaultValue={v(inicial?.etapasConcurso)}
+            />
           </Campo>
         </div>
 
