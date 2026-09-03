@@ -111,6 +111,16 @@ export interface DetalheCuradoria {
   /** Nota de corte do estado, e o que ela é. `null` quando o painel não quis mostrar. */
   notaCorte: number | null;
   notaCorteRotulo: string | null;
+  /** Teto da carreira; o piso é `salarioInicial`. */
+  salarioFinal: number | null;
+  /** TAF. `null` é "não conferimos", e não "não tem". */
+  taf: boolean | null;
+  /** O que caiu para médico-legista, em texto livre. */
+  materias: string | null;
+  /** True quando a ficha é do concurso anterior. */
+  infoAnterior: boolean;
+  /** Data do último edital (ISO), para nomear de quando é a ficha antiga. */
+  ultimoEdital: string | null;
 }
 
 /** De onde saiu a curadoria nesta geração. */

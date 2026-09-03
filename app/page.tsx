@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 import Cabecalho from "./components/Cabecalho";
 import FundoConstelacao from "./components/FundoConstelacao";
+import { anoDoEdital } from "./components/ficha";
 import MapaConcursos, { type EstadoMapa } from "./components/MapaConcursos";
 import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { lerImls } from "./lib/imlsRepo";
@@ -121,6 +122,30 @@ export default async function MonitorPage() {
                     rotulo: e.curadoria.notaCorteRotulo,
                   }
                 : null,
+            // O estágio vai traduzido: a ficha é lida por quem não sabe o que
+            // significa "comissao" na nossa lista de níveis.
+            ficha: {
+              estagio: NIVEL_LABEL[e.nivel],
+              salarioInicial: e.curadoria?.salarioInicial ?? null,
+              salarioFinal: e.curadoria?.salarioFinal ?? null,
+              vagasImediatas: e.curadoria?.vagasImediatas ?? null,
+              vagasCr: e.curadoria?.vagasCr ?? null,
+              // Sem banca do concurso atual, vale a do anterior — que é
+              // exatamente o caso que o aviso "dados do concurso anterior"
+              // existe para nomear.
+              banca: e.curadoria?.banca ?? e.historico?.banca ?? null,
+              taf: e.curadoria?.taf ?? null,
+              materias: e.curadoria?.materias ?? null,
+              cargaHoraria: e.curadoria?.cargaHoraria ?? null,
+              inscricoesAte: e.curadoria?.inscricoesAte ?? null,
+              dataProva: e.curadoria?.dataProva ?? null,
+              especialidades: e.curadoria?.especialidades ?? null,
+              doAnterior: e.curadoria?.infoAnterior ?? false,
+              anoAnterior: anoDoEdital(
+                e.curadoria?.ultimoEdital ?? null,
+                e.historico?.ultimoEdital ?? null,
+              ),
+            },
           }
         : null,
     // Fora do `detalhe`: o convite para o ranking aparece para todo mundo, e é

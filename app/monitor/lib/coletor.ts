@@ -302,6 +302,11 @@ export async function coletar(): Promise<Relatorio> {
             // do servidor, em vez de viajar até a tela e ser escondido lá.
             notaCorte: detalhe.notaCorteVisivel ? detalhe.notaCorte : null,
             notaCorteRotulo: detalhe.notaCorteVisivel ? detalhe.notaCorteRotulo : null,
+            salarioFinal: detalhe.salarioFinal,
+            taf: detalhe.taf,
+            materias: detalhe.materias,
+            infoAnterior: detalhe.infoAnterior,
+            ultimoEdital: detalhe.ultimoEdital,
           }
         : null,
     };

@@ -12,6 +12,8 @@ import Avatar from "./Avatar";
 import BancaLink from "./BancaLink";
 import BotaoEdital from "./BotaoEdital";
 import BotaoImls, { type ImlsEstado } from "./BotaoImls";
+import BotaoInfo from "./BotaoInfo";
+import { fichaTemConteudo, type FichaConcurso } from "./ficha";
 import Modal from "./Modal";
 import ModalAcesso from "./ModalAcesso";
 import SeletorEstado from "./SeletorEstado";
@@ -53,6 +55,8 @@ export interface DetalheEstado {
    * que o painel não quis mostrar nem chega até aqui.
    */
   notaCorte: { valor: number; rotulo: string | null } | null;
+  /** Ficha do concurso — estágio, salário, vagas, banca, TAF, matérias. */
+  ficha: FichaConcurso;
 }
 
 export interface EstadoMapa {
@@ -313,6 +317,7 @@ export default function MapaConcursos({
     imls: detalheAtual?.imls ?? null,
     editalUrl: detalheAtual?.editalUrl ?? null,
     notaCorte: detalheAtual?.notaCorte ?? null,
+    ficha: detalheAtual?.ficha ?? null,
   };
 
   /**
@@ -353,7 +358,7 @@ export default function MapaConcursos({
           <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-400">
             Notícias, diários oficiais, sites das bancas e o Instagram dos
             governos — checados de hora em hora. Escolha o seu estado e veja em
-            que pé está o edital.
+            que etapa está o edital.
           </p>
         </div>
 
@@ -518,16 +523,22 @@ export default function MapaConcursos({
                 </span>
               </div>
 
+              {/* Com o edital na rua, a barra deixa de medir distância: não há
+                  mais o que percorrer. Ela fecha em 100% e troca de rótulo —
+                  "proximidade do edital: 92/100" para um estado cujo edital
+                  JÁ SAIU é a tela contradizendo a própria manchete. */}
               <div className="mt-5">
                 <div className="mb-1 flex justify-between text-[11px] text-gray-400">
-                  <span>Proximidade do edital</span>
-                  <span>{sel.score}/100</span>
+                  <span>
+                    {sel.nivel === "edital" ? "Edital publicado" : "Proximidade do edital"}
+                  </span>
+                  <span>{sel.nivel === "edital" ? "100/100" : `${sel.score}/100`}</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
-                      width: `${sel.score}%`,
+                      width: sel.nivel === "edital" ? "100%" : `${sel.score}%`,
                       backgroundColor: sel.nivel === "sem" ? "#3d3833" : NIVEL_COR[sel.nivel],
                     }}
                   />
@@ -586,7 +597,10 @@ export default function MapaConcursos({
                 <PlanoCarreira plano={sel.plano} />
               )}
 
-              {(sel.imls || sel.editalUrl || sel.ranking) && (
+              {(sel.imls ||
+                sel.editalUrl ||
+                sel.ranking ||
+                (sel.ficha && fichaTemConteudo(sel.ficha))) && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {/* Primeiro na fila quando a prova está acontecendo: nesse dia
                       é a única coisa que a pessoa veio fazer aqui. */}
@@ -599,6 +613,9 @@ export default function MapaConcursos({
                     </Link>
                   )}
                   {sel.imls && <BotaoImls imls={sel.imls} estado={sel.nome} />}
+                  {sel.ficha && fichaTemConteudo(sel.ficha) && (
+                    <BotaoInfo ficha={sel.ficha} estado={sel.nome} />
+                  )}
                   {sel.editalUrl && (
                     <BotaoEdital url={sel.editalUrl} nivel={sel.nivel} />
                   )}

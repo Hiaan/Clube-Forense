@@ -209,6 +209,15 @@ export async function salvarEstadoAcao(
       notaCorte: numero(dados, "notaCorte"),
       notaCorteRotulo: texto(dados, "notaCorteRotulo"),
       notaCorteVisivel: dados.get("notaCorteVisivel") === "on",
+      salarioFinal: numero(dados, "salarioFinal"),
+      // A lista suspensa manda "sim", "nao" ou "" — e o vazio precisa chegar ao
+      // banco como null, que é o "não conferimos".
+      taf: (() => {
+        const v = String(dados.get("taf") ?? "");
+        return v === "sim" ? true : v === "nao" ? false : null;
+      })(),
+      materias: texto(dados, "materias"),
+      infoAnterior: dados.get("infoAnterior") === "on",
       atualizadoEm: null,
     };
 
@@ -352,6 +361,10 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
       notaCorte: null,
       notaCorteRotulo: null,
       notaCorteVisivel: false,
+      salarioFinal: null,
+      taf: null,
+      materias: null,
+      infoAnterior: false,
       atualizadoEm: null,
     }));
 

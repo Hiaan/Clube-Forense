@@ -280,6 +280,27 @@ create table if not exists gastos_ads (
 `,
   "create index if not exists gastos_ads_dia_idx on gastos_ads (dia desc);",
 
+  // Ficha do concurso, mostrada no "Mais informações" do card do estado.
+  //
+  // Salário FINAL, e não só o inicial: para um médico decidindo entre prestar e
+  // continuar no consultório, o teto da carreira pesa tanto quanto a entrada.
+  "alter table estados add column if not exists salario_final numeric(12,2);",
+
+  // TAF: booleano de três valores (sim, não, e null para "não sabemos").
+  // Null importa: dizer "não tem TAF" quando ninguém conferiu é pior que calar,
+  // porque quem confia deixa de treinar.
+  "alter table estados add column if not exists taf boolean;",
+
+  // O que caiu para médico-legista na última prova, em texto livre. Não vira
+  // tabela: a divisão por matéria muda de banca para banca, e o que serve ao
+  // candidato é a lista como o edital a escreve.
+  "alter table estados add column if not exists materias text;",
+
+  // Liga o aviso de que a ficha descreve o concurso ANTERIOR. Enquanto o edital
+  // novo não sai, é o dado que existe — e mostrá-lo sem dizer de quando é seria
+  // deixar a pessoa estudar para uma prova que já passou.
+  "alter table estados add column if not exists info_anterior boolean not null default false;",
+
   // ------------------------------------------------------------------------
   // Ranking de provas
   // ------------------------------------------------------------------------

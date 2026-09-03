@@ -280,6 +280,13 @@ export default function FormEstado({
           <Campo nome="salarioInicial" label="Salário inicial (R$)">
             <input id="salarioInicial" name="salarioInicial" className={campo} defaultValue={v(inicial?.salarioInicial)} />
           </Campo>
+          <Campo
+            nome="salarioFinal"
+            label="Salário final (R$)"
+            dica="Teto da carreira. Aparece como faixa no “Mais informações”."
+          >
+            <input id="salarioFinal" name="salarioFinal" className={campo} defaultValue={v(inicial?.salarioFinal)} />
+          </Campo>
           <Campo nome="cargaHoraria" label="Carga horária (h)">
             <input id="cargaHoraria" name="cargaHoraria" type="number" className={campo} defaultValue={v(inicial?.cargaHoraria)} />
           </Campo>
@@ -411,6 +418,62 @@ export default function FormEstado({
         </div>
 
         <EditorImls inicial={imls} />
+      </section>
+
+      {/* ---------- Ficha do concurso ---------- */}
+      <section className="rounded-2xl border border-gray-200 bg-white p-5">
+        <h2 className="mb-1 font-bold text-gray-900">Ficha do concurso</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          O que abre no botão “Mais informações”, no card do estado. Estágio,
+          salário, vagas, banca, carga horária e prazos vêm dos campos que você
+          já preencheu acima — aqui entram os que faltavam. Campo vazio não
+          aparece na tela.
+        </p>
+
+        <div className="mb-5 max-w-xs">
+          <Campo
+            nome="taf"
+            label="Teste de aptidão física"
+            dica="Em branco significa “ainda não conferi”, e o item nem aparece. Melhor isso que afirmar que não tem."
+          >
+            <select id="taf" name="taf" className={campo} defaultValue={inicial?.taf == null ? "" : inicial.taf ? "sim" : "nao"}>
+              <option value="">Não conferido</option>
+              <option value="sim">Sim, tem TAF</option>
+              <option value="nao">Não tem TAF</option>
+            </select>
+          </Campo>
+        </div>
+
+        <div className="mb-5">
+          <Campo
+            nome="materias"
+            label="Matérias para médico-legista"
+            dica="Como o edital lista. Uma por linha funciona bem: Medicina Legal, Patologia, Antropologia Forense, Português, Direito Penal…"
+          >
+            <textarea
+              id="materias"
+              name="materias"
+              rows={5}
+              className={campo}
+              defaultValue={v(inicial?.materias)}
+            />
+          </Campo>
+        </div>
+
+        <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-3">
+          <input
+            type="checkbox"
+            name="infoAnterior"
+            defaultChecked={inicial?.infoAnterior ?? false}
+            className="mt-0.5 h-4 w-4"
+          />
+          <span className="text-sm text-gray-700">
+            <strong>Estes dados são do concurso anterior</strong> — marque
+            enquanto o edital novo não sai. A ficha ganha um aviso no topo
+            dizendo isso, com o ano do último edital. Sem a marca, quem lê
+            entende que são as regras do concurso que está por vir.
+          </span>
+        </label>
       </section>
 
       {/* ---------- Nota de corte ---------- */}

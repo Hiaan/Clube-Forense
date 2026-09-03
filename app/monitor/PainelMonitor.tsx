@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import Avatar from "../components/Avatar";
 import BotaoEdital from "../components/BotaoEdital";
 import BotaoImls from "../components/BotaoImls";
+import BotaoInfo from "../components/BotaoInfo";
+import { anoDoEdital, fichaTemConteudo } from "../components/ficha";
 import type { AprovacaoSite } from "../lib/aprovadosSite";
 import type { ImlsPorUf } from "../lib/imlsRepo";
 import BancaLink from "../components/BancaLink";
@@ -87,6 +89,30 @@ function CartaoEstado({
     Boolean(estado.curadoria?.imlsTexto) ||
     estado.curadoria?.imlsTotal != null;
   const editalUrl = estado.curadoria?.editalUrl ?? null;
+
+  // Montada antes do JSX porque ela decide se o próprio botão existe: uma ficha
+  // só com o estágio repetiria a etiqueta que já está no topo do card.
+  const ficha = {
+    estagio: NIVEL_LABEL[estado.nivel],
+    salarioInicial: estado.curadoria?.salarioInicial ?? null,
+    salarioFinal: estado.curadoria?.salarioFinal ?? null,
+    vagasImediatas: estado.curadoria?.vagasImediatas ?? null,
+    vagasCr: estado.curadoria?.vagasCr ?? null,
+    banca: estado.curadoria?.banca ?? estado.historico?.banca ?? null,
+    taf: estado.curadoria?.taf ?? null,
+    materias: estado.curadoria?.materias ?? null,
+    cargaHoraria: estado.curadoria?.cargaHoraria ?? null,
+    inscricoesAte: estado.curadoria?.inscricoesAte ?? null,
+    dataProva: estado.curadoria?.dataProva ?? null,
+    especialidades: estado.curadoria?.especialidades ?? null,
+    doAnterior: estado.curadoria?.infoAnterior ?? false,
+    anoAnterior: anoDoEdital(
+      estado.curadoria?.ultimoEdital ?? null,
+      estado.historico?.ultimoEdital ?? null,
+    ),
+  };
+  const temFicha = fichaTemConteudo(ficha);
+
   return (
     <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
@@ -184,8 +210,12 @@ function CartaoEstado({
         </div>
       )}
 
-      {(temImls || editalUrl) && (
+      {(temImls || editalUrl || temFicha) && (
         <div className="mt-4 flex flex-wrap gap-2">
+          {/* A mesma ficha do mapa, no tema claro. Quem chega direto ao painel
+              detalhado não deveria ter de subir até o mapa para saber o
+              salário e as vagas. */}
+          {temFicha && <BotaoInfo tema="claro" estado={estado.nome} ficha={ficha} />}
           {temImls && (
             <BotaoImls
               tema="claro"
