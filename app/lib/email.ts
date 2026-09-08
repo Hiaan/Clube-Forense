@@ -18,9 +18,23 @@ export function emailConfigurado(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_REMETENTE);
 }
 
-/** "Ana Maria de Souza" → "Ana". Cabeçalho de e-mail com nome inteiro soa formulário. */
+/**
+ * "Ana Maria de Souza" → "Ana". Cabeçalho de e-mail com o nome inteiro soa
+ * formulário, não conversa.
+ *
+ * A caixa é normalizada, e isso não é preciosismo: o campo de nome é livre e
+ * quem preenche está no celular. "ana maria" e "ANA MARIA" chegam o tempo todo,
+ * e as duas viravam a primeira linha do e-mail — "Olá, Dr.(a) ana!" e "Olá,
+ * Dr.(a) ANA!". Primeira letra maiúscula, o resto minúsculo, com as regras do
+ * português para os acentuados.
+ */
 function primeiroNome(nome: string): string {
-  return nome.trim().split(/\s+/)[0] ?? "";
+  const bruto = nome.trim().split(/\s+/)[0] ?? "";
+  if (!bruto) return "";
+  return (
+    bruto.charAt(0).toLocaleUpperCase("pt-BR") +
+    bruto.slice(1).toLocaleLowerCase("pt-BR")
+  );
 }
 
 /** Escapa o que vem do formulário antes de entrar no HTML do e-mail. */
