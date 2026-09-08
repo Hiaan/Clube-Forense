@@ -127,6 +127,77 @@ export async function semearPlanos(): Promise<string[]> {
 }
 
 /**
+ * Estados cujo plano precisa ser REESCRITO com o que está no código, mesmo já
+ * havendo linhas no banco.
+ *
+ * Existe porque `semearPlanos` nunca sobrescreve — e essa regra está certa: um
+ * deploy não pode desfazer a curadoria de quem corrigiu um salário na semana
+ * passada. Mas ela também tranca o caso oposto: quando o errado é o piso
+ * embutido, e o banco só tem o que ELE mesmo semeou, não há como consertar
+ * pelo código.
+ *
+ * A chave é o estado, o valor é a versão da correção. Cada par roda UMA vez e
+ * fica registrado em `sistema`; subir a versão é o que autoriza rodar de novo.
+ * Assim uma correção não vira um deploy que pisa na curadoria toda semana.
+ */
+const CORRECOES: Record<string, string> = {
+  // 60 linhas (15 referências × 4 categorias) reduzidas a uma por categoria.
+  ES: "2026-09-categorias",
+};
+
+/**
+ * Aplica as correções pendentes. Devolve as UFs corrigidas agora.
+ *
+ * Roda pelo cron, junto da semeadura. Nunca lança: falhar aqui não pode
+ * derrubar o cron, que tem outras coisas a fazer.
+ */
+export async function corrigirPlanos(): Promise<string[]> {
+  if (!bancoConfigurado()) return [];
+  const corrigidos: string[] = [];
+
+  try {
+    await garantirEsquema();
+    const s = sql();
+
+    for (const [uf, versao] of Object.entries(CORRECOES)) {
+      const plano = PLANOS_BASE[uf];
+      if (!plano) continue;
+
+      const chave = `plano_corrigido:${uf}:${versao}`;
+      const jaFoi = (await s.query("select 1 from sistema where chave = $1", [
+        chave,
+      ])) as unknown[];
+      if (jaFoi.length > 0) continue;
+
+      await s.transaction([
+        s.query("delete from plano_classes where uf = $1", [uf]),
+        ...plano.classes
+          .filter((c) => c.classe.trim())
+          .map((c, i) =>
+            s.query(
+              "insert into plano_classes (uf, classe, subsidio, ordem) values ($1, $2, $3, $4)",
+              [uf, c.classe, c.subsidio, i],
+            ),
+          ),
+        // A marca entra na MESMA transação: gravada fora, uma falha no meio
+        // deixaria o estado sem plano nenhum e já marcado como corrigido.
+        s.query(
+          `insert into sistema (chave, valor) values ($1, $2)
+           on conflict (chave) do update set valor = excluded.valor, atualizado_em = now()`,
+          [chave, new Date().toISOString()],
+        ),
+      ]);
+
+      corrigidos.push(uf);
+    }
+  } catch (e) {
+    console.error("Falha ao corrigir os planos:", e instanceof Error ? e.message : e);
+  }
+
+  return corrigidos;
+}
+
+/**
  * Substitui o plano do estado. Apagar e inserir vão na mesma transação: sem
  * isso, uma falha no meio deixaria o estado sem plano nenhum.
  */

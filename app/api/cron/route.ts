@@ -5,7 +5,7 @@
 import { revalidatePath } from "next/cache";
 
 import { semearImls } from "../../lib/imlsRepo";
-import { semearPlanos } from "../../lib/planoRepo";
+import { corrigirPlanos, semearPlanos } from "../../lib/planoRepo";
 import { registrarColeta } from "../../lib/sistemaRepo";
 import { coletar } from "../../monitor/lib/coletor";
 import { dispararColetaInstagram } from "../../monitor/lib/instagram";
@@ -31,6 +31,9 @@ export async function GET(request: Request) {
   // Leva para o banco os planos de carreira que estão no código, nos estados que
   // ainda não têm nenhum. Depois da primeira vez isto não faz nada.
   const planosSemeados = await semearPlanos();
+  // Depois da semeadura: quem acabou de nascer já nasce certo, e a correção só
+  // tem trabalho nos estados semeados em passadas anteriores.
+  const planosCorrigidos = await corrigirPlanos();
 
   // Mesma ideia para a distribuição dos IMLs.
   const imlsSemeados = await semearImls();
@@ -71,6 +74,7 @@ export async function GET(request: Request) {
     fonteIndisponivel: relatorio.fonteIndisponivel,
     instagram,
     planosSemeados,
+    planosCorrigidos,
     imlsSemeados,
   });
 }
