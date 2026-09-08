@@ -57,6 +57,8 @@ export interface DetalheEstado {
   notaCorte: { valor: number; rotulo: string | null } | null;
   /** Ficha do concurso — estágio, salário, vagas, banca, TAF, matérias. */
   ficha: FichaConcurso;
+  /** Data da prova do concurso ATUAL (ISO). Diferente de historico.ultimaProva. */
+  dataProva: string | null;
 }
 
 export interface EstadoMapa {
@@ -103,6 +105,12 @@ function formatarData(iso: string | null): string {
     month: "short",
     year: "numeric",
   });
+}
+
+/** "30/11/2026" — cabe na caixinha, diferente do formato por extenso. */
+function dataCurta(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR");
 }
 
 /**
@@ -318,7 +326,12 @@ export default function MapaConcursos({
     editalUrl: detalheAtual?.editalUrl ?? null,
     notaCorte: detalheAtual?.notaCorte ?? null,
     ficha: detalheAtual?.ficha ?? null,
+    dataProva: detalheAtual?.dataProva ?? null,
   };
+
+  // Vale para o rótulo da barra e para o da prova: com o edital publicado, as
+  // duas coisas deixam de falar do passado.
+  const editalNaRua = sel?.nivel === "edital";
 
   /**
    * Quem já se cadastrou recebe os detalhes prontos do servidor; para os
@@ -530,15 +543,15 @@ export default function MapaConcursos({
               <div className="mt-5">
                 <div className="mb-1 flex justify-between text-[11px] text-gray-400">
                   <span>
-                    {sel.nivel === "edital" ? "Edital publicado" : "Proximidade do edital"}
+                    {editalNaRua ? "Edital publicado" : "Proximidade do edital"}
                   </span>
-                  <span>{sel.nivel === "edital" ? "100/100" : `${sel.score}/100`}</span>
+                  <span>{editalNaRua ? "100/100" : `${sel.score}/100`}</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
-                      width: sel.nivel === "edital" ? "100%" : `${sel.score}%`,
+                      width: editalNaRua ? "100%" : `${sel.score}%`,
                       backgroundColor: sel.nivel === "sem" ? "#3d3833" : NIVEL_COR[sel.nivel],
                     }}
                   />
@@ -555,12 +568,19 @@ export default function MapaConcursos({
                       {sel.historico.ultimoEdital ?? "—"}
                     </p>
                   </div>
+                  {/* Com o edital na rua, o que importa é a prova que VEM, não
+                      a que passou. E o valor troca junto com o rótulo: manter o
+                      histórico embaixo de "Dia da prova" anunciaria 2018 como
+                      data de uma prova de 2026. Sem data cadastrada fica o
+                      traço, que é honesto e cobra o preenchimento. */}
                   <div className="rounded-xl bg-white/[0.06] px-3 py-2">
                     <p className="text-[10px] uppercase tracking-wide text-gray-500">
-                      Última prova
+                      {editalNaRua ? "Dia da prova" : "Última prova"}
                     </p>
                     <p className="mt-0.5 text-sm font-bold text-white">
-                      {sel.historico.ultimaProva ?? "—"}
+                      {editalNaRua
+                        ? dataCurta(sel.dataProva)
+                        : sel.historico.ultimaProva ?? "—"}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white/[0.06] px-3 py-2">

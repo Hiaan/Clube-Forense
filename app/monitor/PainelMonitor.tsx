@@ -163,8 +163,17 @@ function CartaoEstado({
           <p className="text-xs text-gray-600">
             <span className="font-semibold">Último edital:</span>{" "}
             {estado.historico.ultimoEdital ?? "—"} ·{" "}
-            <span className="font-semibold">Última prova:</span>{" "}
-            {estado.historico.ultimaProva ?? "—"}
+            {/* Mesma troca do card do mapa: publicado o edital, o que
+                interessa é a prova que vem. */}
+            <span className="font-semibold">
+              {estado.nivel === "edital" ? "Dia da prova:" : "Última prova:"}
+            </span>{" "}
+            {estado.nivel === "edital"
+              ? estado.curadoria?.dataProva
+                ? new Date(`${estado.curadoria.dataProva.slice(0, 10)}T12:00:00`)
+                    .toLocaleDateString("pt-BR")
+                : "—"
+              : estado.historico.ultimaProva ?? "—"}
             {estado.historico.banca ? (
               <>
                 {" · "}
