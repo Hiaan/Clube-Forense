@@ -40,17 +40,18 @@ function escapar(s: string): string {
  * que não pode acontecer com a mensagem que confirma um cadastro.
  */
 function corpoTexto(nome: string): string {
-  return `Olá, ${primeiroNome(nome)}!
+  return `Olá, Dr.(a) ${primeiroNome(nome)}!
 
-Seu cadastro no Monitor de Concursos do Clube Forense está confirmado. O mapa
-completo dos 26 estados e do Distrito Federal já está liberado para você.
+Seu cadastro no Mapa dos Concursos está confirmado. Um radar dos 26 estados e
+do Distrito Federal já está liberado para você.
 
-E tem mais: você ganhou um ACESSO GRATUITO ao Aprova Legista, a nossa
-plataforma de estudos.
+E tem mais: você ganhou um ACESSO GRATUITO à Plataforma Aprova Legista.
 
-Entre em ${PLATAFORMA} com este mesmo e-mail e a senha que você acabou de
-criar. Lá dentro você assiste gratuitamente a algumas das nossas aulas e
-conhece todos os recursos do nosso preparatório, como o banco de questões.
+Entre com este mesmo e-mail e a senha que você acabou de criar: lá você assiste
+gratuitamente a algumas das nossas aulas e conhece todos os recursos do nosso
+preparatório, como o banco de questões.
+
+Entrar na Plataforma Aprova Legista: ${PLATAFORMA}
 
 Bons estudos,
 Clube Forense
@@ -74,29 +75,29 @@ function corpoHtml(nome: string): string {
         </td></tr>
 
         <tr><td style="padding:28px;">
-          <p style="margin:0 0 16px;font-size:16px;color:#111827;">Olá, ${ola}!</p>
+          <p style="margin:0 0 16px;font-size:16px;color:#111827;">Olá, Dr.(a) ${ola}!</p>
 
           <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-            Seu cadastro no <strong>Monitor de Concursos</strong> está confirmado.
-            O mapa completo dos 26 estados e do Distrito Federal já está liberado
-            para você.
+            Seu cadastro no <strong>Mapa dos Concursos</strong> está confirmado.
+            Um radar dos 26 estados e do Distrito Federal já está liberado para
+            você.
           </p>
 
           <div style="margin:0 0 20px;padding:16px 18px;background:#fffbeb;border-left:3px solid #ffcd07;border-radius:8px;">
             <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#111827;">
-              E tem mais: você ganhou um acesso gratuito ao Aprova Legista.
+              E tem mais: você ganhou um acesso gratuito à Plataforma Aprova Legista.
             </p>
             <p style="margin:0;font-size:14px;line-height:1.6;color:#4b5563;">
-              É a nossa plataforma de estudos. Entre com <strong>este mesmo
-              e-mail</strong> e a senha que você acabou de criar: lá você assiste
-              gratuitamente a algumas das nossas aulas e conhece todos os recursos
-              do nosso preparatório, como o banco de questões.
+              Entre com <strong>este mesmo e-mail</strong> e a senha que você
+              acabou de criar: lá você assiste gratuitamente a algumas das nossas
+              aulas e conhece todos os recursos do nosso preparatório, como o
+              banco de questões.
             </p>
           </div>
 
           <p style="margin:0 0 24px;">
             <a href="${PLATAFORMA}" style="display:inline-block;padding:13px 26px;background:#ffcd07;color:#111827;font-size:15px;font-weight:700;text-decoration:none;border-radius:999px;">
-              Entrar no Aprova Legista
+              Entrar na Plataforma Aprova Legista
             </a>
           </p>
 
@@ -108,7 +109,7 @@ function corpoHtml(nome: string): string {
 
         <tr><td style="padding:18px 28px;border-top:1px solid #e5e7eb;">
           <p style="margin:0;font-size:12px;line-height:1.6;color:#9ca3af;">
-            Você recebeu este e-mail porque se cadastrou no Monitor de Concursos
+            Você recebeu este e-mail porque se cadastrou no Mapa dos Concursos
             do Clube Forense.
           </p>
         </td></tr>
@@ -144,7 +145,7 @@ export async function enviarBoasVindas(nome: string, email: string): Promise<boo
       body: JSON.stringify({
         from: process.env.EMAIL_REMETENTE,
         to: [email],
-        subject: "Seu acesso está liberado — e o Aprova Legista é seu de graça",
+        subject: "Seu acesso está liberado — e a Plataforma Aprova Legista também (Bônus)",
         html: corpoHtml(nome),
         text: corpoTexto(nome),
       }),
