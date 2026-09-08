@@ -94,7 +94,10 @@ export default function ModalAcesso({
 
   return (
     <Modal
-      sobretitulo={ehLogin ? "Acesso" : "Acesso gratuito"}
+      // "Acesso gratuito" nos dois modos, e não só no cadastro. Quem chega na
+      // tela de entrar precisa saber que não vai pagar nada — um "Acesso" seco
+      // acima de um pedido de e-mail e senha se lê como cobrança a caminho.
+      sobretitulo="Acesso gratuito"
       titulo={ehLogin ? "Entrar" : "Criar conta"}
       aoFechar={aoFechar}
       rodape={

@@ -7,6 +7,7 @@
 // verdade — ele autoriza criar contas — então, diferente da URL da planilha,
 // não pode ser embutido no código.
 
+import { enviarBoasVindas } from "../../lib/email";
 import { registrarLead } from "../../lib/leadsRepo";
 import { criarSessao } from "../../lib/sessao";
 
@@ -110,6 +111,13 @@ export async function POST(request: Request) {
     });
     if (!gravou) {
       console.error(`Lead não registrado (cadastro seguiu normalmente): ${email}`);
+    }
+
+    // Boas-vindas. Mesma regra do lead: a conta já existe e a pessoa já tem
+    // direito de entrar, então um e-mail que não sai custa um e-mail — nunca o
+    // cadastro. `enviarBoasVindas` engole os próprios erros.
+    if (!(await enviarBoasVindas(nome, email))) {
+      console.error(`Boas-vindas não enviadas (cadastro seguiu normalmente): ${email}`);
     }
 
     // Com o e-mail: é ele que o ranking usa para saber de quem é cada
