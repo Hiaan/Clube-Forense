@@ -46,7 +46,14 @@ export default function BotaoImls({
   tema?: keyof typeof TEMAS;
 }) {
   const [aberto, setAberto] = useState(false);
-  const total = imls.total ?? imls.unidades.length;
+
+  // `null` quando não sabemos quantas são — e não sabemos sempre que o estado
+  // entra só com o texto, porque o órgão não publica a relação por município.
+  // Antes isto virava zero, e a tela dizia "Ver IMLs (0)" e "0 unidades no
+  // estado" para o Paraná e o Mato Grosso: uma afirmação falsa, e a pior das
+  // possíveis, porque nega a existência da rede que o texto logo abaixo
+  // descreve. Não saber e não haver são coisas diferentes.
+  const total = imls.total ?? (imls.unidades.length || null);
 
   return (
     <>
@@ -56,7 +63,9 @@ export default function BotaoImls({
         className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition ${TEMAS[tema]}`}
       >
         Ver IMLs
-        <span className="text-[11px] font-medium opacity-60">({total})</span>
+        {total != null && (
+          <span className="text-[11px] font-medium opacity-60">({total})</span>
+        )}
       </button>
 
       {aberto && (
@@ -65,9 +74,11 @@ export default function BotaoImls({
           titulo="Distribuição dos IMLs"
           aoFechar={() => setAberto(false)}
         >
-          <p className="mt-3 text-sm text-gray-400">
-            {total} {total === 1 ? "unidade" : "unidades"} no estado.
-          </p>
+          {total != null && (
+            <p className="mt-3 text-sm text-gray-400">
+              {total} {total === 1 ? "unidade" : "unidades"} no estado.
+            </p>
+          )}
 
           {imls.texto && (
             <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-gray-300">
@@ -88,7 +99,7 @@ export default function BotaoImls({
 
           {/* Quando o total informado é maior que a lista, dizer isso é mais
               honesto do que deixar a pessoa achar que são só estas. */}
-          {imls.total != null && imls.total > imls.unidades.length && (
+          {imls.total != null && imls.total > imls.unidades.length && imls.unidades.length > 0 && (
             <p className="mt-3 text-[11px] text-gray-500">
               {imls.unidades.length} de {imls.total} unidades com cidade
               identificada.

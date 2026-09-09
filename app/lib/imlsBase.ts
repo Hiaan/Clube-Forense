@@ -933,4 +933,47 @@ export const IMLS_BASE: Record<string, ImlsBase> = {
       { cidade: "Tocantinópolis", nome: "Núcleo Seccional de Medicina Legal" },
     ],
   },
+  AC: {
+    total: null,
+    texto:
+      "No Acre a perícia médico-legal é atribuição do Instituto Médico-Legal, um dos institutos do Departamento de Polícia Técnico-Científica (DPTC) da Polícia Civil do Acre, ao lado dos institutos de Criminalística, de Análises Forenses e de Identificação — estrutura fixada pela Lei Complementar estadual nº 129/2004 e reorganizada pelo Decreto nº 11.742/2025, que redistribui as unidades de perícia em regionais (Baixo Acre, Alto Acre, Purus, Envira/Tarauacá e Juruá) sem nominar municípios. A única sede confirmada em fonte oficial não jornalística é a de Rio Branco, no complexo do DPTC, e é ali que o médico-legista aprovado é lotado na prática, com deslocamentos e plantões para atender o interior. Comunicados oficiais do Governo do Acre mencionam atendimento médico-legal em Cruzeiro do Sul e a implantação de um núcleo do IML em Brasiléia para o Alto Acre, mas por serem notícia essas cidades ficaram fora da lista; não há ato normativo, portaria ou carta de serviços acessível com relação nominal de postos por município nem número oficial de unidades. A lista abaixo, portanto, mostra apenas a sede e não retrata a cobertura real do estado, que depende de escalas, convênios com a Secretaria de Saúde e remoção de corpos entre regionais.",
+    fonte:
+      "Assembleia Legislativa do Acre — Lei Complementar nº 129, de 22 de janeiro de 2004 (Lei Orgânica da Polícia Civil do Estado do Acre), arts. 14, 28, 34 e 36-A, que cria o Departamento de Polícia Técnico-Científica e o Instituto Médico-Legal; Governo do Estado do Acre — Decreto nº 11.742, de 26 de agosto de 2025, que reestrutura as unidades da Polícia Civil e as regionais de perícia; Ministério da Justiça e Segurança Pública — relação oficial 'Endereços do Local de Coleta' (Programa Pessoas Desaparecidas), que registra para o Acre apenas o complexo do DPTC em Rio Branco. Consulta em 09/2026; o portal da Polícia Civil do Acre estava desativado por período eleitoral.",
+    unidades: [
+      { cidade: "Rio Branco", nome: "Instituto Médico-Legal (IML) — Departamento de Polícia Técnico-Científica da Polícia Civil do Acre" },
+    ],
+  },
+  AP: {
+    total: null,
+    texto:
+      "A perícia oficial do Amapá é atribuição da Polícia Científica do Amapá (PCA), órgão autônomo que concentra medicina legal, criminalística e identificação, com páginas próprias de Departamento de Medicina Legal e Departamento de Criminalística em seu sítio institucional. A única relação oficial verificável de unidades territoriais é a do Ministério da Justiça e Segurança Pública, que lista cinco Núcleos da PCA — Macapá, Santana, Laranjal do Jari, Tartarugalzinho e Oiapoque —, mas os descreve apenas como 'Núcleo', sem informar quais têm setor de medicina legal nem afirmar que sejam unidades integradas; por isso a lista de cidades vai vazia. O Edital nº 001/2022-SEAD/PCA organiza a lotação por quatro Regiões do estado, e não por unidade nominal, o que indica que o aprovado é lotado por região — na prática concentrada em Macapá e Santana — e não em um IML nomeado. Num estado com poucas unidades e distâncias amazônicas (Oiapoque a mais de 590 km da capital, acesso fluvial em parte do território), a necropsia e boa parte dos exames de corpo de delito tendem a se concentrar na estrutura da capital, com remoção de corpos do interior.",
+    fonte:
+      "Ministério da Justiça e Segurança Pública — página oficial 'Endereços do Local de Coleta' (Programa Nacional de Localização e Identificação de Pessoas Desaparecidas), seção Amapá, que lista os Núcleos da Polícia Científica do Amapá sem qualificá-los como unidades de medicina legal; Edital nº 001/2022 — Concurso Público da Polícia Científica do Estado do Amapá, Secretaria de Estado da Administração (SEAD/AP) e Fundação Getulio Vargas, de 5 de setembro de 2022, que define a lotação em quatro Regiões; sítio institucional da Polícia Científica do Amapá, seções 'Institucional' e 'Departamentos', com conteúdo inacessível na consulta. Consulta em 09/2026; não foi localizado total oficial de unidades nem decreto de estrutura acessível.",
+    unidades: [],
+  },
+  RO: {
+    total: 8,
+    texto:
+      "Em Rondônia a perícia médico-legal não está na POLITEC: a página oficial de Endereços da POLITEC só relaciona unidades de criminalística (Instituto de Criminalística, Instituto Laboratório Criminal, Instituto de DNA Criminal e o CGI, em Porto Velho, mais oito Coordenadorias Regionais de Criminalística), sem setor de medicina legal — o Instituto Médico-Legal e o Instituto de Identificação Civil e Criminal são diretorias da Polícia Civil de Rondônia, e é na Polícia Civil que existe o cargo de médico-legista. A base oficial de unidades da PCRO registra oito IMLs: a sede em Porto Velho e sete no interior, com frequência instalados junto a complexos e regionais da Polícia Civil (em Cacoal o IML integra o Complexo da Polícia Civil; em Ariquemes fica ao lado da Coordenadoria Regional de Criminalística). O edital não fixa cidade — a lotação se dá 'conforme necessidade da Administração' —, o que na prática significa concentração na capital e nos IMLs das cidades-polo. Vale o alerta metodológico: as Coordenadorias Regionais de Criminalística que aparecem na relação de pontos de coleta de DNA do MJSP não comprovam medicina legal (Jaru, por exemplo, tem criminalística e identificação, mas não IML), e a lista não informa quantos legistas há por unidade, se há plantão 24h nem o raio de municípios atendidos.",
+    fonte:
+      "Polícia Civil do Estado de Rondônia (PCRO), portal institucional, seção 'Unidades Policiais' — consulta filtrada pelo termo IML, que retorna oito unidades 'IML – Instituto Médico Legal' com cidade, telefone e e-mail institucional; complementada pela página 'Institucional – Endereços' da POLITEC/RO (relação de unidades da Polícia Técnico-Científica, sem unidade de medicina legal), pela página 'Sobre – Quem é Quem' da Polícia Civil de Rondônia (cargo de Diretor do Instituto Médico Legal), pela notícia oficial da Secom/RO de 22/01/2026 sobre o Complexo da Polícia Civil de Cacoal e pelo Edital nº 1 do concurso da Polícia Civil de Rondônia 2022 (Cebraspe), cargo de Médico-Legista. Consulta em 09/2026.",
+    unidades: [
+      { cidade: "Porto Velho", nome: "IML — Instituto Médico Legal (sede)" },
+      { cidade: "Ariquemes", nome: "IML — Instituto Médico Legal" },
+      { cidade: "Cacoal", nome: "IML — Instituto Médico Legal" },
+      { cidade: "Guajará-Mirim", nome: "IML — Instituto Médico Legal" },
+      { cidade: "Ji-Paraná", nome: "IML — Instituto Médico Legal" },
+      { cidade: "Rolim de Moura", nome: "IML — Instituto Médico Legal" },
+      { cidade: "São Miguel do Guaporé", nome: "IML — Instituto Médico Legal" },
+      { cidade: "Vilhena", nome: "IML — Instituto Médico Legal" },
+    ],
+  },
+  SE: {
+    total: null,
+    texto:
+      "A perícia oficial de Sergipe é exercida pela Coordenadoria-Geral de Perícias (COGERP) da Secretaria de Estado da Segurança Pública, que reúne o Instituto Médico-Legal, o Instituto de Análises e Pesquisas Forenses (IAPF), o Instituto de Criminalística e o Instituto de Identificação, e é divulgada institucionalmente também como Polícia Científica de Sergipe. O edital do concurso não fixa cidade de lotação: prevê exercício, a critério da Administração, em quaisquer dos órgãos ou setores que compõem a COGERP, o que na prática concentra os peritos médico-legais na estrutura da Grande Aracaju — notícias oficiais tratam da nova sede do IML entregue em Nossa Senhora do Socorro, em substituição ao antigo prédio da capital, informação que aqui vale só como contexto. Nenhuma fonte oficial acessível enumerou unidades, postos avançados ou núcleos regionais de medicina legal por município: os portais do Governo de Sergipe, da SSP/SE e da Polícia Científica, a Assembleia Legislativa e o repositório de legislação estadual estavam desativados por defeso eleitoral em setembro de 2026. Por isso a lista vai vazia e o total é nulo — e ela também não diria quantos legistas existem, como se dá o plantão, nem se há remoção de corpos do interior para a sede.",
+    fonte:
+      "Governo do Estado de Sergipe — Secretaria de Estado da Administração (SEAD) e Secretaria de Estado da Segurança Pública, Concurso Público Edital nº 01/2023 — Coordenadoria-Geral de Perícias (COGERP), publicado em janeiro de 2023, e página oficial do Concurso 01/2023–COGERP da SEAD. Consulta em 09/2026; tentou-se também o Portal do Governo de Sergipe, o portal da SSP/SE, o portal da Polícia Científica de Sergipe, o acervo de legislação estadual (Legison/PGE-SE) e a Assembleia Legislativa, todos com conteúdo institucional indisponível por defeso eleitoral, sem qualquer relação oficial de unidades de medicina legal por município.",
+    unidades: [],
+  },
 };
