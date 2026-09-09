@@ -914,4 +914,23 @@ export const IMLS_BASE: Record<string, ImlsBase> = {
       },
     ],
   },
+  TO: {
+    total: 10,
+    texto:
+      "No Tocantins a perícia médico-legal é atribuição da Superintendência da Polícia Científica, vinculada à Secretaria da Segurança Pública (SSP-TO), que reúne o Instituto de Medicina Legal, o Instituto de Criminalística, o Instituto de Identificação e o Laboratório de Genética Forense. A rede tem sede única em Palmas — o IML, ao lado do Laboratório de Genética Forense — e se interioriza por Núcleos Regionais de Medicina Legal numerados de 1º a 8º, mais um Núcleo Seccional em Tocantinópolis; é nesses núcleos, e não em IMLs autônomos, que o médico-legista aprovado costuma ser lotado fora da capital. A lista traz apenas as cidades-sede: cada núcleo é referência para dezenas de municípios do entorno, que remetem corpos e periciandos ao polo mais próximo, e a estrutura laboratorial completa fica em Palmas. O total de 10 é a contagem das unidades de medicina legal que constam da relação oficial consultada — as unidades de Dianópolis e Arraias, que aparecem na mesma relação, são de perícias criminais e ficaram fora —, e não um número divulgado pelo próprio órgão estadual, que não publica em página acessível a lista de unidades por município.",
+    fonte:
+      "Ministério da Justiça e Segurança Pública, relação oficial \"Pontos de Coleta 2026\" da Mobilização Nacional de Coleta de DNA de Familiares de Pessoas Desaparecidas, publicada no portal gov.br/mj, que discrimina por município as unidades de medicina legal do Tocantins, complementada pela página institucional \"Instituto de Medicina Legal (IML)\" da Secretaria da Segurança Pública do Tocantins (SSP-TO), cujo conteúdo detalhado estava inacessível na consulta. Consulta em 09/2026.",
+    unidades: [
+      { cidade: "Palmas", nome: "Instituto de Medicina Legal (IML) — sede" },
+      { cidade: "Araguatins", nome: "1º Núcleo Regional de Medicina Legal" },
+      { cidade: "Araguaína", nome: "2º Núcleo Regional de Medicina Legal" },
+      { cidade: "Colinas do Tocantins", nome: "3º Núcleo Regional de Medicina Legal" },
+      { cidade: "Guaraí", nome: "4º Núcleo Regional de Medicina Legal" },
+      { cidade: "Paraíso do Tocantins", nome: "5º Núcleo Regional de Medicina Legal" },
+      { cidade: "Porto Nacional", nome: "6º Núcleo Regional de Medicina Legal" },
+      { cidade: "Gurupi", nome: "7º Núcleo Regional de Medicina Legal" },
+      { cidade: "Natividade", nome: "8º Núcleo Regional de Medicina Legal" },
+      { cidade: "Tocantinópolis", nome: "Núcleo Seccional de Medicina Legal" },
+    ],
+  },
 };
