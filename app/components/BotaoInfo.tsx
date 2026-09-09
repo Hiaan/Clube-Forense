@@ -65,13 +65,31 @@ function vagas(imediatas: number | null, cr: number | null): string | null {
   return null;
 }
 
-function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
+function Linha({
+  rotulo,
+  valor,
+  detalhe,
+}: {
+  rotulo: string;
+  valor: string;
+  /** Segunda linha, menor: a letra miúda do valor. */
+  detalhe?: string | null;
+}) {
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-b border-white/5 py-2.5 last:border-b-0">
-      <span className="text-[11px] font-bold uppercase tracking-wide text-gray-500">
-        {rotulo}
-      </span>
-      <span className="text-sm font-semibold text-white">{valor}</span>
+    <div className="border-b border-white/5 py-2.5 last:border-b-0">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+        <span className="text-[11px] font-bold uppercase tracking-wide text-gray-500">
+          {rotulo}
+        </span>
+        <span className="text-sm font-semibold text-white">{valor}</span>
+      </div>
+      {/* Alinhado à direita, embaixo do número que ele detalha — e não numa
+          linha própria, que faria a divisão das cotas parecer outro campo. */}
+      {detalhe && (
+        <p className="mt-1 text-right text-[11px] leading-relaxed text-gray-400">
+          {detalhe}
+        </p>
+      )}
     </div>
   );
 }
@@ -87,14 +105,18 @@ export default function BotaoInfo({
 }) {
   const [aberto, setAberto] = useState(false);
 
-  const linhas: { rotulo: string; valor: string }[] = [];
-  const juntar = (rotulo: string, valor: string | null | undefined) => {
-    if (valor) linhas.push({ rotulo, valor });
+  const linhas: { rotulo: string; valor: string; detalhe?: string | null }[] = [];
+  const juntar = (
+    rotulo: string,
+    valor: string | null | undefined,
+    detalhe?: string | null,
+  ) => {
+    if (valor) linhas.push({ rotulo, valor, detalhe });
   };
 
   juntar("Estágio", ficha.estagio);
   juntar("Faixa salarial", faixa(ficha.salarioInicial, ficha.salarioFinal));
-  juntar("Vagas", vagas(ficha.vagasImediatas, ficha.vagasCr));
+  juntar("Vagas", vagas(ficha.vagasImediatas, ficha.vagasCr), ficha.vagasDetalhe);
   juntar("Banca", ficha.banca);
   // Só entra quando alguém conferiu: `null` fica de fora em vez de virar "não".
   juntar("TAF", ficha.taf == null ? null : ficha.taf ? "Sim" : "Não");
@@ -131,7 +153,7 @@ export default function BotaoInfo({
 
           <div className="mt-4">
             {linhas.map((l) => (
-              <Linha key={l.rotulo} rotulo={l.rotulo} valor={l.valor} />
+              <Linha key={l.rotulo} rotulo={l.rotulo} valor={l.valor} detalhe={l.detalhe} />
             ))}
           </div>
 

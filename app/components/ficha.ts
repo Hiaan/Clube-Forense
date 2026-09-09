@@ -15,6 +15,8 @@ export interface FichaConcurso {
   salarioFinal: number | null;
   vagasImediatas: number | null;
   vagasCr: number | null;
+  /** Divisão das vagas — cotas, ampla concorrência. Texto livre. */
+  vagasDetalhe: string | null;
   banca: string | null;
   /** `null` é "não conferimos", e não "não tem". */
   taf: boolean | null;
@@ -44,6 +46,7 @@ export function fichaTemConteudo(f: FichaConcurso): boolean {
     f.salarioFinal != null ||
     f.vagasImediatas != null ||
     f.vagasCr != null ||
+    Boolean(f.vagasDetalhe) ||
     f.cargaHoraria != null ||
     f.taf != null ||
     Boolean(f.banca) ||

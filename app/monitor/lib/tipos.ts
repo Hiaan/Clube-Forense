@@ -113,6 +113,8 @@ export interface DetalheCuradoria {
   notaCorteRotulo: string | null;
   /** Teto da carreira; o piso é `salarioInicial`. */
   salarioFinal: number | null;
+  /** Divisão das vagas entre ampla concorrência e cotas, em texto livre. */
+  vagasDetalhe: string | null;
   /** TAF. `null` é "não conferimos", e não "não tem". */
   taf: boolean | null;
   /** O que caiu para médico-legista, em texto livre. */

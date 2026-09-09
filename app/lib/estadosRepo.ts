@@ -62,6 +62,8 @@ export interface EstadoCuradoria {
   notaCorteVisivel: boolean;
   /** Teto da carreira. O piso é `salarioInicial`. */
   salarioFinal: number | null;
+  /** Como as vagas se dividem entre ampla concorrência e cotas, em texto livre. */
+  vagasDetalhe: string | null;
   /** Teste de aptidão física. `null` é "não conferimos", e não "não tem". */
   taf: boolean | null;
   /** O que caiu para médico-legista, em texto livre. */
@@ -123,6 +125,7 @@ function daLinha(l: Record<string, unknown>): EstadoCuradoria {
     notaCorteRotulo: texto(l.nota_corte_rotulo),
     notaCorteVisivel: Boolean(l.nota_corte_visivel),
     salarioFinal: numero(l.salario_final),
+    vagasDetalhe: texto(l.vagas_detalhe),
     // Três estados: o banco devolve null quando ninguém informou.
     taf: l.taf == null ? null : Boolean(l.taf),
     materias: texto(l.materias),
@@ -143,7 +146,8 @@ const COLUNAS = [
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
   "imls_texto", "imls_fonte", "edital_url",
   "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
-  "salario_final", "taf", "materias", "etapas_concurso", "info_anterior",
+  "salario_final", "vagas_detalhe", "taf", "materias", "etapas_concurso",
+  "info_anterior",
 ] as const;
 
 function paraValores(e: EstadoCuradoria): unknown[] {
@@ -159,7 +163,8 @@ function paraValores(e: EstadoCuradoria): unknown[] {
     e.imagemUrl, e.planoOrgao, e.planoAno, e.planoFonte, e.imlsTotal,
     e.imlsTexto, e.imlsFonte, e.editalUrl,
     e.notaCorte, e.notaCorteRotulo, e.notaCorteVisivel,
-    e.salarioFinal, e.taf, e.materias, e.etapasConcurso, e.infoAnterior,
+    e.salarioFinal, e.vagasDetalhe, e.taf, e.materias, e.etapasConcurso,
+    e.infoAnterior,
   ];
 }
 
@@ -171,7 +176,8 @@ const COLUNAS_NOTICIA = new Set([
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
   "imls_texto", "imls_fonte", "edital_url",
   "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
-  "salario_final", "taf", "materias", "etapas_concurso", "info_anterior",
+  "salario_final", "vagas_detalhe", "taf", "materias", "etapas_concurso",
+  "info_anterior",
 ]);
 
 /**

@@ -434,6 +434,21 @@ export default function FormEstado({
           aparece na tela.
         </p>
 
+        <div className="mb-5">
+          <Campo
+            nome="vagasDetalhe"
+            label="Como as vagas se dividem"
+            dica="Aparece embaixo do total, na ficha. Ex.: “28 ampla concorrência · 4 PcD · 4 negros · 2 indígenas · 2 quilombolas”."
+          >
+            <input
+              id="vagasDetalhe"
+              name="vagasDetalhe"
+              className={campo}
+              defaultValue={v(inicial?.vagasDetalhe)}
+            />
+          </Campo>
+        </div>
+
         <div className="mb-5 max-w-xs">
           <Campo
             nome="taf"

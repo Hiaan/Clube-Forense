@@ -303,6 +303,7 @@ export async function coletar(): Promise<Relatorio> {
             notaCorte: detalhe.notaCorteVisivel ? detalhe.notaCorte : null,
             notaCorteRotulo: detalhe.notaCorteVisivel ? detalhe.notaCorteRotulo : null,
             salarioFinal: detalhe.salarioFinal,
+            vagasDetalhe: detalhe.vagasDetalhe,
             taf: detalhe.taf,
             materias: detalhe.materias,
             etapasConcurso: detalhe.etapasConcurso,

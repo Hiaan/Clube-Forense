@@ -131,6 +131,7 @@ export default async function MonitorPage() {
               salarioFinal: e.curadoria?.salarioFinal ?? null,
               vagasImediatas: e.curadoria?.vagasImediatas ?? null,
               vagasCr: e.curadoria?.vagasCr ?? null,
+              vagasDetalhe: e.curadoria?.vagasDetalhe ?? null,
               // Sem banca do concurso atual, vale a do anterior — que é
               // exatamente o caso que o aviso "dados do concurso anterior"
               // existe para nomear.

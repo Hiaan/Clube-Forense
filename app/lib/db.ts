@@ -286,6 +286,15 @@ create table if not exists gastos_ads (
   // continuar no consultório, o teto da carreira pesa tanto quanto a entrada.
   "alter table estados add column if not exists salario_final numeric(12,2);",
 
+  // Como as vagas se dividem, em texto livre: "28 ampla concorrência, 4 PcD,
+  // 4 negros, 2 indígenas, 2 quilombolas".
+  //
+  // Campo separado, e não mais dois inteiros, porque a divisão não é sempre a
+  // mesma: cada edital reserva cotas diferentes, alguns somam quilombolas,
+  // outros não, e as porcentagens mudam por estado. Um par de colunas fixas
+  // caberia no edital de hoje e não no do ano que vem.
+  "alter table estados add column if not exists vagas_detalhe text;",
+
   // TAF: booleano de três valores (sim, não, e null para "não sabemos").
   // Null importa: dizer "não tem TAF" quando ninguém conferiu é pior que calar,
   // porque quem confia deixa de treinar.

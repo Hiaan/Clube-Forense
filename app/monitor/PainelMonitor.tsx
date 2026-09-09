@@ -98,6 +98,7 @@ function CartaoEstado({
     salarioFinal: estado.curadoria?.salarioFinal ?? null,
     vagasImediatas: estado.curadoria?.vagasImediatas ?? null,
     vagasCr: estado.curadoria?.vagasCr ?? null,
+    vagasDetalhe: estado.curadoria?.vagasDetalhe ?? null,
     banca: estado.curadoria?.banca ?? estado.historico?.banca ?? null,
     taf: estado.curadoria?.taf ?? null,
     materias: estado.curadoria?.materias ?? null,

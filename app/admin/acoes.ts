@@ -210,6 +210,7 @@ export async function salvarEstadoAcao(
       notaCorteRotulo: texto(dados, "notaCorteRotulo"),
       notaCorteVisivel: dados.get("notaCorteVisivel") === "on",
       salarioFinal: numero(dados, "salarioFinal"),
+      vagasDetalhe: texto(dados, "vagasDetalhe"),
       // A lista suspensa manda "sim", "nao" ou "" — e o vazio precisa chegar ao
       // banco como null, que é o "não conferimos".
       taf: (() => {
@@ -363,6 +364,7 @@ export async function importarPlanilhaAcao(): Promise<Resultado> {
       notaCorteRotulo: null,
       notaCorteVisivel: false,
       salarioFinal: null,
+      vagasDetalhe: null,
       taf: null,
       materias: null,
       etapasConcurso: null,
