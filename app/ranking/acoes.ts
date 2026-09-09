@@ -12,6 +12,7 @@ import { cookies } from "next/headers";
 
 import { lerProva, salvarResposta } from "../lib/provasRepo";
 import { ALTERNATIVAS, type Cartao } from "../lib/ranking";
+import { RANKING_ATIVO } from "../lib/recursos";
 import { emailDaSessao, NOME_COOKIE } from "../lib/sessao";
 
 export interface ResultadoEnvio {
@@ -27,6 +28,12 @@ export async function enviarCartaoAcao(
   dados: FormData,
 ): Promise<ResultadoEnvio> {
   try {
+    // Antes de tudo: uma Server Action é um endpoint POST alcançável sem passar
+    // pela nossa tela. Esconder a página não basta para recusar um envio.
+    if (!RANKING_ATIVO) {
+      return { ok: false, mensagem: "O ranking está fora do ar no momento." };
+    }
+
     const jar = await cookies();
     const email = emailDaSessao(jar.get(NOME_COOKIE)?.value);
     if (!email) {

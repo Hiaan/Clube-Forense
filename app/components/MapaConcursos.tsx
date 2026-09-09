@@ -14,6 +14,7 @@ import BotaoEdital from "./BotaoEdital";
 import BotaoImls, { type ImlsEstado } from "./BotaoImls";
 import BotaoInfo from "./BotaoInfo";
 import { fichaTemConteudo, type FichaConcurso } from "./ficha";
+import { RANKING_ATIVO } from "../lib/recursos";
 import Modal from "./Modal";
 import ModalAcesso from "./ModalAcesso";
 import SeletorEstado from "./SeletorEstado";
@@ -619,12 +620,12 @@ export default function MapaConcursos({
 
               {(sel.imls ||
                 sel.editalUrl ||
-                sel.ranking ||
+                (RANKING_ATIVO && sel.ranking) ||
                 (sel.ficha && fichaTemConteudo(sel.ficha))) && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {/* Primeiro na fila quando a prova está acontecendo: nesse dia
                       é a única coisa que a pessoa veio fazer aqui. */}
-                  {sel.ranking?.aberta && (
+                  {RANKING_ATIVO && sel.ranking?.aberta && (
                     <Link
                       href={`/ranking/${sel.uf}`}
                       className="inline-flex items-center gap-1.5 rounded-full bg-[#ffcd07] px-3.5 py-2 text-xs font-bold text-gray-900 transition hover:brightness-95"
@@ -639,7 +640,7 @@ export default function MapaConcursos({
                   {sel.editalUrl && (
                     <BotaoEdital url={sel.editalUrl} nivel={sel.nivel} />
                   )}
-                  {sel.ranking && !sel.ranking.aberta && (
+                  {RANKING_ATIVO && sel.ranking && !sel.ranking.aberta && (
                     <Link
                       href={`/ranking/${sel.uf}`}
                       className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-white/[0.08]"

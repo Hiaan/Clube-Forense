@@ -20,6 +20,7 @@ import {
   montarRanking,
   type Colocado,
 } from "../../lib/ranking";
+import { RANKING_ATIVO } from "../../lib/recursos";
 import { emailDaSessao, NOME_COOKIE, sessaoValida } from "../../lib/sessao";
 import { ESTADO_POR_UF } from "../../monitor/lib/estados";
 
@@ -77,6 +78,9 @@ export default async function RankingDoEstado({
 }: {
   params: Promise<{ uf: string }>;
 }) {
+  // Recurso desligado — ver lib/recursos.ts.
+  if (!RANKING_ATIVO) notFound();
+
   const uf = (await params).uf.toUpperCase();
   const estado = ESTADO_POR_UF[uf];
   if (!estado) notFound();

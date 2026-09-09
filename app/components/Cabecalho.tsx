@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import ModalAcesso from "./ModalAcesso";
+import { RANKING_ATIVO } from "../lib/recursos";
 
 const PLATAFORMA = "https://app.clubeforense.com.br";
 const PREPARATORIO = "https://www.clubeforense.com.br/preparatorio";
@@ -32,9 +33,11 @@ export default function Cabecalho({ liberado }: { liberado: boolean }) {
         <nav className="flex flex-wrap items-center justify-center gap-2">
           {/* Link interno, e não <a>: é página nossa, e o Link evita recarregar
               o site inteiro para ir ao ranking e voltar. */}
-          <Link href="/ranking" className={externo}>
-            Ranking e Notas
-          </Link>
+          {RANKING_ATIVO && (
+            <Link href="/ranking" className={externo}>
+              Ranking e Notas
+            </Link>
+          )}
           <a href={PLATAFORMA} target="_blank" rel="noopener noreferrer" className={externo}>
             Plataforma do aluno ↗
           </a>

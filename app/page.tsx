@@ -9,6 +9,7 @@ import { obterAprovadosSite } from "./lib/aprovadosSite";
 import { lerImls } from "./lib/imlsRepo";
 import { lerPlanos } from "./lib/planoRepo";
 import { lerProvaPorUf } from "./lib/provasRepo";
+import { RANKING_ATIVO } from "./lib/recursos";
 import { lerUltimaColeta } from "./lib/sistemaRepo";
 import { NOME_COOKIE, sessaoValida } from "./lib/sessao";
 import PainelMonitor from "./monitor/PainelMonitor";
@@ -58,7 +59,10 @@ export default async function MonitorPage() {
     lerPlanos(),
     lerImls(),
     lerUltimaColeta(),
-    lerProvaPorUf(),
+    // Desligado, nem vale a consulta: o mapa não tem onde mostrar o resultado.
+    RANKING_ATIVO
+      ? lerProvaPorUf()
+      : Promise.resolve({} as Awaited<ReturnType<typeof lerProvaPorUf>>),
   ]);
   const liberado = sessaoValida(jar.get(NOME_COOKIE)?.value);
 

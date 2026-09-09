@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import NovaProva from "./NovaProva";
 import { contarRespostas, lerProvas } from "../../../lib/provasRepo";
+import { RANKING_ATIVO } from "../../../lib/recursos";
 import { ESTADOS } from "../../../monitor/lib/estados";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,19 @@ export default async function PainelProvas() {
             : `${provas.length} prova(s) · ${abertas} aberta(s) recebendo cartões.`}
         </p>
       </header>
+
+      {/* O painel continua funcionando com o recurso desligado — dá para
+          preparar prova e gabarito antes de religar. Mas quem edita precisa
+          saber que nada disso está visível para o aluno agora. */}
+      {!RANKING_ATIVO && (
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+          <strong>O ranking está desligado no site.</strong> Os botões sumiram do
+          mapa e as páginas <code>/ranking</code> respondem 404. Nada aqui foi
+          perdido — provas, gabaritos e cartões continuam no banco, e você pode
+          seguir preparando. Para religar, é trocar <code>RANKING_ATIVO</code>{" "}
+          para <code>true</code> em <code>app/lib/recursos.ts</code> e publicar.
+        </div>
+      )}
 
       <div className="mb-6">
         <NovaProva estados={ESTADOS.map((e) => ({ uf: e.uf, nome: e.nome }))} />

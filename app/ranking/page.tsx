@@ -3,9 +3,11 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import Cabecalho from "../components/Cabecalho";
 import { contarRespostas, lerProvas } from "../lib/provasRepo";
+import { RANKING_ATIVO } from "../lib/recursos";
 import { NOME_COOKIE, sessaoValida } from "../lib/sessao";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 
@@ -23,6 +25,10 @@ function formatarData(iso: string | null): string {
 }
 
 export default async function Ranking() {
+  // Recurso desligado: a página some do site em vez de ficar acessível por
+  // quem souber o endereço. Ver lib/recursos.ts.
+  if (!RANKING_ATIVO) notFound();
+
   const [provas, cartoes, jar] = await Promise.all([
     lerProvas(),
     contarRespostas(),
