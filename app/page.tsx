@@ -140,6 +140,7 @@ export default async function MonitorPage() {
               // exatamente o caso que o aviso "dados do concurso anterior"
               // existe para nomear.
               banca: e.curadoria?.banca ?? e.historico?.banca ?? null,
+              bancaDoAnterior: !e.curadoria?.banca && Boolean(e.historico?.banca),
               taf: e.curadoria?.taf ?? null,
               materias: e.curadoria?.materias ?? null,
               etapasConcurso: e.curadoria?.etapasConcurso ?? null,

@@ -584,13 +584,18 @@ export default function MapaConcursos({
                         : sel.historico.ultimaProva ?? "—"}
                     </p>
                   </div>
+                  {/* A banca do concurso ATUAL quando ela já existe, e a do
+                      anterior — nomeada como tal — enquanto não existe. Antes
+                      esta caixa mostrava sempre a do histórico, o que fazia o
+                      card anunciar como banca do próximo concurso uma que ainda
+                      está sendo licitada. */}
                   <div className="rounded-xl bg-white/[0.06] px-3 py-2">
                     <p className="text-[10px] uppercase tracking-wide text-gray-500">
-                      Banca
+                      {sel.ficha?.bancaDoAnterior === false ? "Banca" : "Última banca"}
                     </p>
                     <p className="mt-0.5 text-sm font-bold text-white">
                       <BancaLink
-                        nome={sel.historico.banca}
+                        nome={sel.ficha?.banca ?? sel.historico.banca}
                         className="text-[#ffcd07] hover:underline"
                       />
                     </p>

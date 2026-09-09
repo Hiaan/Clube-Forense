@@ -117,7 +117,18 @@ export default function BotaoInfo({
   juntar("Estágio", ficha.estagio);
   juntar("Faixa salarial", faixa(ficha.salarioInicial, ficha.salarioFinal));
   juntar("Vagas", vagas(ficha.vagasImediatas, ficha.vagasCr), ficha.vagasDetalhe);
-  juntar("Banca", ficha.banca);
+  // O rótulo carrega a ressalva, e não uma nota de rodapé: quem bate o olho na
+  // ficha lê o par "Banca: Fulana" e segue. "Última banca" já diz que é a do
+  // certame passado antes de a pessoa chegar ao valor.
+  juntar(
+    ficha.bancaDoAnterior ? "Última banca" : "Banca",
+    ficha.banca,
+    ficha.bancaDoAnterior
+      ? ficha.anoAnterior
+        ? `Do concurso de ${ficha.anoAnterior}. A do próximo ainda não foi definida.`
+        : "Do concurso anterior. A do próximo ainda não foi definida."
+      : null,
+  );
   // Só entra quando alguém conferiu: `null` fica de fora em vez de virar "não".
   juntar("TAF", ficha.taf == null ? null : ficha.taf ? "Sim" : "Não");
   juntar("Carga horária", ficha.cargaHoraria ? `${ficha.cargaHoraria}h semanais` : null);

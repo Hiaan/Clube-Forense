@@ -18,6 +18,15 @@ export interface FichaConcurso {
   /** Divisão das vagas — cotas, ampla concorrência. Texto livre. */
   vagasDetalhe: string | null;
   banca: string | null;
+  /**
+   * True quando a banca mostrada é a do certame ANTERIOR, e não a do atual.
+   *
+   * Sem esta marca a ficha dizia "Banca: Fundação Aroeira" para o Tocantins,
+   * que está em comissão formada — ou seja, a banca do próximo concurso ainda
+   * está sendo licitada. Quem lesse entenderia que já foi escolhida, e
+   * estudaria pelo estilo de uma banca que pode não ser a da prova.
+   */
+  bancaDoAnterior: boolean;
   /** `null` é "não conferimos", e não "não tem". */
   taf: boolean | null;
   materias: string | null;

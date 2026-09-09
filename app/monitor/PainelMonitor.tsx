@@ -100,6 +100,7 @@ function CartaoEstado({
     vagasCr: estado.curadoria?.vagasCr ?? null,
     vagasDetalhe: estado.curadoria?.vagasDetalhe ?? null,
     banca: estado.curadoria?.banca ?? estado.historico?.banca ?? null,
+    bancaDoAnterior: !estado.curadoria?.banca && Boolean(estado.historico?.banca),
     taf: estado.curadoria?.taf ?? null,
     materias: estado.curadoria?.materias ?? null,
     etapasConcurso: estado.curadoria?.etapasConcurso ?? null,
