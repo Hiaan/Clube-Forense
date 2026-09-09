@@ -195,9 +195,16 @@ const PADROES: { nivel: Exclude<Nivel, "sem" | "noticia">; regex: RegExp }[] = [
   },
   {
     // 4. Comissão Formada — projeto básico, contratação/definição da banca.
+    //
+    // "Termo de referência" entra aqui, ao lado de "projeto básico": é o
+    // documento que a comissão publica para contratar a banca, e por isso é
+    // sinal DESTA etapa, não da seguinte — a banca ainda não existe, está
+    // sendo licitada. Sem ele na lista, uma notícia de TR caía em "menção
+    // recente", que é a gaveta do que o robô não soube classificar, e um
+    // avanço real do processo aparecia como ruído.
     nivel: "comissao",
     regex:
-      /comissao( organizadora| especial)? (formad|designad|instituid|nomead|criad|constituid|do concurso)|(formou|designou|instituiu|nomeou|criou|constituiu) (a )?comissao|projeto basico|banca em (definicao|analise|disputa|licitacao)|bancas em analise|(escolha|contratacao|definicao|licitacao) da banca|processo de (escolha|contratacao) da banca/,
+      /comissao( organizadora| especial)? (formad|designad|instituid|nomead|criad|constituid|do concurso)|(formou|designou|instituiu|nomeou|criou|constituiu) (a )?comissao|projeto basico|termo de referencia|banca em (definicao|analise|disputa|licitacao)|bancas em analise|(escolha|contratacao|definicao|licitacao) da banca|processo de (escolha|contratacao) da banca/,
   },
   {
     // 3. Concurso Autorizado — governo autorizou oficialmente.
