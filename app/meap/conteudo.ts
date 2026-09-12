@@ -241,6 +241,31 @@ export const DEPOIMENTOS: { nome: string; papel: string; texto: string }[] = [
   // { nome: "", papel: "", texto: "" },
 ];
 
+/** Título e nota da seção de feedbacks, logo antes da oferta. */
+export const FEEDBACKS_TEXTO = {
+  titulo: "Confira o que alguns alunos e clientes já falaram:",
+  nota: "Logo você receberá feedbacks de clientes satisfeitos dessa mesma forma.",
+};
+
+export type Feedback =
+  | { tipo: "imagem"; src: string; alt: string }
+  | { tipo: "video"; src: string; poster: string; alt: string };
+
+/**
+ * PREENCHER: prints e vídeos reais de alunos e clientes, com autorização de
+ * uso — mesma regra de PROJETOS e DEPOIMENTOS, logo acima. Cada item é uma
+ * imagem (print de comentário, de conversa etc.) ou um vídeo curto; o `alt`
+ * descreve o que aparece na captura, não inventa nome nem resultado que a
+ * imagem não mostre.
+ *
+ * Enquanto a lista estiver vazia, a seção inteira fica escondida — nada de
+ * carrossel vazio nem prova social fingida no ar.
+ */
+export const FEEDBACKS: Feedback[] = [
+  // { tipo: "imagem", src: "/feedbacks/01.jpg", alt: "" },
+  // { tipo: "video", src: "/feedbacks/02.mp4", poster: "/feedbacks/02.jpg", alt: "" },
+];
+
 export const AUTORA = {
   nome: "Queren Costa",
   chamada: "Especialista em Projetos Estruturais de Alto Padrão.",

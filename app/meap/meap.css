@@ -257,6 +257,12 @@
   -webkit-user-drag: none;
 }
 
+/* Mesmo motivo do carrossel dos módulos: sem isto, arrastar por cima de um
+   cartão no Safari vira arrastar a imagem, não girar o carrossel. */
+.meap .trilho-feedbacks img {
+  -webkit-user-drag: none;
+}
+
 /* Cartão sobre a faixa pêssego. */
 .meap .card-peach {
   background: rgba(255, 255, 255, 0.55);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
+import { CarrosselFeedbacks } from "./carrossel-feedbacks";
 import { CarrosselModulos } from "./carrossel-modulos";
 
 import {
@@ -13,6 +14,8 @@ import {
   DEPOIMENTOS,
   ENTREGAS,
   FAQ,
+  FEEDBACKS,
+  FEEDBACKS_TEXTO,
   GARANTIA,
   HERO,
   MARCA,
@@ -886,7 +889,7 @@ export default function MeapPage() {
             aparece em mais nenhuma seção: é o que a separa das outras duas de
             bônus, que são navy. */}
         <section className="bg-black text-white">
-          <div className="mx-auto max-w-6xl px-4 pt-16 pb-[9rem] sm:pt-20 sm:pb-[10rem]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-14">
               <div>
                 {/* Vermelho em vez do dourado do resto da página: é a única
@@ -920,6 +923,28 @@ export default function MeapPage() {
 
           </div>
         </section>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Feedbacks — carrossel 3D de prints e vídeos, logo antes da oferta.
+            Segue a mesma regra de PROJETOS e DEPOIMENTOS: enquanto a lista
+            estiver vazia, a seção some por inteiro. Navy 800 porque a seção
+            anterior (bônus da mentoria) é preta e a seguinte (oferta) é navy
+            900 — sem essa cor no meio, as duas ficariam encostadas na mesma
+            tonalidade escura de novo. */}
+        {FEEDBACKS.length > 0 && (
+          <section className="bg-[#1b243a]">
+            <div className="mx-auto max-w-4xl px-4 pt-16 pb-[9rem] text-center sm:pt-20 sm:pb-[10rem]">
+              <h2 className="font-sora text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                {FEEDBACKS_TEXTO.titulo}
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-sm italic text-white/50">
+                ({FEEDBACKS_TEXTO.nota})
+              </p>
+
+              <CarrosselFeedbacks itens={FEEDBACKS} />
+            </div>
+          </section>
+        )}
 
         <FaixaUrgencia para="#0f1626" />
 
