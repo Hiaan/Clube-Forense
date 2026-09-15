@@ -11,12 +11,12 @@ import { lerImlsDoEstado } from "../../../../lib/imlsRepo";
 import { lerPlano } from "../../../../lib/planoRepo";
 import { coletar } from "../../../../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../../../../monitor/lib/estados";
-import { consultasDoEstado } from "../../../../monitor/lib/fontes";
+import { consultasDoEstado, montarConsultas } from "../../../../monitor/lib/fontes";
 import { NIVEL_LABEL } from "../../../../monitor/lib/tipos";
 
 export const dynamic = "force-dynamic";
 
-// A coleta manual refaz 64 buscas sem cache; o teto padrão da função não dá
+// A coleta manual refaz dezenas de buscas sem cache; o teto padrão não dá
 // conta. A Vercel limita ao máximo do plano, então pedir mais que ele é
 // inofensivo — o que não pode é ficar no padrão e o botão morrer no meio.
 export const maxDuration = 60;
@@ -45,6 +45,9 @@ export default async function EditarEstado({
 
   const doEstado = relatorio?.estados.find((e) => e.uf === uf) ?? null;
   const consultas = consultasDoEstado(estado.nome);
+  // Calculado, e não escrito à mão: acrescentar um portal muda o número, e
+  // um "64 buscas" fixo viraria mentira na primeira vez que a lista crescesse.
+  const totalConsultas = montarConsultas().length;
 
   const sugestoes: MencaoSugerida[] = (doEstado?.mencoes ?? [])
     // A própria curadoria entra na coleta como uma menção; oferecê-la de volta
@@ -128,7 +131,7 @@ export default async function EditarEstado({
         </div>
 
         <div className="px-5 pb-4">
-          <BotaoColetar uf={uf} />
+          <BotaoColetar uf={uf} consultas={totalConsultas} />
         </div>
       </details>
 

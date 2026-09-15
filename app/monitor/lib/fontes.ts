@@ -35,6 +35,11 @@ const CARGOS_QUERY =
  * editais/autorizações saem primeiro) e grandes portais de notícia.
  */
 const PORTAIS = [
+  // O blog do próprio Clube. Estava de fora, e é a ausência mais estranha da
+  // lista: é quem cobre este nicho com mais atenção que qualquer portal geral,
+  // e chegou a publicar sobre o Acre antes de o monitor ver qualquer coisa —
+  // o radar não enxergava a própria casa.
+  "clubeforense.com.br",
   "pciconcursos.com.br",
   "folhadirigida.com.br",
   "jcconcursos.com.br",

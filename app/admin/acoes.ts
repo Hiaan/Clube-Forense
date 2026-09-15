@@ -614,8 +614,9 @@ export async function apagarProvaAcao(
  * de pesquisar mostra o que HÁ nas fontes, este diz o que o robô FEZ com isso,
  * sem esperar o ciclo do agendador.
  *
- * Custa 64 requisições ao Google Notícias — uma por consulta — e por isso é um
- * clique deliberado de quem administra, e não algo que a página faça sozinha.
+ * Custa uma requisição ao Google Notícias por consulta — hoje dezenas — e por
+ * isso é um clique deliberado de quem administra, e não algo que a página faça
+ * sozinha.
  *
  * A resposta fala do estado que está aberto, e não do país: quem clicou está
  * olhando um estado e quer saber daquele.
