@@ -208,15 +208,30 @@ const PADROES: { nivel: Exclude<Nivel, "sem" | "noticia">; regex: RegExp }[] = [
   },
   {
     // 3. Concurso Autorizado — governo autorizou oficialmente.
+    //
+    // "EDITAL previsto" entra aqui, e não em "edital em estudo": órgão nenhum
+    // anuncia prazo de edital antes de o concurso estar autorizado. Antes disso
+    // o que existe é estudo de viabilidade, e ninguém marca data para o que
+    // ainda pode não acontecer.
+    //
+    // Amarrado à palavra "edital" de propósito. Um `previst[oa]` solto aqui
+    // roubaria "vagas previstas na LOA", que é sinal ORÇAMENTÁRIO e pertence a
+    // "solicitado" — e como esta regra é avaliada antes daquela, o roubo seria
+    // silencioso. "Concurso previsto para 2027", sem edital, também segue em
+    // estudo: é expectativa, não cronograma.
     nivel: "autorizado",
     regex:
-      /autorizad|autorizou|autorizacao (do concurso|publicad|assinad|oficial)|governo autoriza|governador[a]? (autoriza|sanciona|assinou)|sancion|aprovou (a )?realizacao|homologou (a )?solicitacao/,
+      /autorizad|autorizou|autorizacao (do concurso|publicad|assinad|oficial)|governo autoriza|governador[a]? (autoriza|sanciona|assinou)|sancion|aprovou (a )?realizacao|homologou (a )?solicitacao|edita(l|is) previst[oa]s?|previst[oa]s? (o )?edital|previsao (do|de) edital|preve (o )?edital/,
   },
   {
     // 2. Concurso Solicitado — pedido enviado; sinal orçamentário conta.
+    //
+    // Concordância no plural e no feminino não é preciosismo aqui: a frase que
+    // mais aparece é "vagas PREVISTAS na LOA", e a regra só cobria "previsto".
+    // O caso mais comum do sinal orçamentário escapava para "edital em estudo".
     nivel: "solicitado",
     regex:
-      /solicitad|solicitou|pedido de (autorizacao|concurso|novo concurso)|encaminhou (o )?(pedido|oficio|solicitacao)|aguarda (autorizacao|aprovacao|aval)|(previsto|consta|contemplad[oa]|incluid[oa]) n[ao] (loa|ploa|pldo|lei orcamentaria|orcamento)|reserva de recursos/,
+      /solicitad|solicitou|pedido de (autorizacao|concurso|novo concurso)|encaminhou (o )?(pedido|oficio|solicitacao)|aguarda (autorizacao|aprovacao|aval)|(previst[oa]s?|consta[m]?|contemplad[oa]s?|incluid[oa]s?) n[ao] (loa|ploa|pldo|lei orcamentaria|orcamento)|reserva de recursos/,
   },
   {
     // 1. Edital em Estudo — intenção declarada, viabilidade, expectativa.
