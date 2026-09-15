@@ -81,10 +81,15 @@ const CURADORIA: EntradaCuradoria[] = [
   },
   {
     uf: "AC",
-    estagio: "estudo",
-    titulo: "PC-AC: concurso em estudos de viabilidade para 2026",
+    // "Definição da banca" é, pela nossa própria régua, Comissão Formada: a
+    // banca está sendo escolhida, e o contrato é o passo seguinte. Não dá para
+    // o robô chegar aqui sozinho — a manchete fala em "edital previsto", que é
+    // o degrau mais baixo, e o que muda o estágio está no corpo do texto, que o
+    // RSS não entrega.
+    estagio: "comissao",
+    titulo: "PC-AC: concurso anunciado com 4 vagas para perito médico-legista",
     resumo:
-      "O estado estuda a viabilidade de um novo concurso da área pericial para 2026. Ainda sem previsão concreta de edital.",
+      "São 139 vagas no total, 4 delas para perito médico-legista. A banca está em definição — a assinatura do contrato é a próxima etapa —, e o edital é previsto até dezembro de 2026. A remuneração ainda não foi divulgada.",
   },
 ];
 
