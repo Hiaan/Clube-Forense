@@ -10,6 +10,7 @@ import { lerImlsDoEstado } from "../../../../lib/imlsRepo";
 import { lerPlano } from "../../../../lib/planoRepo";
 import { coletar } from "../../../../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../../../../monitor/lib/estados";
+import { consultasDoEstado } from "../../../../monitor/lib/fontes";
 import { NIVEL_LABEL } from "../../../../monitor/lib/tipos";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +38,7 @@ export default async function EditarEstado({
   ]);
 
   const doEstado = relatorio?.estados.find((e) => e.uf === uf) ?? null;
+  const consultas = consultasDoEstado(estado.nome);
 
   const sugestoes: MencaoSugerida[] = (doEstado?.mencoes ?? [])
     // A própria curadoria entra na coleta como uma menção; oferecê-la de volta
@@ -69,6 +71,56 @@ export default async function EditarEstado({
             : "Sem coleta disponível agora — a edição funciona do mesmo jeito."}
         </p>
       </header>
+
+      {/* Conferir à mão o que o robô viu.
+          <details>, e não um pop-up: são só links, o painel é servido pelo
+          servidor e isto não precisa de JavaScript nenhum para funcionar. */}
+      <details className="mb-6 rounded-2xl border border-gray-200 bg-white">
+        <summary className="cursor-pointer list-none px-5 py-4 text-sm font-bold text-gray-900 hover:bg-gray-50">
+          🔎 Pesquisar notícias · {estado.nome}
+        </summary>
+        <div className="border-t border-gray-100 px-5 py-4">
+          <p className="mb-4 text-sm text-gray-500">
+            Abre as buscas que o monitor roda, para você ver o que ele vê. Se
+            uma notícia aparece aqui e não entrou no site, o problema é a
+            classificação — e aí é só ajustar a etapa acima.
+          </p>
+
+          <div className="flex flex-col gap-3">
+            {consultas.map((c) => (
+              <a
+                key={c.rotulo}
+                href={c.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl border border-gray-200 px-4 py-3 transition hover:border-gray-900"
+              >
+                <span className="block text-sm font-semibold text-gray-900">
+                  {c.rotulo} ↗
+                </span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-gray-500">
+                  {c.nota}
+                </span>
+              </a>
+            ))}
+
+            <a
+              href={estado.diarioOficial}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-gray-200 px-4 py-3 transition hover:border-gray-900"
+            >
+              <span className="block text-sm font-semibold text-gray-900">
+                Diário Oficial · {estado.nome} ↗
+              </span>
+              <span className="mt-0.5 block text-xs leading-relaxed text-gray-500">
+                A fonte que decide. Concurso só existe de verdade depois de
+                publicado aqui.
+              </span>
+            </a>
+          </div>
+        </div>
+      </details>
 
       {gravado === null && (
         <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">

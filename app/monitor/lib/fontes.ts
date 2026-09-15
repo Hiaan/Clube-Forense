@@ -59,6 +59,54 @@ function urlBusca(query: string): string {
   return `${GOOGLE_NEWS}?q=${encodeURIComponent(query)}&${PARAMS_BR}`;
 }
 
+/** Endereço do Google Notícias para GENTE ler, e não para o robô. */
+function urlHumana(query: string): string {
+  return `https://news.google.com/search?q=${encodeURIComponent(query)}&${PARAMS_BR}`;
+}
+
+export interface ConsultaHumana {
+  rotulo: string;
+  url: string;
+  /** Por que esta busca existe — o painel mostra ao lado do link. */
+  nota: string;
+}
+
+/**
+ * As mesmas buscas do robô, em versão navegável, para conferir à mão o que ele
+ * viu (ou não viu) sobre um estado.
+ *
+ * Existe porque "o monitor não pegou tal notícia" tem três causas possíveis —
+ * a notícia não saiu nas fontes, saiu e a consulta não a alcançou, ou saiu e
+ * foi classificada num estágio mais baixo do que se esperava — e só a primeira
+ * se responde de fora do sistema. Abrir a consulta do robô separa as três em
+ * segundos.
+ *
+ * A busca ampla NÃO leva os operadores: é ela que denuncia consulta estreita
+ * demais. Se ela traz o que a do robô não traz, o problema é a nossa consulta,
+ * e não a fonte.
+ */
+export function consultasDoEstado(nomeEstado: string): ConsultaHumana[] {
+  const apos = `after:${dataLimite()}`;
+  return [
+    {
+      rotulo: `Busca do robô — ${nomeEstado}`,
+      url: urlHumana(`concurso ${CARGOS_QUERY} ${nomeEstado} ${apos}`),
+      nota: "Idêntica à que o monitor roda de hora em hora para este estado.",
+    },
+    {
+      rotulo: "Busca do robô — nacional",
+      url: urlHumana(`concurso ${CARGOS_QUERY} ${apos}`),
+      nota: "A varredura ampla, sem recorte de estado.",
+    },
+    {
+      rotulo: `Busca livre — ${nomeEstado}`,
+      url: urlHumana(`concurso perito médico legista ${nomeEstado}`),
+      nota:
+        "Sem operadores e sem corte de data. Se esta trouxer o que as de cima não trazem, o estreito é a nossa consulta — me avise que eu ajusto.",
+    },
+  ];
+}
+
 /** Monta a lista de URLs de busca: nacional + uma por estado + uma por portal. */
 export function montarConsultas(): string[] {
   const apos = `after:${dataLimite()}`;
