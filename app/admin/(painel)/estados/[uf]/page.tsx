@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import BotaoColetar from "./BotaoColetar";
 import FormEstado, { type MencaoSugerida } from "./FormEstado";
 import { blobConfigurado } from "../../../../lib/blob";
 import { lerEstado } from "../../../../lib/estadosRepo";
@@ -14,6 +15,11 @@ import { consultasDoEstado } from "../../../../monitor/lib/fontes";
 import { NIVEL_LABEL } from "../../../../monitor/lib/tipos";
 
 export const dynamic = "force-dynamic";
+
+// A coleta manual refaz 64 buscas sem cache; o teto padrão da função não dá
+// conta. A Vercel limita ao máximo do plano, então pedir mais que ele é
+// inofensivo — o que não pode é ficar no padrão e o botão morrer no meio.
+export const maxDuration = 60;
 
 /** Quantas manchetes do robô mostrar como sugestão. Mais que isso vira ruído. */
 const MAX_SUGESTOES = 8;
@@ -119,6 +125,10 @@ export default async function EditarEstado({
               </span>
             </a>
           </div>
+        </div>
+
+        <div className="px-5 pb-4">
+          <BotaoColetar uf={uf} />
         </div>
       </details>
 

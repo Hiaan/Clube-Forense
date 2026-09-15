@@ -29,8 +29,11 @@ import {
   salvarProva,
 } from "../lib/provasRepo";
 import { interpretarGabarito, type EstiloProva, type MateriaProva } from "../lib/ranking";
+import { coletar } from "../monitor/lib/coletor";
+import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { lerPlanilha } from "../monitor/lib/planilha";
-import type { Nivel } from "../monitor/lib/tipos";
+import { registrarColeta } from "../lib/sistemaRepo";
+import { NIVEL_LABEL, type Nivel } from "../monitor/lib/tipos";
 
 /** Garante que quem chamou está autenticado. Lança se não estiver. */
 async function exigirAdmin(): Promise<void> {
@@ -598,4 +601,87 @@ export async function apagarProvaAcao(
   revalidatePath("/ranking");
   revalidatePath("/admin/provas");
   redirect("/admin/provas");
+}
+
+// ---------------------------------------------------------------------------
+// Coleta manual
+// ---------------------------------------------------------------------------
+
+/**
+ * Roda a coleta agora, ignorando o cache de uma hora dos feeds.
+ *
+ * Existe para a pergunta "saiu alguma coisa e o monitor não pegou?": o botão
+ * de pesquisar mostra o que HÁ nas fontes, este diz o que o robô FEZ com isso,
+ * sem esperar o ciclo do agendador.
+ *
+ * Custa 64 requisições ao Google Notícias — uma por consulta — e por isso é um
+ * clique deliberado de quem administra, e não algo que a página faça sozinha.
+ *
+ * A resposta fala do estado que está aberto, e não do país: quem clicou está
+ * olhando um estado e quer saber daquele.
+ */
+export async function coletarAgoraAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const uf = String(dados.get("uf") ?? "").trim().toUpperCase();
+    if (!/^[A-Z]{2}$/.test(uf)) return { ok: false, mensagem: "UF inválida." };
+
+    const relatorio = await coletar({ semCache: true });
+
+    // Mesmo registro que o cron faz: sem isto, o "Notícias checadas em" do
+    // site continuaria mostrando a hora da última passada automática.
+    await registrarColeta({
+      em: relatorio.atualizadoEm,
+      estadosComNovidade: relatorio.estados.filter((e) => e.nivel !== "sem").length,
+      fonteIndisponivel: relatorio.fonteIndisponivel,
+    });
+
+    revalidatePath("/");
+    revalidatePath("/monitor");
+    revalidatePath(`/admin/estados/${uf}`);
+
+    if (relatorio.fonteIndisponivel) {
+      return {
+        ok: false,
+        mensagem:
+          "Nenhuma fonte externa respondeu agora. Não é conclusão sobre o estado — é a busca que não chegou. Tente de novo em alguns minutos.",
+      };
+    }
+
+    const doEstado = relatorio.estados.find((e) => e.uf === uf);
+    const nome = ESTADO_POR_UF[uf]?.nome ?? uf;
+    // Descontadas as menções da curadoria: o que interessa aqui é o que o robô
+    // trouxe de fora, e não o que nós mesmos escrevemos.
+    const coletadas = (doEstado?.mencoes ?? []).filter((m) => !m.daCuradoria);
+
+    if (coletadas.length === 0) {
+      return {
+        ok: true,
+        mensagem: `Coleta refeita. Nenhuma notícia sobre ${nome} nas fontes agora — use "Pesquisar notícias" acima para conferir por fora.`,
+      };
+    }
+
+    const maisNova = coletadas
+      .map((m) => m.data)
+      .filter((d): d is string => Boolean(d))
+      .sort()
+      .pop();
+    const quando = maisNova
+      ? ` A mais recente é de ${new Date(maisNova).toLocaleDateString("pt-BR")}.`
+      : "";
+
+    return {
+      ok: true,
+      mensagem:
+        `Coleta refeita: ${coletadas.length} notícia(s) sobre ${nome}.${quando} ` +
+        `O robô classificou o estado como “${NIVEL_LABEL[doEstado!.nivel]}”. ` +
+        "Recarregue a página para ver as manchetes na lista de sugestões.",
+    };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na coleta." };
+  }
 }

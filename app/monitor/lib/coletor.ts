@@ -65,15 +65,17 @@ const DIAS_RELEVANTES = 120;
 // Busca de feeds
 // ---------------------------------------------------------------------------
 
-async function buscarFeed(url: string): Promise<string | null> {
+async function buscarFeed(url: string, semCache = false): Promise<string | null> {
   const controlador = new AbortController();
   const timer = setTimeout(() => controlador.abort(), TIMEOUT_MS);
   try {
     const resp = await fetch(url, {
       signal: controlador.signal,
       headers: { "User-Agent": "Mozilla/5.0 (compatible; AprovaLegistaMonitor/1.0)" },
-      // Cache do Next: revalida de hora em hora.
-      next: { revalidate: 3600 },
+      // Cache do Next: revalida de hora em hora. `semCache` fura isso para a
+      // coleta manual do painel, que existe justamente para responder "e
+      // agora, saiu alguma coisa?" — esperar o cache vencer anularia o botão.
+      ...(semCache ? { cache: "no-store" as const } : { next: { revalidate: 3600 } }),
     });
     if (!resp.ok) return null;
     return await resp.text();
@@ -161,12 +163,17 @@ function nivelMaisAvancado(a: Nivel, b: Nivel): Nivel {
   return NIVEL_PESO[a] >= NIVEL_PESO[b] ? a : b;
 }
 
+export interface OpcoesColeta {
+  /** Ignora o cache de uma hora dos feeds. Custa 64 requisições; use com razão. */
+  semCache?: boolean;
+}
+
 /** Coleta e consolida o relatório completo. */
-export async function coletar(): Promise<Relatorio> {
+export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<Relatorio> {
   // Curadoria, Google Notícias e Instagram (posts já raspados) em paralelo.
   const [curadoria, feeds, postsInstagram] = await Promise.all([
     obterCuradoria(),
-    Promise.all(montarConsultas().map(buscarFeed)),
+    Promise.all(montarConsultas().map((u) => buscarFeed(u, semCache))),
     instagramConfigurado() ? lerPostsInstagram() : Promise.resolve([]),
   ]);
 
