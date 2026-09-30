@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   EMAIL_VALIDO,
@@ -13,6 +12,7 @@ import {
   whatsAppValido,
   type Dia,
 } from "@/lib/agenda";
+import GerenciadorAnuncios from "./GerenciadorAnuncios";
 import Logo from "./Logo";
 import { IconeCadeado, IconeCalendario, IconeCheck, IconeRelogio, IconeSeta, IconeSetaEsquerda, MarcaWhatsApp } from "./Icones";
 
@@ -149,22 +149,8 @@ export default function Agendamento() {
             ))}
           </ul>
 
-          <div className="relative mt-12 hidden lg:block" data-reveal="direita">
-            <Image
-              src="/img/gerenciador.webp"
-              alt="Gerenciador de Anúncios da Meta mostrando R$ 2,30 por contato do site e R$ 528.717,04 em valor gasto"
-              width={485}
-              height={965}
-              className="h-auto w-[78%] rounded-2xl drop-shadow-[0_30px_60px_rgba(227,18,28,0.25)]"
-              style={{
-                maskImage:
-                  "linear-gradient(90deg, transparent 0%, #000 18%), linear-gradient(180deg, #000 55%, transparent 100%)",
-                maskComposite: "intersect",
-                WebkitMaskImage:
-                  "linear-gradient(90deg, transparent 0%, #000 18%), linear-gradient(180deg, #000 55%, transparent 100%)",
-                WebkitMaskComposite: "source-in",
-              }}
-            />
+          <div className="relative mt-14 hidden lg:block" data-reveal="direita">
+            <GerenciadorAnuncios />
           </div>
         </div>
 

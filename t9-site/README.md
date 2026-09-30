@@ -26,7 +26,10 @@ npm run dev
 
 ## Para onde vão os leads
 
-O formulário envia para `POST /api/agendamento`, que repassa tudo em JSON para a URL de `LEAD_WEBHOOK_URL`. Essa URL pode ser de Zapier, Make, n8n, Google Apps Script (planilha) ou do próprio CRM.
+O formulário envia para `POST /api/agendamento`, que repassa o lead:
+
+- por e-mail para `LEAD_EMAIL`, usando o [FormSubmit](https://formsubmit.co). Não precisa de conta. No primeiro envio, chega um e-mail de ativação que precisa ser clicado uma vez; até lá, os envios falham.
+- em JSON para a URL de `LEAD_WEBHOOK_URL`. Essa URL pode ser de Zapier, Make, n8n, Google Apps Script (planilha) ou do próprio CRM.
 
 São dois envios:
 
@@ -52,7 +55,7 @@ São dois envios:
 }
 ```
 
-> Sem `LEAD_WEBHOOK_URL`, os leads só aparecem nos logs do servidor. Configure antes de divulgar o site.
+> Sem `LEAD_EMAIL` nem `LEAD_WEBHOOK_URL`, os leads só aparecem nos logs do servidor.
 
 ## Variáveis de ambiente
 
@@ -60,7 +63,8 @@ Veja `.env.example`.
 
 | Variável | Para quê |
 |---|---|
-| `LEAD_WEBHOOK_URL` | Destino dos leads e agendamentos |
+| `LEAD_EMAIL` | E-mail que recebe os leads |
+| `LEAD_WEBHOOK_URL` | Destino dos leads e agendamentos em JSON (opcional) |
 | `NEXT_PUBLIC_T9_WHATSAPP` | WhatsApp da T9 (ex.: `5511999999999`). Mostra o botão "Confirmar pelo WhatsApp" depois do agendamento |
 | `NEXT_PUBLIC_SITE_URL` | Endereço final do site, usado na imagem de compartilhamento |
 
@@ -72,10 +76,7 @@ A agenda não consulta um calendário real. A equipe confirma cada horário pelo
 
 ## Imagens
 
-Em `public/img`, recortadas das artes do carrossel:
-
-- `hero-t9.webp`
-- `gerenciador.webp`
+A foto do hero (`public/img/hero-t9.webp`) foi recortada da arte principal. O painel do Gerenciador de Anúncios, na seção de agendamento, foi refeito em HTML.
 
 O logo foi vetorizado a partir das artes e está em `app/components/Logo.tsx`.
 

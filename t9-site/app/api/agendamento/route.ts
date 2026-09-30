@@ -62,24 +62,74 @@ export async function POST(request: Request) {
     recebidoEm: new Date().toISOString(),
   };
 
-  const webhook = process.env.LEAD_WEBHOOK_URL;
-  if (!webhook) {
-    console.warn("[agendamento] LEAD_WEBHOOK_URL não configurada. Lead recebido:", JSON.stringify(lead));
+  const envios: Promise<void>[] = [];
+  if (process.env.LEAD_EMAIL) envios.push(enviarPorEmail(process.env.LEAD_EMAIL, lead));
+  if (process.env.LEAD_WEBHOOK_URL) envios.push(enviarPorWebhook(process.env.LEAD_WEBHOOK_URL, lead));
+
+  if (!envios.length) {
+    console.warn("[agendamento] Nenhum destino configurado (LEAD_EMAIL ou LEAD_WEBHOOK_URL). Lead recebido:", JSON.stringify(lead));
     return Response.json({ ok: true, entregue: false });
   }
 
-  try {
-    const resposta = await fetch(webhook, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(lead),
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!resposta.ok) throw new Error(`webhook respondeu ${resposta.status}`);
-  } catch (erro) {
-    console.error("[agendamento] Falha ao entregar o lead:", erro, JSON.stringify(lead));
+  const resultados = await Promise.allSettled(envios);
+  const falhas = resultados.filter((r): r is PromiseRejectedResult => r.status === "rejected");
+  falhas.forEach((f) => console.error("[agendamento] Falha ao entregar o lead:", f.reason, JSON.stringify(lead)));
+
+  // Basta um destino receber para o lead não se perder.
+  if (falhas.length === resultados.length) {
     return Response.json({ ok: false, erro: "Não conseguimos registrar agora. Tente de novo em instantes." }, { status: 502 });
   }
-
   return Response.json({ ok: true, entregue: true });
+}
+
+type Lead = {
+  etapa: string;
+  nome: string;
+  email: string;
+  whatsapp: string;
+  whatsappFormatado: string;
+  faturamento: string | null;
+  reuniao: { descricao: string } | null;
+  origem: string | null;
+};
+
+async function enviarPorWebhook(url: string, lead: Lead) {
+  const resposta = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(lead),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!resposta.ok) throw new Error(`webhook respondeu ${resposta.status}`);
+}
+
+/**
+ * E-mail via FormSubmit (formsubmit.co): sem conta nem chave. No primeiro envio,
+ * o FormSubmit manda para o endereço um link de ativação que precisa ser clicado uma vez.
+ */
+async function enviarPorEmail(destino: string, lead: Lead) {
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://t9-ads-company.vercel.app";
+  const agendou = lead.etapa === "agendamento";
+  const resposta = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(destino)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json", Origin: site, Referer: `${site}/` },
+    body: JSON.stringify({
+      _subject: agendou ? `Reunião agendada: ${lead.nome}` : `Novo lead (ainda sem horário): ${lead.nome}`,
+      _template: "table",
+      _captcha: "false",
+      _replyto: lead.email,
+      Situação: agendou ? "Agendou a consultoria" : "Preencheu os dados; ainda não escolheu horário",
+      Reunião: lead.reuniao?.descricao ?? "—",
+      Nome: lead.nome,
+      "E-mail": lead.email,
+      WhatsApp: `${lead.whatsappFormatado} (https://wa.me/${lead.whatsapp})`,
+      Faturamento: lead.faturamento ?? "Não informado",
+      Origem: lead.origem ?? "—",
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+  const json = (await resposta.json().catch(() => ({}))) as { success?: string | boolean; message?: string };
+  if (!resposta.ok || String(json.success) !== "true") {
+    throw new Error(`FormSubmit: ${json.message ?? resposta.status}`);
+  }
 }
