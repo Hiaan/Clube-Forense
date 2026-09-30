@@ -1,3 +1,4 @@
+import { armazenamentoConfigurado, salvarLead, type LeadSalvo } from "@/lib/leads";
 import { EMAIL_VALIDO, FAIXAS_FATURAMENTO, dataPorExtenso, horarioValido, soDigitos, whatsAppValido } from "@/lib/agenda";
 
 type Corpo = {
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, erro: "Confira os campos destacados.", campos: erros }, { status: 422 });
   }
 
-  const lead = {
+  const lead: LeadSalvo = {
     etapa,
     nome,
     email,
@@ -62,18 +63,19 @@ export async function POST(request: Request) {
     recebidoEm: new Date().toISOString(),
   };
 
-  // Todo lead fica registrado nos logs da Vercel, como cópia de segurança.
-  // O e-mail sai do navegador do visitante (ver lib/emailLead.ts): o FormSubmit
-  // bloqueia envios vindos de servidores com 403.
+  // Cópia nos logs da Vercel, sempre. Os logs duram pouco (cerca de 1 hora no
+  // plano gratuito); o registro que fica é o do Blob, logo abaixo.
+  // O e-mail sai do navegador do visitante (ver lib/emailLead.ts).
   console.info("[agendamento] Lead recebido:", JSON.stringify(lead));
 
   const envios: Promise<void>[] = [];
+  if (armazenamentoConfigurado()) envios.push(salvarLead(lead));
   if (process.env.LEAD_WEBHOOK_URL) envios.push(enviarPorWebhook(process.env.LEAD_WEBHOOK_URL, lead));
   if (!envios.length) return Response.json({ ok: true });
 
   const resultados = await Promise.allSettled(envios);
   const falhas = resultados.filter((r): r is PromiseRejectedResult => r.status === "rejected");
-  falhas.forEach((f) => console.error("[agendamento] Falha ao entregar o lead:", f.reason, JSON.stringify(lead)));
+  falhas.forEach((f) => console.error("[agendamento] Falha ao guardar o lead:", f.reason, JSON.stringify(lead)));
 
   // Basta um destino receber para o lead não se perder.
   if (falhas.length === resultados.length) {
@@ -82,18 +84,8 @@ export async function POST(request: Request) {
   return Response.json({ ok: true });
 }
 
-type Lead = {
-  etapa: string;
-  nome: string;
-  email: string;
-  whatsapp: string;
-  whatsappFormatado: string;
-  faturamento: string | null;
-  reuniao: { descricao: string } | null;
-  origem: string | null;
-};
 
-async function enviarPorWebhook(url: string, lead: Lead) {
+async function enviarPorWebhook(url: string, lead: LeadSalvo) {
   const resposta = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

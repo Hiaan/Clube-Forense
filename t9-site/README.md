@@ -55,7 +55,11 @@ São dois envios:
 }
 ```
 
-> Todo lead também fica registrado nos logs da Vercel (`[agendamento] Lead recebido`), como cópia de segurança.
+Todo lead é guardado no **Vercel Blob** (um arquivo JSON por envio, na pasta `leads/`) e aparece em **`/leads?chave=SUA_CHAVE`**, agrupado por pessoa. A mesma página tem o botão para baixar a planilha em CSV.
+
+Para funcionar, o Blob store precisa estar conectado ao projeto na Vercel (Storage → Create → Blob, com acesso **Private**). A conexão cria o `BLOB_READ_WRITE_TOKEN` sozinha.
+
+> Os leads também vão para os logs da Vercel (`[agendamento] Lead recebido`), mas lá duram pouco: cerca de 1 hora no plano gratuito.
 
 ## Variáveis de ambiente
 
@@ -66,6 +70,8 @@ Veja `.env.example`.
 | `NEXT_PUBLIC_LEAD_EMAIL` | E-mail que recebe os leads (ou o código do FormSubmit) |
 | `LEAD_WEBHOOK_URL` | Destino dos leads e agendamentos em JSON (opcional) |
 | `NEXT_PUBLIC_T9_WHATSAPP` | WhatsApp da T9 (ex.: `5511999999999`). Mostra o botão "Confirmar pelo WhatsApp" depois do agendamento |
+| `LEADS_CHAVE` | Chave de acesso da página `/leads` |
+| `BLOB_READ_WRITE_TOKEN` | Criado pela Vercel ao conectar o Blob store |
 | `NEXT_PUBLIC_SITE_URL` | Endereço final do site, usado na imagem de compartilhamento |
 
 ## Horários da agenda
