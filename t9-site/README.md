@@ -28,7 +28,7 @@ npm run dev
 
 O formulário envia para `POST /api/agendamento`, que repassa o lead:
 
-- por e-mail para `LEAD_EMAIL`, usando o [FormSubmit](https://formsubmit.co). Não precisa de conta. No primeiro envio, chega um e-mail de ativação que precisa ser clicado uma vez; até lá, os envios falham.
+- por e-mail para `NEXT_PUBLIC_LEAD_EMAIL`, usando o [FormSubmit](https://formsubmit.co), direto do navegador do visitante. O FormSubmit recusa chamadas vindas de servidores. Não precisa de conta. No primeiro envio, chega um e-mail de ativação que precisa ser clicado uma vez.
 - em JSON para a URL de `LEAD_WEBHOOK_URL`. Essa URL pode ser de Zapier, Make, n8n, Google Apps Script (planilha) ou do próprio CRM.
 
 São dois envios:
@@ -55,7 +55,7 @@ São dois envios:
 }
 ```
 
-> Sem `LEAD_EMAIL` nem `LEAD_WEBHOOK_URL`, os leads só aparecem nos logs do servidor.
+> Todo lead também fica registrado nos logs da Vercel (`[agendamento] Lead recebido`), como cópia de segurança.
 
 ## Variáveis de ambiente
 
@@ -63,7 +63,7 @@ Veja `.env.example`.
 
 | Variável | Para quê |
 |---|---|
-| `LEAD_EMAIL` | E-mail que recebe os leads |
+| `NEXT_PUBLIC_LEAD_EMAIL` | E-mail que recebe os leads (ou o código do FormSubmit) |
 | `LEAD_WEBHOOK_URL` | Destino dos leads e agendamentos em JSON (opcional) |
 | `NEXT_PUBLIC_T9_WHATSAPP` | WhatsApp da T9 (ex.: `5511999999999`). Mostra o botão "Confirmar pelo WhatsApp" depois do agendamento |
 | `NEXT_PUBLIC_SITE_URL` | Endereço final do site, usado na imagem de compartilhamento |

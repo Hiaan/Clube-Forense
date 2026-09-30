@@ -12,6 +12,7 @@ import {
   whatsAppValido,
   type Dia,
 } from "@/lib/agenda";
+import { enviarLeadPorEmail } from "@/lib/emailLead";
 import GerenciadorAnuncios from "./GerenciadorAnuncios";
 import Logo from "./Logo";
 import { IconeCadeado, IconeCalendario, IconeCheck, IconeRelogio, IconeSeta, IconeSetaEsquerda, MarcaWhatsApp } from "./Icones";
@@ -31,6 +32,16 @@ async function enviar(corpo: Record<string, string>) {
   });
   const json = await resposta.json().catch(() => ({}));
   if (!resposta.ok || !json.ok) throw new Error(json.erro ?? "Não conseguimos registrar agora. Tente de novo.");
+  if (corpo.site) return; // armadilha de robô preenchida: não manda e-mail
+  enviarLeadPorEmail({
+    etapa: corpo.etapa,
+    nome: corpo.nome,
+    email: corpo.email,
+    whatsapp: corpo.whatsapp,
+    faturamento: corpo.faturamento,
+    data: corpo.data,
+    horario: corpo.horario,
+  });
 }
 
 function validar(d: Dados) {
