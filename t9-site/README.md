@@ -1,0 +1,82 @@
+# Site da T9 ADS Company
+
+Landing page da T9, construída a partir do carrossel "Entenda o que a T9 faz", com um agendador de consultoria no final.
+
+Projeto independente do site do Clube Forense: tem o próprio `package.json` e é publicado separadamente.
+
+## Seções
+
+1. **Hero** — "Entenda o que a T9 faz"
+2. **Faixa rolante** — serviços e plataformas
+3. **1 · Entender** — "Tudo começa no alinhamento", com os 8 pontos do diagnóstico
+4. **2 · Estruturar** — trajetória Hoje → Objetivo, desenhada ao rolar
+5. **3 · Construir** — serviços e "E muito mais"
+6. **Resultados** — cards de valor gasto com contadores
+7. **Feedbacks** — conversas de clientes, com nomes e marcas ocultados
+8. **Método** — as 4 semanas, com a linha que acende ao rolar
+9. **Agendamento** — dados (nome, e-mail, WhatsApp e faturamento opcional), depois data e horário, depois a confirmação
+
+## Rodar localmente
+
+```bash
+cd t9-site
+npm install
+npm run dev
+```
+
+## Para onde vão os leads
+
+O formulário envia para `POST /api/agendamento`, que repassa tudo em JSON para a URL de `LEAD_WEBHOOK_URL`. Essa URL pode ser de Zapier, Make, n8n, Google Apps Script (planilha) ou do próprio CRM.
+
+São dois envios:
+
+- `etapa: "lead"` — logo depois de preencher os dados. Assim o contato fica salvo mesmo que a pessoa não escolha horário.
+- `etapa: "agendamento"` — com `reuniao.data` e `reuniao.horario`, no horário de Brasília.
+
+```json
+{
+  "etapa": "agendamento",
+  "nome": "Maria Silva",
+  "email": "maria@empresa.com.br",
+  "whatsapp": "5511912345678",
+  "whatsappFormatado": "(11) 91234-5678",
+  "faturamento": "De R$ 40 mil a R$ 100 mil/mês",
+  "reuniao": {
+    "data": "2026-10-01",
+    "horario": "15:00",
+    "fuso": "America/Sao_Paulo",
+    "descricao": "quinta-feira, 1 de outubro, às 15:00 (horário de Brasília)"
+  },
+  "origem": "https://site.com/?utm_source=instagram",
+  "recebidoEm": "2026-09-30T21:00:00.000Z"
+}
+```
+
+> Sem `LEAD_WEBHOOK_URL`, os leads só aparecem nos logs do servidor. Configure antes de divulgar o site.
+
+## Variáveis de ambiente
+
+Veja `.env.example`.
+
+| Variável | Para quê |
+|---|---|
+| `LEAD_WEBHOOK_URL` | Destino dos leads e agendamentos |
+| `NEXT_PUBLIC_T9_WHATSAPP` | WhatsApp da T9 (ex.: `5511999999999`). Mostra o botão "Confirmar pelo WhatsApp" depois do agendamento |
+| `NEXT_PUBLIC_SITE_URL` | Endereço final do site, usado na imagem de compartilhamento |
+
+## Horários da agenda
+
+Ficam em `lib/agenda.ts`: dias úteis oferecidos, horários (`HORARIOS`), duração da reunião e faixas de faturamento.
+
+A agenda não consulta um calendário real. A equipe confirma cada horário pelo WhatsApp. Para bloquear horários já ocupados automaticamente, o próximo passo é integrar com o Google Agenda ou o Cal.com.
+
+## Imagens
+
+Em `public/img`, recortadas das artes do carrossel:
+
+- `hero-t9.webp`
+- `gerenciador.webp`
+
+O logo foi vetorizado a partir das artes e está em `app/components/Logo.tsx`.
+
+Se houver os arquivos originais (foto sem o texto "T9 FAZ" e logo em SVG), basta substituir.

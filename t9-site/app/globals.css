@@ -1,0 +1,633 @@
+@import "tailwindcss";
+
+:root {
+  --preto: #070102;
+  --vinho: #5c070b;
+  --vinho-2: #3a0406;
+  --faixa: #7c0409;
+  --vermelho: #e3121c;
+  --vermelho-vivo: #ff2d38;
+  --branco-suave: #f6f3f3;
+}
+
+@theme inline {
+  --font-sans: var(--font-lexend);
+  --font-display: var(--font-archivo);
+  --color-vermelho: var(--vermelho);
+  --color-vermelho-vivo: var(--vermelho-vivo);
+  --color-vinho: var(--vinho);
+  --color-preto: var(--preto);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+  background: var(--preto);
+}
+
+body {
+  background: var(--preto);
+  color: #fff;
+  font-family: var(--font-lexend), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--vermelho);
+  color: #fff;
+}
+
+/* Componentes numa camada própria, para que os utilitários do Tailwind possam sobrescrevê-los. */
+@layer components {
+  .container-t9 {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+  @media (min-width: 640px) {
+    .container-t9 {
+      padding-inline: 32px;
+    }
+  }
+
+  /* ---------- Fundos no estilo das artes ---------- */
+
+  .fundo-post {
+    background:
+      radial-gradient(120% 80% at 0% 0%, rgba(140, 12, 18, 0.85) 0%, rgba(80, 6, 10, 0.55) 35%, transparent 70%),
+      radial-gradient(60% 60% at 100% 100%, rgba(120, 8, 14, 0.35) 0%, transparent 70%),
+      linear-gradient(135deg, #3c0507 0%, #150203 55%, #070102 100%);
+  }
+
+  .fundo-pontilhado {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1.2px);
+    background-size: 6px 6px;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 60%);
+  }
+
+  .brilho-canto {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(255, 45, 56, 0.55) 0%, rgba(255, 45, 56, 0) 65%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+
+  .texto-brilho {
+    text-shadow:
+      0 0 24px rgba(255, 45, 56, 0.45),
+      0 0 2px rgba(255, 255, 255, 0.2);
+  }
+
+  /* ---------- Faixa com número ---------- */
+
+  .faixa {
+    background: linear-gradient(90deg, #8a050b 0%, #6d0308 60%, #4a0205 100%);
+    border-block: 1px solid rgba(255, 60, 70, 0.18);
+    box-shadow: 0 10px 40px -10px rgba(200, 10, 20, 0.45);
+  }
+
+  .faixa-numero {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #3a0204, #1a0102);
+    border: 1.5px solid rgba(255, 60, 70, 0.75);
+    box-shadow:
+      0 4px 0 -1px #c0101a,
+      inset 0 0 18px rgba(255, 30, 40, 0.25);
+    font-family: var(--font-archivo);
+    font-weight: 900;
+    font-size: 1.9rem;
+    color: #fff;
+  }
+  @media (max-width: 639px) {
+    .faixa-numero {
+      width: 46px;
+      height: 46px;
+      font-size: 1.5rem;
+      border-radius: 12px;
+    }
+  }
+
+  /* ---------- Pills ---------- */
+
+  .pill {
+    display: flex;
+    align-items: stretch;
+    min-height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(100deg, rgba(40, 3, 5, 0.95) 0%, rgba(18, 2, 3, 0.95) 100%);
+    border: 1.5px solid rgba(230, 30, 40, 0.55);
+    box-shadow:
+      0 5px 0 -1px rgba(200, 16, 26, 0.85),
+      0 14px 30px -12px rgba(255, 30, 40, 0.35);
+    overflow: hidden;
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.35s,
+      border-color 0.35s;
+  }
+  .pill:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 70, 80, 0.95);
+    box-shadow:
+      0 7px 0 -1px rgba(230, 20, 30, 1),
+      0 20px 40px -12px rgba(255, 30, 40, 0.55);
+  }
+  .pill-icone {
+    display: grid;
+    place-items: center;
+    flex: 0 0 64px;
+    background: linear-gradient(160deg, #a10710 0%, #5a0308 100%);
+    border-right: 1.5px solid rgba(255, 70, 80, 0.55);
+    border-radius: 0 16px 16px 0;
+    color: #fff;
+  }
+  .pill-icone svg {
+    width: 28px;
+    height: 28px;
+  }
+  .pill-texto {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    font-size: 1.15rem;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    line-height: 1.25;
+  }
+  .pill-destaque {
+    background: linear-gradient(90deg, #b30b14 0%, #8a050c 100%);
+    border-color: rgba(255, 80, 90, 0.8);
+  }
+  .pill-destaque .pill-icone {
+    background: linear-gradient(160deg, #3a0204, #1a0102);
+  }
+  .pill-destaque .pill-texto {
+    font-family: var(--font-archivo);
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+  @media (min-width: 640px) {
+    .pill {
+      min-height: 72px;
+    }
+    .pill-icone {
+      flex-basis: 72px;
+    }
+    .pill-texto {
+      font-size: 1.4rem;
+    }
+    .pill-destaque .pill-texto {
+      font-size: 1.45rem;
+    }
+  }
+
+  /* ---------- Ícones 3D ---------- */
+
+  .tile {
+    position: relative;
+    display: grid;
+    place-items: center;
+    border-radius: 24%;
+    transform: perspective(600px) rotateX(10deg) rotateY(-12deg);
+    box-shadow:
+      inset 0 2px 1px rgba(255, 255, 255, 0.55),
+      inset 0 -6px 12px rgba(0, 0, 0, 0.25),
+      0 18px 30px -8px var(--glow, rgba(255, 40, 50, 0.6)),
+      0 0 40px -6px var(--glow, rgba(255, 40, 50, 0.6));
+  }
+  .tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 45%);
+    pointer-events: none;
+  }
+  .tile-instagram {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 95%);
+    --glow: rgba(214, 36, 159, 0.65);
+  }
+  .tile-whatsapp {
+    background: linear-gradient(160deg, #5cf57f 0%, #1fb345 60%, #128a33 100%);
+    --glow: rgba(37, 211, 102, 0.6);
+  }
+  .tile-meta {
+    background: linear-gradient(160deg, #4aa3ff 0%, #0866ff 55%, #0048c7 100%);
+    --glow: rgba(8, 102, 255, 0.75);
+  }
+  .tile-google {
+    background: linear-gradient(160deg, #ffffff 0%, #f1ebe6 100%);
+    --glow: rgba(255, 180, 150, 0.45);
+  }
+  .tile-ia {
+    background: linear-gradient(160deg, #fffaf5 0%, #f5e6da 100%);
+    --glow: rgba(255, 110, 60, 0.55);
+  }
+
+  .flutua {
+    animation: flutua 6s ease-in-out infinite;
+    animation-delay: var(--atraso, 0s);
+  }
+  @keyframes flutua {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -14px;
+    }
+  }
+
+  /* ---------- Botões ---------- */
+
+  .botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 0 28px;
+    border-radius: 9999px;
+    font-family: var(--font-archivo);
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    transition:
+      transform 0.25s,
+      box-shadow 0.25s,
+      background 0.25s;
+  }
+  .botao:active {
+    transform: scale(0.98);
+  }
+  .botao-vermelho {
+    background: linear-gradient(180deg, #ff3540 0%, #e0111b 100%);
+    color: #fff;
+    box-shadow:
+      0 10px 30px -8px rgba(255, 40, 50, 0.75),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  .botao-vermelho:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 16px 40px -8px rgba(255, 40, 50, 0.9),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  .botao-contorno {
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(6px);
+  }
+  .botao-contorno:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .botao:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ---------- Revelação ao rolar ---------- */
+
+  [data-reveal] {
+    opacity: 0;
+    translate: 0 28px;
+    transition:
+      opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+      translate 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+      scale 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+      filter 0.8s;
+    transition-delay: var(--d, 0ms);
+  }
+  [data-reveal="zoom"] {
+    translate: 0 0;
+    scale: 0.92;
+    filter: blur(8px);
+  }
+  [data-reveal="esquerda"] {
+    translate: -40px 0;
+  }
+  [data-reveal="direita"] {
+    translate: 40px 0;
+  }
+  /* O recorte fica no filho: o IntersectionObserver ignora elementos 100% recortados. */
+  [data-reveal="faixa"] {
+    translate: 0 0;
+    opacity: 1;
+  }
+  [data-reveal="faixa"] > .faixa {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 1s cubic-bezier(0.7, 0, 0.2, 1);
+  }
+  [data-reveal].visivel {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: none;
+  }
+  [data-reveal="faixa"].visivel > .faixa {
+    clip-path: inset(0 0 0 0);
+  }
+  /* Sem JavaScript, nada fica escondido. */
+  .sem-js [data-reveal] {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: none;
+  }
+  .sem-js [data-reveal="faixa"] > .faixa {
+    clip-path: none;
+  }
+
+  /* Linha da trajetória desenhada ao entrar na tela */
+  .trajeto {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 2.2s cubic-bezier(0.6, 0, 0.2, 1) 0.2s;
+  }
+  .visivel .trajeto {
+    stroke-dashoffset: 0;
+  }
+  .ponto-trajeto {
+    opacity: 0;
+    scale: 0.3;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      opacity 0.4s,
+      scale 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+    transition-delay: var(--d, 0ms);
+  }
+  .visivel .ponto-trajeto {
+    opacity: 1;
+    scale: 1;
+  }
+
+  /* ---------- Faixa rolante ---------- */
+
+  .marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 38s linear infinite;
+  }
+  .marquee:hover {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ---------- Hero ---------- */
+
+  .hero-neon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 14px;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, rgba(255, 30, 40, 0) 0%, rgba(255, 40, 50, 0.95) 30%, rgba(255, 40, 50, 0.9) 70%, rgba(255, 30, 40, 0) 100%);
+    box-shadow:
+      0 0 30px 6px rgba(255, 30, 40, 0.55),
+      0 0 90px 20px rgba(255, 30, 40, 0.25);
+    opacity: 0.55;
+    animation: neon 5s ease-in-out infinite;
+  }
+  @keyframes neon {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    48% {
+      opacity: 0.65;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    52% {
+      opacity: 0.62;
+    }
+  }
+
+  /* Funde as bordas da foto com o fundo: laterais e base somem aos poucos. */
+  .hero-foto {
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 4%, #000 68%, transparent 96%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 4%, #000 68%, transparent 96%);
+    mask-composite: intersect;
+  }
+
+  .orbita {
+    position: absolute;
+    border: 2px solid rgba(255, 45, 56, 0.55);
+    border-radius: 50%;
+    box-shadow:
+      0 0 18px rgba(255, 45, 56, 0.6),
+      inset 0 0 18px rgba(255, 45, 56, 0.35);
+    pointer-events: none;
+  }
+
+  /* ---------- Dashboard claro (números) ---------- */
+
+  .card-claro {
+    background: linear-gradient(180deg, #ffffff 0%, #f3f5fa 100%);
+    color: #0f1b3d;
+    border-radius: 20px;
+    box-shadow:
+      0 30px 60px -20px rgba(0, 0, 0, 0.65),
+      0 0 0 1px rgba(255, 255, 255, 0.7),
+      inset 0 -2px 0 rgba(120, 150, 255, 0.25);
+  }
+
+  /* ---------- Bolhas de conversa ---------- */
+
+  .conversa {
+    background-color: #111b21;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1.2px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+    background-size: 14px 14px, 100% 100%;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 22px;
+    box-shadow: 0 30px 60px -25px rgba(0, 0, 0, 0.9);
+  }
+  .bolha {
+    position: relative;
+    background: #202c33;
+    color: #e9edef;
+    border-radius: 10px;
+    padding: 8px 12px 20px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 100%;
+  }
+  .bolha-enviada {
+    background: #005c4b;
+  }
+  .bolha time {
+    position: absolute;
+    right: 10px;
+    bottom: 4px;
+    font-size: 11px;
+    color: rgba(233, 237, 239, 0.6);
+  }
+  .reacoes {
+    display: inline-flex;
+    gap: 2px;
+    margin-top: -10px;
+    margin-left: 10px;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background: #202c33;
+    border: 2px solid #111b21;
+    font-size: 13px;
+    position: relative;
+  }
+  .tarja {
+    display: inline-block;
+    vertical-align: middle;
+    height: 1.05em;
+    border-radius: 4px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12));
+    filter: blur(3px);
+  }
+
+  /* ---------- Linha do tempo do método ---------- */
+
+  .linha-metodo {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .linha-metodo-progresso {
+    background: linear-gradient(180deg, #ff2d38, #e3121c);
+    box-shadow: 0 0 16px rgba(255, 45, 56, 0.8);
+    transform-origin: top;
+    transform: scaleY(var(--progresso, 0));
+  }
+  .no-metodo {
+    background: #3a0406;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    transition:
+      background 0.4s,
+      box-shadow 0.4s,
+      border-color 0.4s;
+  }
+  .ativo .no-metodo {
+    background: var(--vermelho-vivo);
+    border-color: #fff;
+    box-shadow:
+      0 0 0 6px rgba(255, 45, 56, 0.25),
+      0 0 24px rgba(255, 45, 56, 0.9);
+  }
+  .etapa-metodo {
+    opacity: 0.4;
+    transition: opacity 0.5s;
+  }
+  .etapa-metodo.ativo {
+    opacity: 1;
+  }
+
+  /* ---------- Seção clara (agendamento) ---------- */
+
+  .fundo-claro {
+    background:
+      radial-gradient(60% 60% at 85% 30%, rgba(255, 45, 56, 0.18) 0%, transparent 60%),
+      linear-gradient(180deg, #ffffff 0%, #f6f3f3 100%);
+    color: #0b0b0b;
+  }
+  .linhas-diagonais {
+    background:
+      linear-gradient(115deg, transparent 49.7%, rgba(255, 45, 56, 0.35) 50%, transparent 50.3%),
+      linear-gradient(115deg, transparent 69.8%, rgba(255, 45, 56, 0.2) 70%, transparent 70.2%);
+  }
+
+  .campo {
+    width: 100%;
+    min-height: 54px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1.5px solid #e4dede;
+    background: #fff;
+    color: #0b0b0b;
+    font-size: 16px;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+  .campo::placeholder {
+    color: #9b9292;
+  }
+  .campo:focus {
+    outline: none;
+    border-color: var(--vermelho);
+    box-shadow: 0 0 0 4px rgba(227, 18, 28, 0.12);
+  }
+  .campo[aria-invalid="true"] {
+    border-color: #d11;
+  }
+
+  .dia,
+  .horario {
+    border: 1.5px solid #ece6e6;
+    background: #fff;
+    transition:
+      border-color 0.2s,
+      background 0.2s,
+      color 0.2s,
+      transform 0.2s;
+  }
+  .dia:hover,
+  .horario:hover {
+    border-color: rgba(227, 18, 28, 0.6);
+    transform: translateY(-1px);
+  }
+  .dia[aria-pressed="true"],
+  .horario[aria-pressed="true"] {
+    background: var(--vermelho);
+    border-color: var(--vermelho);
+    color: #fff;
+    box-shadow: 0 10px 24px -10px rgba(227, 18, 28, 0.8);
+  }
+
+  .sem-barra {
+    scrollbar-width: none;
+  }
+  .sem-barra::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+}

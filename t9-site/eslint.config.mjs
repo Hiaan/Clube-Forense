@@ -12,8 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Site da T9: projeto separado, com as próprias dependências e configuração.
-    "t9-site/**",
   ]),
 ]);
 
