@@ -1,8 +1,10 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
+import type { Dicionario } from "@/lib/dicionarios";
 import { IconeSeta } from "./Icones";
+import Rico from "./Rico";
 
-export default function Hero() {
+export default function Hero({ t }: { t: Dicionario["hero"] }) {
   return (
     <section id="topo" className="relative isolate overflow-hidden bg-[#0d0203] pt-[92px]">
       {/* Luzes neon verticais, como no escritório da arte principal */}
@@ -21,12 +23,12 @@ export default function Hero() {
 
       <div className="container-t9 relative flex flex-col items-center text-center">
         {/* O nome da marca já está na arte; o título fica só para leitores de tela e buscadores. */}
-        <h1 className="sr-only">T9 ADS Company: tráfego pago, estrutura e escala para a sua empresa</h1>
+        <h1 className="sr-only">{t.h1}</h1>
 
         <div className="relative w-full max-w-[640px]" data-reveal="zoom" style={{ "--d": "100ms" } as CSSProperties}>
           <Image
             src="/img/hero-t9-logo.webp"
-            alt="Logo da T9 ADS Company com os ícones de Instagram, WhatsApp, Meta, Google e IA orbitando ao redor"
+            alt={t.alt}
             width={1254}
             height={1254}
             priority
@@ -41,9 +43,7 @@ export default function Hero() {
             data-reveal
             style={{ "--d": "250ms" } as CSSProperties}
           >
-            Entendemos o seu negócio, desenhamos o caminho e construímos a estrutura de{" "}
-            <strong className="font-semibold text-white">tráfego, vendas e automação</strong> que leva sua empresa para
-            outro nível.
+            <Rico texto={t.texto} />
           </p>
           <div
             className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row"
@@ -51,11 +51,11 @@ export default function Hero() {
             style={{ "--d": "420ms" } as CSSProperties}
           >
             <a href="#agendar" className="botao botao-vermelho text-base">
-              Agendar consultoria gratuita
+              {t.cta}
               <IconeSeta className="h-5 w-5" />
             </a>
             <a href="#como-funciona" className="botao botao-contorno text-base">
-              Ver como funciona
+              {t.verComo}
             </a>
           </div>
         </div>

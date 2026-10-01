@@ -1,5 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { IconeBandeira, IconeDocumento, IconeEngrenagem, IconeEnviar, IconeLista, IconeLocal } from "./Icones";
+import type { Dicionario } from "@/lib/dicionarios";
+import Rico from "./Rico";
 import { Faixa, Subtitulo, Titulo } from "./ui";
 
 type Ponto = {
@@ -14,31 +16,29 @@ type Ponto = {
   extremo?: boolean;
 };
 
-// Coordenadas no viewBox 1000×380 — o trajeto passa exatamente por elas.
-const PONTOS: Ponto[] = [
-  { x: 60, y: 250, rotulo: "Hoje", icone: <IconeLocal />, lado: "acima", extremo: true },
-  { x: 190, y: 300, rotulo: "Diagnóstico", icone: <IconeDocumento />, lado: "abaixo" },
-  { x: 350, y: 190, rotulo: "Prioridades", icone: <IconeLista />, lado: "abaixo", dx: 46 },
-  { x: 520, y: 118, rotulo: "Estrutura", icone: <IconeEngrenagem />, lado: "abaixo", dx: 20 },
-  { x: 700, y: 100, rotulo: "Execução", icone: <IconeEnviar />, lado: "abaixo" },
-  { x: 900, y: 50, rotulo: "Objetivo", icone: <IconeBandeira />, lado: "acima", extremo: true },
+// Coordenadas no viewBox 1000×380 — o trajeto passa exatamente por elas. Os rótulos vêm do dicionário.
+const PONTOS: Omit<Ponto, "rotulo">[] = [
+  { x: 60, y: 250, icone: <IconeLocal />, lado: "acima", extremo: true },
+  { x: 190, y: 300, icone: <IconeDocumento />, lado: "abaixo" },
+  { x: 350, y: 190, icone: <IconeLista />, lado: "abaixo", dx: 46 },
+  { x: 520, y: 118, icone: <IconeEngrenagem />, lado: "abaixo", dx: 20 },
+  { x: 700, y: 100, icone: <IconeEnviar />, lado: "abaixo" },
+  { x: 900, y: 50, icone: <IconeBandeira />, lado: "acima", extremo: true },
 ];
 
 const TRAJETO =
   "M60,250 C110,285 150,305 190,300 C255,290 290,220 350,190 C410,160 460,126 520,118 C590,108 640,104 700,100 C780,94 850,70 900,50";
 
-export default function Estruturar() {
+export default function Estruturar({ t }: { t: Dicionario["estruturar"] }) {
+  const pontos: Ponto[] = PONTOS.map((p, i) => ({ ...p, rotulo: t.pontos[i] }));
   return (
     <section className="fundo-post relative overflow-hidden">
       <div className="brilho-canto -right-40 -bottom-40" aria-hidden="true" />
-      <Faixa numero="2">Estruturar</Faixa>
+      <Faixa numero="2">{t.faixa}</Faixa>
 
       <div className="container-t9 relative pt-14 pb-24 sm:pt-20 sm:pb-32">
-        <Titulo className="max-w-4xl">Desenhamos o caminho para sua empresa chegar mais longe.</Titulo>
-        <Subtitulo>
-          Identificamos o que está te impedindo de avançar e estruturamos tudo o que precisa ser criado, corrigido e
-          otimizado.
-        </Subtitulo>
+        <Titulo className="max-w-4xl">{t.titulo}</Titulo>
+        <Subtitulo>{t.subtitulo}</Subtitulo>
 
         {/* Desktop: trajetória desenhada */}
         <div className="relative mt-16 hidden aspect-[1000/380] w-full md:block" data-reveal="zoom">
@@ -67,7 +67,7 @@ export default function Estruturar() {
               strokeLinecap="round"
               filter="url(#neon-trajeto)"
             />
-            {PONTOS.map((p, i) => (
+            {pontos.map((p, i) => (
               <g key={p.rotulo} className="ponto-trajeto" style={{ "--d": `${300 + i * 330}ms` } as CSSProperties}>
                 {p.extremo ? (
                   <>
@@ -82,7 +82,7 @@ export default function Estruturar() {
             ))}
           </svg>
 
-          {PONTOS.map((p, i) => (
+          {pontos.map((p, i) => (
             <div
               key={p.rotulo}
               className="ponto-trajeto absolute flex flex-col items-center gap-2 text-center"
@@ -110,7 +110,7 @@ export default function Estruturar() {
         {/* Celular: a mesma trajetória em lista vertical */}
         <ol className="relative mt-12 space-y-7 pl-10 md:hidden">
           <span className="absolute top-3 bottom-3 left-[13px] w-[3px] rounded-full bg-gradient-to-b from-[#ff2d38] to-[#ff2d38]/20" aria-hidden="true" />
-          {PONTOS.map((p, i) => (
+          {pontos.map((p, i) => (
             <li key={p.rotulo} className="relative flex items-center gap-4" data-reveal style={{ "--d": `${i * 90}ms` } as CSSProperties}>
               <span
                 className={`absolute grid place-items-center rounded-full bg-[#ff2d38] ${
@@ -130,9 +130,7 @@ export default function Estruturar() {
           className="mx-auto mt-16 max-w-2xl rounded-2xl border border-[#ff2d38]/35 bg-black/30 px-7 py-6 text-lg leading-relaxed font-light shadow-[0_20px_60px_-20px_rgba(255,30,40,0.35)] backdrop-blur-sm sm:text-xl"
           data-reveal
         >
-          Sem aplicar nenhuma <strong className="font-bold">fórmula mágica</strong>. Nós{" "}
-          <strong className="font-bold">desenvolvemos tudo do zero</strong>, pensando no seu{" "}
-          <strong className="font-bold">negócio</strong>.
+          <Rico texto={t.destaque} classeForte="font-bold" />
         </div>
       </div>
     </section>

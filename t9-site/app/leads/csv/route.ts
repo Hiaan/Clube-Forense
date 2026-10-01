@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
   const leads = await listarLeads(5000);
   const linhas = [
-    ["Recebido em", "Etapa", "Nome", "E-mail", "WhatsApp", "Faturamento", "Reunião", "Origem"],
+    ["Recebido em", "Etapa", "Nome", "E-mail", "WhatsApp", "Faturamento", "Reunião", "Idioma", "Origem"],
     ...leads.map((l) => [
       new Date(l.recebidoEm).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
       l.etapa === "agendamento" ? "Agendou" : "Só dados",
@@ -18,6 +18,7 @@ export async function GET(request: Request) {
       l.whatsappFormatado,
       l.faturamento ?? "",
       l.reuniao?.descricao ?? "",
+      (l.idioma ?? "pt").toUpperCase(),
       l.origem ?? "",
     ]),
   ];

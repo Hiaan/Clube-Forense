@@ -16,17 +16,7 @@ const lexend = Lexend({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "T9 ADS Company | Tráfego, estrutura e escala para sua empresa",
-  description:
-    "Entendemos o seu negócio, estruturamos o caminho e construímos tráfego pago, CRM, funis, automações e dashboards para sua empresa escalar. Agende uma consultoria gratuita.",
-  openGraph: {
-    title: "Entenda o que a T9 faz",
-    description:
-      "Tráfego pago, páginas de vendas, CRM, funis e automações. Em 4 semanas, sua empresa começa a operar de outra forma.",
-    images: ["/og.jpg"],
-    locale: "pt_BR",
-    type: "website",
-  },
+  // Título, descrição e prévia ficam em cada página (lib/metadados.ts), no idioma dela.
 };
 
 export const viewport: Viewport = {

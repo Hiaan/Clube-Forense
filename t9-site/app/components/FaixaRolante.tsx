@@ -1,17 +1,5 @@
-const ITENS = [
-  "Tráfego Pago",
-  "Meta Ads",
-  "Google Ads",
-  "Páginas de Vendas",
-  "CRM",
-  "Funis de Vendas",
-  "Automações",
-  "Agentes de IA",
-  "Dashboard Central",
-];
-
-export default function FaixaRolante() {
-  const lista = [...ITENS, ...ITENS];
+export default function FaixaRolante({ itens }: { itens: string[] }) {
+  const lista = [...itens, ...itens];
   return (
     <div className="relative overflow-hidden border-y border-white/10 bg-[#7c0409] py-5" aria-hidden="true">
       <div className="marquee">

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { CONFIG_IDIOMA, type Idioma } from "@/lib/i18n";
 
-const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const moedaEm = (locale: string) => new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" });
 
 function contar(el: HTMLElement) {
   const alvo = Number(el.dataset.contar);
   if (!Number.isFinite(alvo)) return;
+  const moeda = moedaEm(el.dataset.locale ?? "pt-BR");
   const duracao = 1800;
   const inicio = performance.now();
   const passo = (agora: number) => {
@@ -22,11 +24,16 @@ function contar(el: HTMLElement) {
  * Um único observador para a página inteira: revela os elementos com
  * `data-reveal` e dispara os contadores com `data-contar` quando entram na tela.
  */
-export default function Animacoes() {
+export default function Animacoes({ idioma }: { idioma: Idioma }) {
+  // O layout raiz é único; o idioma da página é ajustado aqui.
+  useEffect(() => {
+    document.documentElement.lang = CONFIG_IDIOMA[idioma].html;
+  }, [idioma]);
+
   useEffect(() => {
     const reduzido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const contadores = Array.from(document.querySelectorAll<HTMLElement>("[data-contar]"));
-    if (!reduzido) contadores.forEach((el) => (el.textContent = moeda.format(0)));
+    if (!reduzido) contadores.forEach((el) => (el.textContent = moedaEm(el.dataset.locale ?? "pt-BR").format(0)));
 
     const observador = new IntersectionObserver(
       (entradas) => {

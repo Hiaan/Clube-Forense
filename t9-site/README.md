@@ -16,6 +16,15 @@ Projeto independente do site do Clube Forense: tem o próprio `package.json` e �
 8. **Método** — as 4 semanas, com a linha que acende ao rolar
 9. **Agendamento** — dados (nome, e-mail, WhatsApp e faturamento opcional), depois data e horário, depois a confirmação
 
+## Idiomas
+
+O site existe em português (`/`), inglês (`/en`) e espanhol (`/es`). O seletor **PT · EN · ES** fica no cabeçalho.
+
+- Todos os textos ficam em `lib/dicionarios/` (`pt.ts`, `en.ts`, `es.ts`), com a mesma estrutura. Para mudar um texto, edite o arquivo do idioma.
+- Nos textos, `**trecho**` vira negrito e `{chave}` é preenchido pelo site (nome, data etc.).
+- As conversas dos depoimentos ficam em português nos três idiomas, por serem mensagens reais.
+- Cada lead registra o idioma em que a pessoa viu o site (campo `idioma`, também no e-mail e no CSV).
+
 ## Rodar localmente
 
 ```bash

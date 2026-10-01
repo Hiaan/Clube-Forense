@@ -13,6 +13,8 @@ export type LeadSalvo = {
   faturamento: string | null;
   reuniao: { data: string; horario: string; fuso: string; descricao: string } | null;
   origem: string | null;
+  /** Idioma em que a pessoa viu o site (pt, en ou es). */
+  idioma?: string;
   recebidoEm: string;
 };
 

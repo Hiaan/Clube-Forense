@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { CASES, type Case } from "@/lib/cases";
+import type { Dicionario } from "@/lib/dicionarios";
 
 /**
  * Altura em que cada logo aparece: mesma área visual para todos, então os
@@ -49,7 +50,7 @@ function Esteira({ itens, reverso = false, duracao }: { itens: Case[]; reverso?:
   );
 }
 
-export default function Cases() {
+export default function Cases({ t }: { t: Dicionario["clientes"] }) {
   if (!CASES.length) return null;
   const metade = Math.ceil(CASES.length / 2);
   const fileiras = [CASES.slice(0, metade), CASES.slice(metade)].filter((f) => f.length);
@@ -58,13 +59,13 @@ export default function Cases() {
     <section id="cases" className="relative overflow-hidden border-y border-white/10 bg-[#0d0203] py-16 sm:py-20">
       <div className="container-t9 flex flex-col items-center text-center">
         <p className="font-display text-sm font-extrabold tracking-[0.25em] text-[#ff5a63] uppercase" data-reveal>
-          Clientes
+          {t.eyebrow}
         </p>
         <h2
           className="mt-3 max-w-3xl font-display text-2xl leading-tight font-extrabold tracking-tight text-balance sm:text-4xl"
           data-reveal
         >
-          Operações que passaram a funcionar como sistema, em quatro países.
+          {t.titulo}
         </h2>
       </div>
 

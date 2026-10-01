@@ -22,24 +22,6 @@ export const FAIXAS_FATURAMENTO = [
 
 export type Dia = { iso: string; semana: string; dia: string; mes: string };
 
-const SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-const SEMANA_EXTENSO = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
-const MESES_EXTENSO = [
-  "janeiro",
-  "fevereiro",
-  "março",
-  "abril",
-  "maio",
-  "junho",
-  "julho",
-  "agosto",
-  "setembro",
-  "outubro",
-  "novembro",
-  "dezembro",
-];
-
 /** Data de hoje em Brasília, no formato AAAA-MM-DD, independente do fuso do visitante. */
 export function hojeEmBrasilia(agora = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: FUSO }).format(agora);
@@ -59,7 +41,14 @@ function paraIso(data: Date) {
   return data.toISOString().slice(0, 10);
 }
 
-export function proximosDiasUteis(agora = new Date(), quantidade = DIAS_UTEIS_OFERECIDOS): Dia[] {
+const curto = (texto: string) => {
+  const limpo = texto.replace(/\./g, "").trim();
+  return limpo.charAt(0).toUpperCase() + limpo.slice(1);
+};
+
+export function proximosDiasUteis(agora = new Date(), quantidade = DIAS_UTEIS_OFERECIDOS, locale = "pt-BR"): Dia[] {
+  const semanaFmt = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
+  const mesFmt = new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" });
   const dias: Dia[] = [];
   const cursor = paraUTC(hojeEmBrasilia(agora));
   while (dias.length < quantidade) {
@@ -68,17 +57,19 @@ export function proximosDiasUteis(agora = new Date(), quantidade = DIAS_UTEIS_OF
     if (semana === 0 || semana === 6) continue;
     dias.push({
       iso: paraIso(cursor),
-      semana: SEMANA[semana],
+      semana: curto(semanaFmt.format(cursor)),
       dia: String(cursor.getUTCDate()).padStart(2, "0"),
-      mes: MESES[cursor.getUTCMonth()],
+      mes: mesFmt.format(cursor).replace(/\./g, ""),
     });
   }
   return dias;
 }
 
-export function dataPorExtenso(iso: string) {
-  const data = paraUTC(iso);
-  return `${SEMANA_EXTENSO[data.getUTCDay()]}, ${data.getUTCDate()} de ${MESES_EXTENSO[data.getUTCMonth()]}`;
+/** Ex.: "quinta-feira, 1 de outubro" / "Thursday, October 1" / "jueves, 1 de octubre". */
+export function dataPorExtenso(iso: string, locale = "pt-BR") {
+  return new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(
+    paraUTC(iso),
+  );
 }
 
 /** Valida se a data e o horário pedidos estão entre os oferecidos agora. */
@@ -107,7 +98,9 @@ export function soDigitos(valor: string) {
  * Máscara (11) 91234-5678 enquanto a pessoa digita. Número estrangeiro
  * começa com "+" e fica só com os dígitos (ex.: +351912345678).
  */
-export function mascararWhatsApp(valor: string) {
+export function mascararWhatsApp(valor: string, internacional = false) {
+  // Em inglês e espanhol o número é tratado como internacional desde o primeiro dígito.
+  if (internacional && soDigitos(valor)) return `+${soDigitos(valor).slice(0, 15)}`;
   if (valor.trim().startsWith("+")) return `+${soDigitos(valor).slice(0, 15)}`;
   const d = soDigitos(valor).slice(0, 11);
   if (d.length <= 2) return d.length ? `(${d}` : "";

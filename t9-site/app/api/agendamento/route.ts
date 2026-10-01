@@ -9,6 +9,7 @@ type Corpo = {
   faturamento?: unknown;
   data?: unknown;
   horario?: unknown;
+  idioma?: unknown;
   site?: unknown; // armadilha para robôs: campo invisível que pessoas não preenchem
   origem?: unknown;
 };
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
         ? { data, horario, fuso: "America/Sao_Paulo", descricao: `${dataPorExtenso(data)}, às ${horario} (horário de Brasília)` }
         : null,
     origem: texto(corpo.origem, 300) || null,
+    idioma: ["pt", "en", "es"].includes(texto(corpo.idioma, 2)) ? texto(corpo.idioma, 2) : "pt",
     recebidoEm: new Date().toISOString(),
   };
 

@@ -1,0 +1,206 @@
+// Textos do site em português. Os outros idiomas seguem exatamente esta estrutura.
+// "**trecho**" vira negrito (componente Rico); "{chave}" é preenchido com fmt().
+
+const pt = {
+  meta: {
+    titulo: "T9 ADS Company | Tráfego, estrutura e escala para sua empresa",
+    descricao:
+      "Entendemos o seu negócio, estruturamos o caminho e construímos tráfego pago, CRM, funis, automações e dashboards para sua empresa escalar. Agende uma consultoria gratuita.",
+    ogTitulo: "Entenda o que a T9 faz",
+    ogDescricao:
+      "Tráfego pago, páginas de vendas, CRM, funis e automações. Em 4 semanas, sua empresa começa a operar de outra forma.",
+  },
+  nav: {
+    principal: "Principal",
+    comoFunciona: "Como funciona",
+    servicos: "Serviços",
+    resultados: "Resultados",
+    clientes: "Clientes",
+    metodo: "Método",
+    agendar: "Agendar consultoria",
+    agendarGratuita: "Agendar consultoria gratuita",
+    abrirMenu: "Abrir menu",
+    fecharMenu: "Fechar menu",
+    idioma: "Idioma",
+  },
+  hero: {
+    h1: "T9 ADS Company: tráfego pago, estrutura e escala para a sua empresa",
+    alt: "Logo da T9 ADS Company com os ícones de Instagram, WhatsApp, Meta, Google e IA orbitando ao redor",
+    texto:
+      "Entendemos o seu negócio, desenhamos o caminho e construímos a estrutura de **tráfego, vendas e automação** que leva sua empresa para outro nível.",
+    cta: "Agendar consultoria gratuita",
+    verComo: "Ver como funciona",
+  },
+  faixaRolante: [
+    "Tráfego Pago",
+    "Meta Ads",
+    "Google Ads",
+    "Páginas de Vendas",
+    "CRM",
+    "Funis de Vendas",
+    "Automações",
+    "Agentes de IA",
+    "Dashboard Central",
+  ],
+  entender: {
+    eyebrow: "Como a T9 trabalha",
+    tresEtapas: "Três etapas. Nenhuma fórmula mágica.",
+    faixa: "Entender",
+    titulo: "Tudo começa no alinhamento.",
+    subtitulo: "Fazemos uma reunião para entender todo o seu negócio, o seu mercado e os seus objetivos.",
+    itens: [
+      "Processo Comercial",
+      "Investimento em MKT",
+      "Ticket Médio",
+      "Público-Alvo",
+      "Seus Números",
+      "Levantamento de Mercado",
+      "Gargalos e Oportunidades",
+      "Operação Atual",
+    ],
+    rodape: "Antes de anunciar, precisamos saber **exatamente** o que estamos construindo.",
+  },
+  estruturar: {
+    faixa: "Estruturar",
+    titulo: "Desenhamos o caminho para sua empresa chegar mais longe.",
+    subtitulo:
+      "Identificamos o que está te impedindo de avançar e estruturamos tudo o que precisa ser criado, corrigido e otimizado.",
+    pontos: ["Hoje", "Diagnóstico", "Prioridades", "Estrutura", "Execução", "Objetivo"],
+    destaque: "Sem aplicar nenhuma **fórmula mágica**. Nós **desenvolvemos tudo do zero**, pensando no seu **negócio**.",
+  },
+  construir: {
+    faixa: "Construir",
+    titulo: "Montamos a estrutura que leva sua empresa para outro nível.",
+    servicos: [
+      { titulo: "Tráfego Pago", texto: "Campanhas no Meta Ads e no Google Ads com foco em venda, não em curtida." },
+      { titulo: "Páginas de Vendas", texto: "Páginas rápidas e persuasivas, feitas para transformar clique em contato." },
+      { titulo: "CRM", texto: "Todos os leads organizados, do primeiro contato ao fechamento." },
+      { titulo: "Funis de Vendas", texto: "A jornada certa para cada público, do anúncio ao pós-venda." },
+      { titulo: "Automações", texto: "Follow-ups, mensagens e agentes de IA trabalhando 24 horas por você." },
+      { titulo: "Dashboard Central", texto: "Os números do negócio em um só lugar, atualizados e fáceis de ler." },
+    ],
+    muitoMais: "E muito mais! A depender da sua necessidade.",
+  },
+  numeros: {
+    eyebrow: "Resultados",
+    titulo: "A confiança dos clientes aparece nos números.",
+    texto: "Diversos clientes confiam à T9 altos investimentos todos os meses.",
+    cta: "Quero esse resultado na minha empresa",
+    valorGasto: "Valor gasto",
+    painel: "Gerenciador de Anúncios · Campanhas",
+    meses: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
+  },
+  clientes: {
+    eyebrow: "Clientes",
+    titulo: "Operações que passaram a funcionar como sistema, em quatro países.",
+  },
+  feedbacks: {
+    eyebrow: "Depoimentos",
+    titulo: "Feedbacks que nos movem.",
+    subtitulo:
+      "Mais do que números, veja o impacto que causamos nas empresas parceiras através de histórias como estas:",
+    nota: "Mensagens reais de clientes. Nomes e marcas foram ocultados para preservar a privacidade.",
+    notaIdioma: "",
+  },
+  metodo: {
+    faixa: "Para empresas que faturam mais de R$ 40.000,00/mês",
+    titulo: "Em 4 semanas, sua empresa começa a operar de outra forma.",
+    texto: "Um método direto, com entregas semanais e tudo acompanhado de perto por quem entende de tráfego e vendas.",
+    cta: "Começar pela consultoria gratuita",
+    semana: "Semana {n}",
+    semanas: [
+      {
+        titulo: "Diagnóstico e configurações",
+        texto:
+          "Entendemos todo o seu negócio e o seu mercado e fazemos um levantamento para definir objetivos e campanhas.",
+      },
+      {
+        titulo: "Estrutura e testes",
+        texto:
+          "Criamos tudo o que é preciso para chegar ao objetivo: CRM, página de vendas, anúncios, copies, agentes de IA e o que mais for necessário.",
+      },
+      { titulo: "Implementação", texto: "Com tudo criado, testado e aprovado, colocamos toda a estrutura no ar." },
+      {
+        titulo: "Otimização e escala",
+        texto: "Otimizações diárias, projeções para os próximos meses e escala de resultados.",
+      },
+    ],
+  },
+  agendamento: {
+    titulo: "Vamos entender o seu negócio e criar",
+    tituloDestaque: "um plano de ação para escalar o seu faturamento.",
+    texto:
+      "Em uma **consultoria gratuita** e sem compromisso, analisamos o seu cenário atual e definimos um **plano de marketing personalizado** para sua empresa.",
+    beneficios: ["Análise do seu cenário atual", "Plano de ação personalizado", "Gratuito e sem compromisso"],
+    etapas: ["Seus dados", "Data e horário", "Confirmado"],
+    etapasAria: "Etapas do agendamento",
+    formTitulo: "Agende sua consultoria gratuita",
+    formSub: "Leva menos de 1 minuto. Depois você escolhe o melhor horário.",
+    nome: "Nome",
+    nomeExemplo: "Seu nome completo",
+    email: "E-mail",
+    emailExemplo: "voce@empresa.com.br",
+    whatsapp: "WhatsApp",
+    whatsappExemplo: "(11) 91234-5678",
+    whatsappDica: "Fora do Brasil? Comece com + e o código do país.",
+    faturamento: "Faturamento mensal",
+    opcional: "(opcional)",
+    faixaExemplo: "Selecione uma faixa",
+    faixas: [
+      "Até R$ 40 mil/mês",
+      "De R$ 40 mil a R$ 100 mil/mês",
+      "De R$ 100 mil a R$ 300 mil/mês",
+      "De R$ 300 mil a R$ 1 milhão/mês",
+      "Acima de R$ 1 milhão/mês",
+    ],
+    escolherHorario: "Escolher data e horário",
+    privacidade: "Seus dados ficam só com a T9. Nada de spam.",
+    erroNome: "Conta pra gente o seu nome.",
+    erroEmail: "Esse e-mail não parece válido.",
+    erroWhatsapp: "Informe o WhatsApp com DDD.",
+    erroHorario: "Escolha um dia e um horário.",
+    erroCampos: "Confira os campos destacados.",
+    erroEnvio: "Não conseguimos registrar agora. Tente de novo em instantes.",
+    voltar: "Voltar",
+    horarioTituloNome: "{nome}, qual o melhor horário?",
+    horarioTitulo: "Qual o melhor horário?",
+    horarioSub: "Reunião online de 45 minutos. Horários de Brasília.",
+    dia: "Dia",
+    horario: "Horário",
+    diasAria: "Dias disponíveis",
+    horariosAria: "Horários disponíveis",
+    suaReuniao: "Sua reunião:",
+    escolhaDiaHorario: "Escolha um dia e um horário.",
+    agendando: "Agendando...",
+    confirmar: "Confirmar agendamento",
+    quando: "{data}, às {hora}",
+    confirmadoTitulo: "Reunião agendada!",
+    confirmadoTextoNome:
+      "{nome}, sua consultoria gratuita ficou para **{quando}** (horário de Brasília). Nossa equipe vai confirmar pelo WhatsApp e enviar o link da reunião.",
+    confirmadoTexto:
+      "Sua consultoria gratuita ficou para **{quando}** (horário de Brasília). Nossa equipe vai confirmar pelo WhatsApp e enviar o link da reunião.",
+    confirmarWhatsapp: "Confirmar pelo WhatsApp",
+    salvarAgenda: "Salvar na minha agenda",
+    agendaTitulo: "Consultoria gratuita | T9 ADS Company",
+    agendaDetalhes: "Reunião de diagnóstico com a T9 para entender o seu negócio e montar um plano de ação.",
+    whatsappMensagem:
+      "Olá, T9! Sou {nome} e acabei de agendar a consultoria gratuita para {quando} (horário de Brasília).",
+  },
+  gerenciador: {
+    titulo: "Gerenciador de Anúncios",
+    criar: "+ Criar",
+    custoPorResultado: "Custo por resultado",
+    valorGasto: "Valor gasto",
+    porContato: "Por contato do site",
+    porCompra: "Por compra",
+    aria: "Gerenciador de Anúncios da Meta: {custo} por contato do site e {gasto} em valor gasto",
+  },
+  rodape: {
+    descricao: "Tráfego pago, estrutura comercial e automações para empresas que querem escalar com previsibilidade.",
+    direitos: "Todos os direitos reservados.",
+    aria: "Rodapé",
+  },
+};
+
+export type Dicionario = typeof pt;
+export default pt;

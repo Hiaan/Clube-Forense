@@ -1,9 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
+import type { Dicionario } from "@/lib/dicionarios";
 import { Subtitulo, Titulo } from "./ui";
 
-/** Trecho ocultado por privacidade do cliente. */
+/** Trecho ocultado por privacidade do cliente (decorativo: leitores de tela pulam). */
 function Tarja({ largura }: { largura: number }) {
-  return <span className="tarja" style={{ width: largura }} aria-label="trecho ocultado" role="img" />;
+  return <span className="tarja" style={{ width: largura }} aria-hidden="true" />;
 }
 
 function Conversa({
@@ -22,7 +23,7 @@ function Conversa({
   );
 }
 
-export default function Feedbacks() {
+export default function Feedbacks({ t }: { t: Dicionario["feedbacks"] }) {
   return (
     <section className="fundo-post relative overflow-hidden">
       <div className="faixa h-4 sm:h-6" aria-hidden="true" />
@@ -30,14 +31,13 @@ export default function Feedbacks() {
 
       <div className="container-t9 relative pt-20 pb-28 sm:pt-28 sm:pb-36">
         <p className="font-display text-sm font-extrabold tracking-[0.25em] text-[#ff5a63] uppercase" data-reveal>
-          Depoimentos
+          {t.eyebrow}
         </p>
-        <Titulo className="mt-3">Feedbacks que nos movem.</Titulo>
-        <Subtitulo>
-          Mais do que números, veja o impacto que causamos nas empresas parceiras através de histórias como estas:
-        </Subtitulo>
+        <Titulo className="mt-3">{t.titulo}</Titulo>
+        <Subtitulo>{t.subtitulo}</Subtitulo>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-12 lg:gap-7">
+        {/* As conversas são reais e ficam no idioma original. */}
+        <div className="mt-14 grid gap-6 lg:grid-cols-12 lg:gap-7" lang="pt-BR">
           {/* Grupo: venda de 1,1 milhão */}
           <Conversa className="lg:col-span-7 lg:-rotate-1">
             <div className="flex gap-3">
@@ -110,7 +110,7 @@ export default function Feedbacks() {
         </div>
 
         <p className="mt-8 text-sm text-white/45" data-reveal>
-          Mensagens reais de clientes. Nomes e marcas foram ocultados para preservar a privacidade.
+          {t.nota} {t.notaIdioma}
         </p>
       </div>
     </section>

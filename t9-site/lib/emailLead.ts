@@ -1,6 +1,7 @@
 import { dataPorExtenso, soDigitos } from "./agenda";
 
 const DESTINO = process.env.NEXT_PUBLIC_LEAD_EMAIL ?? "";
+const NOMES_IDIOMA: Record<string, string> = { pt: "Português", en: "Inglês", es: "Espanhol" };
 
 type DadosLead = {
   etapa: string;
@@ -10,6 +11,7 @@ type DadosLead = {
   faturamento?: string;
   data?: string;
   horario?: string;
+  idioma?: string;
 };
 
 /**
@@ -37,6 +39,7 @@ export function enviarLeadPorEmail(d: DadosLead) {
   adicionar("E-mail", d.email);
   adicionar("WhatsApp", `${d.whatsapp} (https://wa.me/${whatsapp})`);
   adicionar("Faturamento", d.faturamento || "Não informado");
+  adicionar("Idioma do site", NOMES_IDIOMA[d.idioma ?? "pt"] ?? "Português");
   adicionar("Origem", window.location.href);
 
   fetch(`https://formsubmit.co/ajax/${DESTINO}`, {

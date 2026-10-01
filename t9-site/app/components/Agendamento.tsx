@@ -12,7 +12,10 @@ import {
   whatsAppValido,
   type Dia,
 } from "@/lib/agenda";
+import type { Dicionario } from "@/lib/dicionarios";
 import { enviarLeadPorEmail } from "@/lib/emailLead";
+import { CONFIG_IDIOMA, fmt, type Idioma } from "@/lib/i18n";
+import Rico from "./Rico";
 import GerenciadorAnuncios from "./GerenciadorAnuncios";
 import Logo from "./Logo";
 import { IconeCadeado, IconeCalendario, IconeCheck, IconeRelogio, IconeSeta, IconeSetaEsquerda, MarcaWhatsApp } from "./Icones";
@@ -22,16 +25,15 @@ const WHATSAPP_T9 = process.env.NEXT_PUBLIC_T9_WHATSAPP ?? "";
 type Dados = { nome: string; email: string; whatsapp: string; faturamento: string; site: string };
 type Campo = "nome" | "email" | "whatsapp" | "horario";
 
-const ETAPAS = ["Seus dados", "Data e horário", "Confirmado"];
-
-async function enviar(corpo: Record<string, string>) {
+async function enviar(corpo: Record<string, string>, t: Dicionario["agendamento"]) {
   const resposta = await fetch("/api/agendamento", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...corpo, origem: window.location.href }),
-  });
-  const json = await resposta.json().catch(() => ({}));
-  if (!resposta.ok || !json.ok) throw new Error(json.erro ?? "Não conseguimos registrar agora. Tente de novo.");
+  }).catch(() => null);
+  const json = resposta ? await resposta.json().catch(() => ({})) : {};
+  // As mensagens vêm do dicionário; o servidor só diz se foi erro de campo (422) ou de envio.
+  if (!resposta?.ok || !json.ok) throw new Error(resposta?.status === 422 ? t.erroCampos : t.erroEnvio);
   if (corpo.site) return; // armadilha de robô preenchida: não manda e-mail
   enviarLeadPorEmail({
     etapa: corpo.etapa,
@@ -41,18 +43,28 @@ async function enviar(corpo: Record<string, string>) {
     faturamento: corpo.faturamento,
     data: corpo.data,
     horario: corpo.horario,
+    idioma: corpo.idioma,
   });
 }
 
-function validar(d: Dados) {
+function validar(d: Dados, t: Dicionario["agendamento"]) {
   const erros: Partial<Record<Campo, string>> = {};
-  if (d.nome.trim().length < 2) erros.nome = "Conta pra gente o seu nome.";
-  if (!EMAIL_VALIDO.test(d.email.trim())) erros.email = "Esse e-mail não parece válido.";
-  if (!whatsAppValido(d.whatsapp)) erros.whatsapp = "Informe o WhatsApp com DDD.";
+  if (d.nome.trim().length < 2) erros.nome = t.erroNome;
+  if (!EMAIL_VALIDO.test(d.email.trim())) erros.email = t.erroEmail;
+  if (!whatsAppValido(d.whatsapp)) erros.whatsapp = t.erroWhatsapp;
   return erros;
 }
 
-export default function Agendamento() {
+export default function Agendamento({
+  t,
+  gerenciador,
+  idioma,
+}: {
+  t: Dicionario["agendamento"];
+  gerenciador: Dicionario["gerenciador"];
+  idioma: Idioma;
+}) {
+  const locale = CONFIG_IDIOMA[idioma].locale;
   const [etapa, setEtapa] = useState(0);
   const [dados, setDados] = useState<Dados>({ nome: "", email: "", whatsapp: "", faturamento: "", site: "" });
   const [erros, setErros] = useState<Partial<Record<Campo, string>>>({});
@@ -71,20 +83,20 @@ export default function Agendamento() {
   }, [etapa]);
 
   const alterar = (campo: keyof Dados, valor: string) => {
-    setDados((d) => ({ ...d, [campo]: campo === "whatsapp" ? mascararWhatsApp(valor) : valor }));
+    setDados((d) => ({ ...d, [campo]: campo === "whatsapp" ? mascararWhatsApp(valor, idioma !== "pt") : valor }));
     if (erros[campo as Campo]) setErros((e) => ({ ...e, [campo]: undefined }));
   };
 
   const avancar = (e: FormEvent) => {
     e.preventDefault();
-    const encontrados = validar(dados);
+    const encontrados = validar(dados, t);
     setErros(encontrados);
     if (Object.keys(encontrados).length) return;
 
     // O lead já fica registrado aqui, mesmo que a pessoa não chegue a escolher o horário.
-    enviar({ etapa: "lead", ...dados }).catch(() => {});
+    enviar({ etapa: "lead", ...dados, idioma }, t).catch(() => {});
 
-    const proximos = proximosDiasUteis();
+    const proximos = proximosDiasUteis(undefined, undefined, locale);
     setDias(proximos);
     if (!dia) setDia(proximos[0]?.iso ?? "");
     setEtapa(1);
@@ -92,32 +104,32 @@ export default function Agendamento() {
 
   const confirmar = async () => {
     if (!dia || !horario) {
-      setErros({ horario: "Escolha um dia e um horário." });
+      setErros({ horario: t.erroHorario });
       return;
     }
     setEnviando(true);
     setErroEnvio("");
     try {
-      await enviar({ etapa: "agendamento", ...dados, data: dia, horario });
+      await enviar({ etapa: "agendamento", ...dados, data: dia, horario, idioma }, t);
       setEtapa(2);
     } catch (erro) {
-      setErroEnvio(erro instanceof Error ? erro.message : "Algo deu errado. Tente de novo.");
+      setErroEnvio(erro instanceof Error ? erro.message : t.erroEnvio);
     } finally {
       setEnviando(false);
     }
   };
 
   const primeiroNome = dados.nome.trim().split(/\s+/)[0] ?? "";
-  const quando = dia && horario ? `${dataPorExtenso(dia)}, às ${horario}` : "";
+  const quando = dia && horario ? fmt(t.quando, { data: dataPorExtenso(dia, locale), hora: horario }) : "";
 
   const linkAgenda = (() => {
     if (!dia || !horario) return "";
     const { inicio, fim } = intervaloUTC(dia, horario);
     const params = new URLSearchParams({
       action: "TEMPLATE",
-      text: "Consultoria gratuita | T9 ADS Company",
+      text: t.agendaTitulo,
       dates: `${inicio}/${fim}`,
-      details: "Reunião de diagnóstico com a T9 para entender o seu negócio e montar um plano de ação.",
+      details: t.agendaDetalhes,
       ctz: "America/Sao_Paulo",
     });
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -125,7 +137,7 @@ export default function Agendamento() {
 
   const linkWhatsApp = WHATSAPP_T9
     ? `https://wa.me/${WHATSAPP_T9}?text=${encodeURIComponent(
-        `Olá, T9! Sou ${dados.nome.trim()} e acabei de agendar a consultoria gratuita para ${quando} (horário de Brasília).`,
+        fmt(t.whatsappMensagem, { nome: dados.nome.trim(), quando }),
       )}`
     : "";
 
@@ -141,35 +153,32 @@ export default function Agendamento() {
             className="mt-10 font-display text-[2.1rem] leading-[1.06] font-extrabold tracking-tight text-balance text-[#0b0b0b] sm:text-5xl lg:text-[3.3rem]"
             data-reveal
           >
-            Vamos entender o seu negócio e criar{" "}
-            <span className="text-[#e3121c]">um plano de ação para escalar o seu faturamento.</span>
+            {t.titulo} <span className="text-[#e3121c]">{t.tituloDestaque}</span>
           </h2>
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-[#1c1c1c] sm:text-xl" data-reveal>
-            Em uma <strong className="font-bold">consultoria gratuita</strong> e sem compromisso, analisamos o seu
-            cenário atual e definimos um <strong className="font-bold">plano de marketing personalizado</strong> para
-            sua empresa.
+            <Rico texto={t.texto} classeForte="font-bold" />
           </p>
           <ul className="mt-8 space-y-3 text-[#1c1c1c]" data-reveal>
-            {["Análise do seu cenário atual", "Plano de ação personalizado", "Gratuito e sem compromisso"].map((t) => (
-              <li key={t} className="flex items-center gap-3 text-lg">
+            {t.beneficios.map((b) => (
+              <li key={b} className="flex items-center gap-3 text-lg">
                 <span className="grid h-7 w-7 place-items-center rounded-full bg-[#e3121c] text-white">
                   <IconeCheck className="h-4 w-4" />
                 </span>
-                {t}
+                {b}
               </li>
             ))}
           </ul>
 
           <div className="relative mt-14 hidden lg:block" data-reveal="direita">
-            <GerenciadorAnuncios />
+            <GerenciadorAnuncios t={gerenciador} idioma={idioma} />
           </div>
         </div>
 
         {/* Agendador */}
         <div className="lg:sticky lg:top-28 lg:self-start" data-reveal="zoom">
           <div ref={cartaoRef} className="scroll-mt-24 rounded-[28px] border border-black/5 bg-white p-6 shadow-[0_40px_100px_-30px_rgba(120,0,6,0.45)] sm:p-9">
-            <ol className="mb-8 flex items-center gap-2" aria-label="Etapas do agendamento">
-              {ETAPAS.map((nome, i) => (
+            <ol className="mb-8 flex items-center gap-2" aria-label={t.etapasAria}>
+              {t.etapas.map((nome, i) => (
                 <li key={nome} className="flex flex-1 items-center gap-2" aria-current={i === etapa ? "step" : undefined}>
                   <span
                     className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-bold transition-colors ${
@@ -181,7 +190,7 @@ export default function Agendamento() {
                   <span className={`hidden text-sm sm:inline ${i === etapa ? "font-semibold text-[#0b0b0b]" : "text-[#9b9292]"}`}>
                     {nome}
                   </span>
-                  {i < ETAPAS.length - 1 && <span className="h-px flex-1 bg-[#ece6e6]" aria-hidden="true" />}
+                  {i < t.etapas.length - 1 && <span className="h-px flex-1 bg-[#ece6e6]" aria-hidden="true" />}
                 </li>
               ))}
             </ol>
@@ -189,18 +198,18 @@ export default function Agendamento() {
             {etapa === 0 && (
               <form onSubmit={avancar} noValidate className="text-[#0b0b0b]">
                 <h3 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
-                  Agende sua consultoria gratuita
+                  {t.formTitulo}
                 </h3>
-                <p className="mt-2 text-[#5b5353]">Leva menos de 1 minuto. Depois você escolhe o melhor horário.</p>
+                <p className="mt-2 text-[#5b5353]">{t.formSub}</p>
 
                 <div className="mt-7 space-y-4">
                   <label className="block">
-                    <span className="mb-1.5 block text-sm font-medium">Nome</span>
+                    <span className="mb-1.5 block text-sm font-medium">{t.nome}</span>
                     <input
                       className="campo"
                       name="nome"
                       autoComplete="name"
-                      placeholder="Seu nome completo"
+                      placeholder={t.nomeExemplo}
                       value={dados.nome}
                       onChange={(e) => alterar("nome", e.target.value)}
                       aria-invalid={!!erros.nome}
@@ -209,14 +218,14 @@ export default function Agendamento() {
                     {erros.nome && <span id="erro-nome" className="mt-1.5 block text-sm text-[#d11]">{erros.nome}</span>}
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-sm font-medium">E-mail</span>
+                    <span className="mb-1.5 block text-sm font-medium">{t.email}</span>
                     <input
                       className="campo"
                       type="email"
                       name="email"
                       autoComplete="email"
                       inputMode="email"
-                      placeholder="voce@empresa.com.br"
+                      placeholder={t.emailExemplo}
                       value={dados.email}
                       onChange={(e) => alterar("email", e.target.value)}
                       aria-invalid={!!erros.email}
@@ -225,14 +234,14 @@ export default function Agendamento() {
                     {erros.email && <span id="erro-email" className="mt-1.5 block text-sm text-[#d11]">{erros.email}</span>}
                   </label>
                   <label className="block">
-                    <span className="mb-1.5 block text-sm font-medium">WhatsApp</span>
+                    <span className="mb-1.5 block text-sm font-medium">{t.whatsapp}</span>
                     <input
                       className="campo"
                       type="tel"
                       name="whatsapp"
-                      autoComplete="tel-national"
+                      autoComplete={idioma === "pt" ? "tel-national" : "tel"}
                       inputMode="tel"
-                      placeholder="(11) 91234-5678"
+                      placeholder={t.whatsappExemplo}
                       value={dados.whatsapp}
                       onChange={(e) => alterar("whatsapp", e.target.value)}
                       aria-invalid={!!erros.whatsapp}
@@ -242,13 +251,13 @@ export default function Agendamento() {
                       <span id="erro-whatsapp" className="mt-1.5 block text-sm text-[#d11]">{erros.whatsapp}</span>
                     ) : (
                       <span id="dica-whatsapp" className="mt-1.5 block text-xs text-[#9b9292]">
-                        Fora do Brasil? Comece com + e o código do país.
+                        {t.whatsappDica}
                       </span>
                     )}
                   </label>
                   <label className="block">
                     <span className="mb-1.5 block text-sm font-medium">
-                      Faturamento mensal <span className="font-normal text-[#9b9292]">(opcional)</span>
+                      {t.faturamento} <span className="font-normal text-[#9b9292]">{t.opcional}</span>
                     </span>
                     <span className="relative block">
                       <select
@@ -257,10 +266,11 @@ export default function Agendamento() {
                         value={dados.faturamento}
                         onChange={(e) => alterar("faturamento", e.target.value)}
                       >
-                        <option value="">Selecione uma faixa</option>
-                        {FAIXAS_FATURAMENTO.map((f) => (
+                        <option value="">{t.faixaExemplo}</option>
+                        {/* O valor enviado é sempre o rótulo em português; só o texto exibido muda. */}
+                        {FAIXAS_FATURAMENTO.map((f, i) => (
                           <option key={f} value={f}>
-                            {f}
+                            {t.faixas[i]}
                           </option>
                         ))}
                       </select>
@@ -290,12 +300,12 @@ export default function Agendamento() {
                 </div>
 
                 <button type="submit" className="botao botao-vermelho mt-8 w-full text-lg">
-                  Escolher data e horário
+                  {t.escolherHorario}
                   <IconeSeta className="h-5 w-5" />
                 </button>
                 <p className="mt-4 flex items-center justify-center gap-2 text-xs text-[#9b9292]">
                   <IconeCadeado className="h-3.5 w-3.5" />
-                  Seus dados ficam só com a T9. Nada de spam.
+                  {t.privacidade}
                 </p>
               </form>
             )}
@@ -308,17 +318,17 @@ export default function Agendamento() {
                   className="mb-4 inline-flex items-center gap-1.5 text-sm text-[#5b5353] hover:text-[#0b0b0b]"
                 >
                   <IconeSetaEsquerda className="h-4 w-4" />
-                  Voltar
+                  {t.voltar}
                 </button>
                 <h3 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
-                  {primeiroNome ? `${primeiroNome}, qual o melhor horário?` : "Qual o melhor horário?"}
+                  {primeiroNome ? fmt(t.horarioTituloNome, { nome: primeiroNome }) : t.horarioTitulo}
                 </h3>
-                <p className="mt-2 text-[#5b5353]">Reunião online de 45 minutos. Horários de Brasília.</p>
+                <p className="mt-2 text-[#5b5353]">{t.horarioSub}</p>
 
                 <p className="mt-7 mb-3 flex items-center gap-2 text-sm font-semibold">
-                  <IconeCalendario className="h-4 w-4 text-[#e3121c]" /> Dia
+                  <IconeCalendario className="h-4 w-4 text-[#e3121c]" /> {t.dia}
                 </p>
-                <div className="sem-barra -mx-6 flex gap-2.5 overflow-x-auto px-6 pb-2 sm:-mx-9 sm:px-9" role="group" aria-label="Dias disponíveis">
+                <div className="sem-barra -mx-6 flex gap-2.5 overflow-x-auto px-6 pb-2 sm:-mx-9 sm:px-9" role="group" aria-label={t.diasAria}>
                   {dias.map((d) => (
                     <button
                       key={d.iso}
@@ -338,9 +348,9 @@ export default function Agendamento() {
                 </div>
 
                 <p className="mt-6 mb-3 flex items-center gap-2 text-sm font-semibold">
-                  <IconeRelogio className="h-4 w-4 text-[#e3121c]" /> Horário
+                  <IconeRelogio className="h-4 w-4 text-[#e3121c]" /> {t.horario}
                 </p>
-                <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4" role="group" aria-label="Horários disponíveis">
+                <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4" role="group" aria-label={t.horariosAria}>
                   {HORARIOS.map((h) => (
                     <button
                       key={h}
@@ -367,10 +377,10 @@ export default function Agendamento() {
                 <div className="mt-7 rounded-2xl bg-[#f8f4f4] px-5 py-4 text-sm text-[#3d3636]" aria-live="polite">
                   {quando ? (
                     <>
-                      Sua reunião: <strong className="text-[#0b0b0b]">{quando}</strong>
+                      {t.suaReuniao} <strong className="text-[#0b0b0b]">{quando}</strong>
                     </>
                   ) : (
-                    "Escolha um dia e um horário."
+                    t.escolhaDiaHorario
                   )}
                 </div>
 
@@ -380,7 +390,7 @@ export default function Agendamento() {
                   onClick={confirmar}
                   disabled={enviando || !dia || !horario}
                 >
-                  {enviando ? "Agendando..." : "Confirmar agendamento"}
+                  {enviando ? t.agendando : t.confirmar}
                   {!enviando && <IconeCheck className="h-5 w-5" />}
                 </button>
               </div>
@@ -391,18 +401,23 @@ export default function Agendamento() {
                 <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-[#e3121c] text-white shadow-[0_20px_40px_-12px_rgba(227,18,28,0.8)]">
                   <IconeCheck className="h-10 w-10" />
                 </span>
-                <h3 className="mt-6 font-display text-3xl font-extrabold tracking-tight">Reunião agendada!</h3>
+                <h3 className="mt-6 font-display text-3xl font-extrabold tracking-tight">{t.confirmadoTitulo}</h3>
                 <p className="mx-auto mt-3 max-w-sm text-[#5b5353]">
-                  {primeiroNome ? `${primeiroNome}, sua` : "Sua"} consultoria gratuita ficou para{" "}
-                  <strong className="text-[#0b0b0b]">{quando}</strong> (horário de Brasília). Nossa equipe vai confirmar
-                  pelo WhatsApp e enviar o link da reunião.
+                  <Rico
+                    texto={
+                      primeiroNome
+                        ? fmt(t.confirmadoTextoNome, { nome: primeiroNome, quando })
+                        : fmt(t.confirmadoTexto, { quando })
+                    }
+                    classeForte="text-[#0b0b0b]"
+                  />
                 </p>
 
                 <div className="mt-8 flex flex-col gap-3">
                   {linkWhatsApp && (
                     <a href={linkWhatsApp} target="_blank" rel="noopener noreferrer" className="botao w-full bg-[#1fb345] text-white hover:bg-[#199a3b]">
                       <MarcaWhatsApp className="h-6 w-6" />
-                      Confirmar pelo WhatsApp
+                      {t.confirmarWhatsapp}
                     </a>
                   )}
                   <a
@@ -412,7 +427,7 @@ export default function Agendamento() {
                     className="botao w-full border-[1.5px] border-[#e4dede] text-[#0b0b0b] hover:border-[#e3121c]"
                   >
                     <IconeCalendario className="h-5 w-5 text-[#e3121c]" />
-                    Salvar na minha agenda
+                    {t.salvarAgenda}
                   </a>
                 </div>
               </div>
