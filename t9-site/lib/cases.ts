@@ -1,22 +1,24 @@
-// Clientes do carrossel da seção "Clientes": os 21 cases do site da Smart Opus (empresa do mesmo grupo).
+// Clientes do carrossel da seção "Clientes": os 21 cases do site da Smart Opus (empresa do mesmo grupo)
+// e clientes antigos da T9, como o AES Sports Legacy Channel.
 // A primeira metade vai na fileira de cima e a segunda na de baixo. O carrossel mostra só o logo
 // (ou o nome, enquanto não houver logo); os demais campos ficam guardados para uma versão com detalhes.
-// Para adicionar um cliente, inclua um item aqui. Logo opcional: arquivo em
-// public/cases/ (PNG/SVG transparente e claro, o fundo é escuro); sem logo,
-// o card mostra as iniciais. Sem itens, a seção não aparece no site.
+// Para adicionar um cliente, inclua um item aqui. Logo opcional: arquivo em public/cases/,
+// em branco com fundo transparente (o fundo do site é escuro). Sem itens, a seção não aparece.
 
 export type Case = {
   cliente: string;
-  iniciais: string;
-  segmento: string;
-  local: string;
   /** Ex.: "/cases/minha-marca.png" */
   logo?: string;
   /** Largura ÷ altura do logo, para logos quadrados e compridos terem o mesmo peso visual. */
   logoProporcao?: number;
-  destaque: { valor: string; legenda: string };
+  // Detalhes do case (vindos da Smart Opus). O carrossel não os mostra; ficam
+  // guardados para uma versão com cards. Cliente sem case publicado fica sem eles.
+  iniciais?: string;
+  segmento?: string;
+  local?: string;
+  destaque?: { valor: string; legenda: string };
   /** Uma ou duas frases: o que foi feito. */
-  resumo: string;
+  resumo?: string;
 };
 
 export const CASES: Case[] = [
@@ -242,5 +244,10 @@ export const CASES: Case[] = [
     destaque: { valor: "R$ 100 mil", legenda: "de faturamento, partindo do zero" },
     resumo:
       "Loja de calçados femininos construída do zero: presença digital, aquisição e atendimento na mesma estrutura.",
+  },
+  {
+    cliente: "AES Sports Legacy Channel",
+    logo: "/cases/aes.png",
+    logoProporcao: 0.90,
   },
 ];
