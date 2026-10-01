@@ -1,5 +1,6 @@
 import Agendamento from "./components/Agendamento";
 import Animacoes from "./components/Animacoes";
+import Cases from "./components/Cases";
 import Construir from "./components/Construir";
 import Entender from "./components/Entender";
 import Estruturar from "./components/Estruturar";
@@ -22,6 +23,7 @@ export default function Home() {
         <Estruturar />
         <Construir />
         <Numeros />
+        <Cases />
         <Feedbacks />
         <Metodo />
         <Agendamento />

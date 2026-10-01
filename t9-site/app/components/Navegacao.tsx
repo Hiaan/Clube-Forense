@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CASES } from "@/lib/cases";
 import Logo from "./Logo";
 import { IconeFechar, IconeMenu } from "./Icones";
 
@@ -8,6 +9,7 @@ const LINKS = [
   { href: "#como-funciona", rotulo: "Como funciona" },
   { href: "#servicos", rotulo: "Serviços" },
   { href: "#resultados", rotulo: "Resultados" },
+  ...(CASES.length ? [{ href: "#cases", rotulo: "Cases" }] : []),
   { href: "#metodo", rotulo: "Método" },
 ];
 

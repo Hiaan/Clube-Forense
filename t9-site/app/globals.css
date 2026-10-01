@@ -460,6 +460,32 @@ body {
       inset 0 -2px 0 rgba(120, 150, 255, 0.25);
   }
 
+  /* ---------- Cards de cases ---------- */
+
+  .case-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 28px;
+    border-radius: 22px;
+    background: linear-gradient(160deg, rgba(48, 4, 7, 0.95) 0%, rgba(16, 2, 3, 0.95) 100%);
+    border: 1.5px solid rgba(230, 30, 40, 0.45);
+    box-shadow:
+      0 6px 0 -1px rgba(200, 16, 26, 0.8),
+      0 30px 60px -30px rgba(255, 30, 40, 0.45);
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 0.35s,
+      box-shadow 0.35s;
+  }
+  .case-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 70, 80, 0.9);
+    box-shadow:
+      0 8px 0 -1px rgba(230, 20, 30, 1),
+      0 36px 70px -28px rgba(255, 30, 40, 0.6);
+  }
+
   /* ---------- Bolhas de conversa ---------- */
 
   .conversa {
