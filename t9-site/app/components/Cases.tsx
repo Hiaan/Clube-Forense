@@ -1,10 +1,62 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import { CASES } from "@/lib/cases";
+import { CASES, type Case } from "@/lib/cases";
 import { Subtitulo, Titulo } from "./ui";
+
+function CardCase({ c, duplicado = false }: { c: Case; duplicado?: boolean }) {
+  return (
+    <li className="case-card w-[300px] shrink-0 sm:w-[340px]" aria-hidden={duplicado || undefined}>
+      <div className="flex items-start justify-between gap-4">
+        {c.logo ? (
+          <Image src={c.logo} alt={c.cliente} width={160} height={56} className="h-12 w-auto max-w-[150px] object-contain object-left" />
+        ) : (
+          <span className="case-iniciais" aria-hidden="true">
+            {c.iniciais}
+          </span>
+        )}
+        <span className="mt-1 rounded-full border border-[#ff2d38]/45 bg-[#ff2d38]/10 px-3 py-1 text-right text-[11px] leading-tight font-medium tracking-wide text-[#ffb3b8]">
+          {c.segmento}
+        </span>
+      </div>
+
+      <h3 className="mt-5 font-display text-xl leading-tight font-extrabold tracking-tight">{c.cliente}</h3>
+      <p className="mt-1 text-xs tracking-wide text-white/45 uppercase">{c.local}</p>
+
+      <div className="mt-5 border-y border-white/10 py-5">
+        <p className="font-display text-[2.4rem] leading-none font-extrabold tracking-tight whitespace-nowrap text-white texto-brilho">
+          {c.destaque.valor}
+        </p>
+        <p className="mt-2 text-sm leading-snug font-light text-white/70">{c.destaque.legenda}</p>
+      </div>
+
+      <p className="mt-5 text-[15px] leading-relaxed font-light text-white/75">{c.resumo}</p>
+    </li>
+  );
+}
+
+/** Uma fileira que desliza sem parar; a lista vai duplicada para o laço não ter emenda. */
+function Esteira({ itens, reverso = false, duracao }: { itens: Case[]; reverso?: boolean; duracao: number }) {
+  return (
+    <div className="esteira">
+      <ul
+        className={`esteira-trilho ${reverso ? "esteira-reverso" : ""}`}
+        style={{ "--duracao": `${duracao}s` } as CSSProperties}
+      >
+        {itens.map((c) => (
+          <CardCase key={c.cliente} c={c} />
+        ))}
+        {itens.map((c) => (
+          <CardCase key={`${c.cliente}-2`} c={c} duplicado />
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function Cases() {
   if (!CASES.length) return null;
+  const metade = Math.ceil(CASES.length / 2);
+  const fileiras = [CASES.slice(0, metade), CASES.slice(metade)].filter((f) => f.length);
 
   return (
     <section id="cases" className="fundo-post relative overflow-hidden">
@@ -16,53 +68,20 @@ export default function Cases() {
           <p className="font-display text-sm font-extrabold tracking-[0.25em] text-[#ff5a63] uppercase" data-reveal>
             Cases
           </p>
-          <Titulo className="mt-3 max-w-4xl">Operações que passaram por nós.</Titulo>
-          <Subtitulo>Empresas que estruturaram tráfego, vendas e automação com o nosso time, e os números que vieram depois.</Subtitulo>
+          <Titulo className="mt-3 max-w-4xl">Operações que passaram a funcionar como sistema.</Titulo>
+          <Subtitulo>
+            Clientes reais no Brasil, em Portugal e na Argentina. Cada número abaixo veio de uma operação que passou a
+            funcionar como sistema.
+          </Subtitulo>
         </div>
 
-        {/* Celular: carrossel com rolagem lateral. Desktop: grade. */}
-        <ul className="sem-barra mt-14 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:px-8 lg:mx-auto lg:grid lg:max-w-[1200px] lg:grid-cols-3 lg:gap-7 lg:overflow-visible lg:px-8">
-          {CASES.map((c, i) => (
-            <li
-              key={c.cliente}
-              className="case-card group w-[84%] shrink-0 snap-center sm:w-[48%] lg:w-auto"
-              data-reveal
-              style={{ "--d": `${(i % 3) * 110}ms` } as CSSProperties}
-            >
-              <div className="flex min-h-[64px] items-center justify-between gap-4">
-                {c.logo ? (
-                  <Image
-                    src={c.logo}
-                    alt={c.cliente}
-                    width={180}
-                    height={64}
-                    className="h-12 w-auto max-w-[170px] object-contain object-left"
-                  />
-                ) : (
-                  <span className="font-display text-2xl leading-tight font-extrabold tracking-tight">{c.cliente}</span>
-                )}
-                <span className="shrink-0 rounded-full border border-[#ff2d38]/50 bg-[#ff2d38]/10 px-3 py-1 text-xs font-medium tracking-wide text-[#ffb3b8]">
-                  {c.segmento}
-                </span>
-              </div>
-
-              <div className="mt-7 grid gap-5 border-y border-white/10 py-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                {c.destaques.map((d) => (
-                  <div key={d.legenda}>
-                    <p className="font-display text-[1.9rem] leading-none font-extrabold tracking-tight whitespace-nowrap text-white texto-brilho">
-                      {d.valor}
-                    </p>
-                    <p className="mt-2 text-sm leading-snug font-light text-white/65">{d.legenda}</p>
-                  </div>
-                ))}
-              </div>
-
-              <p className="mt-6 text-[15px] leading-relaxed font-light text-white/80">{c.resumo}</p>
-            </li>
+        <div className="mt-14 space-y-6" data-reveal>
+          {fileiras.map((f, i) => (
+            <Esteira key={i} itens={f} reverso={i % 2 === 1} duracao={f.length * 12} />
           ))}
-        </ul>
+        </div>
 
-        <div className="container-t9 mt-12" data-reveal>
+        <div className="container-t9 mt-14" data-reveal>
           <a href="#agendar" className="botao botao-vermelho text-base">
             Quero ser o próximo case
           </a>
