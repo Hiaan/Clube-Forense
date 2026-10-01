@@ -167,6 +167,20 @@ const ESQUEMA = [
     atualizado_em timestamptz not null default now(),
     primary key (empresa_id, mes)
   )`,
+  `create table if not exists cobrancas (
+    id serial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    descricao text not null,
+    valor numeric not null,
+    moeda text not null default 'BRL',
+    vencimento date not null,
+    link text,
+    pago_em date,
+    baixa_por integer references usuarios on delete set null,
+    criado_em timestamptz not null default now()
+  )`,
+  `create index if not exists cobrancas_empresa_vencimento on cobrancas (empresa_id, vencimento)`,
+  `alter table empresas add column if not exists pagamento_instrucoes text`,
   `create index if not exists metricas_empresa_data on metricas (empresa_id, data)`,
   `create index if not exists leads_empresa_recebido on leads (empresa_id, recebido_em desc)`,
 ];

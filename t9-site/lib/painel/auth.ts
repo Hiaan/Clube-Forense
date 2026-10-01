@@ -25,6 +25,7 @@ export type Empresa = {
   meta_receita: number | null;
   comentario: string | null;
   comentario_em: string | null;
+  pagamento_instrucoes: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";

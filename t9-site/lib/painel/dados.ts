@@ -168,6 +168,8 @@ export type LinhaCarteira = Empresa & {
   lm: number;
   rm: number;
   leads_novos: number;
+  /** Vencimento mais antigo ainda não pago e já vencido (null se está em dia). */
+  atraso_desde: string | null;
 };
 
 export async function carteira(usuario: Usuario) {
@@ -186,7 +188,8 @@ export async function carteira(usuario: Usuario) {
             s7.gasto as g7, s7.leads as l7, s7.conversoes as c7, s7.receita as r7,
             sa.gasto as g7ant, sa.leads as l7ant,
             sm.gasto as gm, sm.leads as lm, sm.receita as rm,
-            (select count(*)::int from leads where empresa_id = e.id and etapa = 'novo') as leads_novos
+            (select count(*)::int from leads where empresa_id = e.id and etapa = 'novo') as leads_novos,
+            (select min(vencimento) from cobrancas where empresa_id = e.id and pago_em is null and vencimento < $2::date) as atraso_desde
        from empresas e
        ${somasCurtas("1 and $2")} s7 on true
        ${somasCurtas("3 and $4")} sa on true
@@ -223,6 +226,10 @@ export function alertasDe(e: LinhaCarteira): Alerta[] {
       if (ritmo > 1.15) alertas.push({ nivel: "medio", texto: `Investimento ${Math.round((ritmo - 1) * 100)}% acima do ritmo da meta` });
       else if (ritmo < 0.8 && decorridos > 3) alertas.push({ nivel: "medio", texto: `Investimento ${Math.round((1 - ritmo) * 100)}% abaixo do ritmo da meta` });
     }
+  }
+  if (e.atraso_desde) {
+    const dias = Math.round((Date.parse(`${ref}T12:00:00Z`) - Date.parse(`${e.atraso_desde}T12:00:00Z`)) / 86_400_000);
+    alertas.push({ nivel: "alto", texto: dias >= 7 ? `Pagamento ${dias} dias em atraso: suspender campanhas` : `Pagamento ${dias} dia(s) em atraso` });
   }
   if (e.leads_novos >= 10) alertas.push({ nivel: "medio", texto: `${e.leads_novos} leads sem atendimento` });
   return alertas;

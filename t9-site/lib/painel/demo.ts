@@ -2,6 +2,7 @@ import "server-only";
 import { consulta, umaLinha } from "./db";
 import { hoje, somarDias } from "./dados";
 import { PLANO_PADRAO } from "./textos";
+import { somarMeses } from "./financeiro";
 
 // Cliente de demonstração, com dados fictícios, para mostrar o painel.
 // Recriar apaga a versão anterior (só deste cliente) e gera tudo de novo.
@@ -179,6 +180,26 @@ export async function semearDemo() {
      ($1, 'Logo em alta resolução', 'https://drive.google.com/file/d/exemplo-logo/view', null, now() - interval '20 days')`,
     [empresaId],
   );
+
+  // ---- Financeiro: setup e mensalidades pagas, a do mês vencendo em 3 dias e as próximas ----
+  const vence = somarDias(ref, 3);
+  const cobrancas: [string, number, string, string | null][] = [
+    ["Setup da operação", 4500, somarMeses(vence, -3), somarMeses(vence, -3)],
+    ["Mensalidade T9", 3500, somarMeses(vence, -2), somarDias(somarMeses(vence, -2), -1)],
+    ["Mensalidade T9", 3500, somarMeses(vence, -1), somarMeses(vence, -1)],
+    ["Mensalidade T9", 3500, vence, null],
+    ["Mensalidade T9", 3500, somarMeses(vence, 1), null],
+    ["Mensalidade T9", 3500, somarMeses(vence, 2), null],
+  ];
+  await consulta(
+    `insert into cobrancas (empresa_id, descricao, valor, vencimento, pago_em)
+     select $1, d, v, ve, p from unnest($2::text[], $3::numeric[], $4::date[], $5::date[]) as x(d, v, ve, p)`,
+    [empresaId, cobrancas.map((c) => c[0]), cobrancas.map((c) => c[1]), cobrancas.map((c) => c[2]), cobrancas.map((c) => c[3])],
+  );
+  await consulta("update empresas set pagamento_instrucoes = $2 where id = $1", [
+    empresaId,
+    "Pix (CNPJ): 00.000.000/0001-00 (exemplo)\nFavorecido: T9 ADS Company\nEnvie o comprovante pelo WhatsApp da equipe.",
+  ]);
 
   return SLUG_DEMO;
 }

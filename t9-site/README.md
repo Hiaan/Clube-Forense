@@ -109,6 +109,22 @@ O painel fica em **`/painel`** (e em `painel.t9company.com.br`, quando o subdom�
 - **Arquivos:** o cliente envia links do Google Drive para a equipe. Ele remove só o que enviou; a equipe remove qualquer um.
 - **Baixar CSV** nas abas Leads e Campanhas (campanhas no período escolhido).
 
+**Financeiro.**
+
+- A aba **Financeiro** mostra ao cliente todos os vencimentos, o que está em aberto, em atraso e pago, além de "como pagar" (Pix, dados bancários) e o link de pagamento de cada cobrança, quando houver.
+- **Pop-ups para o cliente:**
+  - lembrete 7 dias antes, 3 dias antes, na véspera e no dia do vencimento (uma vez por dia);
+  - aviso a cada dia de atraso, do 1º ao 6º, com quantos dias faltam para a suspensão (a cada nova visita);
+  - a partir do 7º dia de atraso, o aviso diz que as campanhas serão suspensas.
+- Em atraso, uma faixa fixa no topo do painel leva ao Financeiro.
+- **Só o admin mexe no financeiro:**
+  - cria cobranças (com repetição mensal);
+  - dá baixa com a data do pagamento, desfaz a baixa, edita e exclui;
+  - edita o texto de "como pagar".
+
+  A visão geral fica em **Gestão T9 → Financeiro**: em atraso, vencendo em 7 dias, a receber e recebido no mês. A carteira e o resumo semanal alertam pagamentos atrasados.
+- Na aba Financeiro de cada cliente, a equipe pode **pré-visualizar** todos os pop-ups.
+
 **Ver como cliente.** No cabeçalho do painel de um cliente, a equipe pode ligar o modo "Ver como cliente", que esconde todos os controles de edição. Uma faixa vermelha avisa que o modo está ligado.
 
 **Cliente de demonstração.** Na Carteira, o botão "Recriar demonstração" (só admin) gera a "Clínica Exemplo (demonstração)" com 90 dias de métricas, leads, criativos, reuniões, relatório e arquivos fictícios. As artes ficam em `public/painel-demo/`.
