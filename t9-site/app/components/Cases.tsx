@@ -23,7 +23,11 @@ function CardCase({ c, duplicado = false }: { c: Case; duplicado?: boolean }) {
       <p className="mt-1 text-xs tracking-wide text-white/45 uppercase">{c.local}</p>
 
       <div className="mt-5 border-y border-white/10 py-5">
-        <p className="font-display text-[2.4rem] leading-none font-extrabold tracking-tight whitespace-nowrap text-white texto-brilho">
+        <p
+          className={`font-display leading-none font-extrabold tracking-tight whitespace-nowrap text-white texto-brilho ${
+            c.destaque.valor.length > 11 ? "text-[1.75rem]" : c.destaque.valor.length > 8 ? "text-[2rem]" : "text-[2.4rem]"
+          }`}
+        >
           {c.destaque.valor}
         </p>
         <p className="mt-2 text-sm leading-snug font-light text-white/70">{c.destaque.legenda}</p>
@@ -68,10 +72,10 @@ export default function Cases() {
           <p className="font-display text-sm font-extrabold tracking-[0.25em] text-[#ff5a63] uppercase" data-reveal>
             Cases
           </p>
-          <Titulo className="mt-3 max-w-4xl">Operações que passaram a funcionar como sistema.</Titulo>
+          <Titulo className="mt-3 max-w-4xl">Operações que passaram a funcionar como sistema, em quatro países.</Titulo>
           <Subtitulo>
-            Clientes reais no Brasil, em Portugal e na Argentina. Cada número abaixo veio de uma operação que passou a
-            funcionar como sistema.
+            Clientes reais no Brasil, em Portugal, na Argentina e nos Estados Unidos. Cada número abaixo veio de uma
+            operação que passou a funcionar como sistema.
           </Subtitulo>
         </div>
 

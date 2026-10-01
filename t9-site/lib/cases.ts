@@ -1,4 +1,5 @@
-// Cases exibidos na seção "Cases" (mesmos clientes do site da Smart Opus, do mesmo grupo).
+// Cases exibidos na seção "Cases": os 21 clientes do site da Smart Opus (empresa do mesmo grupo).
+// A primeira metade vai na fileira de cima e a segunda na de baixo, como lá.
 // Para adicionar um cliente, inclua um item aqui. Logo opcional: arquivo em
 // public/cases/ (PNG/SVG transparente e claro, o fundo é escuro); sem logo,
 // o card mostra as iniciais. Sem itens, a seção não aparece no site.
@@ -22,7 +23,8 @@ export const CASES: Case[] = [
     segmento: "Imobiliário & Loteamentos",
     local: "Portugal",
     destaque: { valor: "+50%", legenda: "em vendas com recuperação de leads antigos" },
-    resumo: "Funcionário de IA que reativa a base parada, requalifica o interesse e devolve o lead pronto para o corretor.",
+    resumo:
+      "Funcionário de IA que reativa a base parada, requalifica o interesse e devolve o lead pronto para o corretor.",
   },
   {
     cliente: "Tua Casa Gaia",
@@ -30,23 +32,26 @@ export const CASES: Case[] = [
     segmento: "Imobiliário & Loteamentos",
     local: "Portugal",
     destaque: { valor: "−94%", legenda: "no tempo de resposta ao lead" },
-    resumo: "Atendimento automatizado que responde em segundos, qualifica o interesse e organiza a jornada no CRM.",
+    resumo:
+      "Atendimento automatizado que responde em segundos, qualifica o interesse e organiza a jornada no CRM.",
   },
   {
     cliente: "Jardim Ouro Verde",
     iniciais: "JV",
     segmento: "Imobiliário & Loteamentos",
     local: "Brasília · Brasil",
-    destaque: { valor: "+128%", legenda: "de conversão no estande de vendas" },
-    resumo: "SDR com IA que qualifica, agenda a visita, lembra o cliente antes e faz a pesquisa de NPS depois.",
+    destaque: { valor: "+128%", legenda: "conversão do estande de vendas" },
+    resumo:
+      "SDR com IA que qualifica, agenda a visita, lembra o cliente antes e faz a pesquisa de NPS depois.",
   },
   {
     cliente: "Eduardo Imóveis",
     iniciais: "EI",
     segmento: "Imobiliário & Loteamentos",
     local: "João Pessoa · Brasil",
-    destaque: { valor: "R$ 10 mi", legenda: "em vendas" },
-    resumo: "Funcionário de IA que qualifica a faixa de investimento com discrição e conduz o cliente até a visita privativa.",
+    destaque: { valor: "R$ 10 milhões", legenda: "em vendas" },
+    resumo:
+      "Funcionário de IA que qualifica a faixa de investimento com discrição e conduz o cliente até a visita privativa.",
   },
   {
     cliente: "ABC Construtora",
@@ -54,7 +59,8 @@ export const CASES: Case[] = [
     segmento: "Construção & Locações",
     local: "Goiânia · Brasil",
     destaque: { valor: "−58%", legenda: "na inadimplência da carteira" },
-    resumo: "Régua de cobrança automatizada, com lembretes antecipados e notificações extrajudiciais programadas.",
+    resumo:
+      "Régua de cobrança automatizada, com lembretes antecipados e notificações extrajudiciais programadas.",
   },
   {
     cliente: "Trevo Locações",
@@ -62,7 +68,8 @@ export const CASES: Case[] = [
     segmento: "Construção & Locações",
     local: "Rio Grande do Sul · Brasil",
     destaque: { valor: "R$ 200 mil+", legenda: "em oportunidades qualificadas" },
-    resumo: "Atendimento único para as três unidades, com consulta ao sistema e triagem automática de quem procura equipamento.",
+    resumo:
+      "Atendimento único para as três unidades, com consulta ao sistema e triagem automática de quem procura equipamento.",
   },
   {
     cliente: "FisioAcademy",
@@ -70,7 +77,8 @@ export const CASES: Case[] = [
     segmento: "Saúde & Clínicas",
     local: "Caxias do Sul · Garibaldi · Bento Gonçalves",
     destaque: { valor: "−31%", legenda: "em custos operacionais" },
-    resumo: "Sistema próprio de gestão com financeiro, contas, métricas por funcionário e dashboards de performance.",
+    resumo:
+      "Sistema próprio de gestão com financeiro, contas, métricas por funcionário e dashboards de performance.",
   },
   {
     cliente: "Dr. Jorge Cecílio Daher Jr.",
@@ -78,7 +86,8 @@ export const CASES: Case[] = [
     segmento: "Saúde & Clínicas",
     local: "Goiás · Brasil",
     destaque: { valor: "R$ 25 mil+", legenda: "por ano economizados com o funcionário de IA" },
-    resumo: "Funcionário de IA que atende o paciente, organiza a agenda da clínica de endocrinologia e confirma a consulta sozinho.",
+    resumo:
+      "Funcionário de IA que atende o paciente, organiza a agenda da clínica de endocrinologia e confirma a consulta sozinho.",
   },
   {
     cliente: "Farmácia Cristo",
@@ -86,7 +95,8 @@ export const CASES: Case[] = [
     segmento: "Saúde & Clínicas",
     local: "Brasil",
     destaque: { valor: "3 unidades", legenda: "abertas com a expansão da operação digital" },
-    resumo: "A operação digital que sustentou a expansão: aquisição, atendimento e processo replicados em cada nova unidade.",
+    resumo:
+      "A operação digital que sustentou a expansão: aquisição, atendimento e processo replicados em cada nova unidade.",
   },
   {
     cliente: "Kontrolsat",
@@ -94,7 +104,8 @@ export const CASES: Case[] = [
     segmento: "Varejo & E-commerce",
     local: "Portugal",
     destaque: { valor: "+47%", legenda: "de carrinhos recuperados" },
-    resumo: "Assistentes de IA para suporte, pós-venda, recomendação de produtos e recuperação de vendas abandonadas.",
+    resumo:
+      "Assistentes de IA para suporte, pós-venda, recomendação de produtos e recuperação de vendas abandonadas.",
   },
   {
     cliente: "PetLand",
@@ -102,6 +113,97 @@ export const CASES: Case[] = [
     segmento: "Varejo & E-commerce",
     local: "Argentina",
     destaque: { valor: "+53%", legenda: "de recompra na base de clientes" },
-    resumo: "Atendimento em espanhol que recomenda ração e acessórios por porte do pet e lembra a reposição na hora certa.",
+    resumo:
+      "Atendimento em espanhol que recomenda ração e acessórios por porte do pet e lembra a reposição na hora certa.",
+  },
+  {
+    cliente: "Sunset Store",
+    iniciais: "SS",
+    segmento: "Varejo & E-commerce",
+    local: "Flórida · Estados Unidos",
+    destaque: { valor: "+R$ 62 mil", legenda: "por mês em vendas no atendimento bilíngue" },
+    resumo:
+      "Atendimento bilíngue com IA, consulta de estoque em tempo real e recomendação por numeração e estilo.",
+  },
+  {
+    cliente: "Premium Peptides",
+    iniciais: "PP",
+    segmento: "Varejo & E-commerce",
+    local: "Flórida · Estados Unidos",
+    destaque: { valor: "+R$ 88 mil", legenda: "por mês em pedidos recorrentes" },
+    resumo:
+      "Assistente que orienta a escolha do produto, acompanha o pedido e reativa a base na recompra.",
+  },
+  {
+    cliente: "Get In",
+    iniciais: "GI",
+    segmento: "Mobilidade & Transporte",
+    local: "Flórida · Estados Unidos",
+    destaque: { valor: "100%", legenda: "digital — a 1ª locadora do tipo na Flórida" },
+    resumo:
+      "Da captação ao fechamento, uma operação de locação construída para rodar inteira no digital.",
+  },
+  {
+    cliente: "IturanMob",
+    iniciais: "IM",
+    segmento: "Mobilidade & Transporte",
+    local: "Brasil",
+    destaque: { valor: "Todo dia", legenda: "com novos clientes entrando pelo funil" },
+    resumo:
+      "Digitalizamos a operação de uma empresa de capital aberto e construímos o funil que hoje traz cliente novo todos os dias.",
+  },
+  {
+    cliente: "Buffet Evento Perfeito",
+    iniciais: "EP",
+    segmento: "Eventos & Casamentos",
+    local: "São Paulo · Brasil",
+    destaque: { valor: "+70 mil", legenda: "leads entregues no último ano" },
+    resumo:
+      "Distribuição automática dos leads entre 30 consultores, pelo mais adequado e disponível.",
+  },
+  {
+    cliente: "Campanhas Eleitorais",
+    iniciais: "CE",
+    segmento: "Política & Eleições",
+    local: "Goiás · Brasil",
+    destaque: { valor: "+20 mil", legenda: "disparos sem um único banimento" },
+    resumo:
+      "API oficial do WhatsApp para disparos em escala, com clone de IA do candidato respondendo eleitor por eleitor.",
+  },
+  {
+    cliente: "FD Sistemas",
+    iniciais: "FD",
+    segmento: "Serviços B2B",
+    local: "São Paulo · Brasil",
+    destaque: { valor: "−1.800", legenda: "tickets de suporte por mês" },
+    resumo:
+      "Assistentes que atendem alunos 24 horas por dia e convertem novos interessados na plataforma EAD.",
+  },
+  {
+    cliente: "De Vie Joalheria",
+    iniciais: "DV",
+    segmento: "Joalherias",
+    local: "Rio Grande do Sul · Brasil",
+    destaque: { valor: "R$ 80 mil", legenda: "por ano economizados em produção de books" },
+    resumo:
+      "Books profissionais das peças gerados por IA, sem estúdio nem sessão de fotos a cada nova coleção.",
+  },
+  {
+    cliente: "Kits Higiene",
+    iniciais: "KH",
+    segmento: "Varejo & E-commerce",
+    local: "São Paulo · Brasil",
+    destaque: { valor: "24/7", legenda: "de atendimento desde o primeiro dia" },
+    resumo:
+      "Tráfego e infraestrutura de IA no mesmo projeto: a mídia alimenta o funil, o funcionário de IA atende e qualifica.",
+  },
+  {
+    cliente: "Porto Menina",
+    iniciais: "PM",
+    segmento: "Varejo & E-commerce",
+    local: "Brasil",
+    destaque: { valor: "R$ 100 mil", legenda: "de faturamento, partindo do zero" },
+    resumo:
+      "Loja de calçados femininos construída do zero: presença digital, aquisição e atendimento na mesma estrutura.",
   },
 ];
