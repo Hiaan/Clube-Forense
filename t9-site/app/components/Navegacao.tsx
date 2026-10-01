@@ -9,7 +9,7 @@ const LINKS = [
   { href: "#como-funciona", rotulo: "Como funciona" },
   { href: "#servicos", rotulo: "Serviços" },
   { href: "#resultados", rotulo: "Resultados" },
-  ...(CASES.length ? [{ href: "#cases", rotulo: "Cases" }] : []),
+  ...(CASES.length ? [{ href: "#cases", rotulo: "Clientes" }] : []),
   { href: "#metodo", rotulo: "Método" },
 ];
 

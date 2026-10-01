@@ -18,7 +18,7 @@ export default function Rodape() {
             <li><a href="#como-funciona" className="hover:text-white">Como funciona</a></li>
             <li><a href="#servicos" className="hover:text-white">Serviços</a></li>
             <li><a href="#resultados" className="hover:text-white">Resultados</a></li>
-            {CASES.length > 0 && <li><a href="#cases" className="hover:text-white">Cases</a></li>}
+            {CASES.length > 0 && <li><a href="#cases" className="hover:text-white">Clientes</a></li>}
             <li><a href="#metodo" className="hover:text-white">Método</a></li>
             <li><a href="#agendar" className="font-semibold text-[#ff4550] hover:text-white">Agendar consultoria</a></li>
           </ul>

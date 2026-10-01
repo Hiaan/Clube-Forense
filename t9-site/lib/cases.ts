@@ -1,5 +1,6 @@
-// Cases exibidos na seção "Cases": os 21 clientes do site da Smart Opus (empresa do mesmo grupo).
-// A primeira metade vai na fileira de cima e a segunda na de baixo, como lá.
+// Clientes do carrossel da seção "Clientes": os 21 cases do site da Smart Opus (empresa do mesmo grupo).
+// A primeira metade vai na fileira de cima e a segunda na de baixo. O carrossel mostra só o logo
+// (ou o nome, enquanto não houver logo); os demais campos ficam guardados para uma versão com detalhes.
 // Para adicionar um cliente, inclua um item aqui. Logo opcional: arquivo em
 // public/cases/ (PNG/SVG transparente e claro, o fundo é escuro); sem logo,
 // o card mostra as iniciais. Sem itens, a seção não aparece no site.
