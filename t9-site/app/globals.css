@@ -689,3 +689,98 @@ body {
     transition-delay: 0ms !important;
   }
 }
+
+/* ---------- Painel do cliente ---------- */
+@layer components {
+  .painel-fundo {
+    min-height: 100vh;
+    background:
+      radial-gradient(70% 50% at 0% 0%, rgba(124, 4, 9, 0.45) 0%, transparent 70%),
+      radial-gradient(50% 40% at 100% 0%, rgba(92, 7, 11, 0.25) 0%, transparent 70%),
+      #0a0203;
+  }
+  .painel-cartao {
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  .painel-campo {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 15px;
+  }
+  .painel-campo::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+  .painel-campo:focus {
+    outline: none;
+    border-color: var(--vermelho-vivo);
+    box-shadow: 0 0 0 3px rgba(255, 45, 56, 0.2);
+  }
+  select.painel-campo option {
+    background: #1a0405;
+    color: #fff;
+  }
+  .painel-rotulo {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .botao-painel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 9999px;
+    font-family: var(--font-archivo);
+    font-weight: 800;
+    font-size: 14px;
+    background: linear-gradient(180deg, #ff3540 0%, #e0111b 100%);
+    color: #fff;
+    box-shadow: 0 8px 22px -10px rgba(255, 40, 50, 0.9);
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  .botao-painel:hover {
+    transform: translateY(-1px);
+  }
+  .botao-painel:disabled {
+    opacity: 0.5;
+    transform: none;
+  }
+  .botao-painel-sec {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: none;
+  }
+  .painel-tabela th {
+    padding: 12px 14px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+  }
+  .painel-tabela td {
+    padding: 12px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .painel-menu > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .painel-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+}

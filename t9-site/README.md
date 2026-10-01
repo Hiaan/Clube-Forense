@@ -70,6 +70,41 @@ Para funcionar, o Blob store precisa estar conectado ao projeto na Vercel (Stora
 
 > Os leads também vão para os logs da Vercel (`[agendamento] Lead recebido`), mas lá duram pouco: cerca de 1 hora no plano gratuito.
 
+## Painel do cliente
+
+O painel fica em **`/painel`** (e em `painel.t9company.com.br`, quando o subdomínio for apontado para a Vercel). Os dados ficam no Postgres da Neon, conectado ao projeto na Vercel (`DATABASE_URL`). As tabelas são criadas sozinhas no primeiro acesso.
+
+**Entrar.** Não tem senha: a pessoa digita o e-mail e recebe um link de uso único, que vale 15 minutos. O link abre uma tela com o botão "Entrar no painel", para que antivírus de e-mail não gastem o link antes da pessoa. A sessão dura 30 dias.
+
+- Os e-mails em `PAINEL_ADMINS` entram como administradores, mesmo antes de existirem no banco. É assim que o primeiro acesso acontece.
+- Os e-mails saem pelo [Resend](https://resend.com) (`RESEND_API_KEY`). Sem a chave, o link vai para os logs da Vercel (Logs → procurar "RESEND_API_KEY ausente").
+
+**Perfis.**
+
+| Perfil | O que vê e faz |
+|---|---|
+| Administrador | Todos os clientes. Cria e exclui clientes, gerencia a equipe e tudo o que o gestor faz |
+| Gestor | Só os clientes atribuídos a ele. Lança dados, importa CSV, edita metas, plano e comentário, libera acesso para o cliente |
+| Cliente | Só a(s) própria(s) empresa(s): visão geral, campanhas, leads (pode mudar a etapa) e plano (só leitura) |
+
+**Telas do cliente** (em português, inglês ou espanhol, conforme a conta):
+
+- **Visão geral:** indicadores do período com a comparação contra o período anterior, gráficos diários, metas do mês com o ritmo e a "palavra do gestor". Para e-commerce o foco é ROAS e receita; para geração de leads, custo por lead.
+- **Campanhas:** tabela por campanha e plataforma.
+- **Leads:** funil (novo, em contato, reunião, proposta, fechado, perdido), com link direto para o WhatsApp.
+- **Plano de 4 semanas:** os itens do método e o andamento de cada um.
+
+**Gestão T9** (`/painel/admin`):
+
+- **Carteira:** todos os clientes com investimento e resultado dos últimos 7 dias, comparação com a semana anterior e o mês contra a meta. Alertas automáticos para dados parados, CPL acima da meta, investimento sem leads, ROAS abaixo de 1, ritmo de investimento fora da meta e muitos leads sem atendimento.
+- **Página de cada cliente:** lançamento manual do dia, importação de CSV, palavra do gestor, acessos (com o botão "Gerar link de acesso" para mandar pelo WhatsApp), plano, últimos lançamentos e metas.
+
+**Importar CSV.** Aceita o modelo da T9 (baixado na própria página) e exportações do Gerenciador de Anúncios da Meta e do Google Ads, com quebra por dia. As colunas são reconhecidas pelo nome, em português, inglês ou espanhol. Números como `1.234,56` e `1,234.56` e datas `30/09/2026` ou `2026-09-30` funcionam. Mesmo dia + plataforma + campanha substitui o valor anterior, então reimportar uma planilha não duplica nada.
+
+**Leads do site.** Cada lead do formulário de agendamento também entra no painel, na empresa "T9 ADS Company", com origem e campanha vindas dos parâmetros `utm_source` e `utm_campaign`.
+
+Toda alteração fica registrada na tabela `registro` (quem fez o quê e quando).
+
 ## Variáveis de ambiente
 
 Veja `.env.example`.
@@ -82,6 +117,11 @@ Veja `.env.example`.
 | `LEADS_CHAVE` | Chave de acesso da página `/leads` |
 | `BLOB_READ_WRITE_TOKEN` | Criado pela Vercel ao conectar o Blob store |
 | `NEXT_PUBLIC_SITE_URL` | Endereço final do site, usado na imagem de compartilhamento |
+| `DATABASE_URL` | Banco do painel. Criado pela Vercel ao conectar a Neon |
+| `PAINEL_ADMINS` | E-mails de administradores, separados por vírgula |
+| `RESEND_API_KEY` | Envio dos e-mails de acesso ao painel |
+| `PAINEL_EMAIL_REMETENTE` | Remetente dos e-mails (padrão: `T9 ADS Company <painel@t9company.com.br>`; o domínio precisa estar verificado no Resend) |
+| `PAINEL_URL` | Opcional. Endereço usado nos links de acesso (padrão: o endereço em que o painel foi aberto) |
 
 ## Horários da agenda
 

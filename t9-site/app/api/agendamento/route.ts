@@ -1,4 +1,6 @@
 import { armazenamentoConfigurado, salvarLead, type LeadSalvo } from "@/lib/leads";
+import { bancoConfigurado } from "@/lib/painel/db";
+import { salvarLeadNoPainel } from "@/lib/painel/leadsSite";
 import { EMAIL_VALIDO, FAIXAS_FATURAMENTO, dataPorExtenso, horarioValido, soDigitos, whatsAppValido } from "@/lib/agenda";
 
 type Corpo = {
@@ -72,6 +74,7 @@ export async function POST(request: Request) {
 
   const envios: Promise<void>[] = [];
   if (armazenamentoConfigurado()) envios.push(salvarLead(lead));
+  if (bancoConfigurado()) envios.push(salvarLeadNoPainel(lead));
   if (process.env.LEAD_WEBHOOK_URL) envios.push(enviarPorWebhook(process.env.LEAD_WEBHOOK_URL, lead));
   if (!envios.length) return Response.json({ ok: true });
 

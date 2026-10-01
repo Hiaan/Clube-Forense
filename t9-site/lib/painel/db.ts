@@ -1,8 +1,15 @@
 import "server-only";
-import { Pool, type QueryResultRow } from "pg";
+import { attachDatabasePool } from "@vercel/functions";
+import { Pool, types, type QueryResultRow } from "pg";
 
 // Banco do painel: Postgres (Neon na Vercel). A conexão vem de DATABASE_URL,
 // criada pela integração da Neon ao conectar o banco ao projeto.
+
+// Datas (date) chegam como texto "2026-10-01", sem passar por fuso horário.
+// Números (numeric, bigint) chegam como number: valores de anúncios cabem com folga.
+types.setTypeParser(1082, (v) => v);
+types.setTypeParser(1700, (v) => Number(v));
+types.setTypeParser(20, (v) => Number(v));
 
 const globalParaPool = globalThis as unknown as { poolPainel?: Pool; esquemaPronto?: Promise<void> };
 
@@ -18,6 +25,8 @@ function pool() {
       max: 5,
       ssl: local ? undefined : { rejectUnauthorized: false },
     });
+    // Na Vercel, fecha conexões ociosas antes de a função ser suspensa.
+    attachDatabasePool(globalParaPool.poolPainel);
   }
   return globalParaPool.poolPainel;
 }
