@@ -10,8 +10,10 @@ export type Case = {
   iniciais: string;
   segmento: string;
   local: string;
-  /** Ex.: "/cases/minha-marca.svg" */
+  /** Ex.: "/cases/minha-marca.png" */
   logo?: string;
+  /** Largura ÷ altura do logo, para logos quadrados e compridos terem o mesmo peso visual. */
+  logoProporcao?: number;
   destaque: { valor: string; legenda: string };
   /** Uma ou duas frases: o que foi feito. */
   resumo: string;
@@ -20,6 +22,8 @@ export type Case = {
 export const CASES: Case[] = [
   {
     cliente: "Habemus Domus",
+    logo: "/cases/habemus-domus.png",
+    logoProporcao: 0.93,
     iniciais: "HD",
     segmento: "Imobiliário & Loteamentos",
     local: "Portugal",
@@ -29,6 +33,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Tua Casa Gaia",
+    logo: "/cases/tua-casa-gaia.png",
+    logoProporcao: 0.89,
     iniciais: "TC",
     segmento: "Imobiliário & Loteamentos",
     local: "Portugal",
@@ -38,6 +44,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Jardim Ouro Verde",
+    logo: "/cases/jardim-ouro-verde.png",
+    logoProporcao: 2.83,
     iniciais: "JV",
     segmento: "Imobiliário & Loteamentos",
     local: "Brasília · Brasil",
@@ -65,6 +73,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Trevo Locações",
+    logo: "/cases/trevo-locacoes.png",
+    logoProporcao: 4.83,
     iniciais: "TL",
     segmento: "Construção & Locações",
     local: "Rio Grande do Sul · Brasil",
@@ -74,6 +84,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "FisioAcademy",
+    logo: "/cases/fisioacademy.png",
+    logoProporcao: 5.64,
     iniciais: "FA",
     segmento: "Saúde & Clínicas",
     local: "Caxias do Sul · Garibaldi · Bento Gonçalves",
@@ -83,6 +95,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Dr. Jorge Cecílio Daher Jr.",
+    logo: "/cases/clinica-daher.png",
+    logoProporcao: 6.43,
     iniciais: "JD",
     segmento: "Saúde & Clínicas",
     local: "Goiás · Brasil",
@@ -101,6 +115,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Kontrolsat",
+    logo: "/cases/kontrolsat.png",
+    logoProporcao: 4.17,
     iniciais: "KS",
     segmento: "Varejo & E-commerce",
     local: "Portugal",
@@ -119,6 +135,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Sunset Store",
+    logo: "/cases/sunset-store.png",
+    logoProporcao: 0.91,
     iniciais: "SS",
     segmento: "Varejo & E-commerce",
     local: "Flórida · Estados Unidos",
@@ -137,6 +155,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Get In",
+    logo: "/cases/get-in.png",
+    logoProporcao: 0.93,
     iniciais: "GI",
     segmento: "Mobilidade & Transporte",
     local: "Flórida · Estados Unidos",
@@ -146,6 +166,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "IturanMob",
+    logo: "/cases/ituranmob.png",
+    logoProporcao: 6.14,
     iniciais: "IM",
     segmento: "Mobilidade & Transporte",
     local: "Brasil",
@@ -155,6 +177,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Buffet Evento Perfeito",
+    logo: "/cases/buffet-evento-perfeito.png",
+    logoProporcao: 1.47,
     iniciais: "EP",
     segmento: "Eventos & Casamentos",
     local: "São Paulo · Brasil",
@@ -182,6 +206,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "De Vie Joalheria",
+    logo: "/cases/dvie-joalheria.png",
+    logoProporcao: 1.39,
     iniciais: "DV",
     segmento: "Joalherias",
     local: "Rio Grande do Sul · Brasil",
@@ -191,6 +217,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Kits Higiene",
+    logo: "/cases/kits-higiene.png",
+    logoProporcao: 2.65,
     iniciais: "KH",
     segmento: "Varejo & E-commerce",
     local: "São Paulo · Brasil",
@@ -200,6 +228,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Porto Menina",
+    logo: "/cases/porto-menina.png",
+    logoProporcao: 2.68,
     iniciais: "PM",
     segmento: "Varejo & E-commerce",
     local: "Brasil",

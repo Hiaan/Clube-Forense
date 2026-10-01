@@ -493,18 +493,15 @@ body {
     color: rgba(255, 255, 255, 0.55);
     transition: color 0.3s;
   }
+  /* Logos em branco (fundo transparente), no mesmo tom dos nomes */
   .cliente-logo img {
-    filter: grayscale(1) brightness(1.8);
     opacity: 0.6;
-    transition:
-      filter 0.3s,
-      opacity 0.3s;
+    transition: opacity 0.3s;
   }
   .cliente-logo:hover {
     color: #fff;
   }
   .cliente-logo:hover img {
-    filter: none;
     opacity: 1;
   }
   /* Separador vermelho entre os nomes */

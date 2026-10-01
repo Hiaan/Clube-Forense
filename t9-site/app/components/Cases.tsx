@@ -2,12 +2,27 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { CASES, type Case } from "@/lib/cases";
 
+/**
+ * Altura em que cada logo aparece: mesma área visual para todos, então os
+ * quadrados ficam mais altos e os compridos mais baixos (entre 28 e 60px).
+ */
+function alturaDoLogo(proporcao: number) {
+  return `clamp(28px, ${Math.round(Math.sqrt(7600 / proporcao))}px, 60px)`;
+}
+
 /** Logo do cliente; sem arquivo de logo, o nome em letra de marca faz as vezes. */
 function MarcaCliente({ c, duplicado = false }: { c: Case; duplicado?: boolean }) {
   return (
     <li className="cliente-logo" aria-hidden={duplicado || undefined}>
       {c.logo ? (
-        <Image src={c.logo} alt={c.cliente} width={180} height={60} className="h-10 w-auto max-w-[170px] object-contain sm:h-12" />
+        <Image
+          src={c.logo}
+          alt={c.cliente}
+          width={Math.round(64 * (c.logoProporcao ?? 3))}
+          height={64}
+          className="w-auto object-contain"
+          style={{ height: alturaDoLogo(c.logoProporcao ?? 3) }}
+        />
       ) : (
         <span className="font-display text-xl font-extrabold tracking-tight whitespace-nowrap sm:text-2xl">{c.cliente}</span>
       )}
