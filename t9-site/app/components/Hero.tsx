@@ -20,22 +20,15 @@ export default function Hero() {
       />
 
       <div className="container-t9 relative flex flex-col items-center text-center">
-        <h1 className="relative z-10">
-          <span
-            className="block font-display text-[2.1rem] leading-none font-extrabold tracking-tight sm:text-6xl"
-            data-reveal
-          >
-            Entenda o que a
-          </span>
-          <span className="sr-only"> T9 faz</span>
-        </h1>
+        {/* O nome da marca já está na arte; o título fica só para leitores de tela e buscadores. */}
+        <h1 className="sr-only">T9 ADS Company: tráfego pago, estrutura e escala para a sua empresa</h1>
 
-        <div className="relative -mt-1 w-full max-w-[640px] sm:-mt-2" data-reveal="zoom" style={{ "--d": "150ms" } as CSSProperties}>
+        <div className="relative w-full max-w-[640px]" data-reveal="zoom" style={{ "--d": "100ms" } as CSSProperties}>
           <Image
-            src="/img/hero-t9.webp"
-            alt="Especialista da T9 com os ícones de Instagram, WhatsApp, Meta, Google e IA orbitando à frente, sob o letreiro T9 FAZ"
-            width={1080}
-            height={1078}
+            src="/img/hero-t9-logo.webp"
+            alt="Logo da T9 ADS Company com os ícones de Instagram, WhatsApp, Meta, Google e IA orbitando ao redor"
+            width={1254}
+            height={1254}
             priority
             sizes="(max-width: 700px) 100vw, 640px"
             className="hero-foto h-auto w-full"
@@ -46,7 +39,7 @@ export default function Hero() {
           <p
             className="text-lg leading-relaxed font-light text-white/85 sm:text-xl"
             data-reveal
-            style={{ "--d": "300ms" } as CSSProperties}
+            style={{ "--d": "250ms" } as CSSProperties}
           >
             Entendemos o seu negócio, desenhamos o caminho e construímos a estrutura de{" "}
             <strong className="font-semibold text-white">tráfego, vendas e automação</strong> que leva sua empresa para

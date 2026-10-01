@@ -82,8 +82,8 @@ A agenda não consulta um calendário real. A equipe confirma cada horário pelo
 
 ## Imagens
 
-A foto do hero (`public/img/hero-t9.webp`) foi recortada da arte principal. O painel do Gerenciador de Anúncios, na seção de agendamento, foi refeito em HTML.
+A arte do hero (`public/img/hero-t9-logo.webp`) é a imagem com o logo da T9 e os ícones orbitando. O painel do Gerenciador de Anúncios, na seção de agendamento, foi refeito em HTML.
 
 O logo foi vetorizado a partir das artes e está em `app/components/Logo.tsx`.
 
-Se houver os arquivos originais (foto sem o texto "T9 FAZ" e logo em SVG), basta substituir.
+Para trocar a arte do hero, basta substituir o arquivo, mantendo o formato quadrado.
