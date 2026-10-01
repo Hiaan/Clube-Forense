@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Logo from "@/app/components/Logo";
-import { ehEquipe, type Empresa, type Usuario } from "@/lib/painel/auth";
+import { ehEquipe, modoCliente, type Empresa, type Usuario } from "@/lib/painel/auth";
 import { TEXTOS_PAINEL } from "@/lib/painel/textos";
 import { sair } from "../acoes";
+import BotaoModoCliente from "./BotaoModoCliente";
 
 /** Barra do topo: marca, troca de empresa e menu da conta. Os menus usam <details>, sem JavaScript. */
-export default function Cabecalho({
+export default async function Cabecalho({
   usuario,
   empresas = [],
   atual,
@@ -18,8 +19,16 @@ export default function Cabecalho({
 }) {
   const t = TEXTOS_PAINEL[usuario.idioma].geral;
   const equipe = ehEquipe(usuario);
+  const comoCliente = equipe && (await modoCliente());
+  const tx = TEXTOS_PAINEL[usuario.idioma].extra;
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0a0203]/85 backdrop-blur-md">
+    <header className="nao-imprimir sticky top-0 z-30 border-b border-white/10 bg-[#0a0203]/85 backdrop-blur-md">
+      {comoCliente && (
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-[#e3121c] px-4 py-2 text-center text-sm">
+          <span>{tx.modoClienteAviso}</span>
+          <BotaoModoCliente rotulo={tx.sairModoCliente} className="font-semibold underline underline-offset-2" />
+        </div>
+      )}
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
         <Link href="/painel" className="flex shrink-0 items-center gap-2.5" aria-label="T9 ADS Company">
           <Logo className="w-11" comAssinatura={false} />
@@ -50,7 +59,14 @@ export default function Cabecalho({
         )}
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          {equipe && (
+          {equipe && atual && !comoCliente && (
+            <BotaoModoCliente
+              rotulo={tx.verComoCliente}
+              formClassName="hidden sm:block"
+              className="rounded-full border border-white/15 px-3 py-1.5 text-sm text-white/70 hover:text-white"
+            />
+          )}
+          {equipe && !comoCliente && (
             <Link href="/painel/admin" className="hidden rounded-full px-3 py-1.5 text-sm text-white/70 hover:text-white sm:inline">
               {t.gerenciar}
             </Link>
@@ -68,6 +84,13 @@ export default function Cabecalho({
                 <Link href="/painel/admin" className="block rounded-xl px-3 py-2 text-sm hover:bg-white/8 sm:hidden">
                   {t.gerenciar}
                 </Link>
+              )}
+              {equipe && atual && (
+                <BotaoModoCliente
+                  rotulo={comoCliente ? tx.sairModoCliente : tx.verComoCliente}
+                  formClassName="sm:hidden"
+                  className="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-white/8"
+                />
               )}
               <Link href="/painel/conta" className="block rounded-xl px-3 py-2 text-sm hover:bg-white/8">
                 {t.conta}

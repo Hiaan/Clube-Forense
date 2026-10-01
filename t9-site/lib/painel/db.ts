@@ -120,6 +120,53 @@ const ESQUEMA = [
     detalhe text,
     em timestamptz not null default now()
   )`,
+  `create table if not exists criativos (
+    id serial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    titulo text not null,
+    status text not null default 'teste' check (status in ('validado', 'teste', 'reprovado')),
+    formato text not null default 'imagem',
+    plataforma text,
+    link text,
+    imagem text,
+    gasto numeric,
+    resultados integer,
+    ctr numeric,
+    nota text,
+    inicio date,
+    criado_em timestamptz not null default now(),
+    atualizado_em timestamptz not null default now()
+  )`,
+  `create table if not exists arquivos (
+    id serial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    usuario_id integer references usuarios on delete set null,
+    titulo text not null,
+    url text not null,
+    nota text,
+    criado_em timestamptz not null default now()
+  )`,
+  `create table if not exists reunioes (
+    id serial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    quando timestamptz not null,
+    titulo text not null,
+    link text,
+    gravacao text,
+    resumo text,
+    proximos_passos text,
+    criado_em timestamptz not null default now()
+  )`,
+  `create table if not exists relatorios (
+    empresa_id integer not null references empresas on delete cascade,
+    mes text not null,
+    resumo text,
+    destaques text,
+    proximos_passos text,
+    publicado boolean not null default false,
+    atualizado_em timestamptz not null default now(),
+    primary key (empresa_id, mes)
+  )`,
   `create index if not exists metricas_empresa_data on metricas (empresa_id, data)`,
   `create index if not exists leads_empresa_recebido on leads (empresa_id, recebido_em desc)`,
 ];

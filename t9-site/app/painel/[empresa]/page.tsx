@@ -225,8 +225,8 @@ function Metas({
     <ul className="mt-4 grid gap-5">
       {barras.map((b) => {
         const fracao = Math.min(1, b.meta > 0 ? b.feito / b.meta : 0);
-        // No CPL, passar da meta é ruim; nas demais, ficar atrás do ritmo do mês é que preocupa.
-        const ruim = b.inverter ? b.feito > b.meta : fracao < mes.fracaoDoMes * 0.8;
+        // No CPL, passar da meta é ruim; nas demais, ficar atrás do ritmo do mês (a partir do 4º dia) é que preocupa.
+        const ruim = b.inverter ? b.feito > b.meta : mes.fracaoDoMes > 0.1 && fracao < mes.fracaoDoMes * 0.8;
         return (
           <li key={b.rotulo}>
             <div className="flex items-baseline justify-between gap-3 text-sm">

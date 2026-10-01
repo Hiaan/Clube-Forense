@@ -189,3 +189,18 @@ export async function empresaPermitidaPorId(usuario: Usuario, id: number) {
     [id, usuario.id],
   );
 }
+
+// ---------- "Ver como cliente" ----------
+// A equipe pode navegar pelo painel de um cliente sem os controles de edição,
+// para ver exatamente o que ele vê. É só um cookie de preferência: não muda permissões.
+
+export const COOKIE_MODO_CLIENTE = "t9_ver_como_cliente";
+
+export async function modoCliente() {
+  return (await cookies()).get(COOKIE_MODO_CLIENTE)?.value === "1";
+}
+
+/** Mostra os controles de edição da equipe nesta tela? */
+export async function mostrarEdicao(usuario: Usuario) {
+  return ehEquipe(usuario) && !(await modoCliente());
+}

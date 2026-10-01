@@ -227,3 +227,95 @@ export function alertasDe(e: LinhaCarteira): Alerta[] {
   if (e.leads_novos >= 10) alertas.push({ nivel: "medio", texto: `${e.leads_novos} leads sem atendimento` });
   return alertas;
 }
+
+// ---------- Criativos, arquivos, reuniões e relatórios ----------
+
+export type Criativo = {
+  id: number;
+  titulo: string;
+  status: "validado" | "teste" | "reprovado";
+  formato: string;
+  plataforma: string | null;
+  link: string | null;
+  imagem: string | null;
+  gasto: number | null;
+  resultados: number | null;
+  ctr: number | null;
+  nota: string | null;
+  inicio: string | null;
+};
+
+export async function listarCriativos(empresaId: number) {
+  return consulta<Criativo>(
+    `select id, titulo, status, formato, plataforma, link, imagem, gasto, resultados, ctr, nota, inicio
+       from criativos where empresa_id = $1 order by atualizado_em desc, id desc`,
+    [empresaId],
+  );
+}
+
+/** Endereço da miniatura: arquivo enviado (servido com checagem de acesso), caminho público ou miniatura do Drive. */
+export function miniaturaDe(c: Pick<Criativo, "imagem" | "link">) {
+  if (c.imagem) {
+    if (c.imagem.startsWith("/") || c.imagem.startsWith("https://")) return c.imagem;
+    return `/painel/midia/${c.imagem}`;
+  }
+  const drive = c.link?.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]{10,})/);
+  return drive ? `https://drive.google.com/thumbnail?id=${drive[1]}&sz=w800` : null;
+}
+
+export type Arquivo = { id: number; titulo: string; url: string; nota: string | null; criado_em: string; usuario_id: number | null; autor: string | null };
+
+export async function listarArquivos(empresaId: number) {
+  return consulta<Arquivo>(
+    `select a.id, a.titulo, a.url, a.nota, a.criado_em, a.usuario_id, coalesce(u.nome, u.email) as autor
+       from arquivos a left join usuarios u on u.id = a.usuario_id
+      where a.empresa_id = $1 order by a.criado_em desc`,
+    [empresaId],
+  );
+}
+
+export type Reuniao = {
+  id: number;
+  quando: string;
+  titulo: string;
+  link: string | null;
+  gravacao: string | null;
+  resumo: string | null;
+  proximos_passos: string | null;
+  /** Já passou (uma reunião continua em "próximas" até 1 hora depois do início). */
+  passada: boolean;
+};
+
+export async function listarReunioes(empresaId: number) {
+  return consulta<Reuniao>(
+    "select id, quando, titulo, link, gravacao, resumo, proximos_passos, quando <= now() - interval '1 hour' as passada from reunioes where empresa_id = $1 order by quando desc",
+    [empresaId],
+  );
+}
+
+export type Relatorio = { mes: string; resumo: string | null; destaques: string | null; proximos_passos: string | null; publicado: boolean };
+
+export async function relatorioDoMes(empresaId: number, mes: string) {
+  return umaLinha<Relatorio>("select mes, resumo, destaques, proximos_passos, publicado from relatorios where empresa_id = $1 and mes = $2", [
+    empresaId,
+    mes,
+  ]);
+}
+
+/** Meses com dados (mais recentes primeiro), sempre incluindo o mês atual. */
+export async function mesesComDados(empresaId: number) {
+  const linhas = await consulta<{ mes: string }>(
+    "select distinct to_char(data, 'YYYY-MM') as mes from metricas where empresa_id = $1 order by mes desc limit 24",
+    [empresaId],
+  );
+  const atual = hoje().slice(0, 7);
+  const meses = linhas.map((l) => l.mes);
+  return meses.includes(atual) ? meses : [atual, ...meses];
+}
+
+export function limitesDoMes(mes: string) {
+  const inicio = `${mes}-01`;
+  const fim = fimDoMes(inicio);
+  const anteriorFim = somarDias(inicio, -1);
+  return { inicio, fim, anteriorInicio: inicioDoMes(anteriorFim), anteriorFim };
+}

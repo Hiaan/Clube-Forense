@@ -101,6 +101,20 @@ O painel fica em **`/painel`** (e em `painel.t9company.com.br`, quando o subdom�
 
 **Importar CSV.** Aceita o modelo da T9 (baixado na própria página) e exportações do Gerenciador de Anúncios da Meta e do Google Ads, com quebra por dia. As colunas são reconhecidas pelo nome, em português, inglês ou espanhol. Números como `1.234,56` e `1,234.56` e datas `30/09/2026` ou `2026-09-30` funcionam. Mesmo dia + plataforma + campanha substitui o valor anterior, então reimportar uma planilha não duplica nada.
 
+**Outras abas do cliente:**
+
+- **Criativos:** validados (rodando com resultado), em teste e reprovados, com miniatura, números e o aprendizado de cada um. A equipe adiciona pela própria aba (imagem de capa vai para o Blob privado e só é entregue a quem tem acesso; links de arquivos do Drive compartilhados mostram a miniatura sozinhos) e muda a situação no seletor do cartão.
+- **Reuniões:** próximas (com botão para entrar) e anteriores, com resumo e próximos passos.
+- **Relatórios:** fechamento de cada mês calculado a partir das métricas, com a análise da equipe (fica como rascunho até ser publicada). O botão "Salvar em PDF" gera a versão para imprimir, em fundo branco.
+- **Arquivos:** o cliente envia links do Google Drive para a equipe. Ele remove só o que enviou; a equipe remove qualquer um.
+- **Baixar CSV** nas abas Leads e Campanhas (campanhas no período escolhido).
+
+**Ver como cliente.** No cabeçalho do painel de um cliente, a equipe pode ligar o modo "Ver como cliente", que esconde todos os controles de edição. Uma faixa vermelha avisa que o modo está ligado.
+
+**Cliente de demonstração.** Na Carteira, o botão "Recriar demonstração" (só admin) gera a "Clínica Exemplo (demonstração)" com 90 dias de métricas, leads, criativos, reuniões, relatório e arquivos fictícios. As artes ficam em `public/painel-demo/`.
+
+**Resumo semanal.** Toda segunda às 8h (Brasília), cada pessoa da equipe recebe por e-mail os clientes dela, com investimento e resultado dos últimos 7 dias e os alertas da carteira (Cron da Vercel em `vercel.json`, rota `/api/painel/resumo-semanal`, protegida pelo `CRON_SECRET`). Precisa do Resend para chegar.
+
 **Leads do site.** Cada lead do formulário de agendamento também entra no painel, na empresa "T9 ADS Company", com origem e campanha vindas dos parâmetros `utm_source` e `utm_campaign`.
 
 Toda alteração fica registrada na tabela `registro` (quem fez o quê e quando).
@@ -121,6 +135,7 @@ Veja `.env.example`.
 | `PAINEL_ADMINS` | E-mails de administradores, separados por vírgula |
 | `RESEND_API_KEY` | Envio dos e-mails de acesso ao painel |
 | `PAINEL_EMAIL_REMETENTE` | Remetente dos e-mails (padrão: `T9 ADS Company <painel@t9company.com.br>`; o domínio precisa estar verificado no Resend) |
+| `CRON_SECRET` | Protege o resumo semanal e a rota que recria a demonstração |
 | `PAINEL_URL` | Opcional. Endereço usado nos links de acesso (padrão: o endereço em que o painel foi aberto) |
 
 ## Horários da agenda

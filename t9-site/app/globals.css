@@ -784,3 +784,25 @@ body {
     display: none;
   }
 }
+
+/* Relatório: ao imprimir ou salvar em PDF, fundo branco e sem menus. */
+@media print {
+  .nao-imprimir {
+    display: none !important;
+  }
+  html,
+  body,
+  .painel-fundo {
+    background: #fff !important;
+  }
+  .painel-fundo,
+  .painel-fundo * {
+    color: #111 !important;
+    box-shadow: none !important;
+  }
+  .painel-cartao {
+    background: #fff !important;
+    border-color: #ddd !important;
+    break-inside: avoid;
+  }
+}

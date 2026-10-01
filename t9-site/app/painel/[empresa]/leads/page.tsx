@@ -26,8 +26,17 @@ export default async function Leads({
 
   return (
     <>
-      <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t.leads.titulo}</h1>
-      <p className="mt-1 text-white/55">{t.leads.subtitulo}</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t.leads.titulo}</h1>
+          <p className="mt-1 text-white/55">{t.leads.subtitulo}</p>
+        </div>
+        {total > 0 && (
+          <a href={`/painel/${empresa.slug}/exportar/leads`} download className="botao-painel botao-painel-sec">
+            ↓ {t.extra.baixarCsv}
+          </a>
+        )}
+      </div>
 
       <section className="painel-cartao mt-6 p-5">
         <h2 className="text-xs font-medium tracking-wide text-white/55 uppercase">{t.leads.funil}</h2>

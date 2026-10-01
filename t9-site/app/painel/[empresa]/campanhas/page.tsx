@@ -40,7 +40,14 @@ export default async function Campanhas({
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t.campanhas.titulo}</h1>
-        <SeletorPeriodo atual={p.chave} base={`/painel/${empresa.slug}/campanhas`} t={t.periodo} />
+        <div className="flex flex-wrap items-center gap-3">
+          <SeletorPeriodo atual={p.chave} base={`/painel/${empresa.slug}/campanhas`} t={t.periodo} />
+          {linhas.length > 0 && (
+            <a href={`/painel/${empresa.slug}/exportar/metricas?inicio=${p.inicio}&fim=${p.fim}`} download className="botao-painel botao-painel-sec">
+              ↓ {t.extra.baixarCsv}
+            </a>
+          )}
+        </div>
       </div>
 
       {linhas.length === 0 ? (

@@ -1,4 +1,4 @@
-import { ehEquipe } from "@/lib/painel/auth";
+import { mostrarEdicao } from "@/lib/painel/auth";
 import { itensDoPlano } from "@/lib/painel/dados";
 import { STATUS_PLANO, type StatusPlano } from "@/lib/painel/textos";
 import { fmt } from "@/lib/i18n";
@@ -15,7 +15,7 @@ const ESTILO: Record<StatusPlano, string> = {
 export default async function Plano({ params }: { params: Promise<{ empresa: string }> }) {
   const { usuario, empresa, t } = await contextoEmpresa(params);
   const itens = await itensDoPlano(empresa.id);
-  const editavel = ehEquipe(usuario);
+  const editavel = await mostrarEdicao(usuario);
   const feitos = itens.filter((i) => i.status === "feito").length;
 
   return (

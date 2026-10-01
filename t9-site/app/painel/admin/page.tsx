@@ -2,6 +2,8 @@ import Link from "next/link";
 import { exigirEquipe } from "@/lib/painel/auth";
 import { alertasDe, carteira } from "@/lib/painel/dados";
 import { dinheiro, numero, razao } from "@/lib/painel/formato";
+import { recriarDemo } from "../acoes-conteudo";
+import { BotaoEnviar } from "../_ui/Botoes";
 
 export default async function Carteira() {
   const usuario = await exigirEquipe();
@@ -22,9 +24,20 @@ export default async function Carteira() {
           </p>
         </div>
         {usuario.perfil === "admin" && (
-          <Link href="/painel/admin/nova" className="botao-painel">
-            + Novo cliente
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <form action={recriarDemo}>
+              <BotaoEnviar
+                enviando="Gerando..."
+                className="botao-painel botao-painel-sec"
+                confirmar="Recriar o cliente de demonstração? Os dados fictícios dele serão gerados de novo."
+              >
+                Recriar demonstração
+              </BotaoEnviar>
+            </form>
+            <Link href="/painel/admin/nova" className="botao-painel">
+              + Novo cliente
+            </Link>
+          </div>
         )}
       </div>
 
