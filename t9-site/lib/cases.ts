@@ -55,6 +55,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Eduardo Imóveis",
+    logo: "/cases/eduardo-vieira.png",
+    logoProporcao: 1.02,
     iniciais: "EI",
     segmento: "Imobiliário & Loteamentos",
     local: "João Pessoa · Brasil",
@@ -106,6 +108,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Farmácia Cristo",
+    logo: "/cases/farmacia-cristo.png",
+    logoProporcao: 2.44,
     iniciais: "FC",
     segmento: "Saúde & Clínicas",
     local: "Brasil",
@@ -146,6 +150,8 @@ export const CASES: Case[] = [
   },
   {
     cliente: "Premium Peptides",
+    logo: "/cases/premium-peptides.png",
+    logoProporcao: 4.67,
     iniciais: "PP",
     segmento: "Varejo & E-commerce",
     local: "Flórida · Estados Unidos",
