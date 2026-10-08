@@ -95,6 +95,7 @@ export default async function SecaoMeta({ empresa }: { empresa: Empresa }) {
               Última atualização: {empresa.meta_sincronizado_em ? dataHora(empresa.meta_sincronizado_em, "pt") : "ainda não sincronizou"}
             </p>
             {empresa.meta_erro && <p className="mt-1 text-[#ff9aa0]">Último erro: {empresa.meta_erro}</p>}
+            {empresa.meta_leads_aviso && <p className="mt-1 text-amber-200">{empresa.meta_leads_aviso}</p>}
           </div>
           {configurado && (
             <FormComEstado acao={sincronizarMetaAgora} className="max-w-md">

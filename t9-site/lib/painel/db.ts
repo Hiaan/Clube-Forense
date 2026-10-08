@@ -186,6 +186,13 @@ const ESQUEMA = [
   `alter table empresas add column if not exists meta_erro text`,
   `alter table criativos add column if not exists meta_ad_id text`,
   `create unique index if not exists criativos_meta_ad on criativos (empresa_id, meta_ad_id) where meta_ad_id is not null`,
+  `alter table criativos add column if not exists meta_chave text`,
+  `alter table criativos add column if not exists meta_campanhas jsonb`,
+  `alter table criativos add column if not exists meta_anuncios integer`,
+  `create unique index if not exists criativos_meta_chave on criativos (empresa_id, meta_chave) where meta_chave is not null`,
+  `alter table leads add column if not exists meta_lead_id text`,
+  `create unique index if not exists leads_meta on leads (empresa_id, meta_lead_id) where meta_lead_id is not null`,
+  `alter table empresas add column if not exists meta_leads_aviso text`,
   `create index if not exists metricas_empresa_data on metricas (empresa_id, data)`,
   `create index if not exists leads_empresa_recebido on leads (empresa_id, recebido_em desc)`,
 ];

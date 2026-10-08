@@ -162,6 +162,40 @@ function Cartao({
             {c.ctr != null && <Dado rotulo={t.kpi.ctr} valor={porcentagem(c.ctr / 100, idioma, 1)} />}
           </dl>
         )}
+        {c.meta_campanhas && c.meta_campanhas.length > 0 && (
+          <details className="painel-menu mt-3 rounded-xl border border-white/8">
+            <summary className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-white/75 hover:text-white">
+              <span>
+                {fmt(t.criativos.emCampanhas, {
+                  total: c.meta_campanhas.length,
+                  ativas: c.meta_campanhas.filter((x) => x.ativa).length,
+                })}
+              </span>
+              <span aria-hidden="true">▾</span>
+            </summary>
+            <ul className="border-t border-white/6 px-3 py-2 text-xs">
+              {c.meta_campanhas.map((camp) => (
+                <li key={camp.nome} className="flex items-start gap-2 py-1.5">
+                  <span
+                    className={`mt-1 h-2 w-2 shrink-0 rounded-full ${camp.ativa ? "bg-emerald-400" : "bg-white/25"}`}
+                    title={camp.ativa ? t.criativos.ativa : t.criativos.pausada}
+                  />
+                  <span className="min-w-0 flex-1 break-words text-white/80">{camp.nome}</span>
+                  <span className="shrink-0 text-right tabular-nums text-white/55">
+                    {$(camp.gasto)}
+                    <span className="block">
+                      {numero(camp.resultados, idioma)} {rotuloResultado.toLowerCase()}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="border-t border-white/6 px-3 py-2 text-[11px] leading-relaxed text-white/40">
+              {c.meta_anuncios ? `${fmt(t.criativos.anuncios, { n: c.meta_anuncios })} · ` : ""}
+              {t.criativos.periodoMeta}
+            </p>
+          </details>
+        )}
         {c.nota && (
           <p className="mt-3 rounded-xl bg-white/[0.04] p-3 text-xs leading-relaxed text-white/70">
             <span className="mb-1 block font-medium text-white/50">{t.criativos.aprendizado}</span>

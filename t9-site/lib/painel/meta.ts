@@ -183,9 +183,10 @@ export async function sincronizarEmpresa(empresa: Pick<Empresa, "id" | "tipo" | 
       }
     });
 
-    const anuncios = await sincronizarAnuncios(empresa, periodo);
+    const { criativos, insights } = await sincronizarAnuncios(empresa, periodo);
+    const leadsFormulario = await importarLeadsDeFormulario(empresa, insights, inicio);
     await consulta("update empresas set meta_sincronizado_em = now(), meta_erro = null where id = $1", [empresa.id]);
-    return { linhas: dados.length, anuncios, inicio, fim };
+    return { linhas: dados.length, anuncios: criativos, leadsFormulario, inicio, fim };
   } catch (erro) {
     const mensagem = erro instanceof Error ? erro.message : String(erro);
     await consulta("update empresas set meta_erro = $2 where id = $1", [empresa.id, mensagem.slice(0, 500)]);
@@ -193,84 +194,251 @@ export async function sincronizarEmpresa(empresa: Pick<Empresa, "id" | "tipo" | 
   }
 }
 
-/** Anúncios com investimento no período viram cartões na aba Criativos (situação e aprendizado continuam com a equipe). */
+// ---------- Criativos agrupados por arte ----------
+
+type AnuncioMeta = {
+  id: string;
+  name?: string;
+  created_time?: string;
+  effective_status?: string;
+  campaign?: { id?: string; name?: string };
+  creative?: {
+    id?: string;
+    image_hash?: string;
+    video_id?: string;
+    effective_object_story_id?: string;
+    image_url?: string;
+    thumbnail_url?: string;
+    object_type?: string;
+  };
+};
+
+export type CampanhaDoCriativo = { nome: string; gasto: number; resultados: number; ativa: boolean };
+
+/**
+ * A mesma arte costuma rodar em vários anúncios (um por campanha ou conjunto). Ela é
+ * reconhecida pelo vídeo, pelo hash da imagem ou pela publicação usada no anúncio.
+ */
+export function chaveDaArte(a: Pick<AnuncioMeta, "id" | "creative">) {
+  const c = a.creative;
+  if (c?.video_id) return `video:${c.video_id}`;
+  if (c?.image_hash) return `imagem:${c.image_hash}`;
+  if (c?.effective_object_story_id) return `post:${c.effective_object_story_id}`;
+  if (c?.id) return `criativo:${c.id}`;
+  return `anuncio:${a.id}`;
+}
+
+/** Anúncios com investimento no período viram cartões na aba Criativos, um por arte. */
 async function sincronizarAnuncios(empresa: Pick<Empresa, "id" | "tipo" | "meta_conta">, periodo: string) {
-  const anuncios = (
-    await todasPaginas<LinhaInsight>(`${empresa.meta_conta}/insights`, {
+  const insights = (
+    await todasPaginas<LinhaInsight & { campaign_id?: string }>(`${empresa.meta_conta}/insights`, {
       level: "ad",
       time_range: periodo,
-      fields: `ad_id,ad_name,${CAMPOS}`,
+      fields: `ad_id,ad_name,campaign_id,campaign_name,${CAMPOS}`,
       limit: 500,
     })
-  )
-    .filter((a) => a.ad_id && Number(a.spend ?? 0) > 0)
-    .sort((a, b) => Number(b.spend) - Number(a.spend))
-    .slice(0, 60);
-  if (!anuncios.length) return 0;
+  ).filter((a) => a.ad_id && Number(a.spend ?? 0) > 0);
+  if (!insights.length) return { criativos: 0, insights };
 
-  // Imagem e formato de cada anúncio, pela lista de anúncios da conta filtrada pelos ids
-  // (o parâmetro "ids" foi descontinuado na v26). Se falhar, os cartões entram sem imagem.
-  const detalhes = new Map<string, { imagem: string | null; formato: string; criado: string | null }>();
-  type Anuncio = { id: string; created_time?: string; creative?: { image_url?: string; thumbnail_url?: string; object_type?: string } };
-  for (let i = 0; i < anuncios.length; i += 50) {
-    const ids = anuncios.slice(i, i + 50).map((a) => a.ad_id!);
+  // Detalhes de cada anúncio: arte, situação e campanha. O parâmetro "ids" foi
+  // descontinuado na v26, então a busca é pela lista de anúncios filtrada pelos ids.
+  const detalhes = new Map<string, AnuncioMeta>();
+  for (let i = 0; i < insights.length; i += 50) {
+    const ids = insights.slice(i, i + 50).map((a) => a.ad_id!);
     try {
-      const lista = await todasPaginas<Anuncio>(`${empresa.meta_conta}/ads`, {
-        fields: "id,created_time,creative.thumbnail_width(600).thumbnail_height(600){image_url,thumbnail_url,object_type}",
+      const lista = await todasPaginas<AnuncioMeta>(`${empresa.meta_conta}/ads`, {
+        fields:
+          "id,name,created_time,effective_status,campaign{id,name}," +
+          "creative.thumbnail_width(600).thumbnail_height(600){id,image_hash,video_id,effective_object_story_id,image_url,thumbnail_url,object_type}",
         filtering: JSON.stringify([{ field: "id", operator: "IN", value: ids }]),
         limit: 100,
       });
-      for (const a of lista) {
-        detalhes.set(a.id, {
-          imagem: a.creative?.image_url ?? a.creative?.thumbnail_url ?? null,
-          formato: a.creative?.object_type === "VIDEO" ? "video" : "imagem",
-          criado: a.created_time?.slice(0, 10) ?? null,
-        });
-      }
+      for (const a of lista) detalhes.set(a.id, a);
     } catch (erro) {
-      console.warn("[painel] Meta: não consegui buscar as imagens dos anúncios", erro);
+      console.warn("[painel] Meta: não consegui buscar os detalhes dos anúncios", erro);
     }
   }
 
   const ecommerce = empresa.tipo === "ecommerce";
-  const linhas = anuncios.map((a) => {
-    const d = detalhes.get(a.ad_id!);
-    const impressoes = Number(a.impressions ?? 0);
-    const cliques = Number(a.inline_link_clicks ?? a.clicks ?? 0);
-    return {
-      id: a.ad_id!,
-      titulo: (a.ad_name ?? "Anúncio").slice(0, 150),
-      formato: d?.formato ?? "imagem",
-      imagem: d?.imagem ?? null,
-      gasto: Math.round(Number(a.spend ?? 0) * 100) / 100,
-      resultados: ecommerce ? comprasDe(a.actions) : leadsDe(a.actions),
-      ctr: impressoes > 0 ? Math.round((cliques / impressoes) * 10000) / 100 : null,
-      inicio: d?.criado ?? null,
+  type Grupo = {
+    chave: string;
+    titulo: string;
+    maiorGasto: number;
+    formato: string;
+    imagem: string | null;
+    gasto: number;
+    impressoes: number;
+    cliques: number;
+    resultados: number;
+    inicio: string | null;
+    anuncios: Set<string>;
+    campanhas: Map<string, CampanhaDoCriativo>;
+  };
+  const grupos = new Map<string, Grupo>();
+  for (const a of insights) {
+    const d = detalhes.get(a.ad_id!) ?? { id: a.ad_id! };
+    const chave = chaveDaArte(d);
+    const gasto = Number(a.spend ?? 0);
+    const resultados = ecommerce ? comprasDe(a.actions) : leadsDe(a.actions);
+    const g = grupos.get(chave) ?? {
+      chave,
+      titulo: "",
+      maiorGasto: -1,
+      formato: d.creative?.object_type === "VIDEO" || d.creative?.video_id ? "video" : "imagem",
+      imagem: null,
+      gasto: 0,
+      impressoes: 0,
+      cliques: 0,
+      resultados: 0,
+      inicio: null,
+      anuncios: new Set<string>(),
+      campanhas: new Map<string, CampanhaDoCriativo>(),
     };
-  });
+    // O nome e a imagem do cartão vêm do anúncio que mais gastou.
+    if (gasto > g.maiorGasto) {
+      g.maiorGasto = gasto;
+      g.titulo = (a.ad_name ?? d.name ?? "Anúncio").slice(0, 150);
+      g.imagem = d.creative?.image_url ?? d.creative?.thumbnail_url ?? g.imagem;
+    }
+    g.gasto += gasto;
+    g.impressoes += Number(a.impressions ?? 0);
+    g.cliques += Number(a.inline_link_clicks ?? a.clicks ?? 0);
+    g.resultados += resultados;
+    const criado = d.created_time?.slice(0, 10) ?? null;
+    if (criado && (!g.inicio || criado < g.inicio)) g.inicio = criado;
+    g.anuncios.add(a.ad_id!);
 
-  await consulta(
-    `insert into criativos (empresa_id, meta_ad_id, titulo, status, formato, plataforma, imagem, gasto, resultados, ctr, inicio)
-     select $1, id, t, 'teste', f, $2, im, g, r, c, ini
-       from unnest($3::text[], $4::text[], $5::text[], $6::text[], $7::numeric[], $8::int[], $9::numeric[], $10::date[])
-            as x(id, t, f, im, g, r, c, ini)
-     on conflict (empresa_id, meta_ad_id) where meta_ad_id is not null do update set
-       titulo = excluded.titulo, formato = excluded.formato, imagem = coalesce(excluded.imagem, criativos.imagem),
-       gasto = excluded.gasto, resultados = excluded.resultados, ctr = excluded.ctr,
-       inicio = coalesce(criativos.inicio, excluded.inicio), atualizado_em = now()`,
-    [
-      empresa.id,
-      PLATAFORMA_META,
-      linhas.map((l) => l.id),
-      linhas.map((l) => l.titulo),
-      linhas.map((l) => l.formato),
-      linhas.map((l) => l.imagem),
-      linhas.map((l) => l.gasto),
-      linhas.map((l) => l.resultados),
-      linhas.map((l) => l.ctr),
-      linhas.map((l) => l.inicio),
-    ],
-  );
+    const idCampanha = a.campaign_id ?? d.campaign?.id ?? a.campaign_name ?? "?";
+    const c = g.campanhas.get(idCampanha) ?? { nome: (a.campaign_name ?? d.campaign?.name ?? "Campanha").slice(0, 200), gasto: 0, resultados: 0, ativa: false };
+    c.gasto = Math.round((c.gasto + gasto) * 100) / 100;
+    c.resultados += resultados;
+    c.ativa ||= d.effective_status === "ACTIVE";
+    g.campanhas.set(idCampanha, c);
+    grupos.set(chave, g);
+  }
+
+  const lista = [...grupos.values()].sort((a, b) => b.gasto - a.gasto).slice(0, 60);
+  await transacao(async (q) => {
+    // Cartões antigos (um por anúncio) passam a situação e o aprendizado para o cartão da arte.
+    const antigos = await q<{ meta_ad_id: string; status: string; nota: string | null }>(
+      "select meta_ad_id, status, nota from criativos where empresa_id = $1 and meta_ad_id is not null and meta_chave is null",
+      [empresa.id],
+    );
+    const porAnuncio = new Map(antigos.map((r) => [r.meta_ad_id, r]));
+    const herdado = (g: Grupo) => {
+      const rs = [...g.anuncios].map((id) => porAnuncio.get(id)).filter((r): r is NonNullable<typeof r> => Boolean(r));
+      const status = rs.some((r) => r.status === "validado") ? "validado" : rs.some((r) => r.status === "reprovado") ? "reprovado" : "teste";
+      const notas = [...new Set(rs.map((r) => r.nota).filter(Boolean))].join(" / ");
+      return { status, nota: notas || null };
+    };
+    const linhas = lista.map((g) => ({ ...g, ...herdado(g) }));
+    if (antigos.length) await q("delete from criativos where empresa_id = $1 and meta_ad_id is not null and meta_chave is null", [empresa.id]);
+
+    await q(
+      `insert into criativos (empresa_id, meta_chave, titulo, status, nota, formato, plataforma, imagem, gasto, resultados, ctr, inicio,
+                              meta_campanhas, meta_anuncios)
+       select $1, ch, t, st, n, f, $2, im, g, r, c, ini, camp, na
+         from unnest($3::text[], $4::text[], $5::text[], $6::text[], $7::text[], $8::text[], $9::numeric[], $10::int[], $11::numeric[],
+                     $12::date[], $13::jsonb[], $14::int[])
+              as x(ch, t, st, n, f, im, g, r, c, ini, camp, na)
+       on conflict (empresa_id, meta_chave) where meta_chave is not null do update set
+         titulo = excluded.titulo, formato = excluded.formato, imagem = coalesce(excluded.imagem, criativos.imagem),
+         gasto = excluded.gasto, resultados = excluded.resultados, ctr = excluded.ctr,
+         inicio = coalesce(least(criativos.inicio, excluded.inicio), criativos.inicio, excluded.inicio),
+         meta_campanhas = excluded.meta_campanhas, meta_anuncios = excluded.meta_anuncios, atualizado_em = now()`,
+      [
+        empresa.id,
+        PLATAFORMA_META,
+        linhas.map((l) => l.chave),
+        linhas.map((l) => l.titulo),
+        linhas.map((l) => l.status),
+        linhas.map((l) => l.nota),
+        linhas.map((l) => l.formato),
+        linhas.map((l) => l.imagem),
+        linhas.map((l) => Math.round(l.gasto * 100) / 100),
+        linhas.map((l) => l.resultados),
+        linhas.map((l) => (l.impressoes > 0 ? Math.round((l.cliques / l.impressoes) * 10000) / 100 : null)),
+        linhas.map((l) => l.inicio),
+        linhas.map((l) => JSON.stringify([...l.campanhas.values()].sort((a, b) => b.gasto - a.gasto))),
+        linhas.map((l) => l.anuncios.size),
+      ],
+    );
+  });
+  return { criativos: lista.length, insights };
+}
+
+// ---------- Contatos dos formulários de leads (Lead Ads) ----------
+
+type CampoLead = { name: string; values?: string[] };
+type LeadMeta = { id: string; created_time: string; field_data?: CampoLead[]; campaign_name?: string; ad_name?: string; form_id?: string };
+
+/** Lê nome, e-mail e telefone das respostas do formulário (os nomes dos campos variam por formulário e idioma). */
+export function contatoDoLead(campos: CampoLead[] = []) {
+  const mapa = Object.fromEntries(campos.map((c) => [c.name.toLowerCase(), (c.values ?? []).join(", ")]));
+  const achar = (...nomes: string[]) => nomes.map((n) => mapa[n]).find((v) => v && v.trim()) ?? null;
+  const nome = achar("full_name", "nome_completo", "nome", "name") ?? ([achar("first_name", "primeiro_nome"), achar("last_name", "sobrenome")].filter(Boolean).join(" ") || null);
+  return {
+    nome,
+    email: achar("email", "e-mail", "work_email"),
+    telefone: achar("phone_number", "telefone", "whatsapp", "celular", "phone"),
+    campos: mapa,
+  };
+}
+
+/**
+ * Importa quem preencheu os formulários da Meta para a aba Leads.
+ * Precisa da permissão leads_retrieval no token e da Página atribuída ao usuário do sistema.
+ */
+async function importarLeadsDeFormulario(empresa: Pick<Empresa, "id" | "meta_conta">, insights: (LinhaInsight & { campaign_id?: string })[], inicio: string) {
+  const comFormulario = insights.filter((a) => (valorDe(a.actions, "onsite_conversion.lead_grouped") ?? 0) > 0);
+  if (!comFormulario.length) {
+    await consulta("update empresas set meta_leads_aviso = null where id = $1", [empresa.id]);
+    return 0;
+  }
+  const desde = Math.floor(Date.parse(`${inicio}T00:00:00-03:00`) / 1000);
+  const leads: LeadMeta[] = [];
+  try {
+    for (const a of comFormulario) {
+      leads.push(
+        ...(await todasPaginas<LeadMeta>(`${a.ad_id}/leads`, {
+          fields: "id,created_time,field_data,campaign_name,ad_name,form_id",
+          filtering: JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: desde }]),
+          limit: 100,
+        })),
+      );
+    }
+  } catch (erro) {
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    const aviso = /permission|permiss|leads_retrieval|\(#(10|200|190|283)\)/i.test(mensagem)
+      ? "Os leads de formulário entram na contagem, mas para trazer nome e contato falta a permissão leads_retrieval no token e a Página do cliente atribuída ao usuário do sistema."
+      : `Não consegui importar os contatos dos formulários: ${mensagem}`;
+    await consulta("update empresas set meta_leads_aviso = $2 where id = $1", [empresa.id, aviso.slice(0, 500)]);
+    return 0;
+  }
+
+  const linhas = leads.map((l) => {
+    const c = contatoDoLead(l.field_data);
+    return { ...c, id: l.id, quando: l.created_time, campanha: l.campaign_name ?? null, dados: { formulario: l.form_id, anuncio: l.ad_name, respostas: c.campos } };
+  });
+  if (linhas.length) {
+    await consulta(
+      `insert into leads (empresa_id, meta_lead_id, nome, email, whatsapp, origem, campanha, etapa, recebido_em, dados)
+       select $1, id, n, e, w, 'Formulário Meta', c, 'novo', q, d
+         from unnest($2::text[], $3::text[], $4::text[], $5::text[], $6::text[], $7::timestamptz[], $8::jsonb[]) as x(id, n, e, w, c, q, d)
+       on conflict (empresa_id, meta_lead_id) where meta_lead_id is not null do nothing`,
+      [
+        empresa.id,
+        linhas.map((l) => l.id),
+        linhas.map((l) => l.nome?.slice(0, 120) ?? null),
+        linhas.map((l) => l.email?.slice(0, 160) ?? null),
+        linhas.map((l) => l.telefone?.slice(0, 40) ?? null),
+        linhas.map((l) => l.campanha?.slice(0, 200) ?? null),
+        linhas.map((l) => l.quando),
+        linhas.map((l) => JSON.stringify(l.dados)),
+      ],
+    );
+  }
+  await consulta("update empresas set meta_leads_aviso = null where id = $1", [empresa.id]);
   return linhas.length;
 }
 
@@ -283,7 +451,7 @@ export async function sincronizarTodas() {
   for (const e of empresas) {
     try {
       const r = await sincronizarEmpresa(e);
-      resultado.push({ empresa: e.nome, ok: true, detalhe: `${r.linhas} linhas, ${r.anuncios} anúncios` });
+      resultado.push({ empresa: e.nome, ok: true, detalhe: `${r.linhas} linhas, ${r.anuncios} criativos, ${r.leadsFormulario} leads de formulário` });
     } catch (erro) {
       resultado.push({ empresa: e.nome, ok: false, detalhe: erro instanceof Error ? erro.message : String(erro) });
     }

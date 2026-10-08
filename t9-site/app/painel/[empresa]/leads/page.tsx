@@ -91,6 +91,7 @@ export default async function Leads({
                   <td>
                     <span className="font-medium">{l.nome ?? "—"}</span>
                     {l.valor != null && <span className="block text-xs text-white/45">{dinheiro(l.valor, empresa.moeda, idioma)}</span>}
+                    <RespostasFormulario dados={l.dados} />
                   </td>
                   <td>
                     {l.whatsapp && (
@@ -126,5 +127,27 @@ export default async function Leads({
         </div>
       )}
     </>
+  );
+}
+
+/** Respostas extras do formulário da Meta (além de nome, e-mail e telefone). */
+function RespostasFormulario({ dados }: { dados: Record<string, unknown> | null }) {
+  const respostas = (dados?.respostas ?? null) as Record<string, string> | null;
+  if (!respostas) return null;
+  const basicos = new Set(["full_name", "first_name", "last_name", "email", "phone_number", "nome", "telefone", "whatsapp"]);
+  const extras = Object.entries(respostas).filter(([k, v]) => !basicos.has(k) && v);
+  if (!extras.length) return null;
+  return (
+    <details className="mt-1 text-xs text-white/55">
+      <summary className="cursor-pointer hover:text-white">Formulário ({extras.length})</summary>
+      <dl className="mt-1 grid gap-1">
+        {extras.map(([k, v]) => (
+          <div key={k}>
+            <dt className="text-white/40">{k.replace(/_/g, " ")}</dt>
+            <dd className="text-white/75">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </details>
   );
 }

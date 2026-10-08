@@ -44,7 +44,7 @@ export async function vincularContaMeta(_: Estado, f: FormData): Promise<Estado>
   try {
     const res = await sincronizarEmpresa({ ...r.empresa, meta_conta: conta }, 90);
     revalidatePath("/painel", "layout");
-    return sucesso(`Conta ${conta} vinculada. Importados ${res.linhas} dias × campanhas e ${res.anuncios} anúncios (últimos 90 dias).`);
+    return sucesso(`Conta ${conta} vinculada. Importados ${res.linhas} dias × campanhas, ${res.anuncios} criativos e ${res.leadsFormulario} contatos de formulário (últimos 90 dias).`);
   } catch (erro) {
     revalidatePath("/painel", "layout");
     return falha(`Conta vinculada, mas a sincronização falhou: ${erro instanceof Error ? erro.message : erro}`);
@@ -57,9 +57,9 @@ export async function sincronizarMetaAgora(_: Estado, f: FormData): Promise<Esta
   if (!metaConfigurado()) return falha("O token da Meta (META_ACCESS_TOKEN) ainda não foi configurado na Vercel.");
   try {
     const res = await sincronizarEmpresa(r.empresa, 30);
-    await registrar(r.u.id, r.empresa.id, "meta.sincronizar", `${res.linhas} linhas, ${res.anuncios} anúncios`);
+    await registrar(r.u.id, r.empresa.id, "meta.sincronizar", `${res.linhas} linhas, ${res.anuncios} criativos, ${res.leadsFormulario} leads de formulário`);
     revalidatePath("/painel", "layout");
-    return sucesso(`Atualizado: ${res.linhas} dias × campanhas e ${res.anuncios} anúncios dos últimos 30 dias.`);
+    return sucesso(`Atualizado (últimos 30 dias): ${res.linhas} dias × campanhas, ${res.anuncios} criativos e ${res.leadsFormulario} contatos de formulário.`);
   } catch (erro) {
     revalidatePath("/painel", "layout");
     return falha(erro instanceof Error ? erro.message : "Falha ao sincronizar.");

@@ -29,6 +29,7 @@ export type Empresa = {
   meta_conta: string | null;
   meta_sincronizado_em: string | null;
   meta_erro: string | null;
+  meta_leads_aviso: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";
