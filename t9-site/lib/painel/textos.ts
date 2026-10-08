@@ -42,7 +42,9 @@ const pt = {
   menu: { visao: "Visão geral", campanhas: "Campanhas", leads: "Leads", plano: "Plano de 4 semanas" },
   periodo: {
     rotulo: "Período",
+    "3": "3 dias",
     "7": "7 dias",
+    "14": "14 dias",
     "30": "30 dias",
     "90": "90 dias",
     mes: "Este mês",
@@ -288,7 +290,9 @@ const en: TextosPainel = {
   menu: { visao: "Overview", campanhas: "Campaigns", leads: "Leads", plano: "4-week plan" },
   periodo: {
     rotulo: "Period",
+    "3": "3 days",
     "7": "7 days",
+    "14": "14 days",
     "30": "30 days",
     "90": "90 days",
     mes: "This month",
@@ -532,7 +536,9 @@ const es: TextosPainel = {
   menu: { visao: "Resumen", campanhas: "Campañas", leads: "Leads", plano: "Plan de 4 semanas" },
   periodo: {
     rotulo: "Período",
+    "3": "3 días",
     "7": "7 días",
+    "14": "14 días",
     "30": "30 días",
     "90": "90 días",
     mes: "Este mes",

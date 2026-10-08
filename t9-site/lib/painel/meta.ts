@@ -291,6 +291,12 @@ export async function sincronizarTodas() {
   return resultado;
 }
 
+/** Totais por tipo de ação de uma conta nos últimos 30 dias (para conferir como a Meta reporta leads e compras). */
+export async function acoesDaConta(conta: string) {
+  const linhas = await graph<{ data: { actions?: Acao[] }[] }>(`${conta}/insights`, { fields: "actions", date_preset: "last_30d", level: "account" });
+  return Object.fromEntries((linhas.data[0]?.actions ?? []).map((a) => [a.action_type, Number(a.value)]));
+}
+
 /** Confere o token: quem é o usuário do sistema, permissões concedidas e contas visíveis. */
 export async function diagnosticoMeta() {
   const eu = await graph<{ id: string; name: string }>("me", { fields: "id,name" });

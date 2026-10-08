@@ -6,7 +6,7 @@ import type { EtapaLead, StatusPlano } from "./textos";
 
 // ---------- Datas e períodos (sempre no horário de Brasília) ----------
 
-export const PERIODOS = ["7", "30", "90", "mes", "mes-passado"] as const;
+export const PERIODOS = ["3", "7", "14", "30", "90", "mes", "mes-passado"] as const;
 export type ChavePeriodo = (typeof PERIODOS)[number];
 export type Periodo = { chave: ChavePeriodo; inicio: string; fim: string; anteriorInicio: string; anteriorFim: string };
 
