@@ -8,7 +8,8 @@ import type { Empresa } from "./auth";
 // Usa o token de um "usuário do sistema" do Business Manager da T9 (META_ACCESS_TOKEN),
 // com permissão ads_read nas contas de anúncio dos clientes.
 
-const VERSAO = process.env.META_API_VERSION ?? "v23.0";
+// Apps novos só podem usar a versão mais recente da API (chamadas antigas são promovidas).
+const VERSAO = process.env.META_API_VERSION ?? "v26.0";
 const BASE = (process.env.META_GRAPH_URL ?? "https://graph.facebook.com").replace(/\/$/, "");
 export const PLATAFORMA_META = "Meta Ads";
 
@@ -207,20 +208,27 @@ async function sincronizarAnuncios(empresa: Pick<Empresa, "id" | "tipo" | "meta_
     .slice(0, 60);
   if (!anuncios.length) return 0;
 
-  // Imagem e formato de cada anúncio (até 50 por chamada).
+  // Imagem e formato de cada anúncio, pela lista de anúncios da conta filtrada pelos ids
+  // (o parâmetro "ids" foi descontinuado na v26). Se falhar, os cartões entram sem imagem.
   const detalhes = new Map<string, { imagem: string | null; formato: string; criado: string | null }>();
+  type Anuncio = { id: string; created_time?: string; creative?: { image_url?: string; thumbnail_url?: string; object_type?: string } };
   for (let i = 0; i < anuncios.length; i += 50) {
     const ids = anuncios.slice(i, i + 50).map((a) => a.ad_id!);
-    const resposta = await graph<Record<string, { created_time?: string; creative?: { image_url?: string; thumbnail_url?: string; object_type?: string } }>>("", {
-      ids: ids.join(","),
-      fields: "created_time,creative.thumbnail_width(600).thumbnail_height(600){image_url,thumbnail_url,object_type}",
-    });
-    for (const [id, a] of Object.entries(resposta)) {
-      detalhes.set(id, {
-        imagem: a.creative?.image_url ?? a.creative?.thumbnail_url ?? null,
-        formato: a.creative?.object_type === "VIDEO" ? "video" : "imagem",
-        criado: a.created_time?.slice(0, 10) ?? null,
+    try {
+      const lista = await todasPaginas<Anuncio>(`${empresa.meta_conta}/ads`, {
+        fields: "id,created_time,creative.thumbnail_width(600).thumbnail_height(600){image_url,thumbnail_url,object_type}",
+        filtering: JSON.stringify([{ field: "id", operator: "IN", value: ids }]),
+        limit: 100,
       });
+      for (const a of lista) {
+        detalhes.set(a.id, {
+          imagem: a.creative?.image_url ?? a.creative?.thumbnail_url ?? null,
+          formato: a.creative?.object_type === "VIDEO" ? "video" : "imagem",
+          criado: a.created_time?.slice(0, 10) ?? null,
+        });
+      }
+    } catch (erro) {
+      console.warn("[painel] Meta: não consegui buscar as imagens dos anúncios", erro);
     }
   }
 
