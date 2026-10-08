@@ -181,6 +181,11 @@ const ESQUEMA = [
   )`,
   `create index if not exists cobrancas_empresa_vencimento on cobrancas (empresa_id, vencimento)`,
   `alter table empresas add column if not exists pagamento_instrucoes text`,
+  `alter table empresas add column if not exists meta_conta text`,
+  `alter table empresas add column if not exists meta_sincronizado_em timestamptz`,
+  `alter table empresas add column if not exists meta_erro text`,
+  `alter table criativos add column if not exists meta_ad_id text`,
+  `create unique index if not exists criativos_meta_ad on criativos (empresa_id, meta_ad_id) where meta_ad_id is not null`,
   `create index if not exists metricas_empresa_data on metricas (empresa_id, data)`,
   `create index if not exists leads_empresa_recebido on leads (empresa_id, recebido_em desc)`,
 ];
@@ -208,6 +213,23 @@ export async function consulta<T extends QueryResultRow = QueryResultRow>(texto:
   await garantirEsquema();
   const resultado = await pool().query<T>(texto, valores);
   return resultado.rows;
+}
+
+/** Executa várias consultas numa transação: ou tudo é gravado, ou nada. */
+export async function transacao<T>(trabalho: (q: <L extends QueryResultRow = QueryResultRow>(texto: string, valores?: unknown[]) => Promise<L[]>) => Promise<T>) {
+  await garantirEsquema();
+  const cliente = await pool().connect();
+  try {
+    await cliente.query("begin");
+    const resultado = await trabalho(async (texto, valores = []) => (await cliente.query(texto, valores)).rows);
+    await cliente.query("commit");
+    return resultado;
+  } catch (erro) {
+    await cliente.query("rollback").catch(() => undefined);
+    throw erro;
+  } finally {
+    cliente.release();
+  }
 }
 
 export async function umaLinha<T extends QueryResultRow = QueryResultRow>(texto: string, valores: unknown[] = []) {

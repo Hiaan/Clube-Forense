@@ -20,6 +20,7 @@ import {
   salvarEmpresa,
 } from "../acoes";
 import CamposEmpresa from "../CamposEmpresa";
+import SecaoMeta from "../SecaoMeta";
 import FormComEstado from "../../_ui/FormComEstado";
 import { BotaoEnviar } from "../../_ui/Botoes";
 import { mudarStatusPlano } from "../../acoes";
@@ -78,7 +79,9 @@ export default async function GestaoCliente({ params }: { params: Promise<{ empr
         </Link>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <SecaoMeta empresa={empresa} />
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* Lançamento manual */}
         <FormComEstado acao={lancarMetrica} className="painel-cartao p-6">
           <h2 className="font-display text-lg font-extrabold">Lançar dados do dia</h2>

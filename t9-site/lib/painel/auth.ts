@@ -26,6 +26,9 @@ export type Empresa = {
   comentario: string | null;
   comentario_em: string | null;
   pagamento_instrucoes: string | null;
+  meta_conta: string | null;
+  meta_sincronizado_em: string | null;
+  meta_erro: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";

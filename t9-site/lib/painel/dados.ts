@@ -227,6 +227,7 @@ export function alertasDe(e: LinhaCarteira): Alerta[] {
       else if (ritmo < 0.8 && decorridos > 3) alertas.push({ nivel: "medio", texto: `Investimento ${Math.round((1 - ritmo) * 100)}% abaixo do ritmo da meta` });
     }
   }
+  if (e.meta_erro) alertas.push({ nivel: "alto", texto: "Falha ao puxar dados da Meta" });
   if (e.atraso_desde) {
     const dias = Math.round((Date.parse(`${ref}T12:00:00Z`) - Date.parse(`${e.atraso_desde}T12:00:00Z`)) / 86_400_000);
     alertas.push({ nivel: "alto", texto: dias >= 7 ? `Pagamento ${dias} dias em atraso: suspender campanhas` : `Pagamento ${dias} dia(s) em atraso` });

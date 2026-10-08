@@ -125,6 +125,24 @@ O painel fica em **`/painel`** (e em `painel.t9company.com.br`, quando o subdom�
   A visão geral fica em **Gestão T9 → Financeiro**: em atraso, vencendo em 7 dias, a receber e recebido no mês. A carteira e o resumo semanal alertam pagamentos atrasados.
 - Na aba Financeiro de cada cliente, a equipe pode **pré-visualizar** todos os pop-ups.
 
+**Meta Ads automático.**
+
+- Na página de gestão de cada cliente, a seção "Meta Ads" vincula a conta de anúncio. Com o token configurado, as contas do Business Manager aparecem para escolher.
+- O painel puxa, por dia e campanha:
+  - investimento, impressões e cliques no link;
+  - leads: cadastros pelo formulário ou pixel + conversas iniciadas no WhatsApp/Direct/Messenger;
+  - compras e receita.
+- Os anúncios com investimento nos últimos 30 dias viram cartões na aba Criativos, com miniatura e números. A situação (validado, em teste, reprovado) e o aprendizado continuam com a equipe e não são sobrescritos.
+- **Quando sincroniza:**
+  - ao conectar: últimos 90 dias;
+  - todo dia às 6h (Brasília), pelo Cron `/api/painel/meta-sync`: últimos 30 dias;
+  - no botão "Atualizar agora".
+- Os dados da Meta substituem os do mesmo período vindos da própria Meta. Lançamentos manuais e CSV de outras plataformas não são tocados.
+- **Configuração:**
+  - `META_ACCESS_TOKEN`: token do usuário do sistema do Business Manager, com `ads_read` e as contas de anúncio atribuídas.
+  - `META_APP_SECRET` (recomendado): ativa o `appsecret_proof`.
+  - `META_API_VERSION`: opcional, padrão `v23.0`.
+
 **Ver como cliente.** No cabeçalho do painel de um cliente, a equipe pode ligar o modo "Ver como cliente", que esconde todos os controles de edição. Uma faixa vermelha avisa que o modo está ligado.
 
 **Cliente de demonstração.** Na Carteira, o botão "Recriar demonstração" (só admin) gera a "Clínica Exemplo (demonstração)" com 90 dias de métricas, leads, criativos, reuniões, relatório e arquivos fictícios. As artes ficam em `public/painel-demo/`.
@@ -151,6 +169,8 @@ Veja `.env.example`.
 | `PAINEL_ADMINS` | E-mails de administradores, separados por vírgula |
 | `RESEND_API_KEY` | Envio dos e-mails de acesso ao painel |
 | `PAINEL_EMAIL_REMETENTE` | Remetente dos e-mails (padrão: `T9 ADS Company <painel@t9company.com.br>`; o domínio precisa estar verificado no Resend) |
+| `META_ACCESS_TOKEN` | Token do usuário do sistema da Meta (leitura das contas de anúncio) |
+| `META_APP_SECRET` | Segredo do app da Meta (recomendado, protege o uso do token) |
 | `CRON_SECRET` | Protege o resumo semanal e a rota que recria a demonstração |
 | `PAINEL_URL` | Opcional. Endereço usado nos links de acesso (padrão: o endereço em que o painel foi aberto) |
 
