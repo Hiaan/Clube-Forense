@@ -282,3 +282,17 @@ export async function sincronizarTodas() {
   }
   return resultado;
 }
+
+/** Confere o token: quem é o usuário do sistema, permissões concedidas e contas visíveis. */
+export async function diagnosticoMeta() {
+  const eu = await graph<{ id: string; name: string }>("me", { fields: "id,name" });
+  const permissoes = await graph<{ data: { permission: string; status: string }[] }>("me/permissions").catch(() => ({ data: [] }));
+  cacheContas = null;
+  const contas = await listarContasDeAnuncio();
+  return {
+    usuario: eu.name,
+    permissoes: permissoes.data.filter((p) => p.status === "granted").map((p) => p.permission),
+    appsecretProof: Boolean(process.env.META_APP_SECRET),
+    contas: contas.map((c) => ({ id: c.id, nome: c.nome, moeda: c.moeda, ativa: c.ativa })),
+  };
+}
