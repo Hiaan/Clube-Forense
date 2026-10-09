@@ -189,6 +189,7 @@ const ESQUEMA = [
   `alter table criativos add column if not exists meta_chave text`,
   `alter table criativos add column if not exists meta_campanhas jsonb`,
   `alter table criativos add column if not exists meta_anuncios integer`,
+  `alter table criativos add column if not exists meta_duracao numeric`,
   `create unique index if not exists criativos_meta_chave on criativos (empresa_id, meta_chave) where meta_chave is not null`,
   `alter table leads add column if not exists meta_lead_id text`,
   `create unique index if not exists leads_meta on leads (empresa_id, meta_lead_id) where meta_lead_id is not null`,

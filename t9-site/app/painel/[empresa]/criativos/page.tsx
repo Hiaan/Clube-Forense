@@ -148,7 +148,10 @@ function Cartao({
       <div className="flex flex-1 flex-col p-4">
         <div className="mb-2 flex flex-wrap gap-1.5 text-xs">
           <span className={`rounded-full border px-2 py-0.5 font-medium ${COR[c.status].borda} ${COR[c.status].texto}`}>{t.criativos.status[c.status]}</span>
-          <span className="rounded-full border border-white/10 px-2 py-0.5 text-white/60">{formato}</span>
+          <span className="rounded-full border border-white/10 px-2 py-0.5 text-white/60">
+            {formato}
+            {c.meta_duracao ? ` · ${Math.floor(c.meta_duracao / 60)}:${String(Math.round(c.meta_duracao % 60)).padStart(2, "0")}` : ""}
+          </span>
         </div>
         <h3 className="font-medium leading-snug">{c.titulo}</h3>
         <p className="mt-0.5 text-xs text-white/45">

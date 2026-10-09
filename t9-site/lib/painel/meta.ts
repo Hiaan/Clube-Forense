@@ -4,6 +4,7 @@ import { consulta, transacao } from "./db";
 import { hoje, somarDias } from "./dados";
 import type { Empresa } from "./auth";
 import { vendasPorAnuncio } from "./eduzz";
+import { distancia, emParalelo, hashVisual } from "./semelhanca";
 
 // Integração com a Marketing API da Meta (Gerenciador de Anúncios).
 // Usa o token de um "usuário do sistema" do Business Manager da T9 (META_ACCESS_TOKEN),
@@ -280,6 +281,10 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
     inicio: string | null;
     anuncios: Set<string>;
     campanhas: Map<string, CampanhaDoCriativo>;
+    /** Chaves de arte que formam este cartão (mais de uma quando vídeos iguais foram enviados de novo). */
+    chaves: Set<string>;
+    videoId: string | null;
+    duracao: number | null;
   };
   const grupos = new Map<string, Grupo>();
   for (const a of insights) {
@@ -304,6 +309,9 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
       inicio: null,
       anuncios: new Set<string>(),
       campanhas: new Map<string, CampanhaDoCriativo>(),
+      chaves: new Set([chave]),
+      videoId: d.creative?.video_id ?? null,
+      duracao: null,
     };
     // O nome e a imagem do cartão vêm do anúncio que mais gastou.
     if (gasto > g.maiorGasto) {
@@ -328,7 +336,7 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
     grupos.set(chave, g);
   }
 
-  const lista = [...grupos.values()].sort((a, b) => b.gasto - a.gasto).slice(0, 60);
+  const lista = (await juntarVideosIguais([...grupos.values()])).sort((a, b) => b.gasto - a.gasto).slice(0, 60);
   await transacao(async (q) => {
     // Cartões antigos (um por anúncio) passam a situação e o aprendizado para o cartão da arte.
     const antigos = await q<{ meta_ad_id: string; status: string; nota: string | null }>(
@@ -336,27 +344,40 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
       [empresa.id],
     );
     const porAnuncio = new Map(antigos.map((r) => [r.meta_ad_id, r]));
+    // Cartões de arte que agora fazem parte de um cartão maior (vídeos iguais reenviados) também passam o que tinham.
+    const atuais = await q<{ meta_chave: string; status: string; nota: string | null }>(
+      "select meta_chave, status, nota from criativos where empresa_id = $1 and meta_chave is not null",
+      [empresa.id],
+    );
+    const porChave = new Map(atuais.map((r) => [r.meta_chave, r]));
     const herdado = (g: Grupo) => {
-      const rs = [...g.anuncios].map((id) => porAnuncio.get(id)).filter((r): r is NonNullable<typeof r> => Boolean(r));
+      const rs = [
+        ...[...g.anuncios].map((id) => porAnuncio.get(id)),
+        ...[...g.chaves].map((ch) => porChave.get(ch)),
+      ].filter((r): r is NonNullable<typeof r> => Boolean(r));
       const status = rs.some((r) => r.status === "validado") ? "validado" : rs.some((r) => r.status === "reprovado") ? "reprovado" : "teste";
       const notas = [...new Set(rs.map((r) => r.nota).filter(Boolean))].join(" / ");
       return { status, nota: notas || null };
     };
     const linhas = lista.map((g) => ({ ...g, ...herdado(g) }));
     if (antigos.length) await q("delete from criativos where empresa_id = $1 and meta_ad_id is not null and meta_chave is null", [empresa.id]);
+    const absorvidas = linhas.flatMap((l) => [...l.chaves].filter((ch) => ch !== l.chave));
+    if (absorvidas.length) await q("delete from criativos where empresa_id = $1 and meta_chave = any($2::text[])", [empresa.id, absorvidas]);
 
     await q(
       `insert into criativos (empresa_id, meta_chave, titulo, status, nota, formato, plataforma, imagem, gasto, resultados, ctr, inicio,
-                              meta_campanhas, meta_anuncios)
-       select $1, ch, t, st, n, f, $2, im, g, r, c, ini, camp, na
+                              meta_campanhas, meta_anuncios, meta_duracao)
+       select $1, ch, t, st, n, f, $2, im, g, r, c, ini, camp, na, du
          from unnest($3::text[], $4::text[], $5::text[], $6::text[], $7::text[], $8::text[], $9::numeric[], $10::int[], $11::numeric[],
-                     $12::date[], $13::jsonb[], $14::int[])
-              as x(ch, t, st, n, f, im, g, r, c, ini, camp, na)
+                     $12::date[], $13::jsonb[], $14::int[], $15::numeric[])
+              as x(ch, t, st, n, f, im, g, r, c, ini, camp, na, du)
        on conflict (empresa_id, meta_chave) where meta_chave is not null do update set
          titulo = excluded.titulo, formato = excluded.formato, imagem = coalesce(excluded.imagem, criativos.imagem),
          gasto = excluded.gasto, resultados = excluded.resultados, ctr = excluded.ctr,
+         status = excluded.status, nota = excluded.nota,
          inicio = coalesce(least(criativos.inicio, excluded.inicio), criativos.inicio, excluded.inicio),
-         meta_campanhas = excluded.meta_campanhas, meta_anuncios = excluded.meta_anuncios, atualizado_em = now()`,
+         meta_campanhas = excluded.meta_campanhas, meta_anuncios = excluded.meta_anuncios, meta_duracao = excluded.meta_duracao,
+         atualizado_em = now()`,
       [
         empresa.id,
         PLATAFORMA_META,
@@ -372,10 +393,87 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
         linhas.map((l) => l.inicio),
         linhas.map((l) => JSON.stringify([...l.campanhas.values()].sort((a, b) => b.gasto - a.gasto))),
         linhas.map((l) => l.anuncios.size),
+        linhas.map((l) => l.duracao),
       ],
     );
   });
   return { criativos: lista.length, insights };
+
+  /**
+   * O mesmo vídeo enviado de novo à Meta ganha outro id. Dois cartões de vídeo viram um só
+   * quando a duração bate (diferença de até 0,15 s) e a capa é visualmente igual.
+   */
+  async function juntarVideosIguais(todos: Grupo[]) {
+    const videos = todos.filter((g) => g.formato === "video" && g.videoId);
+    if (videos.length < 2) return todos;
+
+    const [duracoes, hashes] = await Promise.all([
+      emParalelo(videos, 6, async (g) => {
+        try {
+          const v = await graph<{ length?: number }>(g.videoId!, { fields: "length" });
+          return typeof v.length === "number" ? v.length : null;
+        } catch {
+          return null;
+        }
+      }),
+      emParalelo(videos, 6, (g) => (g.imagem ? hashVisual(g.imagem) : Promise.resolve(null))),
+    ]);
+    videos.forEach((g, i) => (g.duracao = duracoes[i] != null ? Math.round(duracoes[i]! * 100) / 100 : null));
+
+    // União de grupos parecidos (union-find).
+    const pai = videos.map((_, i) => i);
+    const raiz = (i: number): number => (pai[i] === i ? i : (pai[i] = raiz(pai[i])));
+    for (let i = 0; i < videos.length; i++) {
+      for (let j = i + 1; j < videos.length; j++) {
+        const hi = hashes[i];
+        const hj = hashes[j];
+        if (hi == null || hj == null) continue;
+        const di = videos[i].duracao;
+        const dj = videos[j].duracao;
+        const mesmaDuracao = di != null && dj != null && Math.abs(di - dj) <= 0.15;
+        const d = distancia(hi, hj);
+        // Com a duração igual, a capa pode variar um pouco; sem duração, só capas praticamente idênticas.
+        if ((mesmaDuracao && d <= 10) || (di == null || dj == null ? d <= 4 : false)) pai[raiz(i)] = raiz(j);
+      }
+    }
+
+    const juntos = new Map<number, Grupo[]>();
+    videos.forEach((g, i) => juntos.set(raiz(i), [...(juntos.get(raiz(i)) ?? []), g]));
+    const resultado = todos.filter((g) => !(g.formato === "video" && g.videoId));
+    for (const membros of juntos.values()) resultado.push(membros.length === 1 ? membros[0] : unir(membros));
+    return resultado;
+  }
+
+  function unir(membros: Grupo[]): Grupo {
+    const principal = [...membros].sort((a, b) => b.maiorGasto - a.maiorGasto)[0];
+    const chaves = new Set(membros.flatMap((m) => [...m.chaves]));
+    const campanhas = new Map<string, CampanhaDoCriativo>();
+    for (const m of membros) {
+      for (const [id, c] of m.campanhas) {
+        const atual = campanhas.get(id);
+        campanhas.set(
+          id,
+          atual
+            ? { ...atual, gasto: Math.round((atual.gasto + c.gasto) * 100) / 100, resultados: atual.resultados + c.resultados, ativa: atual.ativa || c.ativa }
+            : { ...c },
+        );
+      }
+    }
+    return {
+      ...principal,
+      // Chave estável: a menor entre as que formam o cartão, para ele não "pular" entre sincronizações.
+      chave: [...chaves].sort()[0],
+      chaves,
+      gasto: membros.reduce((a, m) => a + m.gasto, 0),
+      impressoes: membros.reduce((a, m) => a + m.impressoes, 0),
+      cliques: membros.reduce((a, m) => a + m.cliques, 0),
+      resultados: membros.reduce((a, m) => a + m.resultados, 0),
+      inicio: membros.map((m) => m.inicio).filter((x): x is string => Boolean(x)).sort()[0] ?? null,
+      anuncios: new Set(membros.flatMap((m) => [...m.anuncios])),
+      campanhas,
+      duracao: principal.duracao ?? membros.find((m) => m.duracao != null)?.duracao ?? null,
+    };
+  }
 }
 
 // ---------- Contatos dos formulários de leads (Lead Ads) ----------
