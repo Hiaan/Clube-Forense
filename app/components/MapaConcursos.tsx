@@ -51,6 +51,8 @@ export interface DetalheEstado {
   imls: ImlsEstado | null;
   /** Link do edital: o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
+  /** PDF do edital hospedado por nós. Quando existe, o botão abre aqui dentro. */
+  editalPdfUrl: string | null;
   /**
    * Nota de corte cadastrada no painel. Já vem filtrada pela visibilidade — o
    * que o painel não quis mostrar nem chega até aqui.
@@ -325,6 +327,7 @@ export default function MapaConcursos({
     plano: detalheAtual?.plano ?? null,
     imls: detalheAtual?.imls ?? null,
     editalUrl: detalheAtual?.editalUrl ?? null,
+    editalPdfUrl: detalheAtual?.editalPdfUrl ?? null,
     notaCorte: detalheAtual?.notaCorte ?? null,
     ficha: detalheAtual?.ficha ?? null,
     dataProva: detalheAtual?.dataProva ?? null,
@@ -625,6 +628,7 @@ export default function MapaConcursos({
 
               {(sel.imls ||
                 sel.editalUrl ||
+                sel.editalPdfUrl ||
                 (RANKING_ATIVO && sel.ranking) ||
                 (sel.ficha && fichaTemConteudo(sel.ficha))) && (
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -642,8 +646,13 @@ export default function MapaConcursos({
                   {sel.ficha && fichaTemConteudo(sel.ficha) && (
                     <BotaoInfo ficha={sel.ficha} estado={sel.nome} />
                   )}
-                  {sel.editalUrl && (
-                    <BotaoEdital url={sel.editalUrl} nivel={sel.nivel} />
+                  {(sel.editalUrl || sel.editalPdfUrl) && (
+                    <BotaoEdital
+                      url={sel.editalUrl}
+                      pdfUrl={sel.editalPdfUrl}
+                      nivel={sel.nivel}
+                      estado={sel.nome}
+                    />
                   )}
                   {RANKING_ATIVO && sel.ranking && !sel.ranking.aberta && (
                     <Link

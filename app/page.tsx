@@ -119,6 +119,7 @@ export default async function MonitorPage() {
                   }
                 : null,
             editalUrl: e.curadoria?.editalUrl ?? null,
+            editalPdfUrl: e.curadoria?.editalPdfUrl ?? null,
             dataProva: e.curadoria?.dataProva ?? null,
             notaCorte:
               e.curadoria?.notaCorte != null

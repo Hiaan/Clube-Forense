@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import CampoFoto from "../../../graficos/CampoFoto";
+import CampoPdf from "../../../graficos/CampoPdf";
 import EditorImls from "./EditorImls";
 import EditorPlano from "./EditorPlano";
 import { enviarSemLimpar } from "../../../enviarSemLimpar";
@@ -311,7 +312,7 @@ export default function FormEstado({
           </Campo>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Campo
             nome="editalUrl"
             label="Link do edital"
@@ -326,6 +327,17 @@ export default function FormEstado({
               defaultValue={v(inicial?.editalUrl)}
             />
           </Campo>
+
+          {/* Os dois convivem de propósito: o link é a procedência, o PDF é a
+              cópia que abre dentro do site. Com os dois preenchidos, o botão
+              abre o PDF aqui e oferece o site oficial no rodapé do pop-up. */}
+          <CampoPdf
+            nome="editalPdfUrl"
+            pasta="editais"
+            uf={uf}
+            rotulo="PDF do edital"
+            valorInicial={inicial?.editalPdfUrl ?? null}
+          />
         </div>
       </section>
 

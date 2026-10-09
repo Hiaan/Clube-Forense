@@ -108,6 +108,8 @@ export interface DetalheCuradoria {
   imlsFonte: string | null;
   /** Link do edital — o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
+  /** PDF do edital hospedado por nós, aberto dentro do site. Convive com o link. */
+  editalPdfUrl: string | null;
   /** Nota de corte do estado, e o que ela é. `null` quando o painel não quis mostrar. */
   notaCorte: number | null;
   notaCorteRotulo: string | null;

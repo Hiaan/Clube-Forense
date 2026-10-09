@@ -210,6 +210,16 @@ create table if not exists imls (
   // estágio, então não faz falta uma segunda coluna dizendo qual dos dois é.
   "alter table estados add column if not exists edital_url text;",
 
+  // PDF do edital hospedado por nós, aberto dentro do site.
+  //
+  // Coluna separada de `edital_url`, e não substituta: as duas respondem
+  // perguntas diferentes. O link aponta para a página oficial, que é a prova de
+  // procedência e continua valendo quando o arquivo muda; o PDF é a cópia que
+  // abre sem tirar a pessoa daqui. Guardar só o PDF perderia a origem; guardar
+  // só o link mantém o problema que esta coluna veio resolver — banca que tira
+  // o arquivo do ar, ou que o esconde atrás de uma área logada.
+  "alter table estados add column if not exists edital_pdf_url text;",
+
   // Vendas dos infoprodutos, espelhadas da Eduzz.
   //
   // A Eduzz é a fonte da verdade — isto é cópia, para o painel ter faturamento

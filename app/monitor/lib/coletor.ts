@@ -305,6 +305,7 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
             imlsTexto: detalhe.imlsTexto,
             imlsFonte: detalhe.imlsFonte,
             editalUrl: detalhe.editalUrl,
+            editalPdfUrl: detalhe.editalPdfUrl,
             // A visibilidade é resolvida aqui: o que não pode aparecer nem sai
             // do servidor, em vez de viajar até a tela e ser escondido lá.
             notaCorte: detalhe.notaCorteVisivel ? detalhe.notaCorte : null,

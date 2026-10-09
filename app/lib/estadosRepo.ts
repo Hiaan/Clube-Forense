@@ -52,6 +52,8 @@ export interface EstadoCuradoria {
   imlsFonte: string | null;
   /** Link do edital — o publicado quando há, o anterior enquanto não sai. */
   editalUrl: string | null;
+  /** PDF do edital hospedado por nós, aberto dentro do site. Convive com o link. */
+  editalPdfUrl: string | null;
   /**
    * Nota de corte mostrada no card do estado. Só aparece com `notaCorteVisivel`
    * marcado: um número desses sem contexto vira boato, e `notaCorteRotulo` é o
@@ -121,6 +123,7 @@ function daLinha(l: Record<string, unknown>): EstadoCuradoria {
     imlsTexto: texto(l.imls_texto),
     imlsFonte: texto(l.imls_fonte),
     editalUrl: texto(l.edital_url),
+    editalPdfUrl: texto(l.edital_pdf_url),
     notaCorte: numero(l.nota_corte),
     notaCorteRotulo: texto(l.nota_corte_rotulo),
     notaCorteVisivel: Boolean(l.nota_corte_visivel),
@@ -144,7 +147,7 @@ const COLUNAS = [
   "verificado_em", "travado", "observacao",
   "noticia_titulo", "noticia_resumo", "noticia_fonte", "noticia_link",
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
-  "imls_texto", "imls_fonte", "edital_url",
+  "imls_texto", "imls_fonte", "edital_url", "edital_pdf_url",
   "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
   "salario_final", "vagas_detalhe", "taf", "materias", "etapas_concurso",
   "info_anterior",
@@ -161,7 +164,7 @@ function paraValores(e: EstadoCuradoria): unknown[] {
     d(e.verificadoEm), e.travado, e.observacao,
     e.noticiaTitulo, e.noticiaResumo, e.noticiaFonte, e.noticiaLink,
     e.imagemUrl, e.planoOrgao, e.planoAno, e.planoFonte, e.imlsTotal,
-    e.imlsTexto, e.imlsFonte, e.editalUrl,
+    e.imlsTexto, e.imlsFonte, e.editalUrl, e.editalPdfUrl,
     e.notaCorte, e.notaCorteRotulo, e.notaCorteVisivel,
     e.salarioFinal, e.vagasDetalhe, e.taf, e.materias, e.etapasConcurso,
     e.infoAnterior,
@@ -174,7 +177,7 @@ const COLUNAS_NOTICIA = new Set([
   // A imagem e o plano de carreira também são escolhas feitas aqui, e a
   // planilha não os conhece.
   "imagem_url", "plano_orgao", "plano_ano", "plano_fonte", "imls_total",
-  "imls_texto", "imls_fonte", "edital_url",
+  "imls_texto", "imls_fonte", "edital_url", "edital_pdf_url",
   "nota_corte", "nota_corte_rotulo", "nota_corte_visivel",
   "salario_final", "vagas_detalhe", "taf", "materias", "etapas_concurso",
   "info_anterior",

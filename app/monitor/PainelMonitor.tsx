@@ -89,6 +89,7 @@ function CartaoEstado({
     Boolean(estado.curadoria?.imlsTexto) ||
     estado.curadoria?.imlsTotal != null;
   const editalUrl = estado.curadoria?.editalUrl ?? null;
+  const editalPdfUrl = estado.curadoria?.editalPdfUrl ?? null;
 
   // Montada antes do JSX porque ela decide se o próprio botão existe: uma ficha
   // só com o estágio repetiria a etiqueta que já está no topo do card.
@@ -222,7 +223,7 @@ function CartaoEstado({
         </div>
       )}
 
-      {(temImls || editalUrl || temFicha) && (
+      {(temImls || editalUrl || editalPdfUrl || temFicha) && (
         <div className="mt-4 flex flex-wrap gap-2">
           {/* A mesma ficha do mapa, no tema claro. Quem chega direto ao painel
               detalhado não deveria ter de subir até o mapa para saber o
@@ -240,8 +241,14 @@ function CartaoEstado({
               }}
             />
           )}
-          {editalUrl && (
-            <BotaoEdital tema="claro" url={editalUrl} nivel={estado.nivel} />
+          {(editalUrl || editalPdfUrl) && (
+            <BotaoEdital
+              tema="claro"
+              url={editalUrl}
+              pdfUrl={editalPdfUrl}
+              nivel={estado.nivel}
+              estado={estado.nome}
+            />
           )}
         </div>
       )}

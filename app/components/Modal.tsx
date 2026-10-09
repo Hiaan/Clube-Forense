@@ -11,10 +11,26 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
+/**
+ * Larguras possíveis.
+ *
+ * O padrão é `media`, que é o que os três pop-ups originais usavam. `larga`
+ * existe para o edital: um PDF em coluna de 28rem fica com a letra do tamanho
+ * de uma formiga, e aí o visualizador não serve para nada.
+ *
+ * Classes escritas por extenso porque o Tailwind varre o código procurando o
+ * nome da classe — montar `max-w-${x}` deixaria o CSS de fora do pacote.
+ */
+const LARGURAS = {
+  media: "max-w-md",
+  larga: "max-w-4xl",
+} as const;
+
 export default function Modal({
   titulo,
   sobretitulo,
   rodape,
+  largura = "media",
   aoFechar,
   children,
 }: {
@@ -22,6 +38,7 @@ export default function Modal({
   /** Linha pequena e amarela acima do título. */
   sobretitulo?: string;
   rodape?: React.ReactNode;
+  largura?: keyof typeof LARGURAS;
   aoFechar: () => void;
   children: React.ReactNode;
 }) {
@@ -69,7 +86,7 @@ export default function Modal({
       <div
         ref={caixa}
         tabIndex={-1}
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#141418] p-6 shadow-2xl outline-none"
+        className={`max-h-[90vh] w-full ${LARGURAS[largura]} overflow-y-auto rounded-2xl border border-white/10 bg-[#141418] p-6 shadow-2xl outline-none`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
