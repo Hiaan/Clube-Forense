@@ -7,6 +7,7 @@ import { fmt } from "@/lib/i18n";
 import Kpi from "../_ui/Kpi";
 import GraficoBarras from "../_ui/Grafico";
 import SeletorPeriodo from "./SeletorPeriodo";
+import { vendasRecentes } from "@/lib/painel/eduzz";
 
 export default async function VisaoGeral({
   params,
@@ -18,6 +19,7 @@ export default async function VisaoGeral({
   const { empresa, idioma, t } = await contextoEmpresa(params);
   const p = periodo((await searchParams).periodo);
   const { atual, anterior, serie, plataformas, ultima, mes, leads } = await carregarVisao(empresa, p);
+  const recentes = empresa.vendas_fonte === "eduzz" ? await vendasRecentes(empresa.id) : [];
 
   const $ = (v: number | null, compacto = false) => dinheiro(v, empresa.moeda, idioma, compacto);
   const n = (v: number | null) => numero(v, idioma);
@@ -40,8 +42,8 @@ export default async function VisaoGeral({
         kpi(t.kpi.conversoes, n(atual.conversoes), atual.conversoes, anterior.conversoes),
         kpi(t.kpi.ticket, $(razao(atual.receita, atual.conversoes)), razao(atual.receita, atual.conversoes), razao(anterior.receita, anterior.conversoes)),
         kpi(t.kpi.cpa, $(razao(atual.gasto, atual.conversoes)), razao(atual.gasto, atual.conversoes), razao(anterior.gasto, anterior.conversoes), "descer"),
+        <Kpi key="roi" rotulo={t.kpi.roi} valor={fmtRoi(roiDe(atual.receita, atual.gasto), idioma)} idioma={idioma} destaque />,
         kpi(t.kpi.ctr, porcentagem(ctr, idioma), ctr, ctrAnt),
-        kpi(t.kpi.cliques, n(atual.cliques), atual.cliques, anterior.cliques),
       ]
     : [
         kpi(t.kpi.investimento, $(atual.gasto), atual.gasto, anterior.gasto, "neutro"),
@@ -103,6 +105,24 @@ export default async function VisaoGeral({
           />
         )}
       </div>
+
+      {ecommerce && <DiaADia serie={serie} $={$} idioma={idioma} t={t} />}
+
+      {ecommerce && recentes.length > 0 && (
+        <section className="painel-cartao mt-4 overflow-hidden">
+          <h2 className="px-5 pt-5 font-display text-lg font-extrabold">{t.visao.vendasRecentes}</h2>
+          <ul className="mt-2">
+            {recentes.map((v, i) => (
+              <li key={i} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-white/6 px-5 py-3 text-sm">
+                <span className="min-w-0 flex-1 truncate font-medium">{v.produto ?? "—"}</span>
+                <span className="text-white/50">{[v.utm_source, v.utm_campaign].filter(Boolean).join(" · ") || t.visao.semUtm}</span>
+                <span className="w-28 text-right font-display font-extrabold tabular-nums">{dinheiro(v.valor, v.moeda, idioma)}</span>
+                <span className="w-32 text-right text-white/50">{dataHora(v.pago_em, idioma)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_1fr]">
         <section className="painel-cartao p-5">
@@ -247,5 +267,69 @@ function Metas({
         );
       })}
     </ul>
+  );
+}
+
+const roiDe = (receita: number, gasto: number) => (gasto > 0 ? (receita - gasto) / gasto : null);
+
+function fmtRoi(v: number | null, idioma: Parameters<typeof numero>[1]) {
+  return v == null ? "—" : `${v > 0 ? "+" : ""}${porcentagem(v, idioma, 0)}`;
+}
+
+/** Paralelo diário: investimento, vendas, receita, ROAS e ROI de cada dia (mais recente primeiro). */
+function DiaADia({
+  serie,
+  $,
+  idioma,
+  t,
+}: {
+  serie: Awaited<ReturnType<typeof carregarVisao>>["serie"];
+  $: (v: number | null) => string;
+  idioma: Parameters<typeof numero>[1];
+  t: Awaited<ReturnType<typeof contextoEmpresa>>["t"];
+}) {
+  const dias = [...serie].reverse().filter((d) => d.gasto > 0 || d.conversoes > 0 || d.receita > 0);
+  if (!dias.length) return null;
+  const total = dias.reduce((a, d) => ({ gasto: a.gasto + d.gasto, conversoes: a.conversoes + d.conversoes, receita: a.receita + d.receita }), {
+    gasto: 0,
+    conversoes: 0,
+    receita: 0,
+  });
+  const linha = (rotulo: string, d: { gasto: number; conversoes: number; receita: number }, forte = false) => {
+    const roi = roiDe(d.receita, d.gasto);
+    return (
+      <tr key={rotulo} className={forte ? "bg-white/4 font-semibold" : ""}>
+        <td className="whitespace-nowrap">{rotulo}</td>
+        <td className="text-right tabular-nums">{$(d.gasto)}</td>
+        <td className="text-right tabular-nums">{numero(d.conversoes, idioma)}</td>
+        <td className="text-right tabular-nums">{$(d.receita)}</td>
+        <td className="text-right tabular-nums">{fmtRoas(razao(d.receita, d.gasto), idioma)}</td>
+        <td className={`text-right tabular-nums ${roi == null ? "" : roi >= 0 ? "text-emerald-300" : "text-[#ff8a90]"}`}>{fmtRoi(roi, idioma)}</td>
+      </tr>
+    );
+  };
+  return (
+    <section className="painel-cartao mt-4 overflow-x-auto">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 pt-5">
+        <h2 className="font-display text-lg font-extrabold">{t.visao.diaADia}</h2>
+        <p className="text-xs text-white/40">{t.visao.roiDica}</p>
+      </div>
+      <table className="painel-tabela mt-2 w-full min-w-[640px] text-left text-sm">
+        <thead>
+          <tr>
+            <th>{t.visao.dia}</th>
+            <th className="text-right">{t.kpi.investimento}</th>
+            <th className="text-right">{t.kpi.conversoes}</th>
+            <th className="text-right">{t.kpi.receita}</th>
+            <th className="text-right">{t.kpi.roas}</th>
+            <th className="text-right">{t.kpi.roi}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dias.map((d) => linha(diaCurto(d.data, idioma), d))}
+          {linha(t.campanhas.total, total, true)}
+        </tbody>
+      </table>
+    </section>
   );
 }

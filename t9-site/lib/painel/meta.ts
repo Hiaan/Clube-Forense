@@ -3,6 +3,7 @@ import { createHmac } from "node:crypto";
 import { consulta, transacao } from "./db";
 import { hoje, somarDias } from "./dados";
 import type { Empresa } from "./auth";
+import { vendasPorAnuncio } from "./eduzz";
 
 // Integração com a Marketing API da Meta (Gerenciador de Anúncios).
 // Usa o token de um "usuário do sistema" do Business Manager da T9 (META_ACCESS_TOKEN),
@@ -124,7 +125,9 @@ export const receitaDe = (valores: Acao[] | undefined) => primeiro(valores, TIPO
 const CAMPOS = "spend,impressions,clicks,inline_link_clicks,actions,action_values";
 
 /** Puxa as métricas por dia e campanha e os anúncios com investimento no período. */
-export async function sincronizarEmpresa(empresa: Pick<Empresa, "id" | "tipo" | "meta_conta">, dias = 30) {
+type EmpresaMeta = Pick<Empresa, "id" | "tipo" | "meta_conta" | "vendas_fonte">;
+
+export async function sincronizarEmpresa(empresa: EmpresaMeta, dias = 30) {
   if (!empresa.meta_conta) throw new Error("Conta de anúncio da Meta não vinculada.");
   const fim = hoje();
   const inicio = somarDias(fim, -(dias - 1));
@@ -154,6 +157,8 @@ export async function sincronizarEmpresa(empresa: Pick<Empresa, "id" | "tipo" | 
       porChave.set(chave, atual);
     }
     const dados = [...porChave.values()];
+    // Vendas vindas de outra fonte (Eduzz): a Meta entra só com o investimento, para não contar em dobro.
+    if (empresa.vendas_fonte) for (const d of dados) Object.assign(d, { conversoes: 0, receita: 0 });
 
     await transacao(async (q) => {
       // Substitui o período inteiro: campanhas renomeadas ou apagadas não deixam sobras.
@@ -183,7 +188,7 @@ export async function sincronizarEmpresa(empresa: Pick<Empresa, "id" | "tipo" | 
       }
     });
 
-    const { criativos, insights } = await sincronizarAnuncios(empresa, periodo);
+    const { criativos, insights } = await sincronizarAnuncios(empresa, periodo, inicio, fim);
     const leadsFormulario = await importarLeadsDeFormulario(empresa, insights, inicio);
     await consulta("update empresas set meta_sincronizado_em = now(), meta_erro = null where id = $1", [empresa.id]);
     return { linhas: dados.length, anuncios: criativos, leadsFormulario, inicio, fim };
@@ -229,7 +234,7 @@ export function chaveDaArte(a: Pick<AnuncioMeta, "id" | "creative">) {
 }
 
 /** Anúncios com investimento no período viram cartões na aba Criativos, um por arte. */
-async function sincronizarAnuncios(empresa: Pick<Empresa, "id" | "tipo" | "meta_conta">, periodo: string) {
+async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio: string, fim: string) {
   const insights = (
     await todasPaginas<LinhaInsight & { campaign_id?: string }>(`${empresa.meta_conta}/insights`, {
       level: "ad",
@@ -260,6 +265,8 @@ async function sincronizarAnuncios(empresa: Pick<Empresa, "id" | "tipo" | "meta_
   }
 
   const ecommerce = empresa.tipo === "ecommerce";
+  // Com vendas na Eduzz, a venda de cada anúncio vem da UTM utm_content (id ou nome do anúncio).
+  const vendasEduzz = empresa.vendas_fonte === "eduzz" ? await vendasPorAnuncio(empresa.id, inicio, fim) : null;
   type Grupo = {
     chave: string;
     titulo: string;
@@ -279,7 +286,11 @@ async function sincronizarAnuncios(empresa: Pick<Empresa, "id" | "tipo" | "meta_
     const d = detalhes.get(a.ad_id!) ?? { id: a.ad_id! };
     const chave = chaveDaArte(d);
     const gasto = Number(a.spend ?? 0);
-    const resultados = ecommerce ? comprasDe(a.actions) : leadsDe(a.actions);
+    const resultados = vendasEduzz
+      ? (vendasEduzz.get(a.ad_id!)?.vendas ?? vendasEduzz.get(a.ad_name ?? "")?.vendas ?? 0)
+      : ecommerce
+        ? comprasDe(a.actions)
+        : leadsDe(a.actions);
     const g = grupos.get(chave) ?? {
       chave,
       titulo: "",
@@ -444,8 +455,8 @@ async function importarLeadsDeFormulario(empresa: Pick<Empresa, "id" | "meta_con
 
 /** Sincroniza todos os clientes com conta vinculada (usado pelo Cron diário). */
 export async function sincronizarTodas() {
-  const empresas = await consulta<Pick<Empresa, "id" | "tipo" | "meta_conta"> & { nome: string }>(
-    "select id, nome, tipo, meta_conta from empresas where meta_conta is not null",
+  const empresas = await consulta<EmpresaMeta & { nome: string }>(
+    "select id, nome, tipo, meta_conta, vendas_fonte from empresas where meta_conta is not null",
   );
   const resultado: { empresa: string; ok: boolean; detalhe: string }[] = [];
   for (const e of empresas) {

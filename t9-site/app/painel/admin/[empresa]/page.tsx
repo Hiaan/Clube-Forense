@@ -21,6 +21,7 @@ import {
 } from "../acoes";
 import CamposEmpresa from "../CamposEmpresa";
 import SecaoMeta from "../SecaoMeta";
+import SecaoEduzz from "../SecaoEduzz";
 import FormComEstado from "../../_ui/FormComEstado";
 import { BotaoEnviar } from "../../_ui/Botoes";
 import { mudarStatusPlano } from "../../acoes";
@@ -80,6 +81,7 @@ export default async function GestaoCliente({ params }: { params: Promise<{ empr
       </div>
 
       <SecaoMeta empresa={empresa} />
+      <SecaoEduzz empresa={empresa} />
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* Lançamento manual */}

@@ -30,6 +30,11 @@ export type Empresa = {
   meta_sincronizado_em: string | null;
   meta_erro: string | null;
   meta_leads_aviso: string | null;
+  /** "eduzz" quando as vendas e a receita vêm da Eduzz, e não do pixel da Meta. */
+  vendas_fonte: string | null;
+  eduzz_token: string | null;
+  eduzz_segredo: string | null;
+  eduzz_ultimo_evento: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";
