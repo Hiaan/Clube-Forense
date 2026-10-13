@@ -39,10 +39,11 @@ export default async function SecaoWhatsapp({ empresa }: { empresa: Empresa }) {
         <input type="hidden" name="empresa" value={empresa.id} />
         <label className="block max-w-xl">
           <span className="painel-rotulo">WhatsApp que recebe os leads (separe vários por vírgula)</span>
+          <span className="mb-1.5 block text-xs text-white/45">Fora do Brasil, comece com + e o código do país: +1 407 555-1234.</span>
           <input
             name="numeros"
             defaultValue={numeros.map(numeroLegivel).join(", ")}
-            placeholder="(83) 99999-9999"
+            placeholder="(83) 99999-9999 ou +1 407 555-1234"
             inputMode="tel"
             autoComplete="off"
             className="painel-campo"

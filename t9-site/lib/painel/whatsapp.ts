@@ -75,25 +75,36 @@ export const desconectarPonte = () => chamarPonte("/sair", {});
 
 export async function enviarWhatsapp(numero: string, texto: string) {
   if (!ponteConfigurada()) throw new Error("A ponte do WhatsApp não está configurada.");
-  return chamarPonte<{ ok: boolean; id: string; para: string }>("/enviar", { numero, texto }, 60_000);
+  return chamarPonte<{ ok: boolean; id: string; para: string }>("/enviar", { numero: `+${numero.replace(/\D/g, "")}`, texto }, 60_000);
 }
 
-/** "83 99999-9999, +55 (11) 98888-7777" → ["5583999999999", "5511988887777"]. */
+/**
+ * "83 99999-9999, +1 (407) 555-1234" → ["5583999999999", "14075551234"].
+ * Com "+" (ou "00") na frente, o número vale como está, com o código do país; sem, é brasileiro
+ * (DDD + número) e ganha o 55. O 1 dos EUA só é reconhecido com o "+": "11 9…" é São Paulo.
+ */
 export function numerosDe(texto: string | null | undefined) {
   const lista = (texto ?? "")
     .split(/[,;\n]+/)
-    .map((n) => n.replace(/\D/g, ""))
-    .filter((n) => n.length >= 10 && n.length <= 15)
-    .map((n) => (n.length <= 11 ? `55${n}` : n));
+    .map((bruto) => {
+      const internacional = /^\s*(\+|00)/.test(bruto);
+      const d = bruto.replace(/\D/g, "").replace(/^00/, "");
+      if (internacional) return d.length >= 8 && d.length <= 15 ? d : "";
+      if (d.length === 10 || d.length === 11) return `55${d}`;
+      return d.length >= 12 && d.length <= 15 ? d : "";
+    })
+    .filter(Boolean);
   return [...new Set(lista)];
 }
 
-/** Número para exibir: 5583999999999 → (83) 99999-9999. */
+/** Número para exibir: 5583999999999 → (83) 99999-9999; 14075551234 → +1 (407) 555-1234. */
 export function numeroLegivel(n: string) {
-  const d = n.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "");
-  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
-  return `+${n}`;
+  const d = n.replace(/\D/g, "");
+  const br = d.match(/^55(\d{2})(\d{4,5})(\d{4})$/);
+  if (br) return `(${br[1]}) ${br[2]}-${br[3]}`;
+  const eua = d.match(/^1(\d{3})(\d{3})(\d{4})$/);
+  if (eua) return `+1 (${eua[1]}) ${eua[2]}-${eua[3]}`;
+  return `+${d}`;
 }
 
 type LeadParaAviso = { id: number; nome: string | null; email: string | null; whatsapp: string | null; campanha: string | null; dados: { respostas?: Record<string, string> } | null };

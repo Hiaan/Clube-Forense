@@ -117,11 +117,15 @@ async function conectar() {
 let fila = Promise.resolve();
 let ultimoEnvio = 0;
 
-/** Número brasileiro: o WhatsApp diz o endereço certo (número antigo fica sem o nono dígito). */
+/**
+ * "+<país><número>" vale como está (o painel sempre manda assim); sem "+", 10 ou 11 dígitos são
+ * um número brasileiro. O WhatsApp diz o endereço certo (número antigo fica sem o nono dígito).
+ */
 async function destinoDe(numero) {
+  const internacional = String(numero).trim().startsWith("+");
   const digitos = String(numero).replace(/\D/g, "");
-  if (digitos.length < 10 || digitos.length > 15) throw new Error("número inválido");
-  const comPais = digitos.length <= 11 ? `55${digitos}` : digitos;
+  if (digitos.length < 8 || digitos.length > 15) throw new Error("número inválido");
+  const comPais = !internacional && digitos.length <= 11 ? `55${digitos}` : digitos;
   const [achado] = (await sock.onWhatsApp(comPais).catch(() => [])) ?? [];
   if (!achado?.exists) throw new Error(`o número ${comPais} não tem WhatsApp`);
   return achado.jid;

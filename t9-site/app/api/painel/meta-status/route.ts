@@ -1,5 +1,6 @@
 import { acoesDaConta, diagnosticoMeta, leadsPorAnuncioDaConta, situacaoTempoReal, metaConfigurado, normalizarConta } from "@/lib/painel/meta";
-import { enderecoDaPonte, estadoDaPonte } from "@/lib/painel/whatsapp";
+import { consulta } from "@/lib/painel/db";
+import { enderecoDaPonte, estadoDaPonte, numeroLegivel } from "@/lib/painel/whatsapp";
 import { chamadaAutorizada } from "../autorizacao";
 
 /** Diagnóstico da conexão com a Meta (protegido pelo CRON_SECRET). Não expõe o token. */
@@ -14,7 +15,14 @@ export async function GET(request: Request) {
     if (parametros.get("whatsapp")) {
       const { qr, ...estado } = await estadoDaPonte();
       const endereco = await enderecoDaPonte().catch(() => "");
-      return Response.json({ ok: true, ...estado, temQr: Boolean(qr), endereco: endereco ? new URL(endereco).host : "" });
+      const clientes = await consulta<{ slug: string; whatsapp_leads: string }>("select slug, whatsapp_leads from empresas where whatsapp_leads is not null");
+      return Response.json({
+        ok: true,
+        ...estado,
+        temQr: Boolean(qr),
+        endereco: endereco ? new URL(endereco).host : "",
+        clientes: clientes.map((c) => ({ slug: c.slug, numeros: c.whatsapp_leads.split(",").map((n) => `${numeroLegivel(n)} [${n.length} dígitos]`) })),
+      });
     }
     // ?tempoReal=1 mostra se o webhook de leads está assinado no app e em cada Página (só leitura).
     if (parametros.get("tempoReal")) return Response.json({ ok: true, ...(await situacaoTempoReal(`${endereco.origin}/api/painel/meta-webhook`)) });
