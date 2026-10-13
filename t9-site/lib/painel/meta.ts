@@ -608,10 +608,16 @@ export async function diagnosticoMeta() {
   const permissoes = await graph<{ data: { permission: string; status: string }[] }>("me/permissions").catch(() => ({ data: [] }));
   cacheContas = null;
   const contas = await listarContasDeAnuncio();
+  // Páginas atribuídas ao usuário do sistema e o que ele pode fazer nelas (leads de formulário dependem disso).
+  const paginas = await graph<{ data: { id: string; name: string; tasks?: string[] }[] }>("me/accounts", { fields: "name,tasks", limit: 100 }).catch(
+    (erro: Error) => ({ data: [], erro: erro.message }),
+  );
   return {
     usuario: eu.name,
     permissoes: permissoes.data.filter((p) => p.status === "granted").map((p) => p.permission),
     appsecretProof: Boolean(process.env.META_APP_SECRET),
     contas: contas.map((c) => ({ id: c.id, nome: c.nome, moeda: c.moeda, ativa: c.ativa })),
+    paginas: paginas.data.map((p) => ({ id: p.id, nome: p.name, tarefas: p.tasks ?? [] })),
+    ...("erro" in paginas ? { erroPaginas: paginas.erro } : {}),
   };
 }
