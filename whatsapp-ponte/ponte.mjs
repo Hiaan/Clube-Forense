@@ -9,6 +9,9 @@
  * não baixa histórico nem responde comandos: mensagens recebidas são ignoradas e
  * continuam aparecendo normalmente no celular do número da T9.
  *
+ * Roda no PC da T9 com um túnel rápido da Cloudflare (compose.yml): o túnel dá um endereço
+ * público que muda a cada reinício, e a ponte avisa o painel do endereço novo sozinha.
+ *
  * Rotas (todas exigem "Authorization: Bearer <PONTE_SEGREDO>"):
  *   GET  /estado      fase da conexão, número conectado e o QR (imagem) quando houver
  *   POST /enviar      { numero, texto } → manda a mensagem
@@ -28,6 +31,9 @@ const SESSAO = path.resolve(process.env.PONTE_SESSAO || ".data/sessao");
 /** Intervalo mínimo entre duas mensagens: rajada é o que mais chama atenção do WhatsApp. */
 const INTERVALO = Number(process.env.PONTE_INTERVALO_MS || 4000);
 const TENTATIVAS = 3;
+/** Onde está o painel (para avisar o endereço do túnel) e o painel de métricas do cloudflared. */
+const PAINEL = (process.env.PAINEL_URL || "https://t9company.com.br").replace(/\/$/, "");
+const TUNEL = (process.env.TUNEL_METRICAS || "").replace(/\/$/, "");
 
 if (SEGREDO.length < 32) {
   console.error("Defina PONTE_SEGREDO com pelo menos 32 caracteres (ex.: openssl rand -hex 32).");
@@ -183,3 +189,34 @@ http
   .listen(PORTA, () => log(`ouvindo na porta ${PORTA}`));
 
 conectar().catch((e) => log("não abriu", e?.message || e));
+
+/* ------------------------------------------------------------------- túnel */
+
+/**
+ * O túnel rápido da Cloudflare ganha um endereço novo a cada vez que liga. A ponte o lê nas
+ * métricas do cloudflared e informa o painel; repete quando muda e, por garantia, a cada 6 horas.
+ */
+let informado = "";
+let informadoEm = 0;
+async function informarEndereco() {
+  const r = await fetch(`${TUNEL}/quicktunnel`, { signal: AbortSignal.timeout(5000) }).catch(() => null);
+  const host = r?.ok ? String((await r.json().catch(() => ({}))).hostname || "") : "";
+  if (!host) return;
+  const url = `https://${host}`;
+  if (url === informado && Date.now() - informadoEm < 6 * 3600_000) return;
+  const resposta = await fetch(`${PAINEL}/api/painel/whatsapp/ponte`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${SEGREDO}` },
+    body: JSON.stringify({ url }),
+    signal: AbortSignal.timeout(20000),
+  }).catch((e) => ({ ok: false, status: e?.message || e }));
+  if (resposta.ok) {
+    if (url !== informado) log("painel avisado do endereço", url);
+    informado = url;
+    informadoEm = Date.now();
+  } else log("não consegui avisar o painel", resposta.status);
+}
+if (TUNEL) {
+  setInterval(() => void informarEndereco().catch(() => {}), 15000);
+  void informarEndereco().catch(() => {});
+}

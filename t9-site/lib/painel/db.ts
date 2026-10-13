@@ -232,6 +232,11 @@ const ESQUEMA = [
     criado_em timestamptz not null default now()
   )`,
   `create index if not exists whatsapp_envios_criado on whatsapp_envios (criado_em desc)`,
+  `create table if not exists ajustes (
+    chave text primary key,
+    valor text,
+    atualizado_em timestamptz not null default now()
+  )`,
 ];
 
 /** Cria as tabelas na primeira consulta de cada instância (comandos idempotentes). */

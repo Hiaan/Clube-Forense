@@ -146,7 +146,8 @@ O painel fica em **`/painel`** (e em `painel.t9company.com.br`, quando o subdom�
 **Leads no WhatsApp do cliente.**
 
 - Cada lead novo dos formulários dos anúncios vai na hora para o WhatsApp do cliente, enviado pelo número da T9. A mensagem traz nome, contato, respostas do formulário e um link `wa.me` para chamar a pessoa.
-- **Quem envia** é a ponte em `whatsapp-ponte/`, na raiz do repositório. Ela fica ligada no servidor da T9 (Docker), conectada ao número da T9 pelo QR Code. É uma versão só de envio da ponte da central Clarear: não guarda conversas. As respostas dos clientes continuam chegando no celular do número.
+- **Quem envia** é a ponte em `whatsapp-ponte/`, na raiz do repositório. Ela fica ligada no PC da T9 (Docker Desktop), conectada ao número da T9 pelo QR Code. É uma versão só de envio da ponte da central Clarear: não guarda conversas. As respostas dos clientes continuam chegando no celular do número.
+- **Como o painel alcança o PC:** um túnel rápido da Cloudflare, que sobe junto no `docker compose`, dá um endereço público à ponte. Esse endereço muda a cada reinício. A ponte avisa o painel do endereço novo (`/api/painel/whatsapp/ponte`), e ele fica guardado na tabela `ajustes`.
 - **Onde liga:**
   - números do cliente: em "Leads no WhatsApp do cliente", na página de gestão de cada cliente. Ao ligar, os leads que já estão no painel não são reenviados;
   - conexão do número, QR Code, leads em tempo real e últimos envios: **Gestão T9 → WhatsApp** (só admin).
@@ -185,8 +186,8 @@ Veja `.env.example`.
 | `META_ACCESS_TOKEN` | Token do usuário do sistema da Meta (leitura das contas de anúncio) |
 | `META_APP_SECRET` | Segredo do app da Meta (recomendado, protege o uso do token) |
 | `CRON_SECRET` | Protege o resumo semanal e a rota que recria a demonstração |
-| `WHATSAPP_PONTE_URL` | Endereço HTTPS da ponte do WhatsApp (ex.: `https://wa.t9company.com.br`) |
-| `WHATSAPP_PONTE_SEGREDO` | O mesmo `PONTE_SEGREDO` configurado na ponte |
+| `WHATSAPP_PONTE_SEGREDO` | O mesmo `PONTE_SEGREDO` configurado na ponte do WhatsApp |
+| `WHATSAPP_PONTE_URL` | Opcional. Endereço fixo da ponte, só se ela rodar num servidor sem o túnel |
 | `PAINEL_URL` | Opcional. Endereço usado nos links de acesso (padrão: o endereço em que o painel foi aberto) |
 
 ## Horários da agenda

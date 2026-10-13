@@ -1,31 +1,23 @@
-# Sobe a ponte do WhatsApp da T9.
-#   docker compose up -d                      → só a ponte, na porta 3100 do próprio servidor (127.0.0.1)
-#   docker compose --profile https up -d      → ponte + Caddy com HTTPS automático em PONTE_DOMINIO
+# Ponte do WhatsApp da T9, para rodar no PC (Docker Desktop) ou num servidor.
+#   docker compose up -d
+# Sobe a ponte e um túnel rápido da Cloudflare: o túnel dá um endereço público ao PC, sem abrir
+# porta no roteador, e a ponte avisa o painel desse endereço sozinha (ele muda a cada reinício).
 services:
   ponte:
     build: .
     env_file: .env
+    environment:
+      TUNEL_METRICAS: http://tunel:2000
     restart: unless-stopped
     volumes:
       - sessao:/app/.data
-    # Só o próprio servidor alcança a porta; de fora, entra pelo HTTPS.
-    ports:
-      - "127.0.0.1:3100:3100"
 
-  caddy:
-    image: caddy:2
-    profiles: ["https"]
+  tunel:
+    image: cloudflare/cloudflared:latest
+    command: ["tunnel", "--no-autoupdate", "--metrics", "0.0.0.0:2000", "--url", "http://ponte:3100"]
     restart: unless-stopped
-    env_file: .env
-    command: ["caddy", "reverse-proxy", "--from", "${PONTE_DOMINIO}", "--to", "ponte:3100"]
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - caddy:/data
     depends_on:
       - ponte
 
 volumes:
   sessao:
-  caddy:

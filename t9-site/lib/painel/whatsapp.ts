@@ -1,9 +1,14 @@
 import "server-only";
+import { timingSafeEqual } from "node:crypto";
 import { consulta, umaLinha } from "./db";
 
 // Avisos pelo WhatsApp da T9. Quem envia é a ponte (whatsapp-ponte/ na raiz do repositório),
-// um processo sempre ligado no servidor da T9, conectado ao número da T9 pelo QR Code.
+// um processo sempre ligado no PC da T9, conectado ao número da T9 pelo QR Code.
 // O painel só pede "manda este texto para este número"; a ponte cuida do resto.
+//
+// O endereço da ponte vem do túnel da Cloudflare e muda a cada reinício: a própria ponte o
+// informa (POST /api/painel/whatsapp/ponte) e ele fica na tabela "ajustes". WHATSAPP_PONTE_URL
+// só vale quando a ponte nunca informou um endereço (ponte num servidor com endereço fixo).
 
 export type EstadoDaPonte = {
   /** "fora" = a ponte não respondeu; "sem-config" = faltam as variáveis na Vercel. */
@@ -15,10 +20,34 @@ export type EstadoDaPonte = {
   erro: string;
 };
 
-export const ponteConfigurada = () => Boolean(process.env.WHATSAPP_PONTE_URL && process.env.WHATSAPP_PONTE_SEGREDO);
+export const ponteConfigurada = () => Boolean(process.env.WHATSAPP_PONTE_SEGREDO);
+
+const CHAVE_ENDERECO = "whatsapp_ponte_url";
+
+/** O segredo que a ponte manda nos avisos para o painel (o mesmo que o painel manda para ela). */
+export function chamadaDaPonte(request: Request) {
+  const segredo = process.env.WHATSAPP_PONTE_SEGREDO ?? "";
+  const enviado = Buffer.from((request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, ""));
+  const certo = Buffer.from(segredo);
+  return segredo.length >= 32 && enviado.length === certo.length && timingSafeEqual(enviado, certo);
+}
+
+export async function guardarEnderecoDaPonte(url: string) {
+  await consulta(
+    `insert into ajustes (chave, valor, atualizado_em) values ($1, $2, now())
+     on conflict (chave) do update set valor = excluded.valor, atualizado_em = now()`,
+    [CHAVE_ENDERECO, url],
+  );
+}
+
+async function enderecoDaPonte() {
+  const salvo = await umaLinha<{ valor: string }>("select valor from ajustes where chave = $1", [CHAVE_ENDERECO]);
+  return (salvo?.valor || process.env.WHATSAPP_PONTE_URL || "").replace(/\/$/, "");
+}
 
 async function chamarPonte<T>(caminho: string, corpo?: unknown, espera = 30_000): Promise<T> {
-  const base = (process.env.WHATSAPP_PONTE_URL ?? "").replace(/\/$/, "");
+  const base = await enderecoDaPonte();
+  if (!base) throw new Error("a ponte ainda não informou o endereço (ela está ligada?)");
   const r = await fetch(`${base}${caminho}`, {
     method: corpo === undefined ? "GET" : "POST",
     headers: { authorization: `Bearer ${process.env.WHATSAPP_PONTE_SEGREDO}`, ...(corpo === undefined ? {} : { "content-type": "application/json" }) },

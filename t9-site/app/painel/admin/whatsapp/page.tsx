@@ -52,23 +52,20 @@ export default async function WhatsappAdmin() {
         </p>
 
         {estado.fase === "sem-config" && (
-          <ol className="mt-4 list-decimal space-y-1.5 pl-5 text-sm text-white/65">
-            <li>
-              Suba a ponte no servidor (pasta <code className="rounded bg-white/8 px-1 text-xs">whatsapp-ponte</code> do repositório, com Docker).
-            </li>
-            <li>
-              Na Vercel, crie <code className="rounded bg-white/8 px-1 text-xs">WHATSAPP_PONTE_URL</code> (endereço HTTPS da ponte) e{" "}
-              <code className="rounded bg-white/8 px-1 text-xs">WHATSAPP_PONTE_SEGREDO</code> (o mesmo PONTE_SEGREDO do servidor) e publique de novo.
-            </li>
-            <li>Volte aqui e leia o QR Code com o celular do número da T9.</li>
-          </ol>
+          <p className="mt-4 text-sm text-white/65">
+            Falta a variável <code className="rounded bg-white/8 px-1 text-xs">WHATSAPP_PONTE_SEGREDO</code> na Vercel (o mesmo PONTE_SEGREDO do{" "}
+            <code className="rounded bg-white/8 px-1 text-xs">.env</code> da ponte).
+          </p>
         )}
 
         {estado.fase === "fora" && (
-          <p className="mt-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-200">
-            A ponte não respondeu{estado.erro ? `: ${estado.erro}` : ""}. Confira se ela está ligada no servidor e se o endereço e o segredo na Vercel
-            estão certos.
-          </p>
+          <div className="mt-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            <p>A ponte não respondeu. O PC dela está ligado, com internet e com o Docker Desktop aberto?</p>
+            <p className="mt-1 text-xs text-red-200/70">
+              Para ligar: na pasta da ponte, rode <code>docker compose up -d</code>. Ela avisa o painel do endereço sozinha em até 15 segundos.
+              {estado.erro ? ` Detalhe: ${estado.erro}` : ""}
+            </p>
+          </div>
         )}
 
         {estado.fase === "qr" && estado.qr && (
