@@ -40,7 +40,7 @@ export async function guardarEnderecoDaPonte(url: string) {
   );
 }
 
-async function enderecoDaPonte() {
+export async function enderecoDaPonte() {
   const salvo = await umaLinha<{ valor: string }>("select valor from ajustes where chave = $1", [CHAVE_ENDERECO]);
   return (salvo?.valor || process.env.WHATSAPP_PONTE_URL || "").replace(/\/$/, "");
 }

@@ -1,4 +1,5 @@
 import { acoesDaConta, diagnosticoMeta, leadsPorAnuncioDaConta, situacaoTempoReal, metaConfigurado, normalizarConta } from "@/lib/painel/meta";
+import { enderecoDaPonte, estadoDaPonte } from "@/lib/painel/whatsapp";
 import { chamadaAutorizada } from "../autorizacao";
 
 /** Diagnóstico da conexão com a Meta (protegido pelo CRON_SECRET). Não expõe o token. */
@@ -9,6 +10,12 @@ export async function GET(request: Request) {
     // ?conta=act_123 mostra como a Meta reporta as ações (leads, compras...) dessa conta.
     const endereco = new URL(request.url);
     const parametros = endereco.searchParams;
+    // ?whatsapp=1 mostra como está a ponte do WhatsApp (sem o QR em si).
+    if (parametros.get("whatsapp")) {
+      const { qr, ...estado } = await estadoDaPonte();
+      const endereco = await enderecoDaPonte().catch(() => "");
+      return Response.json({ ok: true, ...estado, temQr: Boolean(qr), endereco: endereco ? new URL(endereco).host : "" });
+    }
     // ?tempoReal=1 mostra se o webhook de leads está assinado no app e em cada Página (só leitura).
     if (parametros.get("tempoReal")) return Response.json({ ok: true, ...(await situacaoTempoReal(`${endereco.origin}/api/painel/meta-webhook`)) });
     // ?leads=act_123 confere, anúncio por anúncio, se a Meta libera os contatos dos formulários.

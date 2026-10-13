@@ -74,6 +74,9 @@ async function conectar() {
     if (qr) {
       estado.fase = "qr";
       estado.qr = await QRCode.toDataURL(qr, { margin: 1, width: 320 }).catch(() => "");
+      // O mesmo QR no terminal (docker compose logs ponte), para quando o painel não abrir.
+      const texto = await QRCode.toString(qr, { type: "terminal", small: true }).catch(() => "");
+      if (texto) log(`QR Code para conectar o número da T9 (vale ~20 s):\n${texto}`);
     }
     if (connection === "open") {
       quedas = 0;
@@ -91,7 +94,8 @@ async function conectar() {
         await fs.rm(SESSAO, { recursive: true, force: true });
       }
       // Sair e "reinicie" (o que o WhatsApp pede logo depois de ler o QR) são passos normais; o resto é queda.
-      const normal = codigo === DisconnectReason.loggedOut || codigo === DisconnectReason.restartRequired;
+      // Ainda sem pareamento, a queda é o QR que venceu sem ninguém ler: sai um QR novo, sem contar como falha.
+      const normal = codigo === DisconnectReason.loggedOut || codigo === DisconnectReason.restartRequired || !state.creds.me;
       quedas = normal ? 0 : quedas + 1;
       // Três quedas seguidas e a ponte para: insistir contra o WhatsApp não resolve e pode custar o número.
       if (quedas >= TENTATIVAS) {
