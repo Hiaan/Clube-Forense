@@ -235,6 +235,7 @@ const ESQUEMA = [
     criado_em timestamptz not null default now()
   )`,
   `create index if not exists whatsapp_envios_criado on whatsapp_envios (criado_em desc)`,
+  `create index if not exists whatsapp_envios_lead on whatsapp_envios (lead_id)`,
   `create table if not exists ajustes (
     chave text primary key,
     valor text,

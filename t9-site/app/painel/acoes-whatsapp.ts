@@ -3,10 +3,10 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { empresaPermitidaPorId, ehEquipe, usuarioAtual } from "@/lib/painel/auth";
-import { consulta, registrar } from "@/lib/painel/db";
+import { consulta, registrar, umaLinha } from "@/lib/painel/db";
 import { enderecoBase } from "@/lib/painel/links";
 import { ativarTempoReal } from "@/lib/painel/meta";
-import { desconectarPonte, enviarTeste, numeroLegivel, numerosDe, reconectarPonte } from "@/lib/painel/whatsapp";
+import { desconectarPonte, enviarLead, enviarTeste, numeroLegivel, numerosDe, reconectarPonte } from "@/lib/painel/whatsapp";
 import type { Estado } from "./admin/acoes";
 
 // WhatsApp: números de cada cliente que recebem os leads, teste de envio e a conexão do número da T9.
@@ -83,6 +83,27 @@ export async function ativarLeadsTempoReal(_: Estado): Promise<Estado> {
       );
     }
     return sucesso(`Leads em tempo real ligados em ${paginas.map((p) => p.nome).join(", ")}.`);
+  } catch (e) {
+    return falha(erroDe(e));
+  }
+}
+
+/** Botão "Enviar manualmente" na aba Leads: manda aquele lead para o WhatsApp do cliente. */
+export async function enviarLeadManual(_: Estado, f: FormData): Promise<Estado> {
+  const u = await usuarioAtual();
+  if (!u || !ehEquipe(u)) return falha("Só a equipe da T9 pode enviar.");
+  const leadId = Number(f.get("lead"));
+  if (!Number.isInteger(leadId) || leadId <= 0) return falha("Lead inválido.");
+  const dono = await umaLinha<{ empresa_id: number }>("select empresa_id from leads where id = $1", [leadId]);
+  const empresa = dono ? await empresaPermitidaPorId(u, dono.empresa_id) : null;
+  if (!empresa) return falha("Lead não encontrado.");
+  if (!numerosDe(empresa.whatsapp_leads).length) return falha("Cadastre o WhatsApp do cliente na gestão dele.");
+  try {
+    const r = await enviarLead(empresa, leadId);
+    await registrar(u.id, empresa.id, "whatsapp.lead-manual", String(leadId));
+    revalidatePath(`/painel/${empresa.slug}/leads`);
+    if (r.erros.length === r.numeros.length) return falha(r.erros.join("; "));
+    return sucesso(r.erros.length ? `Enviado, com falha em: ${r.erros.join("; ")}` : `Enviado para ${r.numeros.map(numeroLegivel).join(", ")}.`);
   } catch (e) {
     return falha(erroDe(e));
   }

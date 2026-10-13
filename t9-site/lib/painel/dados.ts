@@ -125,11 +125,14 @@ export type Lead = {
   valor: number | null;
   recebido_em: string;
   dados: Record<string, unknown> | null;
+  /** Último envio que deu certo para o WhatsApp do cliente (automático ou manual). */
+  whatsapp_enviado_em: string | null;
 };
 
 export async function listarLeads(empresaId: number, etapa?: EtapaLead, limite = 300) {
   return consulta<Lead>(
-    `select id, nome, email, whatsapp, origem, campanha, etapa, valor, recebido_em, dados
+    `select id, nome, email, whatsapp, origem, campanha, etapa, valor, recebido_em, dados,
+            (select max(w.criado_em) from whatsapp_envios w where w.lead_id = leads.id and w.ok) as whatsapp_enviado_em
        from leads where empresa_id = $1 and ($2::text is null or etapa = $2)
       order by recebido_em desc limit $3`,
     [empresaId, etapa ?? null, limite],

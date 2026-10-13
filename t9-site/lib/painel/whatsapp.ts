@@ -207,13 +207,18 @@ export async function enviarTeste(empresa: { id: number; nome: string; whatsapp_
   return { numeros, erros };
 }
 
-/** Reenvia o lead de formulário mais recente do cliente, no mesmo formato do aviso automático. */
-export async function enviarUltimoLead(empresa: { id: number; nome: string; whatsapp_leads: string | null }) {
+/**
+ * Manda um lead para o WhatsApp do cliente, no mesmo formato do aviso automático: o indicado
+ * (envio manual, botão na aba Leads) ou, sem id, o lead de formulário mais recente.
+ */
+export async function enviarLead(empresa: { id: number; nome: string; whatsapp_leads: string | null }, leadId?: number) {
   const numeros = numerosDe(empresa.whatsapp_leads);
   const lead = await umaLinha<LeadParaAviso & { recebido_em: string }>(
-    `select id, nome, email, whatsapp, campanha, dados, recebido_em from leads
-      where empresa_id = $1 and meta_lead_id is not null order by recebido_em desc limit 1`,
-    [empresa.id],
+    leadId
+      ? "select id, nome, email, whatsapp, campanha, dados, recebido_em from leads where empresa_id = $1 and id = $2"
+      : `select id, nome, email, whatsapp, campanha, dados, recebido_em from leads
+          where empresa_id = $1 and meta_lead_id is not null order by recebido_em desc limit 1`,
+    leadId ? [empresa.id, leadId] : [empresa.id],
   );
   if (!lead || !numeros.length) return { numeros, lead: null, erros: [] as string[] };
   const texto = mensagemDoLead(empresa.nome, lead);

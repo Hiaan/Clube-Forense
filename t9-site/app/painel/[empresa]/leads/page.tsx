@@ -6,6 +6,10 @@ import { fmt } from "@/lib/i18n";
 import { mudarEtapaLead } from "../../acoes";
 import { SelectAutoEnvio } from "../../_ui/Botoes";
 import { contextoEmpresa } from "../contexto";
+import { mostrarEdicao } from "@/lib/painel/auth";
+import { numerosDe } from "@/lib/painel/whatsapp";
+import { enviarLeadManual } from "../../acoes-whatsapp";
+import EnviarLeadWhatsapp from "../../_ui/EnviarLeadWhatsapp";
 
 const soDigitos = (s: string) => s.replace(/\D/g, "");
 
@@ -16,7 +20,9 @@ export default async function Leads({
   params: Promise<{ empresa: string }>;
   searchParams: Promise<{ etapa?: string }>;
 }) {
-  const { empresa, idioma, t } = await contextoEmpresa(params);
+  const { usuario, empresa, idioma, t } = await contextoEmpresa(params);
+  // Envio manual para o WhatsApp do cliente: só a equipe, e só com o número dele cadastrado.
+  const whatsapp = (await mostrarEdicao(usuario)) && numerosDe(empresa.whatsapp_leads).length > 0;
   const filtro = (await searchParams).etapa;
   const etapa = ETAPAS_LEAD.includes(filtro as EtapaLead) ? (filtro as EtapaLead) : undefined;
   const [leads, contagem] = await Promise.all([listarLeads(empresa.id, etapa), contagemPorEtapa(empresa.id)]);
@@ -83,6 +89,7 @@ export default async function Leads({
                 <th>{t.leads.origem}</th>
                 <th>{t.leads.recebido}</th>
                 <th>{t.leads.etapa}</th>
+                {whatsapp && <th>WhatsApp</th>}
               </tr>
             </thead>
             <tbody>
@@ -120,6 +127,11 @@ export default async function Leads({
                       />
                     </form>
                   </td>
+                  {whatsapp && (
+                    <td>
+                      <EnviarLeadWhatsapp acao={enviarLeadManual} lead={l.id} enviadoEm={l.whatsapp_enviado_em ? dataHora(l.whatsapp_enviado_em, idioma) : null} />
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

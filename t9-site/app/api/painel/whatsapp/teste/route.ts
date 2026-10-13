@@ -1,5 +1,5 @@
 import { umaLinha } from "@/lib/painel/db";
-import { enviarTeste, enviarUltimoLead, numeroLegivel } from "@/lib/painel/whatsapp";
+import { enviarTeste, enviarLead, numeroLegivel } from "@/lib/painel/whatsapp";
 import { chamadaAutorizada } from "../../autorizacao";
 
 /**
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   );
   if (!empresa) return Response.json({ ok: false, erro: "cliente não encontrado" }, { status: 404 });
   if (new URL(request.url).searchParams.get("lead") === "ultimo") {
-    const r = await enviarUltimoLead(empresa);
+    const r = await enviarLead(empresa);
     return Response.json({ ok: Boolean(r.lead) && r.numeros.length > 0 && !r.erros.length, cliente: empresa.nome, numeros: r.numeros.map(numeroLegivel), lead: r.lead, erros: r.erros });
   }
   const { numeros, erros } = await enviarTeste(empresa);
