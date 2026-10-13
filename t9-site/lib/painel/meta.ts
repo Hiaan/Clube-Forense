@@ -574,6 +574,34 @@ export async function acoesDaConta(conta: string) {
   return Object.fromEntries((linhas.data[0]?.actions ?? []).map((a) => [a.action_type, Number(a.value)]));
 }
 
+/**
+ * Para cada anúncio com lead nos últimos 30 dias: quantos leads a Meta conta e quantos o
+ * endpoint /leads devolve (só contagem, sem dados pessoais), com o destino da campanha.
+ */
+export async function leadsPorAnuncioDaConta(conta: string) {
+  const linhas = await todasPaginas<LinhaInsight>(`${conta}/insights`, {
+    fields: "ad_id,ad_name,actions",
+    date_preset: "last_30d",
+    level: "ad",
+    limit: 200,
+  });
+  const comLead = linhas.filter((a): a is LinhaInsight & { ad_id: string } => Boolean(a.ad_id) && (valorDe(a.actions, "lead") ?? valorDe(a.actions, "onsite_conversion.lead_grouped") ?? 0) > 0);
+  return Promise.all(
+    comLead.map(async (a) => {
+      const base = { anuncio: a.ad_name, id: a.ad_id, leadsNaMeta: valorDe(a.actions, "lead") ?? valorDe(a.actions, "onsite_conversion.lead_grouped") };
+      try {
+        const detalhe = await graph<{ campaign?: { objective?: string }; adset?: { destination_type?: string; optimization_goal?: string } }>(a.ad_id, {
+          fields: "campaign{objective},adset{destination_type,optimization_goal}",
+        });
+        const leads = await todasPaginas<{ id: string }>(`${a.ad_id}/leads`, { fields: "id", limit: 100 });
+        return { ...base, objetivo: detalhe.campaign?.objective, destino: detalhe.adset?.destination_type, otimizacao: detalhe.adset?.optimization_goal, leadsNoFormulario: leads.length };
+      } catch (erro) {
+        return { ...base, erro: erro instanceof Error ? erro.message : String(erro) };
+      }
+    }),
+  );
+}
+
 /** Confere o token: quem é o usuário do sistema, permissões concedidas e contas visíveis. */
 export async function diagnosticoMeta() {
   const eu = await graph<{ id: string; name: string }>("me", { fields: "id,name" });
