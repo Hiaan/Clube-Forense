@@ -220,6 +220,18 @@ const ESQUEMA = [
   `create index if not exists vendas_empresa_data on vendas (empresa_id, data)`,
   `create index if not exists metricas_empresa_data on metricas (empresa_id, data)`,
   `create index if not exists leads_empresa_recebido on leads (empresa_id, recebido_em desc)`,
+  `alter table empresas add column if not exists whatsapp_leads text`,
+  `alter table leads add column if not exists whatsapp_avisado_em timestamptz`,
+  `create table if not exists whatsapp_envios (
+    id serial primary key,
+    empresa_id integer references empresas on delete cascade,
+    lead_id integer references leads on delete set null,
+    numero text not null,
+    ok boolean not null,
+    erro text,
+    criado_em timestamptz not null default now()
+  )`,
+  `create index if not exists whatsapp_envios_criado on whatsapp_envios (criado_em desc)`,
 ];
 
 /** Cria as tabelas na primeira consulta de cada instância (comandos idempotentes). */

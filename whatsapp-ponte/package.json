@@ -1,0 +1,16 @@
+{
+  "name": "t9-whatsapp-ponte",
+  "private": true,
+  "type": "module",
+  "description": "Ponte do WhatsApp da T9: conecta o número da T9 e envia os avisos do painel.",
+  "scripts": {
+    "start": "node ponte.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "baileys": "7.0.0-rc14",
+    "qrcode": "1.5.4"
+  }
+}

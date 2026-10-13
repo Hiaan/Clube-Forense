@@ -1,0 +1,31 @@
+# Sobe a ponte do WhatsApp da T9.
+#   docker compose up -d                      → só a ponte, na porta 3100 do próprio servidor (127.0.0.1)
+#   docker compose --profile https up -d      → ponte + Caddy com HTTPS automático em PONTE_DOMINIO
+services:
+  ponte:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - sessao:/app/.data
+    # Só o próprio servidor alcança a porta; de fora, entra pelo HTTPS.
+    ports:
+      - "127.0.0.1:3100:3100"
+
+  caddy:
+    image: caddy:2
+    profiles: ["https"]
+    restart: unless-stopped
+    env_file: .env
+    command: ["caddy", "reverse-proxy", "--from", "${PONTE_DOMINIO}", "--to", "ponte:3100"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy:/data
+    depends_on:
+      - ponte
+
+volumes:
+  sessao:
+  caddy:

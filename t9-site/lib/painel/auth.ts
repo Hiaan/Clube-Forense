@@ -35,6 +35,8 @@ export type Empresa = {
   eduzz_token: string | null;
   eduzz_segredo: string | null;
   eduzz_ultimo_evento: string | null;
+  /** Números (separados por vírgula) que recebem cada lead novo no WhatsApp. */
+  whatsapp_leads: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";

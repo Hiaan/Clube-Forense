@@ -1,10 +1,11 @@
 import "server-only";
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { consulta, transacao } from "./db";
 import { hoje, somarDias } from "./dados";
 import type { Empresa } from "./auth";
 import { vendasPorAnuncio } from "./eduzz";
 import { distancia, emParalelo, hashVisual } from "./semelhanca";
+import { avisarLeadsNovos } from "./whatsapp";
 
 // Integração com a Marketing API da Meta (Gerenciador de Anúncios).
 // Usa o token de um "usuário do sistema" do Business Manager da T9 (META_ACCESS_TOKEN),
@@ -26,19 +27,23 @@ export function normalizarConta(valor: string) {
 
 type ErroGraph = { error?: { message?: string; code?: number; error_subcode?: number } };
 
-async function graph<T>(caminho: string, parametros: Record<string, string | number> = {}): Promise<T> {
-  const token = process.env.META_ACCESS_TOKEN;
+async function graph<T>(
+  caminho: string,
+  parametros: Record<string, string | number> = {},
+  opcoes: { metodo?: "GET" | "POST"; token?: string } = {},
+): Promise<T> {
+  const token = opcoes.token ?? process.env.META_ACCESS_TOKEN;
   if (!token) throw new Error("META_ACCESS_TOKEN não configurado.");
   const url = new URL(caminho.startsWith("http") ? caminho : `${BASE}/${VERSAO}/${caminho.replace(/^\//, "")}`);
   if (!caminho.startsWith("http")) {
     for (const [k, v] of Object.entries(parametros)) url.searchParams.set(k, String(v));
     url.searchParams.set("access_token", token);
-    // Prova do segredo do app: impede o uso do token por quem não tem o segredo.
-    if (process.env.META_APP_SECRET) {
+    // Prova do segredo do app: impede o uso do token por quem não tem o segredo (token de app dispensa).
+    if (process.env.META_APP_SECRET && !token.includes("|")) {
       url.searchParams.set("appsecret_proof", createHmac("sha256", process.env.META_APP_SECRET).update(token).digest("hex"));
     }
   }
-  const resposta = await fetch(url, { signal: AbortSignal.timeout(30_000), cache: "no-store" });
+  const resposta = await fetch(url, { method: opcoes.metodo ?? "GET", signal: AbortSignal.timeout(30_000), cache: "no-store" });
   const corpo = (await resposta.json().catch(() => ({}))) as T & ErroGraph;
   if (!resposta.ok || corpo.error) {
     const e = corpo.error;
@@ -191,6 +196,7 @@ export async function sincronizarEmpresa(empresa: EmpresaMeta, dias = 30) {
 
     const { criativos, insights } = await sincronizarAnuncios(empresa, periodo, inicio, fim);
     const leadsFormulario = await importarLeadsDeFormulario(empresa, insights, inicio);
+    await avisarLeadsNovos(empresa.id).catch(() => undefined);
     await consulta("update empresas set meta_sincronizado_em = now(), meta_erro = null where id = $1", [empresa.id]);
     return { linhas: dados.length, anuncios: criativos, leadsFormulario, inicio, fim };
   } catch (erro) {
@@ -479,7 +485,7 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
 // ---------- Contatos dos formulários de leads (Lead Ads) ----------
 
 type CampoLead = { name: string; values?: string[] };
-type LeadMeta = { id: string; created_time: string; field_data?: CampoLead[]; campaign_name?: string; ad_name?: string; form_id?: string };
+type LeadMeta = { id: string; created_time: string; field_data?: CampoLead[]; campaign_name?: string; ad_name?: string; form_id?: string; ad_id?: string };
 
 /** Lê nome, e-mail e telefone das respostas do formulário (os nomes dos campos variam por formulário e idioma). */
 export function contatoDoLead(campos: CampoLead[] = []) {
@@ -492,6 +498,33 @@ export function contatoDoLead(campos: CampoLead[] = []) {
     telefone: achar("phone_number", "telefone", "whatsapp", "celular", "phone"),
     campos: mapa,
   };
+}
+
+/** Grava leads de formulário da Meta na aba Leads (sem repetir os que já estão lá). Devolve quantos chegaram. */
+async function salvarLeadsMeta(empresaId: number, leads: LeadMeta[]) {
+  const linhas = leads.map((l) => {
+    const c = contatoDoLead(l.field_data);
+    return { ...c, id: l.id, quando: l.created_time, campanha: l.campaign_name ?? null, dados: { formulario: l.form_id, anuncio: l.ad_name, respostas: c.campos } };
+  });
+  if (linhas.length) {
+    await consulta(
+      `insert into leads (empresa_id, meta_lead_id, nome, email, whatsapp, origem, campanha, etapa, recebido_em, dados)
+       select $1, id, n, e, w, 'Formulário Meta', c, 'novo', q, d
+         from unnest($2::text[], $3::text[], $4::text[], $5::text[], $6::text[], $7::timestamptz[], $8::jsonb[]) as x(id, n, e, w, c, q, d)
+       on conflict (empresa_id, meta_lead_id) where meta_lead_id is not null do nothing`,
+      [
+        empresaId,
+        linhas.map((l) => l.id),
+        linhas.map((l) => l.nome?.slice(0, 120) ?? null),
+        linhas.map((l) => l.email?.slice(0, 160) ?? null),
+        linhas.map((l) => l.telefone?.slice(0, 40) ?? null),
+        linhas.map((l) => l.campanha?.slice(0, 200) ?? null),
+        linhas.map((l) => l.quando),
+        linhas.map((l) => JSON.stringify(l.dados)),
+      ],
+    );
+  }
+  return linhas.length;
 }
 
 /**
@@ -525,30 +558,9 @@ async function importarLeadsDeFormulario(empresa: Pick<Empresa, "id" | "meta_con
     return 0;
   }
 
-  const linhas = leads.map((l) => {
-    const c = contatoDoLead(l.field_data);
-    return { ...c, id: l.id, quando: l.created_time, campanha: l.campaign_name ?? null, dados: { formulario: l.form_id, anuncio: l.ad_name, respostas: c.campos } };
-  });
-  if (linhas.length) {
-    await consulta(
-      `insert into leads (empresa_id, meta_lead_id, nome, email, whatsapp, origem, campanha, etapa, recebido_em, dados)
-       select $1, id, n, e, w, 'Formulário Meta', c, 'novo', q, d
-         from unnest($2::text[], $3::text[], $4::text[], $5::text[], $6::text[], $7::timestamptz[], $8::jsonb[]) as x(id, n, e, w, c, q, d)
-       on conflict (empresa_id, meta_lead_id) where meta_lead_id is not null do nothing`,
-      [
-        empresa.id,
-        linhas.map((l) => l.id),
-        linhas.map((l) => l.nome?.slice(0, 120) ?? null),
-        linhas.map((l) => l.email?.slice(0, 160) ?? null),
-        linhas.map((l) => l.telefone?.slice(0, 40) ?? null),
-        linhas.map((l) => l.campanha?.slice(0, 200) ?? null),
-        linhas.map((l) => l.quando),
-        linhas.map((l) => JSON.stringify(l.dados)),
-      ],
-    );
-  }
+  const salvos = await salvarLeadsMeta(empresa.id, leads);
   await consulta("update empresas set meta_leads_aviso = null where id = $1", [empresa.id]);
-  return linhas.length;
+  return salvos;
 }
 
 /** Sincroniza todos os clientes com conta vinculada (usado pelo Cron diário). */
@@ -620,4 +632,89 @@ export async function diagnosticoMeta() {
     paginas: paginas.data.map((p) => ({ id: p.id, nome: p.name, tarefas: p.tasks ?? [] })),
     ...("erro" in paginas ? { erroPaginas: paginas.erro } : {}),
   };
+}
+
+// ---------- Leads em tempo real (webhook "leadgen" das Páginas) ----------
+
+/** O token de verificação do webhook sai do segredo do app: não há variável nova para configurar. */
+export const tokenDoWebhook = () => createHmac("sha256", process.env.META_APP_SECRET ?? "").update("t9-webhook-leadgen").digest("hex").slice(0, 32);
+
+/** Confere a assinatura (X-Hub-Signature-256) que a Meta põe em cada aviso do webhook. */
+export function assinaturaMetaValida(corpo: string, assinatura: string | null) {
+  const segredo = process.env.META_APP_SECRET;
+  if (!segredo || !assinatura?.startsWith("sha256=")) return false;
+  const esperada = Buffer.from(`sha256=${createHmac("sha256", segredo).update(corpo).digest("hex")}`);
+  const recebida = Buffer.from(assinatura);
+  return esperada.length === recebida.length && timingSafeEqual(esperada, recebida);
+}
+
+/**
+ * Um lead acabou de chegar (aviso do webhook): busca as respostas, descobre de qual cliente
+ * é pela conta de anúncio e grava. Devolve o id do cliente, para o aviso no WhatsApp.
+ */
+export async function receberLeadDoWebhook(leadgenId: string, adId?: string) {
+  const lead = await graph<LeadMeta>(leadgenId, { fields: "id,created_time,field_data,campaign_name,ad_name,form_id,ad_id" });
+  const anuncio = lead.ad_id ?? adId;
+  if (!anuncio) return null;
+  const { account_id } = await graph<{ account_id: string }>(anuncio, { fields: "account_id" });
+  const empresas = await consulta<{ id: number }>("select id from empresas where meta_conta = $1", [`act_${account_id}`]);
+  for (const e of empresas) await salvarLeadsMeta(e.id, [lead]);
+  return empresas.map((e) => e.id);
+}
+
+const tokenDoApp = (appId: string) => `${appId}|${process.env.META_APP_SECRET}`;
+
+type PaginaComToken = { id: string; name: string; access_token?: string };
+
+/** Como está a entrega em tempo real: o app assina "leadgen" e quais Páginas mandam avisos para ele. */
+export async function situacaoTempoReal(callback: string) {
+  if (!process.env.META_APP_SECRET) return { pronto: false, app: false, paginas: [], erro: "META_APP_SECRET não configurado." };
+  try {
+    const app = await graph<{ id: string }>("app", { fields: "id" });
+    const assinaturas = await graph<{ data: { object: string; callback_url: string; active: boolean; fields: { name: string }[] }[] }>(
+      `${app.id}/subscriptions`,
+      {},
+      { token: tokenDoApp(app.id) },
+    );
+    const pagina = assinaturas.data.find((a) => a.object === "page");
+    const appOk = Boolean(pagina?.active && pagina.callback_url.endsWith(new URL(callback).pathname) && pagina.fields.some((f) => f.name === "leadgen"));
+    const paginas = await graph<{ data: PaginaComToken[] }>("me/accounts", { fields: "id,name,access_token", limit: 100 });
+    const lista = await Promise.all(
+      paginas.data.map(async (p) => {
+        if (!p.access_token) return { nome: p.name, ativa: false, erro: "sem acesso à Página" };
+        try {
+          const apps = await graph<{ data: { id: string; subscribed_fields?: string[] }[] }>(`${p.id}/subscribed_apps`, {}, { token: p.access_token });
+          return { nome: p.name, ativa: apps.data.some((a) => a.id === app.id && a.subscribed_fields?.includes("leadgen")) };
+        } catch (erro) {
+          return { nome: p.name, ativa: false, erro: erro instanceof Error ? erro.message : String(erro) };
+        }
+      }),
+    );
+    return { pronto: appOk && lista.length > 0 && lista.every((p) => p.ativa), app: appOk, paginas: lista };
+  } catch (erro) {
+    return { pronto: false, app: false, paginas: [], erro: erro instanceof Error ? erro.message : String(erro) };
+  }
+}
+
+/** Liga o webhook "leadgen": assina no app e inscreve o app em cada Página que o usuário do sistema enxerga. */
+export async function ativarTempoReal(callback: string) {
+  if (!process.env.META_APP_SECRET) throw new Error("META_APP_SECRET não configurado.");
+  const app = await graph<{ id: string }>("app", { fields: "id" });
+  await graph(
+    `${app.id}/subscriptions`,
+    { object: "page", callback_url: callback, fields: "leadgen", include_values: "true", verify_token: tokenDoWebhook() },
+    { metodo: "POST", token: tokenDoApp(app.id) },
+  );
+  const paginas = await graph<{ data: PaginaComToken[] }>("me/accounts", { fields: "id,name,access_token", limit: 100 });
+  const resultado: { nome: string; ok: boolean; erro?: string }[] = [];
+  for (const p of paginas.data) {
+    try {
+      if (!p.access_token) throw new Error("sem acesso à Página");
+      await graph(`${p.id}/subscribed_apps`, { subscribed_fields: "leadgen" }, { metodo: "POST", token: p.access_token });
+      resultado.push({ nome: p.name, ok: true });
+    } catch (erro) {
+      resultado.push({ nome: p.name, ok: false, erro: erro instanceof Error ? erro.message : String(erro) });
+    }
+  }
+  return resultado;
 }

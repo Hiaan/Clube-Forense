@@ -8,6 +8,7 @@ export default async function LayoutAdmin({ children }: { children: React.ReactN
   if (usuario.perfil === "admin") {
     abas.push(
       { href: "/painel/admin/financeiro", rotulo: "Financeiro" },
+      { href: "/painel/admin/whatsapp", rotulo: "WhatsApp" },
       { href: "/painel/admin/nova", rotulo: "Novo cliente" },
       { href: "/painel/admin/equipe", rotulo: "Equipe T9" },
     );

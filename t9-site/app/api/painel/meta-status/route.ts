@@ -1,4 +1,4 @@
-import { acoesDaConta, diagnosticoMeta, leadsPorAnuncioDaConta, metaConfigurado, normalizarConta } from "@/lib/painel/meta";
+import { acoesDaConta, diagnosticoMeta, leadsPorAnuncioDaConta, situacaoTempoReal, metaConfigurado, normalizarConta } from "@/lib/painel/meta";
 import { chamadaAutorizada } from "../autorizacao";
 
 /** Diagnóstico da conexão com a Meta (protegido pelo CRON_SECRET). Não expõe o token. */
@@ -7,7 +7,10 @@ export async function GET(request: Request) {
   if (!metaConfigurado()) return Response.json({ ok: false, erro: "META_ACCESS_TOKEN não configurado" }, { status: 503 });
   try {
     // ?conta=act_123 mostra como a Meta reporta as ações (leads, compras...) dessa conta.
-    const parametros = new URL(request.url).searchParams;
+    const endereco = new URL(request.url);
+    const parametros = endereco.searchParams;
+    // ?tempoReal=1 mostra se o webhook de leads está assinado no app e em cada Página (só leitura).
+    if (parametros.get("tempoReal")) return Response.json({ ok: true, ...(await situacaoTempoReal(`${endereco.origin}/api/painel/meta-webhook`)) });
     // ?leads=act_123 confere, anúncio por anúncio, se a Meta libera os contatos dos formulários.
     const contaLeads = normalizarConta(parametros.get("leads") ?? "");
     if (contaLeads) return Response.json({ ok: true, conta: contaLeads, anuncios: await leadsPorAnuncioDaConta(contaLeads) });

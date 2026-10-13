@@ -143,6 +143,19 @@ O painel fica em **`/painel`** (e em `painel.t9company.com.br`, quando o subdom�
   - `META_APP_SECRET` (recomendado): ativa o `appsecret_proof`.
   - `META_API_VERSION`: opcional, padrão `v23.0`.
 
+**Leads no WhatsApp do cliente.**
+
+- Cada lead novo dos formulários dos anúncios vai na hora para o WhatsApp do cliente, enviado pelo número da T9. A mensagem traz nome, contato, respostas do formulário e um link `wa.me` para chamar a pessoa.
+- **Quem envia** é a ponte em `whatsapp-ponte/`, na raiz do repositório. Ela fica ligada no servidor da T9 (Docker), conectada ao número da T9 pelo QR Code. É uma versão só de envio da ponte da central Clarear: não guarda conversas. As respostas dos clientes continuam chegando no celular do número.
+- **Onde liga:**
+  - números do cliente: em "Leads no WhatsApp do cliente", na página de gestão de cada cliente. Ao ligar, os leads que já estão no painel não são reenviados;
+  - conexão do número, QR Code, leads em tempo real e últimos envios: **Gestão T9 → WhatsApp** (só admin).
+- **Quando chega:**
+  - com "Leads em tempo real" ligado: em segundos, pelo webhook `leadgen` da Meta (`/api/painel/meta-webhook`, assinado com o `META_APP_SECRET`). Precisa de `pages_manage_metadata` no token;
+  - sem ele: na sincronização diária.
+  - Só avisa leads das últimas 48 horas, uma vez cada. Se a ponte estiver fora do ar, tenta de novo na próxima chegada ou sincronização.
+- A API do WhatsApp usada pela ponte não é oficial: use um número só da T9 e volume baixo.
+
 **Ver como cliente.** No cabeçalho do painel de um cliente, a equipe pode ligar o modo "Ver como cliente", que esconde todos os controles de edição. Uma faixa vermelha avisa que o modo está ligado.
 
 **Cliente de demonstração.** Na Carteira, o botão "Recriar demonstração" (só admin) gera a "Clínica Exemplo (demonstração)" com 90 dias de métricas, leads, criativos, reuniões, relatório e arquivos fictícios. As artes ficam em `public/painel-demo/`.
@@ -172,6 +185,8 @@ Veja `.env.example`.
 | `META_ACCESS_TOKEN` | Token do usuário do sistema da Meta (leitura das contas de anúncio) |
 | `META_APP_SECRET` | Segredo do app da Meta (recomendado, protege o uso do token) |
 | `CRON_SECRET` | Protege o resumo semanal e a rota que recria a demonstração |
+| `WHATSAPP_PONTE_URL` | Endereço HTTPS da ponte do WhatsApp (ex.: `https://wa.t9company.com.br`) |
+| `WHATSAPP_PONTE_SEGREDO` | O mesmo `PONTE_SEGREDO` configurado na ponte |
 | `PAINEL_URL` | Opcional. Endereço usado nos links de acesso (padrão: o endereço em que o painel foi aberto) |
 
 ## Horários da agenda
