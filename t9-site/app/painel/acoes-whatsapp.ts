@@ -39,7 +39,8 @@ export async function salvarWhatsapp(_: Estado, f: FormData): Promise<Estado> {
   if (numeros.length && !numerosDe(r.empresa.whatsapp_leads).length) {
     await consulta("update leads set whatsapp_avisado_em = now() where empresa_id = $1 and whatsapp_avisado_em is null", [r.empresa.id]);
   }
-  await consulta("update empresas set whatsapp_leads = $2 where id = $1", [r.empresa.id, numeros.join(",") || null]);
+  // Guardados com "+": na leitura, o número volta como internacional, com o código do país (sem o "+", 1 407… viraria brasileiro).
+  await consulta("update empresas set whatsapp_leads = $2 where id = $1", [r.empresa.id, numeros.map((n) => `+${n}`).join(",") || null]);
   await registrar(r.u.id, r.empresa.id, numeros.length ? "whatsapp.leads" : "whatsapp.leads-desligar");
   revalidatePath("/painel", "layout");
   return sucesso(numeros.length ? `Pronto: cada lead novo vai para ${numeros.map(numeroLegivel).join(", ")}.` : "Avisos de lead no WhatsApp desligados.");

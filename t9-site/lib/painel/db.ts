@@ -222,6 +222,9 @@ const ESQUEMA = [
   `create index if not exists leads_empresa_recebido on leads (empresa_id, recebido_em desc)`,
   `alter table empresas add column if not exists whatsapp_leads text`,
   `alter table leads add column if not exists whatsapp_avisado_em timestamptz`,
+  // Números guardados antes sem "+" (todos já com o código do país): passam a ter o "+".
+  `update empresas set whatsapp_leads = (select string_agg('+' || n, ',') from unnest(string_to_array(whatsapp_leads, ',')) as n)
+    where whatsapp_leads is not null and whatsapp_leads not like '%+%'`,
   `create table if not exists whatsapp_envios (
     id serial primary key,
     empresa_id integer references empresas on delete cascade,
