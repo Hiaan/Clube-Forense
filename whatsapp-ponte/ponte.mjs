@@ -192,7 +192,12 @@ http
   })
   .listen(PORTA, () => log(`ouvindo na porta ${PORTA}`));
 
-conectar().catch((e) => log("não abriu", e?.message || e));
+conectar().catch((e) => {
+  // Sem isto a ponte ficaria em "iniciando" para sempre, sem dizer por quê.
+  estado.fase = "parada";
+  estado.erro = `não consegui abrir a sessão do WhatsApp: ${e?.message || e}`;
+  log(estado.erro);
+});
 
 /* ------------------------------------------------------------------- túnel */
 
