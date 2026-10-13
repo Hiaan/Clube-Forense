@@ -6,7 +6,7 @@ import { empresaPermitidaPorId, ehEquipe, usuarioAtual } from "@/lib/painel/auth
 import { consulta, registrar } from "@/lib/painel/db";
 import { enderecoBase } from "@/lib/painel/links";
 import { ativarTempoReal } from "@/lib/painel/meta";
-import { desconectarPonte, enviarWhatsapp, numeroLegivel, numerosDe, reconectarPonte } from "@/lib/painel/whatsapp";
+import { desconectarPonte, enviarTeste, numeroLegivel, numerosDe, reconectarPonte } from "@/lib/painel/whatsapp";
 import type { Estado } from "./admin/acoes";
 
 // WhatsApp: números de cada cliente que recebem os leads, teste de envio e a conexão do número da T9.
@@ -48,19 +48,8 @@ export async function salvarWhatsapp(_: Estado, f: FormData): Promise<Estado> {
 export async function testarWhatsapp(_: Estado, f: FormData): Promise<Estado> {
   const r = await empresaDaEquipe(f);
   if (!r) return falha("Cliente não encontrado.");
-  const numeros = numerosDe(r.empresa.whatsapp_leads);
+  const { numeros, erros } = await enviarTeste(r.empresa);
   if (!numeros.length) return falha("Salve pelo menos um número antes de testar.");
-  const texto = `✅ *Teste do painel T9* — ${r.empresa.nome}\n\nA partir de agora, cada lead novo dos formulários dos anúncios chega aqui na hora, com nome, contato e respostas.`;
-  const erros: string[] = [];
-  for (const n of numeros) {
-    try {
-      await enviarWhatsapp(n, texto);
-      await consulta("insert into whatsapp_envios (empresa_id, numero, ok) values ($1, $2, true)", [r.empresa.id, n]);
-    } catch (e) {
-      erros.push(`${numeroLegivel(n)}: ${erroDe(e)}`);
-      await consulta("insert into whatsapp_envios (empresa_id, numero, ok, erro) values ($1, $2, false, $3)", [r.empresa.id, n, erroDe(e).slice(0, 300)]);
-    }
-  }
   revalidatePath("/painel/admin/whatsapp");
   return erros.length ? falha(`Não enviei para ${erros.join("; ")}`) : sucesso("Mensagem de teste enviada.");
 }

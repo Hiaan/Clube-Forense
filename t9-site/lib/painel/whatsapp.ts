@@ -178,6 +178,24 @@ export async function avisarLeadsNovos(empresaId: number) {
   return { enviados };
 }
 
+/** Mensagem de teste para os números do cliente. Devolve os números e os erros ("(83) 9…: motivo"). */
+export async function enviarTeste(empresa: { id: number; nome: string; whatsapp_leads: string | null }) {
+  const numeros = numerosDe(empresa.whatsapp_leads);
+  const texto = `✅ *Teste do painel T9* — ${empresa.nome}\n\nA partir de agora, cada lead novo dos formulários dos anúncios chega aqui na hora, com nome, contato e respostas.`;
+  const erros: string[] = [];
+  for (const n of numeros) {
+    try {
+      await enviarWhatsapp(n, texto);
+      await consulta("insert into whatsapp_envios (empresa_id, numero, ok) values ($1, $2, true)", [empresa.id, n]);
+    } catch (e) {
+      const motivo = e instanceof Error ? e.message : String(e);
+      erros.push(`${numeroLegivel(n)}: ${motivo}`);
+      await consulta("insert into whatsapp_envios (empresa_id, numero, ok, erro) values ($1, $2, false, $3)", [empresa.id, n, motivo.slice(0, 300)]);
+    }
+  }
+  return { numeros, erros };
+}
+
 export type EnvioRecente = { empresa: string | null; numero: string; ok: boolean; erro: string | null; criado_em: string; lead: string | null };
 
 export function enviosRecentes(limite = 20) {
