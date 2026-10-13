@@ -207,6 +207,31 @@ export async function enviarTeste(empresa: { id: number; nome: string; whatsapp_
   return { numeros, erros };
 }
 
+/** Reenvia o lead de formulário mais recente do cliente, no mesmo formato do aviso automático. */
+export async function enviarUltimoLead(empresa: { id: number; nome: string; whatsapp_leads: string | null }) {
+  const numeros = numerosDe(empresa.whatsapp_leads);
+  const lead = await umaLinha<LeadParaAviso & { recebido_em: string }>(
+    `select id, nome, email, whatsapp, campanha, dados, recebido_em from leads
+      where empresa_id = $1 and meta_lead_id is not null order by recebido_em desc limit 1`,
+    [empresa.id],
+  );
+  if (!lead || !numeros.length) return { numeros, lead: null, erros: [] as string[] };
+  const texto = mensagemDoLead(empresa.nome, lead);
+  const erros: string[] = [];
+  for (const n of numeros) {
+    try {
+      await enviarWhatsapp(n, texto);
+      await consulta("insert into whatsapp_envios (empresa_id, lead_id, numero, ok) values ($1, $2, $3, true)", [empresa.id, lead.id, n]);
+    } catch (e) {
+      const motivo = e instanceof Error ? e.message : String(e);
+      erros.push(`${numeroLegivel(n)}: ${motivo}`);
+      await consulta("insert into whatsapp_envios (empresa_id, lead_id, numero, ok, erro) values ($1, $2, $3, false, $4)", [empresa.id, lead.id, n, motivo.slice(0, 300)]);
+    }
+  }
+  if (erros.length < numeros.length) await consulta("update leads set whatsapp_avisado_em = coalesce(whatsapp_avisado_em, now()) where id = $1", [lead.id]);
+  return { numeros, lead: { nome: lead.nome, recebido_em: lead.recebido_em, campanha: lead.campanha }, erros };
+}
+
 export type EnvioRecente = { empresa: string | null; numero: string; ok: boolean; erro: string | null; criado_em: string; lead: string | null };
 
 export function enviosRecentes(limite = 20) {
