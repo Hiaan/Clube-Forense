@@ -8,7 +8,9 @@ import { SelectAutoEnvio } from "../../_ui/Botoes";
 import { contextoEmpresa } from "../contexto";
 import { mostrarEdicao } from "@/lib/painel/auth";
 import { numerosDe } from "@/lib/painel/whatsapp";
-import { enviarLeadManual } from "../../acoes-whatsapp";
+import { enviarLeadManual, importarCsvLeads } from "../../acoes-whatsapp";
+import FormComEstado from "../../_ui/FormComEstado";
+import { BotaoEnviar } from "../../_ui/Botoes";
 import EnviarLeadWhatsapp from "../../_ui/EnviarLeadWhatsapp";
 
 const soDigitos = (s: string) => s.replace(/\D/g, "");
@@ -22,7 +24,8 @@ export default async function Leads({
 }) {
   const { usuario, empresa, idioma, t } = await contextoEmpresa(params);
   // Envio manual para o WhatsApp do cliente: só a equipe, e só com o número dele cadastrado.
-  const whatsapp = (await mostrarEdicao(usuario)) && numerosDe(empresa.whatsapp_leads).length > 0;
+  const equipe = await mostrarEdicao(usuario);
+  const whatsapp = equipe && numerosDe(empresa.whatsapp_leads).length > 0;
   const filtro = (await searchParams).etapa;
   const etapa = ETAPAS_LEAD.includes(filtro as EtapaLead) ? (filtro as EtapaLead) : undefined;
   const [leads, contagem] = await Promise.all([listarLeads(empresa.id, etapa), contagemPorEtapa(empresa.id)]);
@@ -76,6 +79,29 @@ export default async function Leads({
           </Link>
         )}
       </section>
+
+      {equipe && (
+        <details className="painel-cartao mt-4 p-5">
+          <summary className="cursor-pointer text-sm font-medium text-white/75 hover:text-white">Importar leads do CSV da Meta</summary>
+          <p className="mt-2 text-sm text-white/55">
+            Para quando a Meta não libera os contatos para o painel: baixe o CSV na Central de leads (ou nos formulários) da Página e importe aqui. Leads
+            que já estão no painel não se repetem.
+          </p>
+          <FormComEstado acao={importarCsvLeads} className="mt-3" limparAoSalvar>
+            <input type="hidden" name="empresa" value={empresa.id} />
+            <input name="arquivo" type="file" accept=".csv,text/csv" className="block text-sm text-white/70" />
+            {whatsapp && (
+              <label className="mt-3 flex items-center gap-2 text-sm">
+                <input type="checkbox" name="enviar" defaultChecked className="h-4 w-4 accent-[#e3121c]" />
+                Enviar os leads novos para o WhatsApp do cliente
+              </label>
+            )}
+            <BotaoEnviar enviando="Importando..." className="botao-painel mt-3">
+              Importar
+            </BotaoEnviar>
+          </FormComEstado>
+        </details>
+      )}
 
       {leads.length === 0 ? (
         <p className="painel-cartao mt-4 p-6 text-center text-white/60">{t.leads.nenhum}</p>

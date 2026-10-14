@@ -7,6 +7,7 @@ import { consulta, registrar, umaLinha } from "@/lib/painel/db";
 import { enderecoBase } from "@/lib/painel/links";
 import { ativarTempoReal } from "@/lib/painel/meta";
 import { desconectarPonte, enviarLead, enviarTeste, numeroLegivel, numerosDe, reconectarPonte } from "@/lib/painel/whatsapp";
+import { importarLeadsCsv } from "@/lib/painel/leadsCsv";
 import type { Estado } from "./admin/acoes";
 
 // WhatsApp: números de cada cliente que recebem os leads, teste de envio e a conexão do número da T9.
@@ -104,6 +105,36 @@ export async function enviarLeadManual(_: Estado, f: FormData): Promise<Estado> 
     revalidatePath(`/painel/${empresa.slug}/leads`);
     if (r.erros.length === r.numeros.length) return falha(r.erros.join("; "));
     return sucesso(r.erros.length ? `Enviado, com falha em: ${r.erros.join("; ")}` : `Enviado para ${r.numeros.map(numeroLegivel).join(", ")}.`);
+  } catch (e) {
+    return falha(erroDe(e));
+  }
+}
+
+/** Aba Leads: importa o CSV exportado da Meta e, se marcado, manda cada lead novo para o WhatsApp do cliente. */
+export async function importarCsvLeads(_: Estado, f: FormData): Promise<Estado> {
+  const r = await empresaDaEquipe(f);
+  if (!r) return falha("Cliente não encontrado.");
+  const arquivo = f.get("arquivo");
+  if (!(arquivo instanceof File) || !arquivo.size) return falha("Escolha o arquivo CSV exportado da Meta.");
+  if (arquivo.size > 4_000_000) return falha("Arquivo grande demais (máximo 4 MB).");
+  try {
+    const { inseridos, repetidos } = await importarLeadsCsv(r.empresa.id, await arquivo.text());
+    let enviados = 0;
+    const erros: string[] = [];
+    if (f.get("enviar") === "on" && numerosDe(r.empresa.whatsapp_leads).length) {
+      for (const l of inseridos) {
+        const e = await enviarLead(r.empresa, l.id);
+        if (e.erros.length < e.numeros.length) enviados++;
+        erros.push(...e.erros);
+      }
+    }
+    await registrar(r.u.id, r.empresa.id, "leads.importar-csv", `${inseridos.length} novos`);
+    revalidatePath(`/painel/${r.empresa.slug}/leads`);
+    const partes = [`${inseridos.length} lead(s) importado(s)`];
+    if (repetidos) partes.push(`${repetidos} já estavam no painel`);
+    if (enviados) partes.push(`${enviados} enviado(s) no WhatsApp`);
+    if (erros.length) partes.push(`falhas: ${erros.join("; ")}`);
+    return erros.length && !enviados && inseridos.length ? falha(partes.join(" · ")) : sucesso(`${partes.join(" · ")}.`);
   } catch (e) {
     return falha(erroDe(e));
   }
