@@ -34,6 +34,8 @@ const TENTATIVAS = 3;
 /** Onde está o painel (para avisar o endereço do túnel) e o painel de métricas do cloudflared. */
 const PAINEL = (process.env.PAINEL_URL || "https://t9company.com.br").replace(/\/$/, "");
 const TUNEL = (process.env.TUNEL_METRICAS || "").replace(/\/$/, "");
+/** De quantos em quantos minutos a ponte pede ao painel para buscar leads novos e enviar. */
+const ROTINA_MIN = Math.max(2, Number(process.env.PONTE_ROTINA_MIN || 5));
 
 if (SEGREDO.length < 32) {
   console.error("Defina PONTE_SEGREDO com pelo menos 32 caracteres (ex.: openssl rand -hex 32).");
@@ -233,3 +235,33 @@ if (TUNEL) {
   setInterval(() => void informarEndereco().catch(() => {}), 15000);
   void informarEndereco().catch(() => {});
 }
+
+/* ------------------------------------------------------------------ rotina */
+
+/**
+ * A cada poucos minutos, pede ao painel que busque os leads de formulário novos na Meta e mande
+ * os avisos. É a garantia de que o lead chega sem ninguém clicar em "Atualizar agora", mesmo
+ * quando o aviso em tempo real da Meta não vem.
+ */
+let ultimaRotina = "";
+async function rotina() {
+  const r = await fetch(`${PAINEL}/api/painel/whatsapp/rotina`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${SEGREDO}` },
+    signal: AbortSignal.timeout(150000),
+  }).catch((e) => ({ ok: false, status: e?.message || e }));
+  if (!r.ok) {
+    const aviso = `rotina de leads falhou: ${r.status}`;
+    if (aviso !== ultimaRotina) log(aviso);
+    ultimaRotina = aviso;
+    return;
+  }
+  const { resultado = [] } = await r.json().catch(() => ({}));
+  for (const x of resultado) {
+    if (x.enviados) log(`rotina: ${x.enviados} lead(s) novo(s) de ${x.empresa} enviado(s)`);
+    if (x.erro) log(`rotina: ${x.empresa}: ${x.erro}`);
+  }
+  ultimaRotina = "";
+}
+setTimeout(() => void rotina().catch(() => {}), 30000);
+setInterval(() => void rotina().catch(() => {}), ROTINA_MIN * 60000);

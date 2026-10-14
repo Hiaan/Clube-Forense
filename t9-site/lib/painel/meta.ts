@@ -718,3 +718,44 @@ export async function ativarTempoReal(callback: string) {
   }
   return resultado;
 }
+
+// ---------- Leads novos de minuto em minuto (rotina chamada pela ponte do WhatsApp) ----------
+
+/**
+ * Busca os leads de formulário das últimas horas dos clientes que recebem leads no WhatsApp,
+ * grava os novos e manda o aviso. Não depende do relatório de insights (que demora a atualizar):
+ * olha direto os anúncios ativos de formulário instantâneo. É a garantia de que o lead chega
+ * mesmo sem o webhook da Meta.
+ */
+export async function verificarLeadsNovos(horas = 3) {
+  const empresas = await consulta<{ id: number; nome: string; meta_conta: string }>(
+    "select id, nome, meta_conta from empresas where meta_conta is not null and whatsapp_leads is not null",
+  );
+  const desde = Math.floor(Date.now() / 1000) - horas * 3600;
+  const resultado: { empresa: string; leads: number; enviados: number; erro?: string }[] = [];
+  for (const e of empresas) {
+    try {
+      const anuncios = await todasPaginas<{ id: string; adset?: { destination_type?: string } }>(`${e.meta_conta}/ads`, {
+        fields: "id,adset{destination_type}",
+        effective_status: JSON.stringify(["ACTIVE"]),
+        limit: 200,
+      });
+      const leads: LeadMeta[] = [];
+      for (const a of anuncios.filter((x) => x.adset?.destination_type === "ON_AD")) {
+        leads.push(
+          ...(await todasPaginas<LeadMeta>(`${a.id}/leads`, {
+            fields: "id,created_time,field_data,campaign_name,ad_name,form_id",
+            filtering: JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: desde }]),
+            limit: 100,
+          })),
+        );
+      }
+      if (leads.length) await salvarLeadsMeta(e.id, leads);
+      const { enviados } = await avisarLeadsNovos(e.id);
+      resultado.push({ empresa: e.nome, leads: leads.length, enviados });
+    } catch (erro) {
+      resultado.push({ empresa: e.nome, leads: 0, enviados: 0, erro: erro instanceof Error ? erro.message : String(erro) });
+    }
+  }
+  return resultado;
+}
