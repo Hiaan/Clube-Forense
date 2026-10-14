@@ -558,6 +558,15 @@ async function importarLeadsDeFormulario(empresa: Pick<Empresa, "id" | "meta_con
     return 0;
   }
 
+  // A Meta conta os leads mas devolve a lista vazia quando a Página restringe o "Acesso a leads".
+  const contados = comFormulario.reduce((soma, a) => soma + (valorDe(a.actions, "onsite_conversion.lead_grouped") ?? 0), 0);
+  if (!leads.length && contados > 0) {
+    await consulta("update empresas set meta_leads_aviso = $2 where id = $1", [
+      empresa.id,
+      `A Meta registrou ${contados} lead(s) de formulário no período, mas não liberou os contatos. Na BM dona da Página, em Integrações → Acesso a leads, dê acesso ao usuário do sistema "Painel T9" e ao CRM "T9 Painel".`,
+    ]);
+    return 0;
+  }
   const salvos = await salvarLeadsMeta(empresa.id, leads);
   await consulta("update empresas set meta_leads_aviso = null where id = $1", [empresa.id]);
   return salvos;
