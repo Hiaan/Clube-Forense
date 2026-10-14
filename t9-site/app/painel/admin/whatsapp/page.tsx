@@ -7,6 +7,7 @@ import { metaConfigurado, situacaoTempoReal } from "@/lib/painel/meta";
 import { enviosRecentes, estadoDaPonte, numeroLegivel, numerosDe, type EstadoDaPonte } from "@/lib/painel/whatsapp";
 import { ativarLeadsTempoReal, desconectarWhatsapp, reconectarWhatsapp } from "../../acoes-whatsapp";
 import AtualizarSozinho from "../../_ui/AtualizarSozinho";
+import SecaoPaginasToken from "../SecaoPaginasToken";
 import FormComEstado from "../../_ui/FormComEstado";
 import { BotaoEnviar } from "../../_ui/Botoes";
 
@@ -135,6 +136,8 @@ export default async function WhatsappAdmin() {
           <p className="mt-3 text-sm text-white/55">Configure a conexão com a Meta primeiro.</p>
         )}
       </section>
+
+      <SecaoPaginasToken />
 
       <section className="painel-cartao p-6">
         <h2 className="font-display text-lg font-extrabold">Clientes recebendo leads no WhatsApp</h2>

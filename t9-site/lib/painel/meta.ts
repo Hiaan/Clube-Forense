@@ -53,9 +53,9 @@ async function graph<T>(
 }
 
 /** Percorre a paginação ("paging.next") até o fim. */
-async function todasPaginas<T>(caminho: string, parametros: Record<string, string | number>, limite = 50) {
+async function todasPaginas<T>(caminho: string, parametros: Record<string, string | number>, limite = 50, token?: string) {
   const itens: T[] = [];
-  let pagina = await graph<{ data: T[]; paging?: { next?: string } }>(caminho, parametros);
+  let pagina = await graph<{ data: T[]; paging?: { next?: string } }>(caminho, parametros, { token });
   itens.push(...pagina.data);
   for (let i = 1; pagina.paging?.next && i < limite; i++) {
     pagina = await graph(pagina.paging.next);
@@ -540,14 +540,10 @@ async function importarLeadsDeFormulario(empresa: Pick<Empresa, "id" | "meta_con
   const desde = Math.floor(Date.parse(`${inicio}T00:00:00-03:00`) / 1000);
   const leads: LeadMeta[] = [];
   try {
+    const tokens = await tokensDePaginas();
+    const paginas = tokens.size && empresa.meta_conta ? await paginasDosAnuncios(empresa.meta_conta, comFormulario.map((a) => a.ad_id!)) : new Map<string, string>();
     for (const a of comFormulario) {
-      leads.push(
-        ...(await todasPaginas<LeadMeta>(`${a.ad_id}/leads`, {
-          fields: "id,created_time,field_data,campaign_name,ad_name,form_id",
-          filtering: JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: desde }]),
-          limit: 100,
-        })),
-      );
+      leads.push(...(await leadsDoAnuncio(a.ad_id!, desde, tokens.get(paginas.get(a.ad_id!) ?? ""))));
     }
   } catch (erro) {
     const mensagem = erro instanceof Error ? erro.message : String(erro);
@@ -755,20 +751,16 @@ export async function verificarLeadsNovos(horas = 3, empresaId?: number) {
   const resultado: { empresa: string; leads: number; enviados: number; erro?: string }[] = [];
   for (const e of empresas) {
     try {
-      const anuncios = await todasPaginas<{ id: string; adset?: { destination_type?: string } }>(`${e.meta_conta}/ads`, {
-        fields: "id,adset{destination_type}",
+      const tokens = await tokensDePaginas();
+      const anuncios = await todasPaginas<{ id: string; adset?: { destination_type?: string }; creative?: { effective_object_story_id?: string } }>(`${e.meta_conta}/ads`, {
+        fields: "id,adset{destination_type},creative{effective_object_story_id}",
         effective_status: JSON.stringify(["ACTIVE"]),
         limit: 200,
       });
       const leads: LeadMeta[] = [];
       for (const a of anuncios.filter((x) => x.adset?.destination_type === "ON_AD")) {
-        leads.push(
-          ...(await todasPaginas<LeadMeta>(`${a.id}/leads`, {
-            fields: "id,created_time,field_data,campaign_name,ad_name,form_id",
-            filtering: JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: desde }]),
-            limit: 100,
-          })),
-        );
+        const pagina = a.creative?.effective_object_story_id?.split("_")[0] ?? "";
+        leads.push(...(await leadsDoAnuncio(a.id, desde, tokens.get(pagina))));
       }
       if (leads.length) await salvarLeadsMeta(e.id, leads);
       const { enviados } = await avisarLeadsNovos(e.id);
@@ -778,4 +770,98 @@ export async function verificarLeadsNovos(horas = 3, empresaId?: number) {
     }
   }
   return resultado;
+}
+
+// ---------- Páginas conectadas por token (sem passar pela BM) ----------
+//
+// Quando a Página do cliente não pode ser atribuída ao usuário do sistema (BM restrita, por
+// exemplo), quem tem acesso à Página gera um token de usuário pelo app T9 Painel. O painel troca
+// por um token de longa duração e guarda o token de cada Página dessa pessoa: token de Página
+// derivado de token de usuário de longa duração não expira.
+
+/** Leads de um anúncio, com o token da Página dele quando houver (senão, o do usuário do sistema). */
+async function leadsDoAnuncio(anuncio: string, desde: number, tokenDaPagina?: string) {
+  return todasPaginas<LeadMeta>(
+    `${anuncio}/leads`,
+    {
+      fields: "id,created_time,field_data,campaign_name,ad_name,form_id",
+      filtering: JSON.stringify([{ field: "time_created", operator: "GREATER_THAN", value: desde }]),
+      limit: 100,
+    },
+    50,
+    tokenDaPagina,
+  );
+}
+
+async function tokensDePaginas() {
+  const linhas = await consulta<{ pagina_id: string; token: string }>("select pagina_id, token from meta_paginas");
+  return new Map(linhas.map((l) => [l.pagina_id, l.token]));
+}
+
+/** Página de cada anúncio (o começo do id da publicação, "<página>_<post>"). */
+async function paginasDosAnuncios(conta: string, anuncios: string[]) {
+  const mapa = new Map<string, string>();
+  for (let i = 0; i < anuncios.length; i += 50) {
+    const lote = anuncios.slice(i, i + 50);
+    const linhas = await todasPaginas<{ id: string; creative?: { effective_object_story_id?: string } }>(`${conta}/ads`, {
+      fields: "id,creative{effective_object_story_id}",
+      filtering: JSON.stringify([{ field: "id", operator: "IN", value: lote }]),
+      limit: 100,
+    });
+    for (const l of linhas) {
+      const pagina = l.creative?.effective_object_story_id?.split("_")[0];
+      if (pagina) mapa.set(l.id, pagina);
+    }
+  }
+  return mapa;
+}
+
+export type PaginaConectada = { pagina_id: string; nome: string | null; conectada_por: string | null; atualizado_em: string };
+
+export function paginasConectadas() {
+  return consulta<PaginaConectada>("select pagina_id, nome, conectada_por, atualizado_em from meta_paginas order by nome");
+}
+
+export async function removerPaginaConectada(paginaId: string) {
+  await consulta("delete from meta_paginas where pagina_id = $1", [paginaId]);
+}
+
+/**
+ * Recebe o token de usuário gerado no Explorador da Graph API (app T9 Painel), troca por um de
+ * longa duração e guarda o token de cada Página com permissão de leads. Devolve as Páginas.
+ */
+export async function conectarPaginasPorToken(tokenUsuario: string) {
+  const segredo = process.env.META_APP_SECRET;
+  if (!segredo) throw new Error("META_APP_SECRET não configurado.");
+  const app = await graph<{ id: string }>("app", { fields: "id" });
+  const troca = new URL(`${BASE}/${VERSAO}/oauth/access_token`);
+  troca.searchParams.set("grant_type", "fb_exchange_token");
+  troca.searchParams.set("client_id", app.id);
+  troca.searchParams.set("client_secret", segredo);
+  troca.searchParams.set("fb_exchange_token", tokenUsuario);
+  const resposta = await fetch(troca, { signal: AbortSignal.timeout(30_000), cache: "no-store" });
+  const corpo = (await resposta.json().catch(() => ({}))) as { access_token?: string } & ErroGraph;
+  if (!resposta.ok || !corpo.access_token) {
+    throw new Error(`Meta: ${corpo.error?.message ?? `HTTP ${resposta.status}`} (o token é do app T9 Painel e foi copiado inteiro?)`);
+  }
+  const longo = corpo.access_token;
+  const eu = await graph<{ name?: string }>("me", { fields: "name" }, { token: longo });
+  const paginas = await graph<{ data: { id: string; name: string; access_token?: string; tasks?: string[] }[] }>(
+    "me/accounts",
+    { fields: "id,name,access_token,tasks", limit: 100 },
+    { token: longo },
+  );
+  const comLeads = paginas.data.filter((p) => p.access_token && (!p.tasks || p.tasks.includes("MANAGE_LEADS") || p.tasks.includes("MANAGE")));
+  for (const p of comLeads) {
+    await consulta(
+      `insert into meta_paginas (pagina_id, nome, token, conectada_por, atualizado_em) values ($1, $2, $3, $4, now())
+       on conflict (pagina_id) do update set nome = excluded.nome, token = excluded.token, conectada_por = excluded.conectada_por, atualizado_em = now()`,
+      [p.id, p.name, p.access_token, eu.name ?? null],
+    );
+  }
+  return {
+    pessoa: eu.name ?? "",
+    conectadas: comLeads.map((p) => ({ id: p.id, nome: p.name })),
+    semLeads: paginas.data.filter((p) => !comLeads.includes(p)).map((p) => p.name),
+  };
 }

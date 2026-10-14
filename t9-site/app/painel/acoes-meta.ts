@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { empresaPermitidaPorId, ehEquipe, usuarioAtual } from "@/lib/painel/auth";
 import { consulta, registrar } from "@/lib/painel/db";
-import { metaConfigurado, normalizarConta, sincronizarEmpresa } from "@/lib/painel/meta";
+import { conectarPaginasPorToken, metaConfigurado, normalizarConta, removerPaginaConectada, sincronizarEmpresa } from "@/lib/painel/meta";
 import type { Estado } from "./admin/acoes";
 
 // Vincular a conta de anúncio da Meta a um cliente e sincronizar sob demanda.
@@ -64,4 +64,37 @@ export async function sincronizarMetaAgora(_: Estado, f: FormData): Promise<Esta
     revalidatePath("/painel", "layout");
     return falha(erro instanceof Error ? erro.message : "Falha ao sincronizar.");
   }
+}
+
+async function soAdmin() {
+  const u = await usuarioAtual();
+  if (!u || u.perfil !== "admin") redirect("/painel");
+  return u;
+}
+
+/** Conecta Páginas por um token de usuário (contorno quando a Página não pode ir para a BM da T9). */
+export async function conectarPaginaPorToken(_: Estado, f: FormData): Promise<Estado> {
+  const u = await soAdmin();
+  const token = String(f.get("token") ?? "").trim();
+  if (token.length < 50) return falha("Cole o token inteiro gerado no Explorador da Graph API.");
+  try {
+    const r = await conectarPaginasPorToken(token);
+    await registrar(u.id, null, "meta.pagina-token", r.conectadas.map((p) => p.nome).join(", "));
+    revalidatePath("/painel/admin/whatsapp");
+    if (!r.conectadas.length) return falha(`O perfil ${r.pessoa} não tem nenhuma Página com acesso a leads nesse token. Marque a Página na hora de gerar.`);
+    return sucesso(
+      `Conectado pelo perfil ${r.pessoa}: ${r.conectadas.map((p) => p.nome).join(", ")}.` +
+        (r.semLeads.length ? ` Sem acesso a leads: ${r.semLeads.join(", ")}.` : ""),
+    );
+  } catch (e) {
+    return falha(e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function removerPaginaPorToken(f: FormData) {
+  const u = await soAdmin();
+  const id = String(f.get("pagina") ?? "");
+  await removerPaginaConectada(id);
+  await registrar(u.id, null, "meta.pagina-token-remover", id);
+  revalidatePath("/painel/admin/whatsapp");
 }

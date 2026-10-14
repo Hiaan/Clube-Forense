@@ -236,6 +236,13 @@ const ESQUEMA = [
   )`,
   `create index if not exists whatsapp_envios_criado on whatsapp_envios (criado_em desc)`,
   `create index if not exists whatsapp_envios_lead on whatsapp_envios (lead_id)`,
+  `create table if not exists meta_paginas (
+    pagina_id text primary key,
+    nome text,
+    token text not null,
+    conectada_por text,
+    atualizado_em timestamptz not null default now()
+  )`,
   `create table if not exists ajustes (
     chave text primary key,
     valor text,
