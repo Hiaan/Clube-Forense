@@ -15,13 +15,13 @@ export async function GET(request: Request) {
     if (parametros.get("whatsapp")) {
       const { qr, ...estado } = await estadoDaPonte();
       const endereco = await enderecoDaPonte().catch(() => "");
-      const clientes = await consulta<{ slug: string; whatsapp_leads: string }>("select slug, whatsapp_leads from empresas where whatsapp_leads is not null");
+      const clientes = await consulta<{ slug: string; meta_conta: string | null; whatsapp_leads: string }>("select slug, meta_conta, whatsapp_leads from empresas where whatsapp_leads is not null");
       return Response.json({
         ok: true,
         ...estado,
         temQr: Boolean(qr),
         endereco: endereco ? new URL(endereco).host : "",
-        clientes: clientes.map((c) => ({ slug: c.slug, numeros: c.whatsapp_leads.split(",").map((n) => `${numeroLegivel(n)} [${n.length} dígitos]`) })),
+        clientes: clientes.map((c) => ({ slug: c.slug, conta: c.meta_conta, numeros: c.whatsapp_leads.split(",").map((n) => `${numeroLegivel(n)} [${n.length} dígitos]`) })),
       });
     }
     // ?tempoReal=1 mostra se o webhook de leads está assinado no app e em cada Página (só leitura).

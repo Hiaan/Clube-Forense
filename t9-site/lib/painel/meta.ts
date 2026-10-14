@@ -727,9 +727,11 @@ export async function ativarTempoReal(callback: string) {
  * olha direto os anúncios ativos de formulário instantâneo. É a garantia de que o lead chega
  * mesmo sem o webhook da Meta.
  */
-export async function verificarLeadsNovos(horas = 3) {
+export async function verificarLeadsNovos(horas = 3, empresaId?: number) {
   const empresas = await consulta<{ id: number; nome: string; meta_conta: string }>(
-    "select id, nome, meta_conta from empresas where meta_conta is not null and whatsapp_leads is not null",
+    `select id, nome, meta_conta from empresas
+      where meta_conta is not null and whatsapp_leads is not null and ($1::int is null or id = $1)`,
+    [empresaId ?? null],
   );
   const desde = Math.floor(Date.now() / 1000) - horas * 3600;
   const resultado: { empresa: string; leads: number; enviados: number; erro?: string }[] = [];

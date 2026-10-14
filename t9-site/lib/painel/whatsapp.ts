@@ -237,6 +237,25 @@ export async function enviarLead(empresa: { id: number; nome: string; whatsapp_l
   return { numeros, lead: { nome: lead.nome, recebido_em: lead.recebido_em, campanha: lead.campanha }, erros };
 }
 
+/** Manda todos os leads de hoje (horário de Brasília) que ainda não saíram com sucesso para o WhatsApp do cliente. */
+export async function enviarLeadsDeHoje(empresa: { id: number; nome: string; whatsapp_leads: string | null }) {
+  const pendentes = await consulta<{ id: number; nome: string | null }>(
+    `select id, nome from leads l
+      where empresa_id = $1 and recebido_em >= (date_trunc('day', now() at time zone 'America/Sao_Paulo') at time zone 'America/Sao_Paulo')
+        and not exists (select 1 from whatsapp_envios w where w.lead_id = l.id and w.ok)
+      order by recebido_em`,
+    [empresa.id],
+  );
+  const enviados: string[] = [];
+  const erros: string[] = [];
+  for (const p of pendentes) {
+    const r = await enviarLead(empresa, p.id);
+    if (r.erros.length < r.numeros.length) enviados.push(p.nome ?? `lead ${p.id}`);
+    erros.push(...r.erros);
+  }
+  return { numeros: numerosDe(empresa.whatsapp_leads), enviados, erros };
+}
+
 export type EnvioRecente = { empresa: string | null; numero: string; ok: boolean; erro: string | null; criado_em: string; lead: string | null };
 
 export function enviosRecentes(limite = 20) {
