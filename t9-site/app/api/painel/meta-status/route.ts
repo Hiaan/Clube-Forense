@@ -1,4 +1,4 @@
-import { acoesDaConta, diagnosticoMeta, leadsPorAnuncioDaConta, situacaoTempoReal, metaConfigurado, normalizarConta } from "@/lib/painel/meta";
+import { acoesDaConta, diagnosticoMeta, estruturaDaConta, leadsPorAnuncioDaConta, situacaoTempoReal, metaConfigurado, normalizarConta } from "@/lib/painel/meta";
 import { consulta } from "@/lib/painel/db";
 import { enderecoDaPonte, estadoDaPonte, numeroLegivel } from "@/lib/painel/whatsapp";
 import { chamadaAutorizada } from "../autorizacao";
@@ -11,6 +11,9 @@ export async function GET(request: Request) {
     // ?conta=act_123 mostra como a Meta reporta as ações (leads, compras...) dessa conta.
     const endereco = new URL(request.url);
     const parametros = endereco.searchParams;
+    // ?estrutura=act_123: raio-x das campanhas ativas (só leitura).
+    const contaEstrutura = normalizarConta(parametros.get("estrutura") ?? "");
+    if (contaEstrutura) return Response.json({ ok: true, conta: contaEstrutura, ...(await estruturaDaConta(contaEstrutura)) });
     // ?whatsapp=1 mostra como está a ponte do WhatsApp (sem o QR em si).
     if (parametros.get("whatsapp")) {
       const { qr, ...estado } = await estadoDaPonte();

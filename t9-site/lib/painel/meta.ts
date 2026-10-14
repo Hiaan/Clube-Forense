@@ -865,3 +865,47 @@ export async function conectarPaginasPorToken(tokenUsuario: string) {
     semLeads: paginas.data.filter((p) => !comLeads.includes(p)).map((p) => p.name),
   };
 }
+
+/**
+ * Raio-x (só leitura) das campanhas ativas de uma conta: conjuntos, anúncios, Página e formulário
+ * de cada criativo, e se o formulário pode ser lido. Usado para planejar cópias de campanhas.
+ */
+export async function estruturaDaConta(conta: string) {
+  const campanhas = await todasPaginas<{ id: string; name: string; objective: string; status: string; daily_budget?: string; lifetime_budget?: string; bid_strategy?: string }>(
+    `${conta}/campaigns`,
+    { fields: "id,name,objective,status,daily_budget,lifetime_budget,bid_strategy", effective_status: JSON.stringify(["ACTIVE"]), limit: 100 },
+  );
+  const saida = [];
+  for (const c of campanhas) {
+    const conjuntos = await todasPaginas<Record<string, unknown> & { id: string }>(`${c.id}/adsets`, {
+      fields: "id,name,status,daily_budget,lifetime_budget,optimization_goal,billing_event,bid_strategy,destination_type,promoted_object,targeting,start_time,end_time",
+      effective_status: JSON.stringify(["ACTIVE"]),
+      limit: 100,
+    });
+    const lista = [];
+    for (const s of conjuntos) {
+      const anuncios = await todasPaginas<{ id: string; name: string; creative?: Record<string, unknown> & { id: string } }>(`${s.id}/ads`, {
+        fields: "id,name,status,creative{id,name,object_type,effective_object_story_id,object_story_spec,asset_feed_spec,instagram_user_id,actor_id}",
+        effective_status: JSON.stringify(["ACTIVE"]),
+        limit: 100,
+      });
+      lista.push({ ...s, anuncios });
+    }
+    saida.push({ ...c, conjuntos: lista });
+  }
+  // Formulários usados: tenta ler as perguntas de cada um.
+  const formularios = new Set<string>();
+  JSON.stringify(saida, (k, v) => {
+    if (k === "lead_gen_form_id" && v) formularios.add(String(v));
+    return v;
+  });
+  const leituraFormularios = [];
+  for (const f of formularios) {
+    try {
+      leituraFormularios.push({ id: f, ...(await graph<Record<string, unknown>>(f, { fields: "id,name,locale,questions,privacy_policy_url,follow_up_action_url,status,page" })) });
+    } catch (erro) {
+      leituraFormularios.push({ id: f, erro: erro instanceof Error ? erro.message : String(erro) });
+    }
+  }
+  return { campanhas: saida, formularios: leituraFormularios };
+}
