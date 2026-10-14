@@ -611,11 +611,20 @@ export async function leadsPorAnuncioDaConta(conta: string) {
     comLead.map(async (a) => {
       const base = { anuncio: a.ad_name, id: a.ad_id, leadsNaMeta: valorDe(a.actions, "lead") ?? valorDe(a.actions, "onsite_conversion.lead_grouped") };
       try {
-        const detalhe = await graph<{ campaign?: { objective?: string }; adset?: { destination_type?: string; optimization_goal?: string } }>(a.ad_id, {
-          fields: "campaign{objective},adset{destination_type,optimization_goal}",
+        const detalhe = await graph<{
+          campaign?: { objective?: string };
+          adset?: { destination_type?: string; optimization_goal?: string };
+          creative?: { effective_object_story_id?: string };
+        }>(a.ad_id, {
+          fields: "campaign{objective},adset{destination_type,optimization_goal},creative{effective_object_story_id}",
         });
+        // A Página do anúncio é o começo do id da publicação ("<página>_<post>"): é dela que vêm os formulários.
+        const paginaId = detalhe.creative?.effective_object_story_id?.split("_")[0];
+        const pagina = paginaId
+          ? await graph<{ name?: string }>(paginaId, { fields: "name" }).then((p) => `${p.name ?? ""} (${paginaId})`).catch(() => paginaId)
+          : undefined;
         const leads = await todasPaginas<{ id: string }>(`${a.ad_id}/leads`, { fields: "id", limit: 100 });
-        return { ...base, objetivo: detalhe.campaign?.objective, destino: detalhe.adset?.destination_type, otimizacao: detalhe.adset?.optimization_goal, leadsNoFormulario: leads.length };
+        return { ...base, pagina, objetivo: detalhe.campaign?.objective, destino: detalhe.adset?.destination_type, otimizacao: detalhe.adset?.optimization_goal, leadsNoFormulario: leads.length };
       } catch (erro) {
         return { ...base, erro: erro instanceof Error ? erro.message : String(erro) };
       }
