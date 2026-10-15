@@ -93,7 +93,11 @@ function Linha({ texto: t }: { texto: string }) {
         if (p.tipo === "link") {
           const href = linkSeguro(p.href);
           if (!href) return <span key={i}>{p.valor}</span>;
-          const interno = href.startsWith("/") || href.includes("clubeforense.com.br");
+          // Interno é só caminho relativo. Casar pelo domínio parecia mais
+          // esperto e estava errado: clubeforense.com.br é o site institucional
+          // no Wix, host diferente do mapa e do blog — tratá-lo como interno
+          // tirava o target e o rel de um link que sai daqui.
+          const interno = href.startsWith("/");
           return interno ? (
             <Link key={i} href={href} className="font-semibold text-gray-900 underline decoration-[#ffcd07] decoration-2 underline-offset-2 hover:bg-[#fff9db]">
               {p.valor}
