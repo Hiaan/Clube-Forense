@@ -10,6 +10,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+import AvisoPostAntigo from "../AvisoPostAntigo";
 import CartaoPost, { dataCurta } from "../CartaoPost";
 import Markdown from "../Markdown";
 import { lerPublicado, lerRelacionados } from "../../lib/postsRepo";
@@ -98,6 +99,11 @@ export default async function PaginaPost({ params }: { params: Promise<{ slug: s
           <p className="mt-5 border-t border-gray-200 pt-4 text-sm text-gray-500">
             {dataCurta(post.publicadoEm)}
           </p>
+
+          {/* Antes da capa e do texto, e não num rodapé: quem lê "edital sai em
+              agosto" e só descobre no fim que o post é do ano passado já tomou
+              a decisão errada. */}
+          <AvisoPostAntigo publicadoEm={post.publicadoEm} uf={post.uf} />
         </header>
 
         {post.capaUrl && (

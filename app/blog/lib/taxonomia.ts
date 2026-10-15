@@ -155,3 +155,28 @@ export function nomeEstado(uf: string | null): string | null {
   if (!uf) return null;
   return NOME_ESTADO.get(uf.toUpperCase()) ?? uf;
 }
+
+/**
+ * Artigo que acompanha o nome do estado numa frase.
+ *
+ * Não dá para derivar da terminação: "o Amapá" e "a Paraíba" são ambos de "á",
+ * e metade dos estados não leva artigo nenhum ("em Pernambuco", "veja Goiás").
+ * Como são 27 e a lista não muda, a tabela é a resposta certa — a alternativa
+ * é escrever "Veja em que etapa Maranhão está", que soa como tradução
+ * automática.
+ */
+const ARTIGO: Record<string, string> = {
+  AC: "o", AP: "o", AM: "o", CE: "o", DF: "o", ES: "o", MA: "o", MT: "o",
+  MS: "o", PA: "o", PR: "o", PI: "o", RJ: "o", RN: "o", RS: "o", TO: "o",
+  BA: "a", PB: "a",
+  // Sem artigo: Alagoas, Goiás, Minas Gerais, Pernambuco, Rondônia, Roraima,
+  // Santa Catarina, São Paulo e Sergipe.
+};
+
+/** "o Maranhão", "a Bahia", "Minas Gerais". `null` quando não há estado. */
+export function estadoComArtigo(uf: string | null): string | null {
+  const nome = nomeEstado(uf);
+  if (!nome || !uf) return null;
+  const artigo = ARTIGO[uf.toUpperCase()];
+  return artigo ? `${artigo} ${nome}` : nome;
+}
