@@ -7,6 +7,7 @@
 
 import Link from "next/link";
 
+import BotaoImportar from "./BotaoImportar";
 import { contarEmRevisao, listarTodos, type StatusPost } from "../../../lib/postsRepo";
 import { nomeCategoria, nomeEstado, orgaoPorSlug } from "../../../blog/lib/taxonomia";
 
@@ -63,7 +64,8 @@ export default async function PaginaPosts({
             O robô do monitor abre a pauta; aqui ela é revisada e vai ao ar.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-start gap-2">
+          <BotaoImportar />
           <Link
             href="/blog"
             target="_blank"

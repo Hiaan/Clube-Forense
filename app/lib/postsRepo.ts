@@ -356,14 +356,20 @@ export async function abrirRascunhoDoRobo(p: PostParaGravar): Promise<boolean> {
   await garantirEsquema();
   try {
     const linhas = (await sql().query(
+      // O status é fixo em 'revisao' — nada que o robô traga vai ao ar sem
+      // alguém aprovar, e deixar isso como parâmetro seria deixar a regra
+      // depender de quem chama. A data, não: a importação do blog antigo traz
+      // a data original de publicação, e perdê-la colocaria um post de 2024 no
+      // topo da listagem no dia em que fosse aprovado. Como o status é que
+      // decide o que aparece, data preenchida em rascunho não vaza nada.
       `insert into posts (slug, titulo, resumo, corpo, capa_url, capa_credito, uf,
          orgao, categoria, origem, fonte_nome, fonte_url, status, publicado_em)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'robo',$10,$11,'revisao',null)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'robo',$10,$11,'revisao',$12)
        on conflict do nothing returning id`,
       [
         p.slug, p.titulo, p.resumo, p.corpo, p.capaUrl, p.capaCredito,
         p.uf ? p.uf.toUpperCase() : null, p.orgao, p.categoria,
-        p.fonteNome, p.fonteUrl,
+        p.fonteNome, p.fonteUrl, p.publicadoEm?.trim() || null,
       ],
     )) as Record<string, unknown>[];
     return linhas.length > 0;

@@ -39,6 +39,7 @@ import {
 import { interpretarGabarito, type EstiloProva, type MateriaProva } from "../lib/ranking";
 import { aSlug, categoriaPorSlug, orgaoDaUf } from "../blog/lib/taxonomia";
 import { coletar } from "../monitor/lib/coletor";
+import { importarBlogAntigo } from "../monitor/lib/blogAntigo";
 import { abrirPautas } from "../monitor/lib/pautas";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { lerPlanilha } from "../monitor/lib/planilha";
@@ -872,4 +873,71 @@ export async function apagarPostAcao(dados: FormData): Promise<void> {
   revalidatePath("/admin/posts");
   revalidatePath("/blog");
   redirect("/admin/posts");
+}
+
+/**
+ * Traz o blog antigo (Wix) para a fila de revisão.
+ *
+ * Fica numa ação própria, e não dentro da coleta: é operação de mudança, feita
+ * uma vez e repetida só quando sai post novo lá. Pendurar isso no cron faria o
+ * sistema buscar um feed de vinte itens de hora em hora para, na esmagadora
+ * maioria das vezes, não fazer nada.
+ */
+export async function importarBlogAntigoAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    // Endereço alternativo do feed, para o dia em que o Wix mudar o caminho.
+    // Limitado ao domínio do Clube: esta função busca uma URL do lado do
+    // servidor, e um campo livre aqui viraria uma forma de fazer o nosso
+    // servidor alcançar o que só ele alcança.
+    const pedido = String(dados.get("feed") ?? "").trim();
+    let feed: string | undefined;
+    if (pedido) {
+      let host = "";
+      try {
+        host = new URL(pedido).hostname.toLowerCase();
+      } catch {
+        return { ok: false, mensagem: "Endereço de feed inválido." };
+      }
+      if (host !== "clubeforense.com.br" && host !== "www.clubeforense.com.br") {
+        return { ok: false, mensagem: "O feed precisa ser do domínio clubeforense.com.br." };
+      }
+      feed = pedido;
+    }
+
+    const r = await importarBlogAntigo(feed);
+
+    if (r.encontrados === 0) {
+      return {
+        ok: false,
+        mensagem:
+          "Não consegui ler o feed do blog antigo (clubeforense.com.br/blog-feed.xml). " +
+          "Pode ser instabilidade do Wix — tente de novo em alguns minutos.",
+      };
+    }
+
+    revalidatePath("/admin/posts");
+
+    if (r.importados === 0) {
+      return {
+        ok: true,
+        mensagem: `Nada novo: os ${r.encontrados} posts do blog antigo já estão aqui.`,
+      };
+    }
+
+    return {
+      ok: true,
+      mensagem:
+        `${r.importados} de ${r.encontrados} posts importados para “Para revisar”` +
+        `${r.jaExistiam ? ` (${r.jaExistiam} já estavam aqui)` : ""}. ` +
+        "Cada um veio com título, data, capa, estado e categoria prontos — falta " +
+        "colar o texto, que o Wix não entrega de fora.",
+    };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na importação." };
+  }
 }
