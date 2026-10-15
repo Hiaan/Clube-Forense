@@ -56,15 +56,28 @@ function trechos(linha: string): Trecho[] {
 }
 
 /**
- * Só http e https viram link.
+ * Só http, https e caminho interno viram link.
  *
  * `javascript:` num [texto](link) é o caminho óbvio para transformar um post
  * revisado às pressas em execução de código no navegador de quem lê. O que não
  * passa continua visível como texto — some o link, não a informação.
+ *
+ * O caminho interno é devolvido COMO VEIO, sem virar endereço absoluto. Resolver
+ * `/?uf=RJ` contra um domínio fixo parecia inofensivo e mandava o leitor para
+ * outro site: o gancho que o robô escreve para o mapa apontava para a home
+ * institucional, em outra aba, em vez de abrir o estado aqui mesmo. Caminho
+ * relativo também é o que faz o link funcionar nos dois domínios desta
+ * aplicação.
  */
 function linkSeguro(href: string): string | null {
+  const limpo = href.trim();
+
+  // "//exemplo.com" herda o protocolo e é endereço externo disfarçado de
+  // caminho: fica de fora do atalho.
+  if (limpo.startsWith("/") && !limpo.startsWith("//")) return limpo;
+
   try {
-    const u = new URL(href, "https://clubeforense.com.br");
+    const u = new URL(limpo);
     return u.protocol === "http:" || u.protocol === "https:" ? u.toString() : null;
   } catch {
     return null;

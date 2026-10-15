@@ -33,6 +33,17 @@ function etiqueta(p: PostResumido): string {
   return nomeEstado(p.uf) ?? nomeCategoria(p.categoria);
 }
 
+/**
+ * True quando a etiqueta já É a categoria — post nacional, sem órgão nem estado.
+ *
+ * Sem esta checagem o cartão imprimia "Carreira · Carreira", e a repetição some
+ * do radar de quem escreveu o componente mas salta aos olhos de quem lê a
+ * grade. Um dos dois tem que sair, e o que sai é a repetição, não a informação.
+ */
+function etiquetaEhCategoria(p: PostResumido): boolean {
+  return !p.orgao && !p.uf;
+}
+
 export default function CartaoPost({
   post,
   destaque = false,
@@ -80,7 +91,9 @@ export default function CartaoPost({
           <span className="rounded bg-[#fff9db] px-2 py-0.5 text-gray-900">
             {etiqueta(post)}
           </span>
-          <span className="text-gray-400">{nomeCategoria(post.categoria)}</span>
+          {!etiquetaEhCategoria(post) && (
+            <span className="text-gray-400">{nomeCategoria(post.categoria)}</span>
+          )}
         </div>
 
         <h2

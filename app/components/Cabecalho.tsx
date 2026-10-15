@@ -38,6 +38,11 @@ export default function Cabecalho({ liberado }: { liberado: boolean }) {
               Ranking e Notas
             </Link>
           )}
+          {/* O par do mapa. Quem está aqui vê a etapa de cada estado; o blog
+              conta o que aconteceu para a etapa ser essa. */}
+          <Link href="/blog" className={externo}>
+            Blog
+          </Link>
           <a href={PLATAFORMA} target="_blank" rel="noopener noreferrer" className={externo}>
             Plataforma do aluno ↗
           </a>

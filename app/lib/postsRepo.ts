@@ -114,9 +114,15 @@ export async function listarPublicados(f: Filtro = {}): Promise<Pagina> {
     // ILIKE em título e resumo. Não é busca de verdade — não acha "legista"
     // escrito "legístas" nem ordena por relevância —, mas resolve o caso que
     // existe hoje, que é alguém procurando o nome de um estado ou de uma banca.
-    onde.push(`(titulo ilike ${marcador()} or resumo ilike ${marcador()})`);
-    const alvo = `%${f.busca.trim()}%`;
-    valores.push(alvo, alvo);
+    //
+    // O valor entra PRIMEIRO e o marcador é lido depois, uma vez só, usado nas
+    // duas colunas. Chamar `marcador()` duas vezes antes de empilhar devolvia o
+    // mesmo número nas duas (o contador ainda não tinha andado) e ainda assim
+    // mandava dois valores — o Postgres recusava a consulta inteira por contagem
+    // de parâmetros, e a busca não devolvia nada, nunca.
+    valores.push(`%${f.busca.trim()}%`);
+    const alvo = `$${valores.length}`;
+    onde.push(`(titulo ilike ${alvo} or resumo ilike ${alvo})`);
   }
 
   const filtro = onde.join(" and ");
