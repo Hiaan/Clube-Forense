@@ -922,10 +922,14 @@ export async function importarBlogAntigoAcao(
 
     revalidatePath("/admin/posts");
 
+    const comTexto = r.comTexto
+      ? ` ${r.comTexto} ${r.comTexto === 1 ? "já veio" : "já vieram"} com o texto completo.`
+      : "";
+
     if (r.importados === 0) {
       return {
         ok: true,
-        mensagem: `Nada novo: os ${r.encontrados} posts do blog antigo já estão aqui.`,
+        mensagem: `Nada novo: os ${r.encontrados} posts do blog antigo já estão aqui.${comTexto}`,
       };
     }
 
@@ -933,9 +937,8 @@ export async function importarBlogAntigoAcao(
       ok: true,
       mensagem:
         `${r.importados} de ${r.encontrados} posts importados para “Para revisar”` +
-        `${r.jaExistiam ? ` (${r.jaExistiam} já estavam aqui)` : ""}. ` +
-        "Cada um veio com título, data, capa, estado e categoria prontos — falta " +
-        "colar o texto, que o Wix não entrega de fora.",
+        `${r.jaExistiam ? ` (${r.jaExistiam} já estavam aqui)` : ""}.` +
+        `${comTexto} Nos demais falta colar o texto, que o Wix não entrega de fora.`,
     };
   } catch (e) {
     return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na importação." };

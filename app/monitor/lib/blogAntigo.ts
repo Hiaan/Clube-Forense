@@ -18,7 +18,12 @@
 // Mais ações → Exportar), que sai com o corpo inteiro. Quando esse arquivo
 // existir, ele entra por aqui também.
 
-import { abrirRascunhoDoRobo, type PostParaGravar } from "../../lib/postsRepo";
+import {
+  abrirRascunhoDoRobo,
+  preencherTextosImportados,
+  type PostParaGravar,
+} from "../../lib/postsRepo";
+import { TEXTOS_IMPORTADOS } from "../../blog/lib/textosImportados";
 import { aSlug, orgaoDaUf } from "../../blog/lib/taxonomia";
 import { ESTADOS, normalizar } from "./estados";
 
@@ -157,6 +162,8 @@ export interface ResultadoImportacao {
   encontrados: number;
   importados: number;
   jaExistiam: number;
+  /** Quantos ganharam o texto completo que está no código. */
+  comTexto: number;
   titulos: string[];
 }
 
@@ -201,10 +208,16 @@ export async function importarBlogAntigo(url = FEED): Promise<ResultadoImportaca
     else jaExistiam++;
   }
 
+  // Depois de criar, preenche o corpo de quem já tem texto transcrito. Vem
+  // aqui, e não num passo à parte, porque é o mesmo movimento: quem aperta o
+  // botão quer os posts prontos, não os posts criados.
+  const comTexto = await preencherTextosImportados(TEXTOS_IMPORTADOS);
+
   return {
     encontrados: itens.length,
     importados: titulos.length,
     jaExistiam,
+    comTexto,
     titulos,
   };
 }

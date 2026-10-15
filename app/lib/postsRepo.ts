@@ -382,3 +382,38 @@ export async function abrirRascunhoDoRobo(p: PostParaGravar): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Preenche o corpo dos posts importados do blog antigo.
+ *
+ * Só mexe em quem ainda está intocado: origem 'robo', em revisão, e com o
+ * aviso de texto faltando ainda no corpo. Essa última condição é a que importa
+ * — ela garante que rodar isto de novo nunca sobrescreve o que alguém reescreveu
+ * no painel. Quem editou e tirou o aviso saiu do alcance desta função para
+ * sempre, que é o comportamento certo: o texto do código é um piso, não uma
+ * verdade que se reimpõe.
+ */
+export async function preencherTextosImportados(
+  textos: Record<string, { resumo: string; corpo: string }>,
+): Promise<number> {
+  if (!bancoConfigurado()) return 0;
+  await garantirEsquema();
+
+  let preenchidos = 0;
+  for (const [fonte, texto] of Object.entries(textos)) {
+    try {
+      const linhas = (await sql().query(
+        `update posts set corpo = $1, resumo = $2, atualizado_em = now()
+         where fonte_url = $3 and origem = 'robo' and status = 'revisao'
+           and corpo like '%TEXTO INCOMPLETO%'
+         returning id`,
+        [texto.corpo, texto.resumo, fonte],
+      )) as Record<string, unknown>[];
+      preenchidos += linhas.length;
+    } catch (e) {
+      // Um texto que falha não pode levar os outros junto.
+      console.error("Falha ao preencher texto importado:", e);
+    }
+  }
+  return preenchidos;
+}

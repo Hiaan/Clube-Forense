@@ -122,7 +122,22 @@ type Bloco =
   | { tipo: "paragrafo"; texto: string }
   | { tipo: "citacao"; texto: string }
   | { tipo: "lista"; ordenada: boolean; itens: string[] }
+  | { tipo: "tabela"; cabecalho: string[]; linhas: string[][] }
   | { tipo: "separador" };
+
+/** Quebra "| a | b |" nas células, sem as barras das pontas. */
+function celulas(linha: string): string[] {
+  return linha
+    .replace(/^\s*\|/, "")
+    .replace(/\|\s*$/, "")
+    .split("|")
+    .map((c) => c.trim());
+}
+
+/** True para a linha "| --- | --- |", que é o que separa cabeçalho de corpo. */
+function ehSeparadorDeTabela(linha: string): boolean {
+  return /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/.test(linha);
+}
 
 function emBlocos(corpo: string): Bloco[] {
   const blocos: Bloco[] = [];
@@ -160,6 +175,25 @@ function emBlocos(corpo: string): Bloco[] {
     if (linha.startsWith("> ")) {
       fecharParagrafo();
       blocos.push({ tipo: "citacao", texto: linha.slice(2) });
+      continue;
+    }
+
+    // Tabela: uma linha com barras, seguida da linha de tracinhos. As duas
+    // juntas, e nessa ordem — uma linha solta com "|" no meio de um parágrafo
+    // (um salário escrito como "12.000 | 15.000", por exemplo) não pode virar
+    // tabela de uma célula.
+    if (linha.includes("|") && i + 1 < linhas.length && ehSeparadorDeTabela(linhas[i + 1])) {
+      fecharParagrafo();
+      const cabecalho = celulas(linha);
+      i++; // consome a linha de tracinhos
+      const corpoTabela: string[][] = [];
+      while (i + 1 < linhas.length) {
+        const proxima = linhas[i + 1].trim();
+        if (!proxima.includes("|")) break;
+        corpoTabela.push(celulas(proxima));
+        i++;
+      }
+      blocos.push({ tipo: "tabela", cabecalho, linhas: corpoTabela });
       continue;
     }
 
@@ -211,6 +245,37 @@ export default function Markdown({ corpo }: { corpo: string }) {
             >
               <Linha texto={b.texto} />
             </blockquote>
+          );
+        }
+        if (b.tipo === "tabela") {
+          return (
+            // Rola no eixo x dentro da própria moldura: tabela de quatro
+            // colunas não cabe em 390px, e sem isto é a PÁGINA que ganha
+            // rolagem lateral — o texto todo passa a deslizar junto.
+            <div key={i} className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+              <table className="w-full min-w-[22rem] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b-2 border-gray-300">
+                    {b.cabecalho.map((c, j) => (
+                      <th key={j} className="py-2 pr-4 font-bold text-gray-900">
+                        <Linha texto={c} />
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {b.linhas.map((linha, j) => (
+                    <tr key={j} className="border-b border-gray-200 last:border-b-0">
+                      {linha.map((c, k) => (
+                        <td key={k} className="py-2.5 pr-4 align-top text-gray-700">
+                          <Linha texto={c} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           );
         }
         if (b.tipo === "lista") {
