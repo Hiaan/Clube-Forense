@@ -22,14 +22,20 @@ function um(v: string | string[] | undefined): string | null {
   return s?.trim() ? s.trim() : null;
 }
 
-/** Monta a frase do topo a partir do que está filtrado. */
+/**
+ * A frase do topo.
+ *
+ * As boas-vindas valem só para a home limpa. Com filtro ligado, o que a pessoa
+ * precisa ler é o recorte em que entrou ("Editais — PCERJ"): quem clicou num
+ * concurso específico não está chegando ao blog, está dentro dele.
+ */
 function manchete(uf: string | null, orgao: string | null, categoria: string | null): string {
   const o = orgao ? orgaoPorSlug(orgao) : null;
   const c = categoria ? categoriaPorSlug(categoria) : null;
   if (o) return `${c ? `${c.nome} — ` : ""}${o.curto}`;
   if (uf) return `${c ? `${c.nome} — ` : ""}${nomeEstado(uf)}`;
   if (c) return c.nome;
-  return "Concursos de médico-legista, acompanhados de perto";
+  return "Bem-vindo ao blog do Clube Forense.";
 }
 
 export default async function BlogHome({
@@ -78,7 +84,7 @@ export default async function BlogHome({
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
           {descricaoCategoria ??
-            "Notícias, editais e conteúdo de medicina legal para quem presta concurso de perito médico-legista nos 27 estados."}
+            "Conteúdo semanal das principais notícias dos editais para médico legista e muito conteúdo da área."}
         </p>
       </header>
 
