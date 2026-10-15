@@ -84,7 +84,7 @@ export default async function BlogHome({
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
           {descricaoCategoria ??
-            "Conteúdo semanal das principais notícias dos editais para médico legista e muito conteúdo da área."}
+            "Toda semana: o que mudou nos concursos de médico-legista nos 27 estados, e o conteúdo de medicina legal que cai na prova."}
         </p>
       </header>
 
