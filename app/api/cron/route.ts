@@ -14,7 +14,6 @@ import { registrarColeta } from "../../lib/sistemaRepo";
 import { avisarNovidades } from "../../monitor/lib/avisoDeNovidades";
 import { coletar } from "../../monitor/lib/coletor";
 import { abrirPautas } from "../../monitor/lib/pautas";
-import { dispararColetaInstagram } from "../../monitor/lib/instagram";
 
 // Sempre executa no servidor, sem cache estático.
 export const dynamic = "force-dynamic";
@@ -28,11 +27,6 @@ export async function GET(request: Request) {
       return new Response("Não autorizado", { status: 401 });
     }
   }
-
-  // Dispara (assíncrono) um novo scrape do Instagram no Apify. A função tem
-  // trava interna de intervalo mínimo, então é seguro chamar o cron de hora em
-  // hora. A coleta abaixo lê o resultado do último run já concluído.
-  const instagram = await dispararColetaInstagram();
 
   // Leva para o banco os planos de carreira que estão no código, nos estados que
   // ainda não têm nenhum. Depois da primeira vez isto não faz nada.
@@ -80,7 +74,7 @@ export async function GET(request: Request) {
   console.log(
     `coleta: ${estadosComNovidade} estados com novidade, ` +
       `${relatorio.totalMencoes} menções, ${pautas.abertas} pautas novas, ` +
-      `instagram=${instagram}, aviso=${aviso}`,
+      `aviso=${aviso}`,
   );
 
   revalidatePath("/");
@@ -108,7 +102,6 @@ export async function GET(request: Request) {
     totalMencoes: relatorio.totalMencoes,
     mencaoMaisRecente: maisRecente ?? null,
     fonteIndisponivel: relatorio.fonteIndisponivel,
-    instagram,
     pautasAbertas: pautas.abertas,
     pautasPublicadas: pautas.publicadas,
     pautasNaFila: pautas.naFila,

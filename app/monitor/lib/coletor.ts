@@ -4,7 +4,7 @@
 //   Google Notícias (nacional + estados + portais)  ─┐
 //   Feeds próprios dos portais (Gran, MedConcursos,  ├─► filtro de cargo ─► UF pelo texto ─► nível ─► consolidação
 //     QConcursos/Folha Dirigida)                     │
-//   Instagram (governos + portais, via Apify)       ─┘
+//   Vigia (diários oficiais, via /api/vigia)         ─┘
 //
 // Regras centrais:
 //   • Janela de 2 anos: menções mais antigas são descartadas.
@@ -24,7 +24,6 @@ import {
 import { ESTADOS, ESTADO_POR_UF, normalizar } from "./estados";
 import { montarConsultas } from "./fontes";
 import { HISTORICO_CONCURSOS } from "./historico";
-import { instagramConfigurado, lerPostsInstagram } from "./instagram";
 import { lerPortais } from "./portais";
 import { lerPublicacoesVigia } from "../../lib/vigiaRepo";
 import { parseRSS, type ItemRSS } from "./rss";
@@ -178,19 +177,17 @@ export interface OpcoesColeta {
 
 /** Coleta e consolida o relatório completo. */
 export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<Relatorio> {
-  // Curadoria, Google Notícias e Instagram (posts já raspados) em paralelo.
-  const [curadoria, feeds, itensDosPortais, postsInstagram, doVigia] = await Promise.all([
+  // Curadoria, Google Notícias, portais e o que o vigia guardou, em paralelo.
+  const [curadoria, feeds, itensDosPortais, doVigia] = await Promise.all([
     obterCuradoria(),
     Promise.all(montarConsultas().map((u) => buscarFeed(u, semCache))),
     lerPortais(semCache),
-    instagramConfigurado() ? lerPostsInstagram() : Promise.resolve([]),
     // Diários oficiais e notícias que o vigia da AWS guardou (vigiaRepo.ts).
     lerPublicacoesVigia(),
   ]);
 
   const googleRespondeu = feeds.some((xml) => xml !== null);
   const portaisResponderam = itensDosPortais.length > 0;
-  const instaRespondeu = postsInstagram.length > 0;
   const mencoesPorUf = new Map<string, Mencao[]>();
 
   function registrar(m: Mencao) {
@@ -244,39 +241,6 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
   // Feeds próprios dos portais de concurso.
   for (const item of itensDosPortais) registrarItem(item);
 
-  // Instagram. Na conta de governo a UF é a da própria conta, e é mais
-  // confiável que qualquer inferência: o post do governo do Acre é sobre o
-  // Acre mesmo quando não escreve "Acre". Nos perfis dos portais de concurso
-  // não há UF nenhuma, então vale a regra geral — o estado sai do texto, e o
-  // post que não deixa claro de que estado fala é descartado.
-  for (const post of postsInstagram) {
-    if (!dentroDaJanela(post.data)) continue;
-    const texto = `${post.titulo} ${post.resumo}`;
-    const avaliacao = avaliarMencao(texto);
-    if (!avaliacao.manter) continue;
-
-    const uf = post.uf ?? inferirUf(texto);
-    if (!uf || !ESTADO_POR_UF[uf]) continue;
-
-    const nomeDaFonte =
-      post.tipo === "concurso"
-        ? `Instagram @${post.handle}`
-        : `Instagram ${post.tipo === "governo" ? "Governo" : "Governador"} @${post.handle}`;
-
-    registrar({
-      uf,
-      titulo: post.titulo,
-      link: post.link,
-      fonte: nomeDaFonte,
-      data: post.data,
-      nivel: classificarNivel(texto, avaliacao.cargoDireto),
-      resumo: post.resumo,
-      conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
-      cargoDireto: avaliacao.cargoDireto,
-      temporaria: ehSelecaoTemporaria(texto),
-    });
-  }
-
   // Vigia da AWS. A UF vem do próprio diário (ou do texto, já resolvida lá):
   // o diário de Goiás fala de Goiás mesmo quando não escreve "Goiás".
   for (const pub of doVigia) {
@@ -301,7 +265,7 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
   // Sem fonte externa acessível (ex.: dev com rede restrita), o painel segue
   // funcionando só com a curadoria — o aviso fonteIndisponivel sinaliza isso.
   const algumaFonteRespondeu =
-    googleRespondeu || portaisResponderam || instaRespondeu || doVigia.length > 0;
+    googleRespondeu || portaisResponderam || doVigia.length > 0;
 
   const estados: EstadoStatus[] = ESTADOS.map((estado) => {
     const mencoes = (mencoesPorUf.get(estado.uf) ?? []).sort(
