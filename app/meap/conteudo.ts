@@ -262,8 +262,17 @@ export type Feedback =
  * carrossel vazio nem prova social fingida no ar.
  */
 export const FEEDBACKS: Feedback[] = [
-  // { tipo: "imagem", src: "/feedbacks/01.jpg", alt: "" },
-  // { tipo: "video", src: "/feedbacks/02.mp4", poster: "/feedbacks/02.jpg", alt: "" },
+  {
+    tipo: "imagem",
+    src: "/feedbacks/01.jpg",
+    alt: "Comentário no Instagram elogiando o acompanhamento da Queren num projeto estrutural, do início à execução.",
+  },
+  {
+    tipo: "imagem",
+    src: "/feedbacks/02.jpg",
+    alt: "Mensagem de WhatsApp de aluno elogiando a aula da Queren.",
+  },
+  // { tipo: "video", src: "/feedbacks/03.mp4", poster: "/feedbacks/03.jpg", alt: "" },
 ];
 
 export const AUTORA = {
