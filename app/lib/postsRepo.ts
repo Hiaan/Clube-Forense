@@ -38,6 +38,28 @@ function texto(v: unknown): string | null {
   return v == null ? null : String(v);
 }
 
+/**
+ * Normaliza um instante para ISO.
+ *
+ * O driver devolve `timestamptz` como objeto Date, e `String(date)` em Node dá
+ * "Tue Sep 15 2026 17:34:57 GMT+0000 (Coordinated Universal Time)" — texto que
+ * o Postgres recusa na volta. O caminho que isso quebrava era silencioso e
+ * completo: ler o post, abrir no painel, apertar Salvar, e o banco responder
+ * "invalid input syntax for type timestamp with time zone" com o próprio valor
+ * que ele mesmo tinha acabado de entregar.
+ *
+ * Não aparecia antes porque todo rascunho do robô nascia sem data. Passou a
+ * aparecer quando a importação do blog antigo começou a trazer a data original.
+ *
+ * Aceita Date e texto, e devolve `null` para o que não for data — melhor perder
+ * a data de um post do que impedir que ele seja salvo.
+ */
+function dataIso(v: unknown): string | null {
+  if (v == null) return null;
+  const d = v instanceof Date ? v : new Date(String(v));
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
 function daLinha(l: Record<string, unknown>): Post {
   return {
     id: Number(l.id),
@@ -54,9 +76,9 @@ function daLinha(l: Record<string, unknown>): Post {
     fonteNome: texto(l.fonte_nome),
     fonteUrl: texto(l.fonte_url),
     status: (texto(l.status) ?? "rascunho") as StatusPost,
-    publicadoEm: texto(l.publicado_em),
-    criadoEm: texto(l.criado_em),
-    atualizadoEm: texto(l.atualizado_em),
+    publicadoEm: dataIso(l.publicado_em),
+    criadoEm: dataIso(l.criado_em),
+    atualizadoEm: dataIso(l.atualizado_em),
   };
 }
 
@@ -205,7 +227,7 @@ export async function listarSlugsPublicados(): Promise<{ slug: string; em: strin
     const linhas = (await sql().query(
       "select slug, publicado_em from posts where status = 'publicado' and publicado_em <= now() order by publicado_em desc limit 1000",
     )) as Record<string, unknown>[];
-    return linhas.map((l) => ({ slug: String(l.slug), em: texto(l.publicado_em) }));
+    return linhas.map((l) => ({ slug: String(l.slug), em: dataIso(l.publicado_em) }));
   } catch {
     return [];
   }
@@ -291,7 +313,11 @@ export async function gravarPost(p: PostParaGravar): Promise<number | null> {
   if (!bancoConfigurado()) return null;
   await garantirEsquema();
 
-  const em = p.status === "publicado" ? (p.publicadoEm?.trim() || new Date().toISOString()) : p.publicadoEm?.trim() || null;
+  // Normaliza também na escrita, e não só na leitura: o campo escondido do
+  // formulário devolve o que recebeu, e uma data mal formada vinda de fora não
+  // pode derrubar o salvamento inteiro.
+  const informada = dataIso(p.publicadoEm);
+  const em = p.status === "publicado" ? (informada ?? new Date().toISOString()) : informada;
 
   const valores = [
     p.slug, p.titulo, p.resumo, p.corpo, p.capaUrl, p.capaCredito,
@@ -369,7 +395,7 @@ export async function abrirRascunhoDoRobo(p: PostParaGravar): Promise<boolean> {
       [
         p.slug, p.titulo, p.resumo, p.corpo, p.capaUrl, p.capaCredito,
         p.uf ? p.uf.toUpperCase() : null, p.orgao, p.categoria,
-        p.fonteNome, p.fonteUrl, p.publicadoEm?.trim() || null,
+        p.fonteNome, p.fonteUrl, dataIso(p.publicadoEm),
       ],
     )) as Record<string, unknown>[];
     return linhas.length > 0;
