@@ -57,6 +57,12 @@ const REGRAS: Record<Pasta, { tipos: string[]; limite: number; nome: string; rec
     nome: "foto",
     recusa: "Formato não aceito. Use JPG, PNG ou WEBP.",
   },
+  blog: {
+    tipos: TIPOS_IMAGEM,
+    limite: TAMANHO_MAXIMO,
+    nome: "capa",
+    recusa: "Formato não aceito. Use JPG, PNG ou WEBP.",
+  },
   editais: {
     tipos: TIPOS_PDF,
     limite: TAMANHO_MAXIMO_PDF,

@@ -449,6 +449,87 @@ create table if not exists sistema (
   atualizado_em timestamptz not null default now()
 );
 `,
+
+  // Posts do blog.
+  //
+  // O blog nasce colado ao monitor, e não como site à parte: o robô que varre
+  // notícia de concurso é o mesmo que abre a pauta aqui. Por isso as colunas de
+  // procedência (origem, fonte_nome, fonte_url) são tão importantes quanto o
+  // texto — um post que o robô rascunhou precisa dizer de onde veio antes de
+  // alguém aprovar.
+  //
+  // `uf` nulo significa nacional, e não "faltou preencher": matéria sobre
+  // medicina legal em geral não pertence a estado nenhum.
+  `
+create table if not exists posts (
+  id            bigint generated always as identity primary key,
+  -- Parte final da URL. Único porque é a identidade pública do post: mudar
+  -- depois de publicado quebra link de fora, então o painel avisa.
+  slug          text not null unique,
+  titulo        text not null,
+  resumo        text not null default '',
+  -- Markdown simples. Guardado como texto, e não como HTML: o que o painel
+  -- recebe de um robô nunca vira marcação executável sem passar por aqui.
+  corpo         text not null default '',
+  capa_url      text,
+  -- Quem fez a foto, por extenso. Imagem de terceiro sem crédito é problema
+  -- nosso, não da fonte.
+  capa_credito  text,
+
+  -- Taxonomia. uf nulo = nacional; orgao é o slug ('politec-pe'), para a URL
+  -- do filtro não depender do nome por extenso, que muda quando o estado
+  -- renomeia o órgão.
+  uf            text,
+  orgao         text,
+  categoria     text not null default 'noticia',
+
+  -- De onde a pauta veio. 'robo' é o que a coleta rascunhou.
+  origem        text not null default 'manual',
+  fonte_nome    text,
+  fonte_url     text,
+
+  -- rascunho → revisao → publicado. O robô entrega em 'revisao': nada que ele
+  -- escreve vai ao ar sem alguém apertar o botão.
+  status        text not null default 'rascunho',
+  publicado_em  timestamptz,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+`,
+  `
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'posts_status_valido') then
+    alter table posts add constraint posts_status_valido
+      check (status in ('rascunho','revisao','publicado'));
+  end if;
+end $$;
+`,
+  `
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'posts_origem_valida') then
+    alter table posts add constraint posts_origem_valida
+      check (origem in ('manual','robo'));
+  end if;
+end $$;
+`,
+
+  // Lista do blog: publicados, mais novo primeiro. É a consulta que toda visita
+  // faz, com ou sem filtro.
+  "create index if not exists posts_publicados_idx on posts (status, publicado_em desc);",
+  "create index if not exists posts_uf_idx on posts (uf, publicado_em desc);",
+  "create index if not exists posts_orgao_idx on posts (orgao, publicado_em desc);",
+  "create index if not exists posts_categoria_idx on posts (categoria, publicado_em desc);",
+
+  // Trava de pauta repetida.
+  //
+  // A coleta roda de hora em hora e reencontra a mesma notícia em toda passada.
+  // Sem este índice, cada passada abriria um rascunho novo e a fila de revisão
+  // viraria um monte de cópias. Só vale para o que o robô trouxe: post escrito
+  // à mão pode citar a mesma fonte de propósito, inclusive duas vezes.
+  `
+create unique index if not exists posts_fonte_robo_idx
+  on posts (fonte_url) where origem = 'robo' and fonte_url is not null;
+`,
 ];
 
 /** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */

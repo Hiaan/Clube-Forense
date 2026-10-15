@@ -8,6 +8,7 @@ import { semearImls } from "../../lib/imlsRepo";
 import { corrigirPlanos, semearPlanos } from "../../lib/planoRepo";
 import { registrarColeta } from "../../lib/sistemaRepo";
 import { coletar } from "../../monitor/lib/coletor";
+import { abrirPautas } from "../../monitor/lib/pautas";
 import { dispararColetaInstagram } from "../../monitor/lib/instagram";
 
 // Sempre executa no servidor, sem cache estático.
@@ -49,7 +50,14 @@ export async function GET(request: Request) {
     fonteIndisponivel: relatorio.fonteIndisponivel,
   });
 
+  // Depois do relatório, e só aqui: a coleta roda a cada visita ao mapa, mas
+  // pauta nova só nasce quando quem roda tem o direito de escrever — o cron e o
+  // botão do painel.
+  const pautas = await abrirPautas(relatorio);
+
   revalidatePath("/");
+  revalidatePath("/blog");
+  revalidatePath("/admin/posts");
   revalidatePath("/admin");
   revalidatePath("/monitor");
   revalidatePath("/api/monitor");
@@ -73,6 +81,7 @@ export async function GET(request: Request) {
     mencaoMaisRecente: maisRecente ?? null,
     fonteIndisponivel: relatorio.fonteIndisponivel,
     instagram,
+    pautasAbertas: pautas.abertas,
     planosSemeados,
     planosCorrigidos,
     imlsSemeados,

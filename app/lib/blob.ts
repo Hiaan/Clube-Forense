@@ -41,6 +41,6 @@ export const TAMANHO_MAXIMO = 1_500_000;
 export const TAMANHO_MAXIMO_PDF = 4_000_000;
 
 /** Pastas dentro da store, para o conteúdo não virar um monte solto. */
-export type Pasta = "aprovados" | "estados" | "editais";
+export type Pasta = "aprovados" | "estados" | "editais" | "blog";
 
-export const PASTAS: Pasta[] = ["aprovados", "estados", "editais"];
+export const PASTAS: Pasta[] = ["aprovados", "estados", "editais", "blog"];

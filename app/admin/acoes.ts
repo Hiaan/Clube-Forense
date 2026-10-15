@@ -28,8 +28,18 @@ import {
   salvarMaterias,
   salvarProva,
 } from "../lib/provasRepo";
+import {
+  apagarPost,
+  gravarPost,
+  lerPorId,
+  slugOcupado,
+  type OrigemPost,
+  type StatusPost,
+} from "../lib/postsRepo";
 import { interpretarGabarito, type EstiloProva, type MateriaProva } from "../lib/ranking";
+import { aSlug, categoriaPorSlug, orgaoDaUf } from "../blog/lib/taxonomia";
 import { coletar } from "../monitor/lib/coletor";
+import { abrirPautas } from "../monitor/lib/pautas";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import { registrarColeta } from "../lib/sistemaRepo";
@@ -623,6 +633,14 @@ export async function apagarProvaAcao(
  * A resposta fala do estado que está aberto, e não do país: quem clicou está
  * olhando um estado e quer saber daquele.
  */
+/** Frase que avisa sobre a fila do blog. Vazia quando não nasceu pauta nenhuma. */
+function avisoPautas(abertas: number): string {
+  if (abertas === 0) return "";
+  return abertas === 1
+    ? " Uma pauta nova entrou na fila do blog, em Blog › Para revisar."
+    : ` ${abertas} pautas novas entraram na fila do blog, em Blog › Para revisar.`;
+}
+
 export async function coletarAgoraAcao(
   _anterior: Resultado | null,
   dados: FormData,
@@ -643,8 +661,14 @@ export async function coletarAgoraAcao(
       fonteIndisponivel: relatorio.fonteIndisponivel,
     });
 
+    // A coleta manual também abre pauta: é o mesmo robô, e quem apertou o
+    // botão é quem tem permissão de escrever.
+    const pautas = await abrirPautas(relatorio);
+
     revalidatePath("/");
     revalidatePath("/monitor");
+    revalidatePath("/blog");
+    revalidatePath("/admin/posts");
     revalidatePath(`/admin/estados/${uf}`);
 
     if (relatorio.fonteIndisponivel) {
@@ -664,7 +688,9 @@ export async function coletarAgoraAcao(
     if (coletadas.length === 0) {
       return {
         ok: true,
-        mensagem: `Coleta refeita. Nenhuma notícia sobre ${nome} nas fontes agora — use "Pesquisar notícias" acima para conferir por fora.`,
+        mensagem:
+          `Coleta refeita. Nenhuma notícia sobre ${nome} nas fontes agora — ` +
+          `use "Pesquisar notícias" acima para conferir por fora.${avisoPautas(pautas.abertas)}`,
       };
     }
 
@@ -682,9 +708,168 @@ export async function coletarAgoraAcao(
       mensagem:
         `Coleta refeita: ${coletadas.length} notícia(s) sobre ${nome}.${quando} ` +
         `O robô classificou o estado como “${NIVEL_LABEL[doEstado!.nivel]}”. ` +
-        "Recarregue a página para ver as manchetes na lista de sugestões.",
+        "Recarregue a página para ver as manchetes na lista de sugestões." +
+        avisoPautas(pautas.abertas),
     };
   } catch (e) {
     return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na coleta." };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Blog
+// ---------------------------------------------------------------------------
+
+/**
+ * Slug a partir do título, quando o campo vem vazio.
+ *
+ * O slug é a identidade pública do post, e trocar depois de publicado quebra
+ * todo link que já saiu por aí. Por isso ele é gerado uma vez, na criação, e
+ * daí em diante só muda se alguém digitar — o formulário não reescreve sozinho
+ * a cada edição do título.
+ */
+function slugDoTitulo(titulo: string): string {
+  const base = aSlug(titulo);
+  return base || `post-${Date.now()}`;
+}
+
+export async function salvarPostAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const id = Number(dados.get("id") ?? 0) || null;
+    const titulo = String(dados.get("titulo") ?? "").trim();
+    if (!titulo) return { ok: false, mensagem: "O título é obrigatório." };
+
+    const slug = aSlug(String(dados.get("slug") ?? "")) || slugDoTitulo(titulo);
+    if (await slugOcupado(slug, id)) {
+      return {
+        ok: false,
+        mensagem: `Já existe outro post com o endereço “${slug}”. Mude o campo Endereço.`,
+      };
+    }
+
+    const status = String(dados.get("status") ?? "rascunho") as StatusPost;
+    if (!["rascunho", "revisao", "publicado"].includes(status)) {
+      return { ok: false, mensagem: "Status inválido." };
+    }
+
+    const categoria = String(dados.get("categoria") ?? "noticia");
+    if (!categoriaPorSlug(categoria)) {
+      return { ok: false, mensagem: "Categoria inválida." };
+    }
+
+    const uf = texto(dados, "uf");
+    // O órgão acompanha o estado: são o mesmo certame visto de dois ângulos, e
+    // deixar o painel escolher um sem o outro criaria post do Pará marcado como
+    // Politec-PE. Quando a UF vem vazia, o post é nacional e não tem órgão.
+    const orgao = uf ? (orgaoDaUf(uf)?.slug ?? null) : null;
+
+    const gravado = await gravarPost({
+      id,
+      slug,
+      titulo,
+      resumo: String(dados.get("resumo") ?? "").trim(),
+      corpo: String(dados.get("corpo") ?? ""),
+      capaUrl: texto(dados, "capaUrl"),
+      capaCredito: texto(dados, "capaCredito"),
+      uf,
+      orgao,
+      categoria,
+      origem: (texto(dados, "origem") ?? "manual") as OrigemPost,
+      fonteNome: texto(dados, "fonteNome"),
+      fonteUrl: texto(dados, "fonteUrl"),
+      status,
+      publicadoEm: texto(dados, "publicadoEm"),
+    });
+
+    if (!gravado) {
+      return { ok: false, mensagem: "Banco não configurado — nada foi gravado." };
+    }
+
+    // O blog é force-dynamic, mas a revalidação continua valendo para o cache
+    // de dados da Vercel na borda, que é quem responde primeiro.
+    revalidatePath("/blog");
+    revalidatePath(`/blog/${slug}`);
+    revalidatePath("/admin/posts");
+
+    if (!id) redirect(`/admin/posts/${gravado}`);
+
+    return {
+      ok: true,
+      mensagem:
+        status === "publicado"
+          ? "Publicado. Já está no ar em /blog."
+          : status === "revisao"
+            ? "Salvo e marcado para revisão."
+            : "Rascunho salvo.",
+    };
+  } catch (e) {
+    // redirect() funciona lançando — deixar passar é o que faz a navegação
+    // acontecer. Tratar como erro mostraria "falha ao salvar" depois de salvar.
+    if (e instanceof Error && e.message === "NEXT_REDIRECT") throw e;
+    if (typeof e === "object" && e && "digest" in e) throw e;
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao salvar." };
+  }
+}
+
+/** Aprova e põe no ar — o botão da fila de revisão. */
+export async function publicarPostAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+    const id = Number(dados.get("id") ?? 0);
+    const post = id ? await lerPorId(id) : null;
+    if (!post) return { ok: false, mensagem: "Post não encontrado." };
+
+    if (!post.titulo.trim() || !post.corpo.trim()) {
+      return {
+        ok: false,
+        mensagem: "Falta título ou texto. Abra o post, complete e publique de lá.",
+      };
+    }
+
+    await gravarPost({ ...post, status: "publicado", publicadoEm: post.publicadoEm });
+    revalidatePath("/blog");
+    revalidatePath(`/blog/${post.slug}`);
+    revalidatePath("/admin/posts");
+    return { ok: true, mensagem: `“${post.titulo}” está no ar.` };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao publicar." };
+  }
+}
+
+/** Tira do ar sem apagar: volta para rascunho. */
+export async function despublicarPostAcao(
+  _anterior: Resultado | null,
+  dados: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+    const id = Number(dados.get("id") ?? 0);
+    const post = id ? await lerPorId(id) : null;
+    if (!post) return { ok: false, mensagem: "Post não encontrado." };
+
+    await gravarPost({ ...post, status: "rascunho" });
+    revalidatePath("/blog");
+    revalidatePath(`/blog/${post.slug}`);
+    revalidatePath("/admin/posts");
+    return { ok: true, mensagem: "Saiu do ar e voltou para rascunho." };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao despublicar." };
+  }
+}
+
+export async function apagarPostAcao(dados: FormData): Promise<void> {
+  await exigirAdmin();
+  const id = Number(dados.get("id") ?? 0);
+  if (id) await apagarPost(id);
+  revalidatePath("/admin/posts");
+  revalidatePath("/blog");
+  redirect("/admin/posts");
 }
