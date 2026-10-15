@@ -530,6 +530,25 @@ end $$;
 create unique index if not exists posts_fonte_robo_idx
   on posts (fonte_url) where origem = 'robo' and fonte_url is not null;
 `,
+
+  // O que o vigia da AWS entrega (diários oficiais e Google Notícias, de hora
+  // em hora — ver app/api/vigia). Fica guardado porque a coleta do site roda
+  // em outro momento e lê daqui como mais uma fonte. A chave é a mesma regra
+  // de manchete repetida da coleta (estado + título), então a mesma publicação
+  // reencontrada a cada hora não duplica.
+  `
+create table if not exists vigia_publicacoes (
+  chave     text primary key,
+  uf        text not null,
+  canal     text not null,
+  fonte     text not null,
+  titulo    text not null,
+  resumo    text not null default '',
+  link      text not null,
+  data      timestamptz,
+  visto_em  timestamptz not null default now()
+);
+`,
 ];
 
 /** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */

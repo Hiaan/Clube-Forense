@@ -26,6 +26,7 @@ import { montarConsultas } from "./fontes";
 import { HISTORICO_CONCURSOS } from "./historico";
 import { instagramConfigurado, lerPostsInstagram } from "./instagram";
 import { lerPortais } from "./portais";
+import { lerPublicacoesVigia } from "../../lib/vigiaRepo";
 import { parseRSS, type ItemRSS } from "./rss";
 import { versaoAtual } from "./versao";
 import {
@@ -178,11 +179,13 @@ export interface OpcoesColeta {
 /** Coleta e consolida o relatório completo. */
 export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<Relatorio> {
   // Curadoria, Google Notícias e Instagram (posts já raspados) em paralelo.
-  const [curadoria, feeds, itensDosPortais, postsInstagram] = await Promise.all([
+  const [curadoria, feeds, itensDosPortais, postsInstagram, doVigia] = await Promise.all([
     obterCuradoria(),
     Promise.all(montarConsultas().map((u) => buscarFeed(u, semCache))),
     lerPortais(semCache),
     instagramConfigurado() ? lerPostsInstagram() : Promise.resolve([]),
+    // Diários oficiais e notícias que o vigia da AWS guardou (vigiaRepo.ts).
+    lerPublicacoesVigia(),
   ]);
 
   const googleRespondeu = feeds.some((xml) => xml !== null);
@@ -274,9 +277,31 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
     });
   }
 
+  // Vigia da AWS. A UF vem do próprio diário (ou do texto, já resolvida lá):
+  // o diário de Goiás fala de Goiás mesmo quando não escreve "Goiás".
+  for (const pub of doVigia) {
+    if (!ESTADO_POR_UF[pub.uf] || !dentroDaJanela(pub.data)) continue;
+    const texto = `${pub.titulo} ${pub.resumo}`;
+    const avaliacao = avaliarMencao(texto);
+    if (!avaliacao.manter) continue;
+    registrar({
+      uf: pub.uf,
+      titulo: pub.titulo,
+      link: pub.link,
+      fonte: pub.fonte,
+      data: pub.data,
+      nivel: classificarNivel(texto, avaliacao.cargoDireto),
+      resumo: pub.resumo,
+      conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
+      cargoDireto: avaliacao.cargoDireto,
+      temporaria: ehSelecaoTemporaria(texto),
+    });
+  }
+
   // Sem fonte externa acessível (ex.: dev com rede restrita), o painel segue
   // funcionando só com a curadoria — o aviso fonteIndisponivel sinaliza isso.
-  const algumaFonteRespondeu = googleRespondeu || portaisResponderam || instaRespondeu;
+  const algumaFonteRespondeu =
+    googleRespondeu || portaisResponderam || instaRespondeu || doVigia.length > 0;
 
   const estados: EstadoStatus[] = ESTADOS.map((estado) => {
     const mencoes = (mencoesPorUf.get(estado.uf) ?? []).sort(
