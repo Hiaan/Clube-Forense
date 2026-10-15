@@ -174,9 +174,20 @@ export function avaliarMencao(texto: string): AvaliacaoMencao {
 const SINAIS_CONCLUIDO =
   /resultado (final|definitivo)|homolog(ou|ad|acao)|nomeac(ao|oes)|convocacao d[eo]s? aprovad|posse d[eo]s? aprovad|classificacao final|gabarito (oficial|definitivo)|inscric(oes|ao) encerrad/;
 
-/** Sinais de seleção temporária (PSS): não é o concurso efetivo do funil. */
+/**
+ * Sinais de seleção temporária (PSS): não é o concurso efetivo do funil.
+ *
+ * Exportado por `ehSelecaoTemporaria` porque o blog precisa da mesma leitura:
+ * no funil do mapa, seleção temporária não define estágio; no blog, não vira
+ * post nenhum.
+ */
 const SINAIS_TEMPORARIO =
   /\bpss\b|processo seletivo simplificado|contratacao temporaria|contrato temporario|temporari[oa]s\b/;
+
+/** True quando o texto é de seleção temporária, e não de concurso efetivo. */
+export function ehSelecaoTemporaria(texto: string): boolean {
+  return SINAIS_TEMPORARIO.test(normalizarCargo(texto));
+}
 
 // Padrões do FUNIL DO EDITAL, do estágio mais avançado ao mais incipiente.
 // A ordem importa: o primeiro que casar define o estágio.

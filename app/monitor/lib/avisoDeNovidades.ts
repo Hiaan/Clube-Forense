@@ -66,17 +66,11 @@ function endereco(p: PostDoRobo): string {
   return p.publicado ? `${base()}/blog/${p.slug}` : `${base()}/admin/posts`;
 }
 
-/** "3 posts no ar", "1 post no ar e 2 na fila", "2 pautas na fila". */
+/** "3 pautas prontas (MA, PE)" — o que espera um clique no painel. */
 function assunto(r: ResultadoPautas): string {
   const ufs = [...new Set(r.posts.map((p) => p.uf))].join(", ");
-  const partes: string[] = [];
-  if (r.publicadas > 0) {
-    partes.push(`${r.publicadas} ${r.publicadas === 1 ? "post" : "posts"} no ar`);
-  }
-  if (r.naFila > 0) {
-    partes.push(`${r.naFila} na fila`);
-  }
-  return `Monitor: ${partes.join(" e ")} (${ufs})`;
+  const quantas = r.abertas;
+  return `Monitor: ${quantas} ${quantas === 1 ? "pauta pronta" : "pautas prontas"} (${ufs})`;
 }
 
 function corpoTexto(r: ResultadoPautas): string {

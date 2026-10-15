@@ -132,10 +132,17 @@ export default async function PaginaPost({ params }: { params: Promise<{ slug: s
         </div>
       </article>
 
-      {/* Procedência. Primeiro item depois do texto, e sempre que houver fonte:
-          notícia de concurso é repassada de boca em boca até virar boato, e o
-          que separa o nosso post do boato é dizer de onde saiu. */}
-      {post.fonteUrl && (
+      {/* Procedência, quando o post tem uma a declarar.
+          A condição é o NOME da fonte, e não o link. Os dois campos existem por
+          motivos diferentes: o link é guardado em toda pauta do robô porque é
+          ele que impede a mesma notícia de virar dois posts, e porque quem
+          revisa precisa conferir o fato na origem. O nome é o crédito — e só
+          existe quando há o que creditar. O texto que o robô escreve sai da
+          nossa própria base (etapa do funil e ficha do estado, conferida à
+          mão), sem citar nem reaproveitar frase de veículo nenhum, então não
+          há a quem dar crédito; num post que de fato se apoia em terceiro,
+          quem escreve preenche o nome no painel e a caixa aparece. */}
+      {post.fonteUrl && post.fonteNome && (
         <div className="mt-10 rounded-xl border border-gray-200 bg-white px-5 py-4">
           <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
             Fonte
@@ -146,7 +153,7 @@ export default async function PaginaPost({ params }: { params: Promise<{ slug: s
             rel="noopener noreferrer nofollow"
             className="mt-1 inline-block text-sm font-semibold text-gray-900 underline decoration-[#ffcd07] decoration-2 underline-offset-2"
           >
-            {post.fonteNome || post.fonteUrl} ↗
+            {post.fonteNome} ↗
           </a>
         </div>
       )}

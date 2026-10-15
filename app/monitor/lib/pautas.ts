@@ -6,34 +6,30 @@
 // explícita, chamada por quem tem o direito de escrever: o cron e o botão
 // "Coletar agora" do painel.
 //
-// O QUE O ROBÔ FAZ E O QUE ELE NÃO FAZ. Ele monta o post com o que a fonte
-// disse — entre aspas e creditado —, diz em que etapa o estado está no nosso
-// mapa e aponta o caminho para quem está estudando. Ele NÃO escreve análise:
-// não existe modelo de linguagem neste projeto, e inventar parágrafo a partir
-// de uma manchete de RSS é como se fabrica notícia errada. O que é nosso no
-// post é a etapa do funil, que a gente calcula, e o encaminhamento.
+// O TEXTO É DO CLUBE, E NÃO DE QUEM NOTICIOU. O post não cita, não credita e
+// não reaproveita frase de portal nenhum. O que a coleta traz é o SINAL de que
+// algo se moveu num estado; o conteúdo do post vem da nossa própria base — a
+// etapa que o monitor calcula, e a ficha do estado conferida à mão no painel
+// (vagas, salário, banca, inscrições, prova, matérias). Fato não tem dono:
+// "edital publicado com 76 vagas" é informação pública. A redação é nossa.
 //
-// A FILA DEIXOU DE SER OBRIGATÓRIA, E ESSA FOI A MUDANÇA MAIS DELICADA DAQUI.
-// Todo rascunho nascia em revisão e ia ao ar quando alguém aprovava. Na
-// prática, notícia de concurso apodrece em um dia e a fila só era esvaziada
-// quando sobrava tempo. Agora o robô publica sozinho — mas só o post que nasce
-// COMPLETO:
+// SÓ LEGISTA ENTRA — E QUEM DECIDE ISSO É A NOSSA CURADORIA, NÃO A MANCHETE.
+// A primeira tentativa foi exigir que a menção nomeasse o cargo. Testada
+// contra as fontes de verdade, ela rejeitava a notícia mais importante do dia:
+// "Concurso Perícia Oficial MA: edital publicado com 76 vagas" não escreve
+// "legista" em lugar nenhum, e é o edital que tem as vagas de médico-legista.
+// Manchete fala do concurso inteiro; o cargo está no edital.
 //
-//   • tem o que citar — o resumo do feed, quando diz algo além da manchete, ou
-//     a descrição que o veículo publicou na própria página (ver
-//     materiaDeOrigem.ts) — OU ficha de curadoria suficiente para o post somar
-//     à notícia o que a gente já sabia do estado. Post feito só de manchete é
-//     eco, não é post;
-//   • não repete assunto já publicado nos últimos dias (a mesma notícia sai em
-//     vinte portais, com vinte links diferentes, e o índice único em fonte_url
-//     não vê isso);
-//   • tem estado identificado, para o gancho com o mapa fazer sentido;
-//   • e o estado não está travado na curadoria — onde a gente já sabe que a
-//     manchete engana, quem decide é gente.
+// Então o critério é outro, e mais forte: só vira pauta a notícia de um estado
+// cuja FICHA confirma vagas de médico-legista — vagas, salário, banca, datas
+// conferidos à mão no painel. É a nossa apuração que responde "isto é de
+// legista?", e não o título de terceiro. Por isso "Polícia Científica do Pará
+// abre seleção para 182 temporários" não entra: é temporário, e o Pará não tem
+// ficha que sustente post nenhum.
 //
-// O que falha em qualquer um desses pontos continua indo para a fila de
-// revisão, com o esqueleto de sempre. E tudo que vai ao ar é avisado por
-// e-mail com o link, para a revisão acontecer depois em vez de antes.
+// NADA VAI AO AR SOZINHO. A pauta nasce pronta para publicar — título, texto,
+// ficha e capa — e espera um clique no painel. Quem escolhe o que vira post é
+// gente; o trabalho que o robô tira da frente é o de escrever.
 
 import {
   gravarDoRobo,
@@ -42,7 +38,6 @@ import {
 } from "../../lib/postsRepo";
 import { aSlug, estadoComArtigo, orgaoDaUf } from "../../blog/lib/taxonomia";
 import { ESTADO_POR_UF } from "./estados";
-import { lerMateria } from "./materiaDeOrigem";
 import {
   NIVEL_LABEL,
   type EstadoStatus,
@@ -51,59 +46,32 @@ import {
   type Relatorio,
 } from "./tipos";
 
-/** Quantos posts uma passada pode criar. */
+/** Quantas pautas uma passada pode abrir. */
 const TETO_POR_RODADA = 6;
+
+/** Quantas pautas uma passada pode abrir para o mesmo estado. */
+const PAUTAS_POR_UF_POR_RODADA = 1;
 
 /**
  * Teto por rodada, e não "abra tudo que achar".
  *
  * Quando um edital sai, a mesma notícia aparece em vinte portais no mesmo dia.
- * Sem limite, seriam vinte posts da mesma coisa numa tarde. A semelhança de
- * títulos barra a maioria; o teto é o que segura o resto, inclusive no dia em
- * que a comparação de títulos não reconhecer duas manchetes muito diferentes
- * sobre o mesmo fato.
+ * Sem limite, a fila receberia vinte pautas da mesma coisa e a pessoa
+ * desistiria de olhar — que é o fim de qualquer fila. A semelhança de títulos
+ * barra a maioria; o teto segura o resto.
  */
 
-/** Só notícia recente vira post. Concurso de três meses atrás não é notícia. */
+/** Só notícia recente vira pauta. Concurso de três meses atrás não é notícia. */
 const JANELA_DIAS = 21;
 
-/** Por quantos dias um assunto já publicado bloqueia um parecido. */
+/** Por quantos dias um assunto já pautado bloqueia um parecido. */
 const DIAS_SEM_REPETIR = 12;
 
-/** Acima disto, dois títulos falam da mesma coisa. */
-const SEMELHANCA_MAXIMA = 0.45;
-
-/** Um resumo menor que isto não sustenta um post. */
-const RESUMO_MINIMO = 60;
+/** Quantos fatos da ficha sustentam um post. */
+const FATOS_MINIMOS = 2;
 
 /**
- * Quantas horas um estado espera entre dois posts automáticos.
- *
- * Posto depois de uma passada de teste que publicou quatro notícias de São
- * Paulo e duas do Maranhão de uma vez: eram quatro ângulos do mesmo fato,
- * assinados por quatro veículos, e nenhum par era parecido o bastante para a
- * comparação de títulos barrar. Um blog que publica quatro vezes sobre o mesmo
- * concurso numa hora parece robô — e é. Os ângulos excedentes não se perdem:
- * vão para a fila, onde quem escreve decide se vale um segundo post.
- */
-const HORAS_ENTRE_POSTS_DA_UF = 6;
-
-/** Quantos posts uma passada pode criar para o mesmo estado. */
-const POSTS_POR_UF_POR_RODADA = 1;
-
-/**
- * Teto de publicações automáticas em 24 horas.
- *
- * Vinte e quatro passadas por dia, até seis pautas em cada, é aritmética que
- * pode virar quarenta posts num dia de edital — e um blog com quarenta posts
- * num dia não é um blog, é um despejo. O teto segura isso num número que uma
- * pessoa consegue revisar depois. O que passa do teto não se perde: vai para a
- * fila, que é onde excesso deve esperar.
- */
-const PUBLICADOS_POR_DIA = 8;
-
-/**
- * Qual categoria do blog a notícia é.
+ * Qual categoria do blog a pauta é.
  *
  * O estágio do funil já carrega essa informação: se o robô classificou a
  * notícia como "edital", é matéria de edital. O resto é notícia de andamento.
@@ -116,18 +84,6 @@ function recente(iso: string | null): boolean {
   if (!iso) return false;
   const dias = (Date.now() - new Date(iso).getTime()) / 86_400_000;
   return dias >= 0 && dias <= JANELA_DIAS;
-}
-
-/**
- * Slug a partir do título, com a UF e a data na frente para não colidir.
- *
- * "Concurso PC-TO: edital sai em novembro" é manchete que se repete a cada
- * certame. Sem o prefixo, o segundo post com esse título seria recusado pelo
- * índice único e a pauta se perderia em silêncio.
- */
-function slugDaPauta(m: Mencao, titulo: string): string {
-  const quando = (m.data ?? new Date().toISOString()).slice(0, 10);
-  return aSlug(`${m.uf} ${quando} ${titulo}`).slice(0, 80);
 }
 
 // --------------------------------------------------------------- repetição
@@ -172,101 +128,47 @@ function semelhanca(a: Set<string>, b: Set<string>): number {
 }
 
 /**
- * True quando o "resumo" é a manchete de novo, com outras palavras.
+ * Notícia que o robô não tem como escrever.
  *
- * O RSS do Google Notícias preenche a descrição do item com o próprio título
- * mais o nome do veículo — e isso passava no corte de tamanho mínimo, porque
- * manchete de concurso tem mais de sessenta caracteres. O resultado era um post
- * cuja citação em destaque repetia o título dele, palavra por palavra. Antes de
- * publicar qualquer coisa, o resumo tem de dizer algo que o título não diga.
+ * Fraude, suspensão judicial, anulação: são fatos importantes e são
+ * exatamente os que o nosso texto não cobre — ele conta em que etapa o
+ * concurso está e manda estudar. Um post animado disparado por uma notícia de
+ * fraude é o pior resultado possível. Fica para quem escreve à mão.
  */
-function ehSoOTitulo(resumo: string, titulo: string, fonte: string): boolean {
-  const t = palavras(titulo);
-  const doVeiculo = palavras(fonte);
+const NOTICIA_DELICADA =
+  /fraude|fraudad|manipulac|suspens|suspend|anulad|anulac|liminar|justica (determinou|suspendeu)|investigac|cancelad|adiad|irregularidade/;
 
-  // O nome do veículo é descontado, e essa linha é o conserto de um caso real:
-  // o resumo "Concurso Perícia Oficial MA: edital publicado com 76 vagas
-  // Monster Concursos" é a manchete mais a assinatura, e a palavra "Monster"
-  // bastava para o resumo parecer trazer informação nova.
-  const r = new Set([...palavras(resumo)].filter((p) => !doVeiculo.has(p)));
-  if (r.size === 0) return true;
-
-  let repetidas = 0;
-  for (const p of r) if (t.has(p)) repetidas += 1;
-  return repetidas / r.size >= 0.8;
-}
-
-interface Publicado {
+interface JaPautado {
   uf: string | null;
-  em: string | null;
   palavras: Set<string>;
 }
 
 /**
- * True quando este assunto já saiu.
+ * True quando esta pauta repete uma que já existe.
  *
- * O estado entra na conta: "Concurso Polícia Científica: 55 vagas" em SP e em
- * GO são duas notícias, e as palavras que sobram podem ser as mesmas. Com UFs
- * diferentes, nunca é repetição.
+ * A comparação é feita com o NOSSO título, e esse é o ponto. O título que a
+ * gente gera é um resumo do que se sabe do estado — etapa, vagas, prazo. Se
+ * duas notícias diferentes produzem o mesmo título, elas dizem a mesma coisa
+ * para o leitor, e o segundo post seria o primeiro de novo. Se produzem
+ * títulos diferentes, alguma coisa mudou de verdade (saiu o edital, marcaram a
+ * prova, definiram a banca) — e aí é pauta nova, mesmo que seja do mesmo
+ * estado na mesma semana.
+ *
+ * Comparar as manchetes dos portais, como era antes, não resolvia isto: vinte
+ * veículos escrevem vinte manchetes diferentes sobre o mesmo fato, e passavam
+ * várias.
+ *
+ * O limite é alto (0,8) porque os nossos títulos compartilham a estrutura;
+ * é a diferença de conteúdo que tem de pesar.
  */
-function jaSaiu(m: Mencao, anteriores: Publicado[]): boolean {
-  const atual = palavras(m.titulo);
+function jaSaiu(uf: string, titulo: string, anteriores: JaPautado[]): boolean {
+  const atual = palavras(titulo);
   return anteriores.some(
-    (p) =>
-      (p.uf === null || p.uf === m.uf) &&
-      semelhanca(atual, p.palavras) >= SEMELHANCA_MAXIMA,
+    (p) => (p.uf === null || p.uf === uf) && semelhanca(atual, p.palavras) >= 0.8,
   );
 }
 
-// ------------------------------------------------------------------- texto
-
-/**
- * O que dizer a quem está estudando, pela etapa em que o estado está.
- *
- * É a parte do post que é nossa e que não depende de ninguém escrever: a etapa
- * sai do funil que o monitor calcula, e o que fazer em cada etapa não muda de
- * um estado para o outro.
- */
-const ORIENTACAO: Record<Nivel, string> = {
-  edital:
-    "Com edital publicado, o conteúdo programático está definido e o prazo é curto: daqui para a frente o que decide é treino em cima do que a banca cobra.",
-  banca:
-    "Com banca definida, já dá para estudar pelo estilo de prova dela — as questões anteriores da mesma banca valem mais que qualquer resumo genérico.",
-  comissao:
-    "Comissão formada é o passo que antecede o edital, e costuma dar poucos meses de intervalo. É a hora de estar com a base de medicina legal pronta, não começando.",
-  autorizado:
-    "Autorizado, o edital é questão de prazo administrativo. Quem começa agora chega com a base formada; quem espera o edital estuda com o cronômetro ligado.",
-  solicitado:
-    "O pedido feito é o primeiro sinal público de que o concurso vem. Nada garante data, mas é o momento mais barato de começar.",
-  estudo:
-    "Ainda em estudo interno, sem data definida. Vale acompanhar: é desta fase que saem as autorizações.",
-  noticia:
-    "Notícia de andamento, sem mudança de etapa. Serve para acompanhar o ritmo do estado.",
-  sem: "Sem movimentação registrada no estado até agora.",
-};
-
-/**
- * Tira do título o nome do veículo que o Google Notícias cola no fim.
- *
- * O feed entrega "Concurso Perícia Oficial MA: edital publicado - Monster
- * Concursos", e o crédito já aparece logo abaixo da citação no post. Repetido
- * no título, vira um blog nosso anunciando a marca de outro.
- */
-function tituloLimpo(titulo: string, fonte: string): string {
-  const bruto = titulo.trim();
-  if (!fonte) return bruto;
-  const sufixo = ` - ${fonte.trim()}`;
-  return bruto.toLowerCase().endsWith(sufixo.toLowerCase())
-    ? bruto.slice(0, -sufixo.length).trim()
-    : bruto;
-}
-
-/** Data em português, para o corpo do post. */
-function emPortugues(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("pt-BR");
-}
+// ------------------------------------------------------------------- dados
 
 type Ficha = NonNullable<EstadoStatus["curadoria"]>;
 
@@ -279,35 +181,26 @@ function reais(v: number | null): string | null {
 /**
  * "2026-11-20" → "20/11/2026", e `null` quando a data já passou.
  *
- * O corte no passado é o que evita a ficha mentir por omissão: o campo
- * "inscrições até 05/10" numa tabela chamada "o que sabemos hoje" lê-se como
- * prazo em aberto, quando o prazo acabou na semana anterior. Prazo vencido não
- * é informação sobre hoje — e quem precisa dele acha no mapa, com a história
- * completa do estado.
+ * O corte no passado evita a ficha mentir por omissão: "inscrições até 05/10"
+ * numa tabela do que vale hoje lê-se como prazo em aberto, quando o prazo
+ * acabou na semana anterior.
  */
 function dataFutura(v: string | null): string | null {
   if (!v?.trim()) return null;
   const d = new Date(v.length <= 10 ? `${v}T12:00:00Z` : v);
-  if (Number.isNaN(d.getTime())) return v.trim();
+  if (Number.isNaN(d.getTime())) return null;
   return d.getTime() >= Date.now() ? d.toLocaleDateString("pt-BR") : null;
 }
 
-/**
- * O que a curadoria tem confirmado sobre o estado, em pares rótulo/valor.
- *
- * ESTA É A PARTE QUE TORNA O POST PUBLICÁVEL QUANDO NÃO HÁ O QUE CITAR. A maior
- * parte das notícias chega pelo Google Notícias, que entrega manchete, data e um
- * link de redirecionamento — nenhum parágrafo para citar, e nenhuma página de
- * onde tirar um (o endereço aponta para uma tela de redirecionamento em
- * JavaScript, sem metadado nenhum; foi verificado). Um post feito só com isso
- * seria a manchete de outro veículo repetida. Mas a gente tem o que o veículo
- * não tem: a ficha do estado, conferida à mão no painel — vagas, salário,
- * banca, data de prova. Com ela, o post deixa de ser eco e passa a ser a
- * notícia somada ao que a gente já sabia.
- *
- * A etapa não entra na contagem de fatos: é derivada da própria coleta e existe
- * em todo estado, então contá-la deixaria passar post com tabela de uma linha.
- */
+/** "20/11/2026" → "20 de novembro". Para escrever a data dentro da frase. */
+function porExtenso(v: string | null): string | null {
+  if (!v?.trim()) return null;
+  const d = new Date(v.length <= 10 ? `${v}T12:00:00Z` : v);
+  if (Number.isNaN(d.getTime()) || d.getTime() < Date.now()) return null;
+  return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
+}
+
+/** A ficha do estado em pares rótulo/valor, só com o que está preenchido. */
 function fichaDoEstado(c: Ficha | null): string[][] {
   if (!c) return [];
   const linhas: string[][] = [];
@@ -319,7 +212,10 @@ function fichaDoEstado(c: Ficha | null): string[][] {
   else if (c.vagasDetalhe?.trim()) linhas.push(["Vagas", c.vagasDetalhe.trim()]);
 
   const salario = reais(c.salarioInicial);
-  if (salario) linhas.push(["Salário inicial", salario]);
+  const teto = reais(c.salarioFinal);
+  if (salario) {
+    linhas.push(["Salário inicial", teto ? `${salario} (até ${teto})` : salario]);
+  }
 
   if (c.cargaHoraria) linhas.push(["Carga horária", `${c.cargaHoraria}h semanais`]);
   if (c.banca?.trim()) linhas.push(["Banca", c.banca.trim()]);
@@ -331,154 +227,250 @@ function fichaDoEstado(c: Ficha | null): string[][] {
   if (prova) linhas.push(["Prova", prova]);
 
   if (c.previsao?.trim()) linhas.push(["Previsão do edital", c.previsao.trim()]);
+  if (c.etapasConcurso?.trim()) linhas.push(["Etapas", c.etapasConcurso.trim()]);
 
   return linhas;
 }
 
-/** Quantos fatos da ficha sustentam um post sem citação. */
-const FATOS_MINIMOS = 2;
+// ------------------------------------------------------------------- texto
 
 /**
- * O resumo do cartão quando não há citação: a etapa e os primeiros fatos.
+ * O título, montado do que a gente tem CONFERIDO — e não traduzido da manchete
+ * de outro veículo.
  *
- * Montado a partir da ficha, e não da notícia: é tudo dado nosso, conferido, e
- * é o que o cartão da listagem precisa para dizer algo em uma linha.
+ * A ordem é de prioridade jornalística, e cada opção só é usada quando o dado
+ * que ela promete existe de verdade: prazo aberto ganha de data de prova, que
+ * ganha da etapa do funil. No fim da fila fica o título de situação, que é
+ * sempre verdadeiro e sempre útil — "como está o concurso hoje".
  */
-function resumoDaFicha(etapa: Nivel, uf: string, ficha: string[][]): string {
-  const fatos = ficha
-    .slice(0, 3)
-    .map(([rotulo, valor]) => `${rotulo.toLowerCase()}: ${valor}`)
-    .join("; ");
-  // Travessão, e não ponto: depois de ponto a primeira palavra do fato ficava
-  // minúscula ("Edital publicado (MA). vagas: 76 imediatas"), e dava a
-  // impressão de texto cortado pela metade.
-  return `${NIVEL_LABEL[etapa]} (${uf}) — ${fatos}.`;
+function tituloDoPost(
+  nomeOrgao: string,
+  etapa: Nivel,
+  ficha: Ficha | null,
+  nomeEstado: string,
+): string {
+  const vagas = ficha?.vagasImediatas ? ` com ${ficha.vagasImediatas} vagas` : "";
+  const inscricoes = porExtenso(ficha?.inscricoesAte ?? null);
+  const prova = porExtenso(ficha?.dataProva ?? null);
+  const banca = ficha?.banca?.trim();
+
+  if (inscricoes) {
+    return `Concurso ${nomeOrgao}: inscrições abertas até ${inscricoes} para médico-legista`;
+  }
+  if (etapa === "edital") {
+    return `Concurso ${nomeOrgao}: edital publicado${vagas} para médico-legista`;
+  }
+  if (prova) {
+    return `Concurso ${nomeOrgao}: prova marcada para ${prova}`;
+  }
+  if (etapa === "banca" && banca) {
+    return `Concurso ${nomeOrgao}: ${banca} é a banca do certame`;
+  }
+  if (etapa === "banca") {
+    return `Concurso ${nomeOrgao}: banca definida e edital no horizonte`;
+  }
+  if (etapa === "comissao") {
+    return `Concurso ${nomeOrgao}: comissão formada e edital em preparação`;
+  }
+  if (etapa === "autorizado") {
+    return `Concurso ${nomeOrgao} autorizado${vagas} para médico-legista`;
+  }
+  if (etapa === "solicitado") {
+    return `Concurso ${nomeOrgao}: pedido de autorização em andamento`;
+  }
+  if (etapa === "estudo") {
+    return `Concurso ${nomeOrgao}: novo edital em estudo`;
+  }
+  return `Concurso ${nomeOrgao}: como está o concurso de médico-legista em ${nomeEstado}`;
 }
 
 /**
- * O corpo do post que vai ao ar sem passar pela fila.
+ * A abertura do post: o que mudou, em uma ou duas frases nossas.
  *
- * Duas aberturas possíveis, e a escolha não é de estilo. Quando existe um
- * parágrafo do veículo para citar, ele abre o post entre aspas e creditado: o
- * que é de outro fica visivelmente de outro. Quando não existe — e é o caso da
- * maioria das notícias que chegam pelo Google Notícias —, a abertura é a
- * manchete atribuída em itálico, que é a forma honesta de dizer "isto quem
- * disse foi eles".
+ * Construída da etapa e dos números da ficha, nesta ordem — primeiro o fato,
+ * depois o que ele vale. É o parágrafo que o leitor lê na listagem e no
+ * compartilhamento, então ele carrega o número quando existe número.
+ */
+function abertura(
+  nomeOrgao: string,
+  comArtigo: string,
+  etapa: Nivel,
+  ficha: Ficha | null,
+): string {
+  const vagas = ficha?.vagasImediatas
+    ? `${ficha.vagasImediatas} vaga${ficha.vagasImediatas > 1 ? "s" : ""} imediata${ficha.vagasImediatas > 1 ? "s" : ""}`
+    : null;
+  const cr = ficha?.vagasCr ? `${ficha.vagasCr} em cadastro de reserva` : null;
+  const salario = reais(ficha?.salarioInicial ?? null);
+  const banca = ficha?.banca?.trim();
+
+  const numeros: string[] = [];
+  if (vagas) numeros.push(vagas);
+  if (cr) numeros.push(cr);
+
+  const frases: string[] = [];
+
+  switch (etapa) {
+    case "edital":
+      frases.push(
+        `O concurso ${nomeOrgao} está com **edital publicado**, e a disputa pelas vagas de médico-legista ${comArtigo} começou de verdade.`,
+      );
+      break;
+    case "banca":
+      frases.push(
+        `O concurso ${nomeOrgao} já tem **banca definida**${banca ? ` — é a ${banca}` : ""}. É a última etapa antes de o edital sair.`,
+      );
+      break;
+    case "comissao":
+      frases.push(
+        `O concurso ${nomeOrgao} está com **comissão formada**: o grupo que organiza o certame já trabalha, e o edital costuma vir poucos meses depois.`,
+      );
+      break;
+    case "autorizado":
+      frases.push(
+        `O concurso ${nomeOrgao} está **autorizado**. A decisão política já foi tomada; o que falta agora é cronograma.`,
+      );
+      break;
+    case "solicitado":
+      frases.push(
+        `O concurso ${nomeOrgao} foi **solicitado** pelo órgão. É o primeiro sinal público de que o certame vem.`,
+      );
+      break;
+    case "estudo":
+      frases.push(
+        `O concurso ${nomeOrgao} está **em estudo** dentro do órgão — a fase em que nascem as autorizações.`,
+      );
+      break;
+    default:
+      frases.push(
+        `O concurso ${nomeOrgao} teve movimentação nesta semana, e vale olhar em que pé está a vaga de médico-legista ${comArtigo}.`,
+      );
+  }
+
+  if (numeros.length > 0 && salario) {
+    frases.push(`São ${numeros.join(" e ")}, com salário inicial de ${salario}.`);
+  } else if (numeros.length > 0) {
+    frases.push(`São ${numeros.join(" e ")}.`);
+  } else if (salario) {
+    frases.push(`O salário inicial do cargo é de ${salario}.`);
+  }
+
+  return frases.join(" ");
+}
+
+/**
+ * O que dizer a quem está estudando, pela etapa em que o estado está.
  *
- * Depois vem o que é nosso: a ficha do estado em tabela, ou, na falta dela, a
- * etapa em uma frase. E no fim a nota dizendo que o post foi aberto pelo
- * monitor — que não é disclaimer defensivo, e sim o que permite publicar rápido
- * sem fingir uma apuração que não houve.
+ * É a parte do post que não depende de ninguém escrever: a etapa sai do funil
+ * que o monitor calcula, e o que fazer em cada etapa não muda de um estado
+ * para o outro.
+ */
+const ORIENTACAO: Record<Nivel, string> = {
+  edital:
+    "Com o edital na mão, o conteúdo programático deixa de ser suposição. A partir daqui o que decide é treino no recorte que a banca cobra — e tempo, que passou a ser curto.",
+  banca:
+    "Banca definida é a hora de estudar pelo estilo dela. Prova anterior da mesma banca vale mais que qualquer resumo genérico: é ali que aparecem o nível de detalhe e o tipo de pegadinha que você vai encontrar.",
+  comissao:
+    "Comissão formada costuma dar poucos meses até o edital. É o momento de chegar com a base de medicina legal pronta — tanatologia, traumatologia, sexologia forense e perícia médico-legal — em vez de começar do zero com o cronômetro ligado.",
+  autorizado:
+    "Autorizado, o edital vira questão de prazo administrativo. Quem começa agora chega com a base formada; quem espera a publicação estuda correndo atrás.",
+  solicitado:
+    "Pedido feito é expectativa, não data. Mas é o momento mais barato de começar: a base de medicina legal leva meses para assentar e não muda de um edital para o outro.",
+  estudo:
+    "Ainda em estudo interno, sem data. Vale acompanhar de perto — é desta fase que saem as autorizações, e quem já está estudando ganha a dianteira.",
+  noticia:
+    "Sem mudança de etapa por enquanto. Serve para acompanhar o ritmo do estado e manter a preparação em dia.",
+  sem: "Sem movimentação registrada até agora. Vale acompanhar o estado pelo mapa.",
+};
+
+/**
+ * O corpo do post, inteiro escrito a partir da nossa base.
+ *
+ * Quatro blocos, na ordem em que a pessoa decide se continua lendo: o que
+ * mudou, os números, o que isso muda para ela, e como se preparar. Sem
+ * citação, sem crédito a veículo e sem frase reaproveitada de ninguém.
  */
 function corpoDoPost(
-  m: Mencao,
+  uf: string,
   nomeEstado: string,
+  nomeOrgao: string,
   etapa: Nivel,
-  citacao: string | null,
-  ficha: string[][],
+  ficha: Ficha | null,
 ): string {
-  const quando = emPortugues(m.data);
-  const fonte = m.fonte || "A fonte";
-  const link = `[Ler a matéria original](${m.link})`;
+  const comArtigo = (() => {
+    const nome = estadoComArtigo(uf);
+    if (!nome) return `em ${nomeEstado}`;
+    // "o Maranhão" → "no Maranhão"; "a Bahia" → "na Bahia"; "São Paulo" → "em São Paulo".
+    if (nome.startsWith("o ")) return `n${nome}`;
+    if (nome.startsWith("a ")) return `n${nome}`;
+    return `em ${nome}`;
+  })();
 
-  const abertura = citacao
-    ? [
-        `> ${citacao}`,
-        "",
-        `— ${fonte}${quando ? `, ${quando}` : ""}. ${link}`,
-      ]
-    : [
-        `**${fonte}** publicou${quando ? `, em ${quando}` : ""}: ` +
-          `*${tituloLimpo(m.titulo, m.fonte)}*. ${link}`,
-      ];
-
-  const nosso =
-    ficha.length > 0
-      ? [
-          // "sobre o Maranhão", "sobre a Bahia", "sobre São Paulo": o artigo
-          // vem da tabela do blog, que já resolve os 27 casos.
-          `## O que o Clube Forense tem confirmado sobre ${estadoComArtigo(m.uf) ?? nomeEstado}`,
-          "",
-          "| O que | Hoje |",
-          "| --- | --- |",
-          `| Etapa no mapa | ${NIVEL_LABEL[etapa]} |`,
-          ...ficha.map(([rotulo, valor]) => `| ${rotulo} | ${valor} |`),
-          "",
-          "Esses dados são da nossa curadoria — conferidos um a um, e não " +
-            "recortados da notícia. O estado inteiro, com histórico, IMLs e as " +
-            `últimas movimentações, está no [mapa dos concursos](/?uf=${m.uf}).`,
-        ]
-      : [
-          `## Onde ${nomeEstado} está hoje`,
-          "",
-          `No mapa do Clube Forense, ${estadoComArtigo(m.uf) ?? nomeEstado} ` +
-            `aparece hoje como **${NIVEL_LABEL[etapa].toLowerCase()}**. As vagas, ` +
-            "o salário e as últimas notícias do estado ficam no " +
-            `[mapa dos concursos](/?uf=${m.uf}), atualizado de hora em hora.`,
-        ];
-
-  return [
-    ...abertura,
+  const linhas: string[] = [
+    "## O que mudou",
     "",
-    ...nosso,
+    abertura(nomeOrgao, comArtigo, etapa, ficha),
+  ];
+
+  const tabela = fichaDoEstado(ficha);
+  if (tabela.length > 0) {
+    linhas.push(
+      "",
+      "## O que já está definido",
+      "",
+      "| O que | Hoje |",
+      "| --- | --- |",
+      `| Etapa | ${NIVEL_LABEL[etapa]} |`,
+      ...tabela.map(([rotulo, valor]) => `| ${rotulo} | ${valor} |`),
+      "",
+      "Os números acima são os que o Clube Forense acompanha e confere estado a " +
+        "estado. Quando algum deles mudar, o [mapa dos concursos]" +
+        `(/?uf=${uf}) muda junto — ele é atualizado de hora em hora.`,
+    );
+  }
+
+  if (ficha?.materias?.trim()) {
+    linhas.push(
+      "",
+      "## O que cai de medicina legal",
+      "",
+      ficha.materias.trim(),
+    );
+  }
+
+  linhas.push(
     "",
-    "## Para quem está estudando",
+    "## O que isso muda para quem estuda",
     "",
     ORIENTACAO[etapa],
     "",
-    "No [preparatório do Clube Forense](https://app.clubeforense.com.br) o curso " +
-      "de medicina legal é feito para este cargo — e não adaptado de outra carreira.",
+    "## Como se preparar",
     "",
-    "---",
-    "",
-    "*Este post foi aberto pelo monitor do Clube Forense no dia em que a fonte " +
-      "citada publicou, para a notícia não chegar atrasada. A leitura do Clube " +
-      "entra na revisão.*",
-  ].join("\n");
+    "O [preparatório do Clube Forense](https://app.clubeforense.com.br) é feito " +
+      "para o cargo de médico-legista — aula, questão e revisão pelo recorte que " +
+      "cai na prova de perícia, e não um curso de outra carreira adaptado. " +
+      `A etapa atualizada ${comArtigo} fica sempre no ` +
+      `[mapa dos concursos](/?uf=${uf}).`,
+  );
+
+  return linhas.join("\n");
 }
 
-
-/**
- * O esqueleto, para o que vai à fila.
- *
- * Markdown, com três partes: o que a fonte disse (entre aspas e creditado, para
- * ninguém confundir com texto nosso), um lugar marcado para a análise do Clube
- * e o gancho para o mapa. Quem revisa reescreve a primeira parte e preenche a
- * segunda; o que não for reescrito continua honesto, porque está atribuído.
- *
- * O aviso de texto faltando é texto normal, e não comentário de HTML: o
- * renderizador do blog monta elementos React a partir do Markdown e não
- * esconde comentário nenhum — se este post fosse ao ar por engano, o
- * comentário apareceria na tela do leitor. Em texto, ele é reconhecido pelo
- * painel, que marca o post como "Falta texto" e o mantém fora da publicação em
- * massa.
- */
-function esqueleto(m: Mencao, nomeEstado: string, etapa: Nivel): string {
-  const resumo = m.resumo?.trim();
-  const estagio = NIVEL_LABEL[etapa];
-
-  return [
-    resumo ? `> ${resumo}` : `> ${m.titulo}`,
-    "",
-    `Segundo ${m.fonte || "a fonte"}${m.data ? `, em ${emPortugues(m.data)}` : ""}. ` +
-      `[Ler a matéria original](${m.link})`,
-    "",
-    "## O que isso muda",
-    "",
-    "TEXTO INCOMPLETO — escreva aqui a leitura do Clube: o que a notícia",
-    "significa para quem está estudando, o que já era sabido e o que é novo.",
-    "Sem esta parte, o post é só a manchete de outro veículo repetida.",
-    "",
-    "## Onde o estado está hoje",
-    "",
-    `No nosso monitor, ${nomeEstado} aparece como **${estagio}**. ` +
-      `Veja a etapa, as vagas e o salário no [mapa dos concursos](/?uf=${m.uf}).`,
-  ].join("\n");
+/** O resumo do cartão: a abertura, cortada no tamanho da listagem. */
+function resumoDoPost(
+  nomeOrgao: string,
+  comArtigo: string,
+  etapa: Nivel,
+  ficha: Ficha | null,
+): string {
+  return abertura(nomeOrgao, comArtigo, etapa, ficha)
+    .replace(/\*\*/g, "")
+    .slice(0, 400);
 }
 
 // ------------------------------------------------------------------ rodada
 
-/** Um post que o robô acabou de criar. */
+/** Uma pauta que o robô acabou de abrir. */
 export interface PostDoRobo {
   titulo: string;
   slug: string;
@@ -490,211 +482,138 @@ export interface PostDoRobo {
 }
 
 export interface ResultadoPautas {
-  /** Quantos posts nasceram nesta passada, somando os dois destinos. */
+  /** Quantas pautas nasceram nesta passada. */
   abertas: number;
-  /** Quantos foram direto ao ar. */
+  /** Quantas foram direto ao ar. Hoje sempre zero — ver o topo do arquivo. */
   publicadas: number;
-  /** Quantos ficaram na fila por não estarem completos. */
+  /** Quantas esperam um clique no painel. */
   naFila: number;
   /** Títulos, para o painel poder dizer o que apareceu. */
   titulos: string[];
-  /** O detalhe de cada um, para o aviso por e-mail. */
+  /** O detalhe de cada uma, para o aviso. */
   posts: PostDoRobo[];
 }
 
 /**
- * Transforma as notícias novas e relevantes do relatório em posts.
+ * Abre pauta para as notícias novas e relevantes do relatório.
  *
  * Nunca lança: a coleta e o cron não podem quebrar porque o blog teve um
  * problema. O que falhar fica de fora e a próxima passada tenta de novo — o
  * índice único em `fonte_url` é o que garante que tentar de novo não duplica.
  */
-/** True quando o resumo do feed diz algo além da manchete. */
-function resumoAproveitavel(m: Mencao): boolean {
-  const doFeed = (m.resumo ?? "").trim();
-  if (doFeed.length < RESUMO_MINIMO) return false;
-  return !ehSoOTitulo(doFeed, tituloLimpo(m.titulo, m.fonte), m.fonte);
-}
-
 export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas> {
-  const candidatas: {
-    m: Mencao;
-    travado: boolean;
-    etapa: Nivel;
-    ficha: string[][];
-    publicavel: boolean;
-  }[] = [];
+  const candidatas: { m: Mencao; etapa: Nivel; ficha: Ficha | null }[] = [];
 
   for (const estado of relatorio.estados) {
-    // Estado travado na planilha é o caso que mais pede olho humano, e por
-    // isso nenhuma notícia dele vai ao ar sozinha. O travamento existe
-    // justamente onde a manchete engana: a Polícia Científica SP teve 55 vagas
-    // autorizadas e nenhuma de médico-legista, e um post automático dizendo
-    // "55 vagas autorizadas" seria uma promessa falsa assinada por nós. A
-    // pauta continua nascendo — na fila, onde dá para escrever o que a manchete
-    // não diz.
-    const travado = estado.curadoria?.travado === true;
-
-    // A ficha é a mesma para todas as notícias do estado: vale calcular uma vez.
-    const ficha = fichaDoEstado(estado.curadoria);
-
     for (const m of estado.mencoes) {
-      // Curadoria é texto nosso, escrito no painel: virar "pauta do robô" seria
-      // o sistema se citando como se fosse fonte externa.
+      // Curadoria é texto nosso, escrito no painel: virar pauta do robô seria o
+      // sistema se citando como se fosse descoberta de fora.
       if (m.daCuradoria) continue;
       if (!m.link?.startsWith("http")) continue;
       if (!recente(m.data)) continue;
-      // A etapa que o post anuncia é a DO ESTADO, consolidada pelo monitor, e
-      // não a da menção isolada. Uma manchete sobre convocação de aprovados é
-      // classificada como "menção recente" e o estado pode estar com edital
-      // publicado; dizer "o estado aparece como menção recente" seria informar
-      // menos do que a gente sabe, e soar como erro para quem acompanha.
+      // Os cortes que o blog exige e o mapa não.
+      if (m.temporaria) continue;
+      if (NOTICIA_DELICADA.test(m.titulo.toLowerCase())) continue;
+      // Estado travado na planilha é onde a gente já sabe que a manchete
+      // engana. Post sobre ele é decisão de quem escreve, nunca do robô.
+      if (estado.curadoria?.travado) continue;
+
       candidatas.push({
         m,
-        travado,
+        // A etapa que o post anuncia é a DO ESTADO, consolidada pelo monitor, e
+        // não a da menção isolada: uma notícia sobre convocação de aprovados é
+        // classificada como "menção recente" enquanto o estado está com edital
+        // publicado, e anunciar a menor das duas seria informar menos do que a
+        // gente sabe.
         etapa: estado.nivel,
-        ficha,
-        // "Dá para publicar sozinho?" é o que ordena a lista, e por isso o
-        // travamento entra na conta aqui: notícia de estado travado nunca vai
-        // ao ar sozinha, e deixá-la na frente faria o estado gastar a vaga da
-        // rodada com uma pauta que ia para a fila de qualquer jeito.
-        publicavel:
-          !travado && (resumoAproveitavel(m) || ficha.length >= FATOS_MINIMOS),
+        ficha: estado.curadoria,
       });
     }
   }
 
-  // A ordem decide quem fica com a vaga do estado na rodada, e por isso a
-  // notícia COM RESUMO vem antes da mais recente. A mesma história chega por
-  // vários caminhos: pelo feed do portal, com o parágrafo que o veículo
-  // escreveu, e pelo Google Notícias, cuja descrição é a própria manchete
-  // repetida. Ordenando só por data, a versão pobre chegava primeiro e levava
-  // a vaga; a boa ia para a fila. Agora é o contrário, e a repetida é
-  // justamente a que a comparação de títulos descarta.
-  candidatas.sort(
-    (a, b) =>
-      Number(b.publicavel) - Number(a.publicavel) ||
-      (b.m.data ?? "").localeCompare(a.m.data ?? ""),
+  // Mais recente primeiro: se o teto cortar, que corte o mais velho.
+  candidatas.sort((a, b) => (b.m.data ?? "").localeCompare(a.m.data ?? ""));
+
+  // O que já virou pauta nos últimos dias. Falha de banco devolve lista vazia,
+  // e o pior que acontece é uma pauta repetida na fila.
+  const anteriores: JaPautado[] = (await titulosRecentesDoRobo(DIAS_SEM_REPETIR)).map(
+    (p) => ({ uf: p.uf, palavras: palavras(p.titulo) }),
   );
-
-  // O que o robô publicou nos últimos dias, para não repetir assunto. Falha de
-  // banco devolve lista vazia, e o pior que acontece é um post repetido.
-  const anteriores: Publicado[] = (await titulosRecentesDoRobo(DIAS_SEM_REPETIR)).map(
-    (p) => ({ uf: p.uf, em: p.em, palavras: palavras(p.titulo) }),
-  );
-
-  /** Quantos posts o robô publicou nas últimas 24 horas. */
-  function publicadosHoje(): number {
-    const corte = Date.now() - 86_400_000;
-    return anteriores.filter((p) => {
-      if (!p.em) return false;
-      const t = new Date(p.em).getTime();
-      return !Number.isNaN(t) && t >= corte;
-    }).length;
-  }
-
-  /** Horas desde o último post do robô sobre este estado. */
-  function horasDesdeOUltimoDaUf(uf: string): number {
-    const datas = anteriores
-      .filter((p) => p.uf === uf && p.em)
-      .map((p) => new Date(p.em as string).getTime())
-      .filter((t) => !Number.isNaN(t));
-    if (datas.length === 0) return Infinity;
-    return (Date.now() - Math.max(...datas)) / 3_600_000;
-  }
 
   const posts: PostDoRobo[] = [];
   const nestaRodadaPorUf = new Map<string, number>();
 
-  // `publicavel` só serve para ordenar: aqui a decisão é refeita com o que a
-  // matéria de origem tiver trazido, que a ordenação não podia saber.
-  for (const { m, travado, etapa, ficha } of candidatas) {
+  for (const { m, etapa, ficha } of candidatas) {
     if (posts.length >= TETO_POR_RODADA) break;
 
     const estado = ESTADO_POR_UF[m.uf];
     if (!estado) continue;
-    if (jaSaiu(m, anteriores)) continue;
-    if ((nestaRodadaPorUf.get(m.uf) ?? 0) >= POSTS_POR_UF_POR_RODADA) continue;
+    if ((nestaRodadaPorUf.get(m.uf) ?? 0) >= PAUTAS_POR_UF_POR_RODADA) continue;
 
-    const titulo = tituloLimpo(m.titulo, m.fonte).slice(0, 200);
+    // Ficha magra não sustenta post, e é também o que responde se o concurso
+    // tem vaga de legista: sem vagas, salário, banca ou data conferidos por
+    // nós, o texto seria a etapa repetida em quatro seções — e sobre um
+    // certame que a gente nem confirmou que inclui o cargo.
+    const tabela = fichaDoEstado(ficha);
+    if (tabela.length < FATOS_MINIMOS) continue;
 
-    // A matéria de origem é lida por último e nunca bloqueia: dela vêm a capa e
-    // o resumo que o veículo escreveu para si. Sem ela o post vive — mas vai
-    // para a fila em vez de ir ao ar, porque falta o que citar.
-    const materia = await lerMateria(m.link).catch(() => ({
-      capaUrl: null,
-      descricao: null,
-    }));
+    const orgao = orgaoDaUf(m.uf);
+    const nomeOrgao = orgao?.curto ?? estado.nome;
 
-    // O resumo do feed vale quando diz algo além da manchete; quando não, vale
-    // o que o próprio veículo publicou como descrição da matéria. Sem nenhum
-    // dos dois, não há o que citar — e sem citação o post vai para a fila.
-    // Duas formas de ter o que citar: o resumo do feed, quando diz algo além da
-    // manchete, ou a descrição que o próprio veículo publicou na página.
-    const bruto = resumoAproveitavel(m)
-      ? (m.resumo ?? "").trim()
-      : (materia.descricao ?? "");
-    const citacao =
-      bruto.length >= RESUMO_MINIMO && !ehSoOTitulo(bruto, titulo, m.fonte)
-        ? bruto
-        : null;
+    const comArtigo = estadoComArtigo(m.uf) ?? estado.nome;
+    const titulo = tituloDoPost(nomeOrgao, etapa, ficha, estado.nome).slice(0, 200);
 
-    // Vai ao ar quando há o que citar OU ficha suficiente para o post dizer
-    // algo que a manchete não diz. Sem nenhum dos dois, fila.
-    const completo =
-      !travado &&
-      (citacao !== null || ficha.length >= FATOS_MINIMOS) &&
-      horasDesdeOUltimoDaUf(m.uf) >= HORAS_ENTRE_POSTS_DA_UF &&
-      publicadosHoje() < PUBLICADOS_POR_DIA;
-    const status = completo ? "publicado" : "revisao";
-
-    // O resumo do cartão da listagem: a citação quando há, a ficha quando não,
-    // e o resumo cru do feed como último recurso — para a pauta na fila não
-    // aparecer no painel só com o título.
-    const resumoDoCartao =
-      citacao ??
-      (ficha.length >= FATOS_MINIMOS
-        ? resumoDaFicha(etapa, m.uf, ficha)
-        : (m.resumo ?? "").trim());
+    // O título é gerado ANTES da checagem de repetição porque é ele que diz se
+    // esta pauta acrescenta algo — ver jaSaiu.
+    if (jaSaiu(m.uf, titulo, anteriores)) continue;
 
     const pauta: PostParaGravar = {
-      slug: slugDaPauta(m, titulo),
+      // A data entra no slug para a pauta do mês que vem não colidir com a
+      // deste mês: os títulos são padronizados por etapa e se repetem.
+      slug: aSlug(`${m.uf} ${(m.data ?? new Date().toISOString()).slice(0, 10)} ${titulo}`).slice(0, 80),
       titulo,
-      resumo: resumoDoCartao.slice(0, 400),
-      corpo: completo
-        ? corpoDoPost(m, estado.nome, etapa, citacao, ficha)
-        : esqueleto(m, estado.nome, etapa),
-      capaUrl: materia.capaUrl,
-      capaCredito: materia.capaUrl ? m.fonte || null : null,
+      resumo: resumoDoPost(
+        nomeOrgao,
+        comArtigo.startsWith("o ") || comArtigo.startsWith("a ")
+          ? `n${comArtigo}`
+          : `em ${comArtigo}`,
+        etapa,
+        ficha,
+      ),
+      corpo: corpoDoPost(m.uf, estado.nome, nomeOrgao, etapa, ficha),
+      // A CAPA É NOSSA, E ISSO MUDOU POR UM MOTIVO SÉRIO. Antes o robô baixava a
+      // foto de abertura da matéria de origem e guardava uma cópia, creditando
+      // o veículo. Com o texto passando a ser escrito por nós e sem crédito a
+      // ninguém, usar a foto do outro ficou pior e não melhor: fato é de
+      // domínio público, fotografia tem dono. A capa passa a ser a imagem do
+      // próprio estado, escolhida no painel — a mesma que o mapa mostra. Sem
+      // imagem cadastrada, o post sai sem capa e o cartão se vira com a sigla
+      // do órgão.
+      capaUrl: ficha?.imagemUrl ?? null,
+      capaCredito: null,
       uf: m.uf,
-      orgao: orgaoDaUf(m.uf)?.slug ?? null,
-      // A categoria vem da menção, e não do estado: um post sobre a publicação
-      // do edital é matéria de edital mesmo num estado cuja etapa já avançou.
-      categoria: categoriaDoNivel(m.nivel),
+      orgao: orgao?.slug ?? null,
+      // A categoria segue a ETAPA que o post anuncia, e não a classificação da
+      // manchete que disparou a pauta: o texto fala do edital publicado, então
+      // é matéria de edital — ainda que a notícia de origem fosse sobre a data
+      // da prova.
+      categoria: categoriaDoNivel(etapa),
       origem: "robo",
-      fonteNome: m.fonte || null,
+      // O nome do veículo NÃO vai para o post — o texto é nosso. O link fica
+      // gravado porque é ele que impede a mesma notícia de virar duas pautas, e
+      // porque quem revisa precisa poder conferir o fato na origem. O painel
+      // mostra; a página pública, não.
+      fonteNome: null,
       fonteUrl: m.link,
-      // A data da notícia, e não a de agora: o post sai com o dia do fato.
-      publicadoEm: completo ? (m.data ?? null) : null,
-      status,
+      publicadoEm: null,
+      status: "revisao",
     };
 
-    if (!(await gravarDoRobo(pauta, status))) continue;
+    if (!(await gravarDoRobo(pauta, "revisao"))) continue;
 
     // Entra na comparação da própria rodada: duas manchetes parecidas vindas de
     // portais diferentes chegam na mesma passada, e sem isto as duas passariam.
-    // Só o que foi publicado conta como "último post do estado" — o que está na
-    // fila não saiu, e não deve impedir o próximo de sair.
-    anteriores.push({
-      uf: m.uf,
-      em: completo ? (m.data ?? new Date().toISOString()) : null,
-      palavras: palavras(titulo),
-    });
-    // Conta publicada e enfileirada: uma pauta por estado por rodada. A
-    // ordenação acima é o que torna isso seguro — a vaga do estado fica com a
-    // melhor versão da notícia, e não com a primeira que apareceu. Sem o teto,
-    // uma autorização em São Paulo enchia a rodada com quatro versões da mesma
-    // coisa, assinadas por quatro veículos.
+    anteriores.push({ uf: m.uf, palavras: palavras(titulo) });
     nestaRodadaPorUf.set(m.uf, (nestaRodadaPorUf.get(m.uf) ?? 0) + 1);
 
     posts.push({
@@ -704,14 +623,14 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
       estado: estado.nome,
       fonte: m.fonte || "fonte não identificada",
       etapa: NIVEL_LABEL[etapa],
-      publicado: completo,
+      publicado: false,
     });
   }
 
   return {
     abertas: posts.length,
-    publicadas: posts.filter((p) => p.publicado).length,
-    naFila: posts.filter((p) => !p.publicado).length,
+    publicadas: 0,
+    naFila: posts.length,
     titulos: posts.map((p) => p.titulo),
     posts,
   };

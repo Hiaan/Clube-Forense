@@ -200,7 +200,11 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
             </select>
           </Campo>
 
-          <Campo nome="fonteNome" label="Fonte (nome)">
+          <Campo
+            nome="fonteNome"
+            label="Fonte (nome)"
+            dica="Só preencha para dar crédito. Com nome, o post mostra a caixa “Fonte” no fim; vazio, não mostra nada — que é o caso do texto escrito pelo monitor, feito da nossa própria base."
+          >
             <input
               id="fonteNome"
               name="fonteNome"
@@ -209,7 +213,11 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
             />
           </Campo>
 
-          <Campo nome="fonteUrl" label="Fonte (link)">
+          <Campo
+            nome="fonteUrl"
+            label="Fonte (link)"
+            dica="Onde a notícia apareceu. Fica só aqui no painel, para você conferir o fato antes de publicar — e é ele que impede a mesma notícia de virar duas pautas."
+          >
             <input
               id="fonteUrl"
               name="fonteUrl"

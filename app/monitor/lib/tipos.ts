@@ -47,6 +47,23 @@ export interface Mencao {
    */
   conclusiva?: boolean;
   /**
+   * True quando a menção nomeia o cargo do legista — direto ("médico
+   * legista", "medicina legal", IML) ou pelo cargo unificado com sinal de
+   * medicina ("Perito Oficial Criminal — área Medicina").
+   *
+   * O mapa aceita menção de guarda-chuva como contexto, porque um concurso de
+   * polícia científica É notícia do estado. O blog não: "Polícia Científica do
+   * Pará abre seleção para 182 temporários" não fala de legista, e um post
+   * desses no blog do Clube é ruído para quem estuda para o cargo.
+   */
+  cargoDireto?: boolean;
+  /**
+   * True quando a menção é de seleção temporária (PSS, contratação
+   * temporária). Vale como contexto no mapa e nunca vira post: vínculo
+   * precário não é o concurso que o nosso leitor espera.
+   */
+  temporaria?: boolean;
+  /**
    * True quando a menção veio da curadoria (painel ou piso embutido), e não de
    * uma busca. É o que o consolidador respeita num estado travado.
    *

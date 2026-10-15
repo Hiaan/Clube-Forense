@@ -15,7 +15,12 @@
 //     carreira (polícia científica, perícia oficial etc.).
 
 import { obterCuradoria } from "./baseline";
-import { avaliarMencao, classificarNivel, mencaoConclusiva } from "./cargos";
+import {
+  avaliarMencao,
+  classificarNivel,
+  ehSelecaoTemporaria,
+  mencaoConclusiva,
+} from "./cargos";
 import { ESTADOS, ESTADO_POR_UF, normalizar } from "./estados";
 import { montarConsultas } from "./fontes";
 import { HISTORICO_CONCURSOS } from "./historico";
@@ -222,6 +227,8 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
       nivel: classificarNivel(texto, avaliacao.cargoDireto),
       resumo: item.resumo,
       conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
+      cargoDireto: avaliacao.cargoDireto,
+      temporaria: ehSelecaoTemporaria(texto),
     });
   }
 
@@ -262,6 +269,8 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
       nivel: classificarNivel(texto, avaliacao.cargoDireto),
       resumo: post.resumo,
       conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
+      cargoDireto: avaliacao.cargoDireto,
+      temporaria: ehSelecaoTemporaria(texto),
     });
   }
 
