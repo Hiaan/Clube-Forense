@@ -1,12 +1,17 @@
-// Endpoint acionado pelo agendador (Vercel Cron diário + GitHub Action horário;
-// config em vercel.json e .github/workflows/atualizar-monitor.yml).
-// Refaz a coleta e revalida a página /monitor para servir dados frescos.
+// Endpoint acionado pelo agendador (GitHub Action, de hora em hora; config em
+// .github/workflows/atualizar-monitor.yml).
+//
+// A passada faz quatro coisas, nesta ordem: lê as fontes sem cache, grava
+// quando o sistema checou, transforma em post o que é notícia nova (publicando
+// na hora o que nasce completo — ver pautas.ts) e avisa por e-mail o que
+// apareceu. Depois revalida as páginas que mostram tudo isso.
 
 import { revalidatePath } from "next/cache";
 
 import { semearImls } from "../../lib/imlsRepo";
 import { corrigirPlanos, semearPlanos } from "../../lib/planoRepo";
 import { registrarColeta } from "../../lib/sistemaRepo";
+import { avisarNovidades } from "../../monitor/lib/avisoDeNovidades";
 import { coletar } from "../../monitor/lib/coletor";
 import { abrirPautas } from "../../monitor/lib/pautas";
 import { dispararColetaInstagram } from "../../monitor/lib/instagram";
@@ -25,7 +30,7 @@ export async function GET(request: Request) {
   }
 
   // Dispara (assíncrono) um novo scrape do Instagram no Apify. A função tem
-  // trava interna de ~1 disparo/dia, então é seguro chamar o cron de hora em
+  // trava interna de intervalo mínimo, então é seguro chamar o cron de hora em
   // hora. A coleta abaixo lê o resultado do último run já concluído.
   const instagram = await dispararColetaInstagram();
 
@@ -39,7 +44,12 @@ export async function GET(request: Request) {
   // Mesma ideia para a distribuição dos IMLs.
   const imlsSemeados = await semearImls();
 
-  const relatorio = await coletar();
+  // Sem cache, e isto é o que faz o monitor ser de hora em hora de verdade.
+  // Os feeds são guardados por uma hora para a visita ao mapa não pagar a
+  // coleta; com o cron lendo do mesmo cache, a notícia podia chegar com duas
+  // horas de atraso — a hora do cache mais a hora até a próxima passada.
+  // Aqui a leitura é sempre nova, que é o motivo de o cron existir.
+  const relatorio = await coletar({ semCache: true });
   const estadosComNovidade = relatorio.estados.filter((e) => e.nivel !== "sem").length;
 
   // Fica gravado para o painel poder dizer quando o sistema checou por último —
@@ -54,6 +64,11 @@ export async function GET(request: Request) {
   // pauta nova só nasce quando quem roda tem o direito de escrever — o cron e o
   // botão do painel.
   const pautas = await abrirPautas(relatorio);
+
+  // O aviso vem depois de tudo gravado, e nunca antes: um e-mail dizendo que o
+  // post está no ar precisa que o post esteja no ar. Sem novidade, não manda
+  // nada — ver avisoDeNovidades.ts.
+  const aviso = await avisarNovidades(pautas);
 
   revalidatePath("/");
   revalidatePath("/blog");
@@ -82,6 +97,9 @@ export async function GET(request: Request) {
     fonteIndisponivel: relatorio.fonteIndisponivel,
     instagram,
     pautasAbertas: pautas.abertas,
+    pautasPublicadas: pautas.publicadas,
+    pautasNaFila: pautas.naFila,
+    aviso,
     planosSemeados,
     planosCorrigidos,
     imlsSemeados,

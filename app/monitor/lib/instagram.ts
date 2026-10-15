@@ -19,6 +19,27 @@
 // após cada eleição. Handle errado apenas devolve vazio — nunca injeta dado
 // falso, pois toda menção ainda passa pelo filtro de cargo e pela janela de 2
 // anos no coletor.
+//
+// O CONSUMO É O PROJETO INTEIRO AQUI, e foi aprendido do jeito ruim. A versão
+// anterior raspava 54 perfis (governo + governador das 27 UFs), 4 posts cada,
+// todos os dias: ~6.500 resultados por mês. O Apify cobra por resultado e o
+// crédito mensal da conta acabou no meio do mês — a partir dali TODO disparo
+// voltava `403 platform-feature-disabled`, por mais de uma semana, sem nenhum
+// sinal no site. Fonte que silencia sem avisar é pior que fonte que não existe.
+//
+// A conta que mantém a fonte viva, com folga:
+//
+//   29 perfis × 2 posts × 1 disparo/dia ≈ 1.740 resultados/mês
+//
+// O que saiu: as contas pessoais dos governadores. São metade do volume e a
+// parte que menos rende — anúncio de concurso sai na conta institucional do
+// governo, e a do governador repete o que já veio de lá. A tabela delas fica
+// abaixo de propósito: serve de referência de quem é quem, e um post do
+// governador que apareça no dataset por outro caminho continua sendo
+// reconhecido.
+//
+// O que entrou: os perfis dos portais de concurso, que não têm UF e por isso
+// têm o estado inferido do texto, como qualquer notícia.
 
 /** Handles por UF: conta institucional do governo + conta pessoal do governador. */
 const HANDLES: { uf: string; governo: string; governador: string }[] = [
@@ -51,9 +72,24 @@ const HANDLES: { uf: string; governo: string; governador: string }[] = [
   { uf: "TO", governo: "governodotocantins", governador: "wanderlei__barbosa" },
 ];
 
+/**
+ * Perfis de portal de concurso: os que publicam notícia de edital no feed.
+ *
+ * Sem UF, porque não têm uma — o estado vem do texto do post, pelo mesmo
+ * caminho de qualquer notícia (ver coletor.ts). Dois, e não cinco: cada perfil
+ * é consumo fixo todo dia, e estes dois são os de maior alcance.
+ *
+ * O MedConcursos (Método Legista) não está aqui porque o handle dele não foi
+ * confirmado em nenhuma fonte pública — e handle chutado é fonte que parece
+ * ligada e nunca traz nada. Ele entra por caminho melhor: o feed do próprio
+ * site, que o monitor lê de hora em hora (ver portais.ts).
+ */
+const PERFIS_CONCURSO = ["qconcursos", "grancursosonline"];
+
 export interface PostInstagram {
-  uf: string;
-  tipo: "governo" | "governador";
+  /** `null` nos perfis de portal, que não pertencem a um estado. */
+  uf: string | null;
+  tipo: "governo" | "governador" | "concurso";
   handle: string;
   titulo: string;
   resumo: string;
@@ -73,18 +109,27 @@ export function instagramConfigurado(): boolean {
 }
 
 /** Mapa username(minúsculo) -> {uf, tipo}, para associar cada post. */
-const POR_USERNAME = new Map<string, { uf: string; tipo: "governo" | "governador" }>();
+const POR_USERNAME = new Map<
+  string,
+  { uf: string | null; tipo: "governo" | "governador" | "concurso" }
+>();
 for (const h of HANDLES) {
   POR_USERNAME.set(h.governo.toLowerCase(), { uf: h.uf, tipo: "governo" });
   POR_USERNAME.set(h.governador.toLowerCase(), { uf: h.uf, tipo: "governador" });
 }
+for (const perfil of PERFIS_CONCURSO) {
+  POR_USERNAME.set(perfil.toLowerCase(), { uf: null, tipo: "concurso" });
+}
 
-/** Todas as URLs de perfil a raspar (governo + governador das 27 UFs). */
+/**
+ * As URLs de perfil a raspar: a conta institucional das 27 UFs e os perfis de
+ * portal. As contas de governador ficam de fora — ver a conta de consumo no
+ * topo do arquivo.
+ */
 function todasAsUrls(): string[] {
-  const urls: string[] = [];
-  for (const h of HANDLES) {
-    urls.push(`https://www.instagram.com/${h.governo}/`);
-    urls.push(`https://www.instagram.com/${h.governador}/`);
+  const urls = HANDLES.map((h) => `https://www.instagram.com/${h.governo}/`);
+  for (const perfil of PERFIS_CONCURSO) {
+    urls.push(`https://www.instagram.com/${perfil}/`);
   }
   return urls;
 }
@@ -96,8 +141,16 @@ function doisAnosAtras(): string {
   return d.toISOString().slice(0, 10); // YYYY-MM-DD
 }
 
-/** Intervalo mínimo entre scrapes: ~1/dia, mesmo se o cron for acionado de hora em hora. */
-const INTERVALO_MIN_HORAS = 20;
+/**
+ * Intervalo mínimo entre scrapes: um por dia, mesmo com o cron de hora em hora.
+ *
+ * 24 e não 20: a 20 horas, duas passadas caem no mesmo dia de vez em quando e
+ * o consumo do mês estoura justamente no fim do mês, quando não há mais
+ * crédito para recuperar. Perfil de governo publica concurso uma vez por
+ * semana, não a cada hora — a frequência de hora em hora que o monitor tem é
+ * entregue pelos feeds, que são de graça.
+ */
+const INTERVALO_MIN_HORAS = 24;
 
 /**
  * O que aconteceu ao tentar disparar o scrape.
@@ -154,7 +207,9 @@ export async function dispararColetaInstagram(): Promise<ResultadoDisparo> {
   const input = {
     directUrls: todasAsUrls(),
     resultsType: "posts",
-    resultsLimit: 4, // por perfil
+    // Por perfil. Dois cobre o dia de uma conta institucional com sobra, e é
+    // metade do consumo de quatro — ver a conta no topo do arquivo.
+    resultsLimit: 2,
     onlyPostsNewerThan: doisAnosAtras(),
     addParentData: false,
   };

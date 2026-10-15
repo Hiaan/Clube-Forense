@@ -384,7 +384,7 @@ export async function slugOcupado(slug: string, exceto?: number | null): Promise
 /* -------------------------------------------------------------------- robô */
 
 /**
- * Abre um rascunho vindo da coleta, se aquela fonte ainda não virou post.
+ * Põe na fila de revisão um rascunho vindo da coleta.
  *
  * Devolve `true` quando criou. O índice único em `fonte_url` é quem garante a
  * unicidade de verdade — a checagem antes é só para não gastar um insert que já
@@ -392,24 +392,46 @@ export async function slugOcupado(slug: string, exceto?: number | null): Promise
  * coleta, e é o banco que decide quem chegou primeiro.
  */
 export async function abrirRascunhoDoRobo(p: PostParaGravar): Promise<boolean> {
+  return gravarDoRobo(p, "revisao");
+}
+
+/**
+ * Grava um post do robô com o status pedido.
+ *
+ * O STATUS É PARÂMETRO, E ERA FIXO. Era fixo em 'revisao' de propósito: nada
+ * que o robô trouxesse ia ao ar sem alguém aprovar. O que mudou foi o pedido —
+ * notícia de concurso tem que estar no ar no dia em que sai, e a fila só é
+ * esvaziada quando alguém senta na frente do painel. A trava saiu daqui e foi
+ * para quem monta o texto (ver pautas.ts): só é publicado automaticamente o
+ * rascunho que nasce COMPLETO, isto é, com resumo da fonte e sem nenhum
+ * trecho esperando mão humana. O que nasce incompleto continua indo para a
+ * fila, porque publicar esqueleto é pior que publicar tarde.
+ *
+ * A data é respeitada: a importação do blog antigo traz a data original, e
+ * perdê-la colocaria um post de 2024 no topo da listagem.
+ */
+export async function gravarDoRobo(
+  p: PostParaGravar,
+  status: "revisao" | "publicado",
+): Promise<boolean> {
   if (!bancoConfigurado()) return false;
   await garantirEsquema();
   try {
+    const informada = dataIso(p.publicadoEm);
+    // Publicado sem data sai da listagem (a consulta exige `publicado_em <=
+    // now()`), e esse buraco só aparece quando alguém pergunta por que o post
+    // não está no ar. Em revisão, data vazia é normal.
+    const em = status === "publicado" ? (informada ?? new Date().toISOString()) : informada;
+
     const linhas = (await sql().query(
-      // O status é fixo em 'revisao' — nada que o robô traga vai ao ar sem
-      // alguém aprovar, e deixar isso como parâmetro seria deixar a regra
-      // depender de quem chama. A data, não: a importação do blog antigo traz
-      // a data original de publicação, e perdê-la colocaria um post de 2024 no
-      // topo da listagem no dia em que fosse aprovado. Como o status é que
-      // decide o que aparece, data preenchida em rascunho não vaza nada.
       `insert into posts (slug, titulo, resumo, corpo, capa_url, capa_credito, uf,
          orgao, categoria, origem, fonte_nome, fonte_url, status, publicado_em)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'robo',$10,$11,'revisao',$12)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'robo',$10,$11,$12,$13)
        on conflict do nothing returning id`,
       [
         p.slug, p.titulo, p.resumo, p.corpo, p.capaUrl, p.capaCredito,
         p.uf ? p.uf.toUpperCase() : null, p.orgao, p.categoria,
-        p.fonteNome, p.fonteUrl, dataIso(p.publicadoEm),
+        p.fonteNome, p.fonteUrl, status, em,
       ],
     )) as Record<string, unknown>[];
     return linhas.length > 0;
@@ -420,6 +442,48 @@ export async function abrirRascunhoDoRobo(p: PostParaGravar): Promise<boolean> {
     // por causa de um rascunho, e a próxima passada tenta de novo.
     console.error("Falha ao abrir rascunho do robô:", e);
     return false;
+  }
+}
+
+/**
+ * Títulos dos posts recentes do robô, para não publicar a mesma notícia duas
+ * vezes com a manchete de dois veículos.
+ *
+ * POR QUE NÃO BASTA O ÍNDICE ÚNICO EM `fonte_url`. Ele impede o mesmo link de
+ * virar dois posts, e é só isso que ele impede. Quando um edital sai, vinte
+ * portais publicam a mesma notícia com vinte links diferentes e vinte
+ * manchetes parecidas — para o banco, vinte fatos distintos. Com publicação
+ * automática, isso seria o blog repetindo a mesma manchete vinte vezes numa
+ * tarde. A comparação de títulos é feita em memória (ver pautas.ts), que é
+ * onde dá para medir semelhança sem inventar SQL.
+ *
+ * Só os do robô: post escrito à mão é escolha editorial, e repetir um assunto
+ * de propósito é direito de quem escreve.
+ */
+export async function titulosRecentesDoRobo(
+  dias: number,
+): Promise<{ titulo: string; uf: string | null; em: string | null }[]> {
+  if (!bancoConfigurado()) return [];
+  try {
+    await garantirEsquema();
+    const linhas = (await sql().query(
+      `select titulo, uf, coalesce(publicado_em, criado_em) as em from posts
+        where origem = 'robo'
+          and coalesce(publicado_em, criado_em) > now() - ($1 || ' days')::interval
+        order by coalesce(publicado_em, criado_em) desc
+        limit 200`,
+      [String(Math.max(1, Math.round(dias)))],
+    )) as Record<string, unknown>[];
+    return linhas.map((l) => ({
+      titulo: String(l.titulo ?? ""),
+      uf: texto(l.uf),
+      em: dataIso(l.em),
+    }));
+  } catch (e) {
+    // Lista vazia significa "não sei de nenhum parecido", e o pior que
+    // acontece é um post repetido — melhor que a coleta parar.
+    console.error("Falha ao listar títulos recentes do robô:", e);
+    return [];
   }
 }
 

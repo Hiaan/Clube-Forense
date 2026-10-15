@@ -20,7 +20,13 @@ function decodificarEntidades(s: string): string {
     .replace(/&amp;/g, "&");
 }
 
-function limparTexto(bruto: string): string {
+/**
+ * Tira tags e entidades de um pedaço de XML.
+ *
+ * Exportada porque o sitemap de notícias do QConcursos passa pelo mesmo
+ * problema (ver portais.ts): é XML com texto entity-encoded dentro.
+ */
+export function limparTexto(bruto: string): string {
   // O Google Notícias envia o HTML do resumo entity-encoded — e muitas vezes
   // DUPLO-encoded (&amp;nbsp;, &lt;a&gt;…). Por isso alternamos, duas vezes,
   // "remover tags" + "decodificar entidades": a cada ciclo, entidades viram
@@ -34,7 +40,8 @@ function limparTexto(bruto: string): string {
   return s.replace(/\s+/g, " ").trim();
 }
 
-function extrairTag(bloco: string, tag: string): string | null {
+/** Conteúdo de uma tag dentro de um bloco. Também serve ao sitemap de notícias. */
+export function extrairTag(bloco: string, tag: string): string | null {
   const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, "i");
   const m = bloco.match(re);
   return m ? m[1] : null;

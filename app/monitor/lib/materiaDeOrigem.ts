@@ -1,4 +1,12 @@
-// Pega a imagem de abertura da matéria de origem e guarda uma cópia nossa.
+// O que a matéria de origem conta sobre si: a imagem de abertura e a descrição
+// que ela publica para as redes sociais.
+//
+// POR QUE A DESCRIÇÃO IMPORTA TANTO QUANTO A IMAGEM. Metade das nossas fontes
+// não manda resumo: o sitemap de notícias do QConcursos traz título e data, e
+// nada mais. Com publicação automática, um post feito só de manchete seria o
+// blog repetindo a chamada de outro veículo sem dizer nada. A og:description é
+// o parágrafo que o próprio veículo escolheu como resumo da matéria — citá-la
+// entre aspas, creditada, é a diferença entre um post e um eco.
 //
 // POR QUE NÃO "BUSCAR NO GOOGLE": buscar imagem por assunto devolve foto de
 // qualquer um, sem licença e sem contexto — é assim que um post sobre a PC-TO
@@ -11,9 +19,13 @@
 // post sem capa meses depois. A cópia fica na nossa store, com o crédito ao
 // lado.
 //
-// NADA DISSO VAI AO AR SOZINHO. O rascunho nasce em revisão; quem aprova vê a
-// capa, o crédito e decide. Imagem de agência tem licença que não nos alcança,
-// e esse julgamento é humano.
+// O QUE VAI AO AR SOZINHO, E O QUE NÃO VAI. O texto do rascunho completo é
+// publicado pelo monitor sem espera (ver pautas.ts), e a capa viaja com ele
+// creditada ao veículo de origem. A licença de uma foto de agência não nos
+// alcança, então o aviso por e-mail de cada post publicado traz o link: quem
+// recebe abre, olha a capa e troca ou tira em dois cliques. É uma revisão
+// depois em vez de uma revisão antes — a troca que o pedido fez de propósito,
+// porque notícia de concurso parada na fila não serve a ninguém.
 
 import { put } from "@vercel/blob";
 
@@ -105,9 +117,15 @@ function imagemNoHtml(html: string, base: URL): string | null {
     const achou = cabeca.match(p);
     if (achou?.[1]) {
       try {
+        // O `&amp;` precisa virar `&` antes de a URL ser montada: o
+        // QConcursos serve a capa por um redimensionador com cinco parâmetros
+        // (`?image=...&fit=cover&width=1280`), e dentro do HTML eles vêm
+        // escapados. Sem desescapar, o pedido sai com `&amp;fit` como nome de
+        // parâmetro e a imagem volta errada ou não volta.
+        const endereco = achou[1].trim().replace(/&amp;/g, "&");
         // Portal que serve og:image relativa existe; sem resolver contra a
         // base, a URL não baixa.
-        return new URL(achou[1].trim(), base).toString();
+        return new URL(endereco, base).toString();
       } catch {
         continue;
       }
@@ -116,38 +134,88 @@ function imagemNoHtml(html: string, base: URL): string | null {
   return null;
 }
 
-export interface CapaEncontrada {
-  /** URL na nossa store. */
-  url: string;
+/**
+ * Tira a descrição do HTML: og:description primeiro, meta description depois.
+ *
+ * A ordem não é arbitrária. A og:description é escrita para ser lida fora do
+ * site — é o que aparece quando a matéria é compartilhada — e por isso resume
+ * o fato. A meta description de muitos portais é a mesma frase institucional
+ * em todas as páginas ("as últimas notícias de concursos"), que como resumo de
+ * post não diz nada. Fica como segunda opção, e o corte de tamanho mínimo
+ * abaixo descarta as mais vazias.
+ */
+function descricaoNoHtml(html: string): string | null {
+  const cabeca = html.slice(0, 200_000);
+  const padroes = [
+    /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i,
+    /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i,
+  ];
+  for (const padrao of padroes) {
+    const achou = cabeca.match(padrao);
+    const bruto = achou?.[1]?.trim();
+    if (!bruto) continue;
+    const limpo = bruto
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#0?39;/g, "'")
+      .replace(/&apos;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .trim();
+    // Menos que isto não é resumo, é etiqueta.
+    if (limpo.length >= 60) return limpo.slice(0, 600);
+  }
+  return null;
+}
+
+export interface MateriaDeOrigem {
+  /** Cópia da capa na nossa store. `null` quando não deu para pegar. */
+  capaUrl: string | null;
+  /** O resumo que o veículo publica para as redes. `null` quando não há. */
+  descricao: string | null;
 }
 
 /**
- * Procura a imagem da matéria e devolve a cópia guardada, ou `null`.
+ * Abre a matéria de origem e devolve o que der para aproveitar dela.
  *
- * Nunca lança. Capa é enfeite: se qualquer passo falhar — o portal recusa o
- * robô, a página não tem og:image, a store não está configurada — o rascunho
- * nasce sem imagem e a vida segue.
+ * Nunca lança, e nunca devolve `null` por falta de uma das duas coisas: capa e
+ * descrição falham por motivos diferentes (portal sem og:image, portal que
+ * recusa o robô, store não configurada) e uma não deve levar a outra embora. O
+ * que não vier volta `null` no seu campo e o post se arranja sem.
  */
-export async function buscarImagemDaMateria(link: string): Promise<CapaEncontrada | null> {
-  if (!blobConfigurado()) return null;
+export async function lerMateria(link: string): Promise<MateriaDeOrigem> {
+  const vazio: MateriaDeOrigem = { capaUrl: null, descricao: null };
 
   const pagina = enderecoPublico(link);
-  if (!pagina) return null;
+  if (!pagina) return vazio;
 
   const resposta = await buscarComPrazo(pagina.toString(), "text/html");
-  if (!resposta) return null;
+  if (!resposta) return vazio;
 
   // Google Notícias responde com uma página de redirecionamento por JavaScript,
-  // que não tem og:image nenhuma. Não é erro — é só não haver o que pegar.
+  // que não tem metadado nenhum. Não é erro — é só não haver o que pegar.
   const html = await resposta.text().catch(() => "");
-  if (!html) return null;
+  if (!html) return vazio;
+
+  const descricao = descricaoNoHtml(html);
 
   // A base é a URL FINAL, depois dos redirecionamentos: resolver uma og:image
   // relativa contra o endereço do Google News daria um endereço inexistente.
   const finalUrl = enderecoPublico(resposta.url || pagina.toString());
-  if (!finalUrl) return null;
+  if (!finalUrl) return { capaUrl: null, descricao };
 
-  const endereco = imagemNoHtml(html, finalUrl);
+  const capaUrl = await copiarCapa(html, finalUrl);
+  return { capaUrl, descricao };
+}
+
+/** Acha a og:image, baixa e guarda uma cópia nossa. `null` em qualquer tropeço. */
+async function copiarCapa(html: string, base: URL): Promise<string | null> {
+  if (!blobConfigurado()) return null;
+
+  const endereco = imagemNoHtml(html, base);
   if (!endereco) return null;
 
   const imagemUrl = enderecoPublico(endereco);
@@ -172,7 +240,7 @@ export async function buscarImagemDaMateria(link: string): Promise<CapaEncontrad
       addRandomSuffix: true,
       contentType: tipo,
     });
-    return { url };
+    return url;
   } catch {
     return null;
   }

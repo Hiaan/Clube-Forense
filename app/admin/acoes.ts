@@ -41,7 +41,7 @@ import { interpretarGabarito, type EstiloProva, type MateriaProva } from "../lib
 import { aSlug, categoriaPorSlug, orgaoDaUf } from "../blog/lib/taxonomia";
 import { coletar } from "../monitor/lib/coletor";
 import { importarBlogAntigo } from "../monitor/lib/blogAntigo";
-import { abrirPautas } from "../monitor/lib/pautas";
+import { abrirPautas, type ResultadoPautas } from "../monitor/lib/pautas";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import { registrarColeta } from "../lib/sistemaRepo";
@@ -636,11 +636,25 @@ export async function apagarProvaAcao(
  * olhando um estado e quer saber daquele.
  */
 /** Frase que avisa sobre a fila do blog. Vazia quando não nasceu pauta nenhuma. */
-function avisoPautas(abertas: number): string {
-  if (abertas === 0) return "";
-  return abertas === 1
-    ? " Uma pauta nova entrou na fila do blog, em Blog › Para revisar."
-    : ` ${abertas} pautas novas entraram na fila do blog, em Blog › Para revisar.`;
+function avisoPautas(r: ResultadoPautas): string {
+  if (r.abertas === 0) return "";
+
+  const partes: string[] = [];
+  if (r.publicadas > 0) {
+    partes.push(
+      r.publicadas === 1
+        ? "Um post novo foi publicado no blog"
+        : `${r.publicadas} posts novos foram publicados no blog`,
+    );
+  }
+  if (r.naFila > 0) {
+    partes.push(
+      r.naFila === 1
+        ? "uma pauta entrou na fila, em Blog › Para revisar"
+        : `${r.naFila} pautas entraram na fila, em Blog › Para revisar`,
+    );
+  }
+  return ` ${partes.join(" e ")}.`;
 }
 
 export async function coletarAgoraAcao(
@@ -692,7 +706,7 @@ export async function coletarAgoraAcao(
         ok: true,
         mensagem:
           `Coleta refeita. Nenhuma notícia sobre ${nome} nas fontes agora — ` +
-          `use "Pesquisar notícias" acima para conferir por fora.${avisoPautas(pautas.abertas)}`,
+          `use "Pesquisar notícias" acima para conferir por fora.${avisoPautas(pautas)}`,
       };
     }
 
@@ -711,7 +725,7 @@ export async function coletarAgoraAcao(
         `Coleta refeita: ${coletadas.length} notícia(s) sobre ${nome}.${quando} ` +
         `O robô classificou o estado como “${NIVEL_LABEL[doEstado!.nivel]}”. ` +
         "Recarregue a página para ver as manchetes na lista de sugestões." +
-        avisoPautas(pautas.abertas),
+        avisoPautas(pautas),
     };
   } catch (e) {
     return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na coleta." };

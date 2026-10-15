@@ -7,7 +7,13 @@ name: Atualizar Monitor
 
 on:
   schedule:
-    - cron: "0 * * * *" # todo início de hora (horário UTC)
+    # Minuto 37, e não minuto 0. O agendador do GitHub é fila compartilhada: no
+    # minuto 0 ela recebe o mundo inteiro de uma vez e as execuções saem com 10,
+    # 20, às vezes 40 minutos de atraso — foi o que aconteceu aqui, com passadas
+    # a cada 4 a 6 horas apesar do agendamento de hora em hora. Um minuto fora
+    # do movimento é a única coisa que dá para fazer a respeito, e basta: o que
+    # importa é a passada acontecer uma vez por hora, não cair no relógio cheio.
+    - cron: "37 * * * *"
   workflow_dispatch: {} # permite acionar manualmente pelo botão "Run workflow"
 
 jobs:

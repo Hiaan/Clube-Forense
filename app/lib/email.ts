@@ -135,18 +135,30 @@ function corpoHtml(nome: string): string {
 </html>`;
 }
 
-/**
- * Manda o e-mail de boas-vindas. Nunca lança; devolve `false` quando não deu,
- * para quem chamou apenas registrar no log e seguir.
- */
-export async function enviarBoasVindas(nome: string, email: string): Promise<boolean> {
-  if (!emailConfigurado()) return false;
+export interface Mensagem {
+  para: string[];
+  assunto: string;
+  html: string;
+  texto: string;
+  /** Prazo da chamada. Curto quando alguém está esperando a tela responder. */
+  prazoMs?: number;
+}
 
-  // Curto de propósito: isto roda DENTRO da requisição de cadastro, e a pessoa
-  // está olhando um botão girando. Melhor perder o e-mail que fazer o cadastro
-  // parecer travado.
+/**
+ * Manda um e-mail pela Resend. Nunca lança; devolve `false` quando não deu.
+ *
+ * Existe separado porque passou a ter dois usuários com necessidades opostas:
+ * o e-mail de boas-vindas roda dentro da requisição de cadastro, com alguém
+ * olhando um botão girar, e o aviso do monitor roda no cron, onde ninguém
+ * espera. O que muda entre os dois é o prazo — o resto é o mesmo POST.
+ */
+export async function enviarEmail(m: Mensagem): Promise<boolean> {
+  if (!emailConfigurado()) return false;
+  const destinos = m.para.map((e) => e.trim()).filter(Boolean);
+  if (destinos.length === 0) return false;
+
   const controlador = new AbortController();
-  const timer = setTimeout(() => controlador.abort(), 8_000);
+  const timer = setTimeout(() => controlador.abort(), m.prazoMs ?? 8_000);
 
   try {
     const resp = await fetch(ENDPOINT, {
@@ -158,10 +170,10 @@ export async function enviarBoasVindas(nome: string, email: string): Promise<boo
       },
       body: JSON.stringify({
         from: process.env.EMAIL_REMETENTE,
-        to: [email],
-        subject: "Seu acesso está liberado — e a Plataforma Aprova Legista também (Bônus)",
-        html: corpoHtml(nome),
-        text: corpoTexto(nome),
+        to: destinos,
+        subject: m.assunto,
+        html: m.html,
+        text: m.texto,
       }),
     });
 
@@ -175,9 +187,26 @@ export async function enviarBoasVindas(nome: string, email: string): Promise<boo
     }
     return true;
   } catch (e) {
-    console.error(`Falha ao enviar boas-vindas: ${e instanceof Error ? e.message : e}`);
+    console.error(`Falha ao enviar e-mail: ${e instanceof Error ? e.message : e}`);
     return false;
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * Manda o e-mail de boas-vindas. Nunca lança; devolve `false` quando não deu,
+ * para quem chamou apenas registrar no log e seguir.
+ */
+export async function enviarBoasVindas(nome: string, email: string): Promise<boolean> {
+  return enviarEmail({
+    para: [email],
+    assunto: "Seu acesso está liberado — e a Plataforma Aprova Legista também (Bônus)",
+    html: corpoHtml(nome),
+    texto: corpoTexto(nome),
+    // Curto de propósito: isto roda DENTRO da requisição de cadastro, e a
+    // pessoa está olhando um botão girando. Melhor perder o e-mail que fazer o
+    // cadastro parecer travado.
+    prazoMs: 8_000,
+  });
 }

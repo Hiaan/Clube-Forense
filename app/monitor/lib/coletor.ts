@@ -2,8 +2,9 @@
 //
 // Pipeline:
 //   Google Notícias (nacional + estados + portais)  ─┐
-//                                                    ├─► filtro de cargo ─► UF pelo texto ─► nível ─► consolidação
-//   Instagram (governos/governadores, via Apify)    ─┘
+//   Feeds próprios dos portais (Gran, MedConcursos,  ├─► filtro de cargo ─► UF pelo texto ─► nível ─► consolidação
+//     QConcursos/Folha Dirigida)                     │
+//   Instagram (governos + portais, via Apify)       ─┘
 //
 // Regras centrais:
 //   • Janela de 2 anos: menções mais antigas são descartadas.
@@ -19,7 +20,8 @@ import { ESTADOS, ESTADO_POR_UF, normalizar } from "./estados";
 import { montarConsultas } from "./fontes";
 import { HISTORICO_CONCURSOS } from "./historico";
 import { instagramConfigurado, lerPostsInstagram } from "./instagram";
-import { parseRSS } from "./rss";
+import { lerPortais } from "./portais";
+import { parseRSS, type ItemRSS } from "./rss";
 import { versaoAtual } from "./versao";
 import {
   type EstadoStatus,
@@ -171,13 +173,15 @@ export interface OpcoesColeta {
 /** Coleta e consolida o relatório completo. */
 export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<Relatorio> {
   // Curadoria, Google Notícias e Instagram (posts já raspados) em paralelo.
-  const [curadoria, feeds, postsInstagram] = await Promise.all([
+  const [curadoria, feeds, itensDosPortais, postsInstagram] = await Promise.all([
     obterCuradoria(),
     Promise.all(montarConsultas().map((u) => buscarFeed(u, semCache))),
+    lerPortais(semCache),
     instagramConfigurado() ? lerPostsInstagram() : Promise.resolve([]),
   ]);
 
   const googleRespondeu = feeds.some((xml) => xml !== null);
+  const portaisResponderam = itensDosPortais.length > 0;
   const instaRespondeu = postsInstagram.length > 0;
   const mencoesPorUf = new Map<string, Mencao[]>();
 
@@ -194,41 +198,66 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
   // acrescentam ou elevam o estágio.
   for (const m of curadoria.mencoes) registrar(m);
 
+  /**
+   * Um item de feed, filtrado e carimbado com a UF que o texto indicar.
+   *
+   * Mesma função para o Google Notícias e para os feeds próprios dos portais:
+   * a origem muda, o critério não. Era código repetido quando havia uma fonte
+   * só; com duas, repetir seria deixar duas regras parecidas envelhecendo em
+   * paralelo.
+   */
+  function registrarItem(item: ItemRSS) {
+    if (!dentroDaJanela(item.data)) return;
+    const texto = `${item.titulo} ${item.resumo}`;
+    const avaliacao = avaliarMencao(texto);
+    if (!avaliacao.manter) return;
+    const uf = inferirUf(texto);
+    if (!uf || !ESTADO_POR_UF[uf]) return;
+    registrar({
+      uf,
+      titulo: item.titulo,
+      link: item.link,
+      fonte: item.fonte,
+      data: item.data,
+      nivel: classificarNivel(texto, avaliacao.cargoDireto),
+      resumo: item.resumo,
+      conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
+    });
+  }
+
   // Google Notícias.
   for (const xml of feeds) {
     if (!xml) continue;
-    for (const item of parseRSS(xml)) {
-      if (!dentroDaJanela(item.data)) continue;
-      const texto = `${item.titulo} ${item.resumo}`;
-      const avaliacao = avaliarMencao(texto);
-      if (!avaliacao.manter) continue;
-      const uf = inferirUf(texto);
-      if (!uf || !ESTADO_POR_UF[uf]) continue;
-      registrar({
-        uf,
-        titulo: item.titulo,
-        link: item.link,
-        fonte: item.fonte,
-        data: item.data,
-        nivel: classificarNivel(texto, avaliacao.cargoDireto),
-        resumo: item.resumo,
-        conclusiva: avaliacao.cargoDireto && mencaoConclusiva(texto),
-      });
-    }
+    for (const item of parseRSS(xml)) registrarItem(item);
   }
 
-  // Instagram (governo/governador): a UF é a da conta, sem inferência.
+  // Feeds próprios dos portais de concurso.
+  for (const item of itensDosPortais) registrarItem(item);
+
+  // Instagram. Na conta de governo a UF é a da própria conta, e é mais
+  // confiável que qualquer inferência: o post do governo do Acre é sobre o
+  // Acre mesmo quando não escreve "Acre". Nos perfis dos portais de concurso
+  // não há UF nenhuma, então vale a regra geral — o estado sai do texto, e o
+  // post que não deixa claro de que estado fala é descartado.
   for (const post of postsInstagram) {
-    if (!ESTADO_POR_UF[post.uf]) continue;
     if (!dentroDaJanela(post.data)) continue;
     const texto = `${post.titulo} ${post.resumo}`;
     const avaliacao = avaliarMencao(texto);
     if (!avaliacao.manter) continue;
+
+    const uf = post.uf ?? inferirUf(texto);
+    if (!uf || !ESTADO_POR_UF[uf]) continue;
+
+    const nomeDaFonte =
+      post.tipo === "concurso"
+        ? `Instagram @${post.handle}`
+        : `Instagram ${post.tipo === "governo" ? "Governo" : "Governador"} @${post.handle}`;
+
     registrar({
-      uf: post.uf,
+      uf,
       titulo: post.titulo,
       link: post.link,
-      fonte: `Instagram ${post.tipo === "governo" ? "Governo" : "Governador"} @${post.handle}`,
+      fonte: nomeDaFonte,
       data: post.data,
       nivel: classificarNivel(texto, avaliacao.cargoDireto),
       resumo: post.resumo,
@@ -238,7 +267,7 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
 
   // Sem fonte externa acessível (ex.: dev com rede restrita), o painel segue
   // funcionando só com a curadoria — o aviso fonteIndisponivel sinaliza isso.
-  const algumaFonteRespondeu = googleRespondeu || instaRespondeu;
+  const algumaFonteRespondeu = googleRespondeu || portaisResponderam || instaRespondeu;
 
   const estados: EstadoStatus[] = ESTADOS.map((estado) => {
     const mencoes = (mencoesPorUf.get(estado.uf) ?? []).sort(
