@@ -1,4 +1,4 @@
-// Publicações entregues pelo vigia da AWS (função "vigia-legista", sa-east-1).
+// Publicações entregues pela pesquisa de editais na AWS (serviço pesquisa-editais da Clarear).
 //
 // A função da AWS faz a parte lenta — os diários oficiais com busca automática
 // e o Google Notícias — e entrega em /api/vigia. Aqui elas ficam guardadas, e a

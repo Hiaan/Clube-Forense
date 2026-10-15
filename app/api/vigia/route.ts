@@ -1,4 +1,5 @@
-// Entrada do vigia que roda na AWS (função "vigia-legista", minuto 7 de cada hora).
+// Entrada da pesquisa de editais que roda na AWS (serviço pesquisa-editais no servidor da
+// Clarear, repositório agenciaclarear, minuto 7 de cada hora).
 //
 // A função da AWS entrega o que achou nos diários oficiais e no Google
 // Notícias. Esta rota só guarda (vigiaRepo.ts): quem filtra, dá o estágio,
