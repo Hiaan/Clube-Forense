@@ -8,6 +8,7 @@
 // O que amarra os dois é o amarelo da marca e a barra de cima, que leva de um
 // para o outro em um clique.
 
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -32,10 +33,19 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen bg-[#fbfbfa]">
       <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5">
-          <Link href="/blog" className="group flex items-baseline gap-2">
-            <span className="text-base font-black tracking-tight text-gray-900">
-              Clube Forense
-            </span>
+          {/* O arquivo chama "fundo claro" pela cor do FUNDO em que ele vive,
+              e não pela cor da tinta — o pacote do designer nomeava pela tinta
+              e os três arquivos pareciam iguais até serem abertos sobre cores
+              diferentes. Aqui o nome diz onde usar. */}
+          <Link href="/blog" className="flex items-center gap-2.5">
+            <Image
+              src="/logo-fundo-claro.png"
+              alt="Clube Forense"
+              width={139}
+              height={24}
+              priority
+              className="h-6 w-auto"
+            />
             <span className="rounded bg-[#ffcd07] px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-gray-900">
               Blog
             </span>
@@ -79,10 +89,14 @@ export default function BlogLayout({ children }: { children: React.ReactNode }) 
         <div className="mx-auto max-w-5xl px-4 py-10">
           <div className="flex flex-col gap-8 sm:flex-row sm:justify-between">
             <div className="max-w-sm">
-              <p className="text-base font-black tracking-tight text-gray-900">
-                Clube Forense
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+              <Image
+                src="/logo-fundo-claro.png"
+                alt="Clube Forense"
+                width={162}
+                height={28}
+                className="h-7 w-auto"
+              />
+              <p className="mt-3 text-sm leading-relaxed text-gray-500">
                 Acompanhamos os concursos de perito médico-legista nas 27
                 unidades federativas e escrevemos sobre o que muda para quem
                 estuda.
