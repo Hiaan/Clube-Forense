@@ -34,6 +34,16 @@ export interface Post {
 /** O que a lista precisa. Sem o corpo, que é o campo pesado. */
 export type PostResumido = Omit<Post, "corpo">;
 
+/**
+ * O que a lista do painel mostra.
+ *
+ * `pronto` vem calculado no banco em vez de o corpo vir junto: a tela precisa
+ * saber se o post tem texto, não precisa do texto. Trazer vinte corpos de 10 KB
+ * para decidir vinte booleanos é o tipo de desperdício que só aparece quando a
+ * lista cresce.
+ */
+export type PostDaLista = PostResumido & { pronto: boolean };
+
 function texto(v: unknown): string | null {
   return v == null ? null : String(v);
 }
@@ -85,6 +95,10 @@ function daLinha(l: Record<string, unknown>): Post {
 const CAMPOS_LISTA =
   "id, slug, titulo, resumo, capa_url, capa_credito, uf, orgao, categoria, " +
   "origem, fonte_nome, fonte_url, status, publicado_em, criado_em, atualizado_em";
+
+/** Mesmos campos, mais o sinal de "tem texto de verdade". Só o painel usa. */
+const CAMPOS_PAINEL =
+  `${CAMPOS_LISTA}, (trim(corpo) <> '' and corpo not like '%TEXTO INCOMPLETO%') as pronto`;
 
 export interface Filtro {
   uf?: string | null;
@@ -236,17 +250,17 @@ export async function listarSlugsPublicados(): Promise<{ slug: string; em: strin
 /* ------------------------------------------------------------------ painel */
 
 /** Tudo, de qualquer status. Só o painel chama. */
-export async function listarTodos(status?: StatusPost): Promise<PostResumido[]> {
+export async function listarTodos(status?: StatusPost): Promise<PostDaLista[]> {
   if (!bancoConfigurado()) return [];
   try {
     await garantirEsquema();
     const linhas = (await sql().query(
       status
-        ? `select ${CAMPOS_LISTA} from posts where status = $1 order by coalesce(publicado_em, criado_em) desc limit 300`
-        : `select ${CAMPOS_LISTA} from posts order by coalesce(publicado_em, criado_em) desc limit 300`,
+        ? `select ${CAMPOS_PAINEL} from posts where status = $1 order by coalesce(publicado_em, criado_em) desc limit 300`
+        : `select ${CAMPOS_PAINEL} from posts order by coalesce(publicado_em, criado_em) desc limit 300`,
       status ? [status] : [],
     )) as Record<string, unknown>[];
-    return linhas.map(daLinha);
+    return linhas.map((l) => ({ ...daLinha(l), pronto: Boolean(l.pronto) }));
   } catch (e) {
     console.error("Falha ao listar posts do painel:", e);
     return [];
@@ -442,4 +456,58 @@ export async function preencherTextosImportados(
     }
   }
   return preenchidos;
+}
+
+export interface ResultadoLote {
+  /** Quantos foram ao ar. */
+  publicados: number;
+  /** Quantos ficaram para trás, e por quê. */
+  semTexto: number;
+  semTitulo: number;
+}
+
+/**
+ * Publica de uma vez tudo o que está em revisão e está pronto.
+ *
+ * Num comando só, e não vinte: o driver fala por HTTP, e vinte idas e voltas
+ * para a mesma decisão é latência pura — além de deixar o lote pela metade se
+ * a quinta falhar.
+ *
+ * O QUE FICA DE FORA, e esta é a parte que importa. Rascunho que ainda carrega
+ * o aviso de texto faltando NÃO vai ao ar. Publicar em massa é cômodo
+ * justamente porque ninguém olha item por item, e sem esta trava o primeiro
+ * clique descuidado colocaria no site um post cujo corpo é "resumo truncado +
+ * bilhete para mim mesmo". O que falta texto continua esperando, e o painel diz
+ * quantos foram deixados para trás.
+ *
+ * `coalesce` na data preserva a do blog antigo e carimba agora só em quem não
+ * tem — um post de 2024 aprovado hoje não pode saltar para o topo da listagem.
+ */
+export async function publicarEmLote(): Promise<ResultadoLote> {
+  if (!bancoConfigurado()) return { publicados: 0, semTexto: 0, semTitulo: 0 };
+  await garantirEsquema();
+
+  const pendentes = (await sql().query(
+    `select count(*) filter (where corpo like '%TEXTO INCOMPLETO%')::int as sem_texto,
+            count(*) filter (where trim(titulo) = '' or trim(corpo) = '')::int as sem_titulo
+     from posts where status = 'revisao'`,
+  )) as Record<string, unknown>[];
+
+  const linhas = (await sql().query(
+    `update posts
+        set status = 'publicado',
+            publicado_em = coalesce(publicado_em, now()),
+            atualizado_em = now()
+      where status = 'revisao'
+        and trim(titulo) <> ''
+        and trim(corpo) <> ''
+        and corpo not like '%TEXTO INCOMPLETO%'
+      returning id`,
+  )) as Record<string, unknown>[];
+
+  return {
+    publicados: linhas.length,
+    semTexto: Number(pendentes[0]?.sem_texto ?? 0),
+    semTitulo: Number(pendentes[0]?.sem_titulo ?? 0),
+  };
 }

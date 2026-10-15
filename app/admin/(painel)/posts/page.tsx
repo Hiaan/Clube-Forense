@@ -8,6 +8,7 @@
 import Link from "next/link";
 
 import BotaoImportar from "./BotaoImportar";
+import BotaoPublicarTodos from "./BotaoPublicarTodos";
 import { contarEmRevisao, listarTodos, type StatusPost } from "../../../lib/postsRepo";
 import { nomeCategoria, nomeEstado, orgaoPorSlug } from "../../../blog/lib/taxonomia";
 
@@ -55,6 +56,11 @@ export default async function PaginaPosts({
     contarEmRevisao(),
   ]);
 
+  // Quantos o botão de publicar em massa realmente levaria. Conta o que está
+  // pronto, e não a fila inteira: prometer "Publicar 20" e publicar 7 é pior
+  // que não ter o botão.
+  const prontos = aba === "revisao" ? posts.filter((p) => p.pronto).length : 0;
+
   return (
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -65,6 +71,9 @@ export default async function PaginaPosts({
           </p>
         </div>
         <div className="flex flex-wrap items-start gap-2">
+          {/* Só na aba da fila: o botão publica o que está EM REVISÃO, e
+              oferecê-lo na aba de rascunhos sugeriria outra coisa. */}
+          {aba === "revisao" && <BotaoPublicarTodos quantos={prontos} />}
           <BotaoImportar />
           <Link
             href="/blog"
@@ -137,6 +146,14 @@ export default async function PaginaPosts({
                         {p.origem === "robo" && (
                           <span className="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-blue-700">
                             Robô
+                          </span>
+                        )}
+                        {/* O que falta texto fica marcado: é o que o botão de
+                            publicar em massa deixa para trás, e saber disso
+                            antes de clicar evita a pergunta depois. */}
+                        {!p.pronto && (
+                          <span className="rounded bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                            Falta texto
                           </span>
                         )}
                         <span className="text-[11px] font-semibold text-gray-400">

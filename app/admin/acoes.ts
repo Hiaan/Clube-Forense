@@ -32,6 +32,7 @@ import {
   apagarPost,
   gravarPost,
   lerPorId,
+  publicarEmLote,
   slugOcupado,
   type OrigemPost,
   type StatusPost,
@@ -942,5 +943,50 @@ export async function importarBlogAntigoAcao(
     };
   } catch (e) {
     return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na importação." };
+  }
+}
+
+/**
+ * Publica tudo o que está em revisão e pronto.
+ *
+ * Existe porque a migração do blog antigo trouxe vinte de uma vez, e aprovar um
+ * a um é onde a migração morre. O que o botão NÃO faz é tão importante quanto:
+ * rascunho sem texto fica para trás, e a mensagem diz quantos.
+ */
+export async function publicarTodosAcao(
+  // A assinatura é ditada pelo useActionState, que sempre entrega o estado
+  // anterior; esta ação não tem o que fazer com ele, e tirar o parâmetro
+  // quebraria o encaixe.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _anterior: Resultado | null,
+): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const r = await publicarEmLote();
+
+    revalidatePath("/blog");
+    revalidatePath("/admin/posts");
+
+    if (r.publicados === 0) {
+      return {
+        ok: false,
+        mensagem:
+          r.semTexto > 0
+            ? `Nenhum post pronto para publicar. ${r.semTexto} ainda estão sem o texto completo — abra e cole o conteúdo antes.`
+            : "Nenhum post em revisão para publicar.",
+      };
+    }
+
+    const ficaram = r.semTexto
+      ? ` ${r.semTexto} ${r.semTexto === 1 ? "ficou" : "ficaram"} para trás por falta de texto.`
+      : "";
+
+    return {
+      ok: true,
+      mensagem: `${r.publicados} ${r.publicados === 1 ? "post publicado" : "posts publicados"}.${ficaram}`,
+    };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao publicar." };
   }
 }
