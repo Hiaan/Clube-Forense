@@ -140,6 +140,18 @@ export interface Mensagem {
   assunto: string;
   html: string;
   texto: string;
+  /**
+   * Remetente, quando for diferente do padrão do projeto.
+   *
+   * Existe por uma limitação real da Resend: enquanto o domínio não está
+   * verificado, ela recusa QUALQUER envio com remetente do domínio. O aviso
+   * interno do monitor não precisa esperar por isso — pode sair pelo remetente
+   * de testes da própria Resend, que só entrega para o dono da conta, que é
+   * justamente quem recebe o aviso. O e-mail de boas-vindas, que vai para o
+   * aluno, continua exigindo o domínio verificado: mandar convite de acesso
+   * com remetente de sandbox seria pior que não mandar.
+   */
+  de?: string;
   /** Prazo da chamada. Curto quando alguém está esperando a tela responder. */
   prazoMs?: number;
 }
@@ -169,7 +181,7 @@ export async function enviarEmail(m: Mensagem): Promise<boolean> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: process.env.EMAIL_REMETENTE,
+        from: m.de?.trim() || process.env.EMAIL_REMETENTE,
         to: destinos,
         subject: m.assunto,
         html: m.html,

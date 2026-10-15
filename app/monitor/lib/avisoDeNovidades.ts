@@ -208,6 +208,9 @@ export async function avisarNovidades(r: ResultadoPautas): Promise<ResultadoAvis
 
   const ok = await enviarEmail({
     para,
+    // Remetente próprio quando configurado. Ver a explicação em email.ts: é o
+    // que faz o aviso chegar antes de o domínio estar verificado na Resend.
+    de: process.env.EMAIL_REMETENTE_AVISOS?.trim() || undefined,
     assunto: assunto(r),
     html: corpoHtml(r),
     texto: corpoTexto(r),
