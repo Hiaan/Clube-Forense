@@ -70,6 +70,19 @@ export async function GET(request: Request) {
   // nada — ver avisoDeNovidades.ts.
   const aviso = await avisarNovidades(pautas);
 
+  // Uma linha por passada, no log da Vercel.
+  //
+  // Parece supérfluo e não é: a rota só escrevia quando algo dava errado, e com
+  // isso não havia como responder a pergunta mais básica do sistema — "o
+  // agendador está mesmo chamando de hora em hora?". Sem rastro de sucesso,
+  // ausência de log é indistinguível de execução silenciosa, e foi exatamente
+  // nisso que a investigação do agendamento esbarrou.
+  console.log(
+    `coleta: ${estadosComNovidade} estados com novidade, ` +
+      `${relatorio.totalMencoes} menções, ${pautas.abertas} pautas novas, ` +
+      `instagram=${instagram}, aviso=${aviso}`,
+  );
+
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/admin/posts");
