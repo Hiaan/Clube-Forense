@@ -7,6 +7,8 @@ import {
   criarTokenLogin,
   empresaPermitidaPorId,
   encerrarSessao,
+  encerrarOutrasSessoes,
+  entrarComSenha,
   entrarComToken,
   ehEquipe,
   usuarioAtual,
@@ -14,6 +16,7 @@ import {
 import { consulta, registrar, umaLinha } from "@/lib/painel/db";
 import { emailComBotao, enviarEmail } from "@/lib/painel/email";
 import { linkDeAcesso } from "@/lib/painel/links";
+import { hashSenha, problemaNaSenha } from "@/lib/painel/senha";
 import { ETAPAS_LEAD, STATUS_PLANO, TEXTOS_PAINEL, type EtapaLead, type StatusPlano } from "@/lib/painel/textos";
 import { IDIOMAS, fmt, type Idioma } from "@/lib/i18n";
 
@@ -45,6 +48,39 @@ export async function pedirLink(_anterior: EstadoLogin, formulario: FormData): P
     console.error("[painel] falha ao enviar link de acesso", erro);
     return { estado: "erro" };
   }
+}
+
+/** `email` volta preenchido depois de um erro (o React limpa o formulário após a ação). */
+export type EstadoSenha = { estado: "inicio" | "invalido" | "limite" | "erro"; email?: string; vez?: number };
+
+export async function entrarSenha(_anterior: EstadoSenha, formulario: FormData): Promise<EstadoSenha> {
+  const email = String(formulario.get("email") ?? "").slice(0, 160);
+  let resultado: Awaited<ReturnType<typeof entrarComSenha>>;
+  try {
+    resultado = await entrarComSenha(email, String(formulario.get("senha") ?? ""));
+  } catch (erro) {
+    console.error("[painel] falha no login com senha", erro);
+    return { estado: "erro", email, vez: Date.now() };
+  }
+  if (!resultado.ok) return { estado: resultado.motivo, email, vez: Date.now() };
+  redirect("/painel");
+}
+
+export type EstadoMinhaSenha = { ok?: boolean; mensagem?: string; vez?: number };
+
+/** A própria pessoa define ou troca a senha. Encerra as outras sessões dela. */
+export async function definirMinhaSenha(_anterior: EstadoMinhaSenha, formulario: FormData): Promise<EstadoMinhaSenha> {
+  const usuario = await usuarioAtual();
+  if (!usuario) redirect("/painel/entrar");
+  const t = TEXTOS_PAINEL[usuario.idioma].conta;
+  const senha = String(formulario.get("senha") ?? "");
+  if (senha !== String(formulario.get("confirmar") ?? "")) return { ok: false, mensagem: t.senhaDiferente, vez: Date.now() };
+  if (problemaNaSenha(senha)) return { ok: false, mensagem: t.senhaCurta, vez: Date.now() };
+  await consulta("update usuarios set senha_hash = $2, senha_em = now() where id = $1", [usuario.id, await hashSenha(senha)]);
+  await encerrarOutrasSessoes(usuario.id);
+  await registrar(usuario.id, null, "senha.definir");
+  revalidatePath("/painel/conta");
+  return { ok: true, mensagem: t.senhaSalva, vez: Date.now() };
 }
 
 export async function confirmarLogin(formulario: FormData) {

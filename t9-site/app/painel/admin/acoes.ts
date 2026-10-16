@@ -14,6 +14,7 @@ import {
 import { consulta, registrar, umaLinha } from "@/lib/painel/db";
 import { emailComBotao, enviarEmail } from "@/lib/painel/email";
 import { linkDeAcesso } from "@/lib/painel/links";
+import { hashSenha, problemaNaSenha } from "@/lib/painel/senha";
 import { consolidar, interpretarPlanilha, lerData, lerNumero, type LinhaMetrica } from "@/lib/painel/csv";
 import { MOEDAS } from "@/lib/painel/formato";
 import { PLANO_PADRAO, TEXTOS_PAINEL } from "@/lib/painel/textos";
@@ -268,14 +269,54 @@ export async function adicionarMembro(_: Estado, f: FormData): Promise<Estado> {
   if (!EMAIL_VALIDO.test(email)) return falha("E-mail inválido.");
   const perfil = txt(f, "perfil") === "admin" ? "admin" : "gestor";
   const nome = txt(f, "nome", 120) || null;
+  const todos = perfil === "gestor" && f.get("todos") === "on";
+  // Não usa txt(): a senha não é aparada nem cortada.
+  const senha = String(f.get("senha") ?? "");
+  if (senha && problemaNaSenha(senha)) return falha(problemaNaSenha(senha)!);
+  const senhaHash = senha ? await hashSenha(senha) : null;
   await consulta(
-    `insert into usuarios (email, nome, perfil) values ($1, $2, $3)
-     on conflict (email) do update set perfil = excluded.perfil, nome = coalesce(excluded.nome, usuarios.nome)`,
-    [email, nome, perfil],
+    `insert into usuarios (email, nome, perfil, todos_clientes, senha_hash, senha_em) values ($1, $2, $3, $4, $5, case when $5::text is null then null else now() end)
+     on conflict (email) do update set perfil = excluded.perfil, nome = coalesce(excluded.nome, usuarios.nome),
+       todos_clientes = excluded.todos_clientes,
+       senha_hash = coalesce(excluded.senha_hash, usuarios.senha_hash), senha_em = coalesce(excluded.senha_em, usuarios.senha_em)`,
+    [email, nome, perfil, todos, senhaHash],
   );
-  await registrar(u.id, null, "equipe.adicionar", `${email} (${perfil})`);
+  await registrar(u.id, null, "equipe.adicionar", `${email} (${perfil}${todos ? ", todos os clientes" : ""}${senha ? ", com senha" : ""})`);
   revalidatePath("/painel/admin", "layout");
-  return sucesso(`${email} agora é ${perfil}. Para entrar, é só pedir o link em /painel/entrar.`);
+  const papel = perfil === "admin" ? "administrador" : todos ? "gestor de todos os clientes" : "gestor";
+  return sucesso(
+    senha
+      ? `${email} agora é ${papel}. Ele entra em /painel/entrar com este e-mail e a senha que você definiu (ele pode trocar em Minha conta).`
+      : `${email} agora é ${papel}. Defina uma senha para ele abaixo, ou ele pode usar "Esqueci a senha" em /painel/entrar.`,
+  );
+}
+
+/** O admin define a senha de alguém da equipe e encerra as sessões abertas dessa pessoa. */
+export async function definirSenhaMembro(_: Estado, f: FormData): Promise<Estado> {
+  const u = await admin();
+  const senha = String(f.get("senha") ?? "");
+  const problema = problemaNaSenha(senha);
+  if (problema) return falha(problema);
+  const membro = await umaLinha<{ id: number; email: string }>(
+    "update usuarios set senha_hash = $2, senha_em = now() where id = $1 and perfil in ('admin', 'gestor') returning id, email",
+    [id(f, "usuario"), await hashSenha(senha)],
+  );
+  if (!membro) return falha("Pessoa da equipe não encontrada.");
+  if (membro.id !== u.id) await consulta("delete from sessoes where usuario_id = $1", [membro.id]);
+  await registrar(u.id, null, "equipe.senha", membro.email);
+  revalidatePath("/painel/admin/equipe");
+  return sucesso(`Senha de ${membro.email} definida. Passe para ele por um canal seguro; ele pode trocar em Minha conta.`);
+}
+
+/** Liga/desliga "todos os clientes" de um gestor. */
+export async function alternarTodosClientes(f: FormData) {
+  const u = await admin();
+  const membro = await umaLinha<{ email: string; todos_clientes: boolean }>(
+    "update usuarios set todos_clientes = not todos_clientes where id = $1 and perfil = 'gestor' returning email, todos_clientes",
+    [id(f, "usuario")],
+  );
+  if (membro) await registrar(u.id, null, "equipe.todos-clientes", `${membro.email}: ${membro.todos_clientes ? "sim" : "não"}`);
+  revalidatePath("/painel", "layout");
 }
 
 export async function removerMembro(f: FormData) {

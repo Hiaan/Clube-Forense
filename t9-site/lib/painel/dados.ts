@@ -1,7 +1,7 @@
 import "server-only";
 import { consulta, umaLinha } from "./db";
 import { FUSO } from "./formato";
-import type { Empresa, Usuario } from "./auth";
+import { veTodos, type Empresa, type Usuario } from "./auth";
 import type { EtapaLead, StatusPlano } from "./textos";
 
 // ---------- Datas e períodos (sempre no horário de Brasília) ----------
@@ -199,7 +199,7 @@ export async function carteira(usuario: Usuario) {
        ${somasCurtas("5 and $6")} sm on true
       where $7::boolean or e.id in (select empresa_id from acessos where usuario_id = $8)
       order by e.nome`,
-    [ini7, ref, ini7ant, fim7ant, iniMes, ref, usuario.perfil === "admin", usuario.id],
+    [ini7, ref, ini7ant, fim7ant, iniMes, ref, veTodos(usuario), usuario.id],
   );
 }
 

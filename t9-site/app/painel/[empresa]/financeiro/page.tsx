@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { modoCliente } from "@/lib/painel/auth";
 import { hoje, somarDias } from "@/lib/painel/dados";
 import { DIAS_LEMBRETE, listarCobrancas, situacaoDe, somarPorMoeda, type Aviso, type Cobranca } from "@/lib/painel/financeiro";
@@ -22,6 +23,8 @@ export default async function Financeiro({
   searchParams: Promise<{ aviso?: string }>;
 }) {
   const { usuario, empresa, idioma, t } = await contextoEmpresa(params);
+  // O gestor não vê quanto o cliente paga.
+  if (usuario.perfil === "gestor") notFound();
   const tf = t.financeiro;
   const cobrancas = await listarCobrancas(empresa.id);
   const admin = usuario.perfil === "admin" && !(await modoCliente());

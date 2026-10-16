@@ -257,6 +257,17 @@ const ESQUEMA = [
   // Mês ("2026-11") da mensalidade gerada automaticamente: no máximo uma por cliente e mês.
   `alter table cobrancas add column if not exists referencia text`,
   `create unique index if not exists cobrancas_referencia on cobrancas (empresa_id, referencia) where referencia is not null`,
+  // Login com e-mail e senha (hash scrypt; nunca a senha em si).
+  `alter table usuarios add column if not exists senha_hash text`,
+  `alter table usuarios add column if not exists senha_em timestamptz`,
+  `create table if not exists tentativas_senha (
+    id bigserial primary key,
+    email text not null,
+    em timestamptz not null default now()
+  )`,
+  `create index if not exists tentativas_senha_email on tentativas_senha (email, em)`,
+  // Gestor que vê todos os clientes (sem precisar atribuir um por um). Nunca vê o financeiro.
+  `alter table usuarios add column if not exists todos_clientes boolean not null default false`,
 ];
 
 /** Cria as tabelas na primeira consulta de cada instância (comandos idempotentes). */

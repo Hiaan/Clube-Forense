@@ -4,13 +4,23 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { consulta, umaLinha } from "./db";
+import { conferirSenha } from "./senha";
 import type { Idioma } from "@/lib/i18n";
 
-// Login sem senha: a pessoa recebe um link de uso único por e-mail. O banco só
-// guarda o hash dos tokens, nunca o valor que vai no link ou no cookie.
+// Login com e-mail e senha. O link de uso único por e-mail continua para o primeiro
+// acesso e para "esqueci a senha". O banco só guarda hashes: da senha, dos tokens do
+// link e do cookie de sessão.
 
 export type Perfil = "admin" | "gestor" | "cliente";
-export type Usuario = { id: number; email: string; nome: string | null; perfil: Perfil; idioma: Idioma };
+export type Usuario = {
+  id: number;
+  email: string;
+  nome: string | null;
+  perfil: Perfil;
+  idioma: Idioma;
+  /** Gestor que vê todos os clientes, sem atribuição um a um. */
+  todos_clientes: boolean;
+};
 export type Empresa = {
   id: number;
   slug: string;
@@ -117,16 +127,19 @@ export async function entrarComToken(token: string) {
   );
   if (!usado) return false;
 
-  const usuario = await umaLinha<{ id: number }>(
-    "update usuarios set ultimo_acesso = now() where email = $1 returning id",
-    [usado.email],
-  );
+  const usuario = await umaLinha<{ id: number }>("select id from usuarios where email = $1", [usado.email]);
   if (!usuario) return false;
+  await abrirSessao(usuario.id);
+  return true;
+}
 
+/** Grava a sessão e o cookie. Só pode rodar em Server Action ou Route Handler. */
+async function abrirSessao(usuarioId: number) {
+  await consulta("update usuarios set ultimo_acesso = now() where id = $1", [usuarioId]);
   const sessao = novoToken();
   await consulta(
     "insert into sessoes (hash, usuario_id, expira_em) values ($1, $2, now() + make_interval(days => $3))",
-    [hash(sessao), usuario.id, DIAS_SESSAO],
+    [hash(sessao), usuarioId, DIAS_SESSAO],
   );
   await consulta("delete from sessoes where expira_em < now()");
 
@@ -138,7 +151,39 @@ export async function entrarComToken(token: string) {
     path: "/",
     maxAge: DIAS_SESSAO * 24 * 60 * 60,
   });
-  return true;
+}
+
+const FALHAS_POR_JANELA = 5;
+
+/**
+ * Entra com e-mail e senha. Depois de 5 senhas erradas em 15 minutos, o e-mail fica
+ * bloqueado até a janela passar (mesmo com a senha certa). A resposta não diz se o
+ * e-mail existe.
+ */
+export async function entrarComSenha(emailBruto: string, senha: string) {
+  const email = normalizarEmail(emailBruto);
+  if (!EMAIL_VALIDO.test(email) || !senha || senha.length > 200) return { ok: false as const, motivo: "invalido" as const };
+  const falhas = await umaLinha<{ total: number }>(
+    "select count(*)::int as total from tentativas_senha where email = $1 and em > now() - interval '15 minutes'",
+    [email],
+  );
+  if ((falhas?.total ?? 0) >= FALHAS_POR_JANELA) return { ok: false as const, motivo: "limite" as const };
+
+  const usuario = await umaLinha<{ id: number; senha_hash: string | null }>("select id, senha_hash from usuarios where email = $1", [email]);
+  if (!(await conferirSenha(senha, usuario?.senha_hash ?? null)) || !usuario) {
+    await consulta("insert into tentativas_senha (email) values ($1)", [email]);
+    await consulta("delete from tentativas_senha where em < now() - interval '1 day'");
+    return { ok: false as const, motivo: "invalido" as const };
+  }
+  await consulta("delete from tentativas_senha where email = $1", [email]);
+  await abrirSessao(usuario.id);
+  return { ok: true as const };
+}
+
+/** Encerra as sessões da pessoa em outros aparelhos (ao trocar a senha), mantendo a atual. */
+export async function encerrarOutrasSessoes(usuarioId: number) {
+  const atual = (await cookies()).get(COOKIE_SESSAO)?.value ?? "";
+  await consulta("delete from sessoes where usuario_id = $1 and hash <> $2", [usuarioId, hash(atual)]);
 }
 
 export async function encerrarSessao() {
@@ -153,7 +198,7 @@ export const usuarioAtual = cache(async (): Promise<Usuario | null> => {
   const valor = (await cookies()).get(COOKIE_SESSAO)?.value;
   if (!valor || valor.length > 100) return null;
   return umaLinha<Usuario>(
-    `select u.id, u.email, u.nome, u.perfil, u.idioma
+    `select u.id, u.email, u.nome, u.perfil, u.idioma, u.todos_clientes
        from sessoes s join usuarios u on u.id = s.usuario_id
       where s.hash = $1 and s.expira_em > now()`,
     [hash(valor)],
@@ -168,6 +213,9 @@ export async function exigirUsuario() {
 
 export const ehEquipe = (u: Usuario) => u.perfil === "admin" || u.perfil === "gestor";
 
+/** Vê todos os clientes: o admin e o gestor marcado com "todos os clientes". */
+export const veTodos = (u: Usuario) => u.perfil === "admin" || (u.perfil === "gestor" && u.todos_clientes);
+
 /** Equipe da T9 (admin ou gestor). */
 export async function exigirEquipe() {
   const usuario = await exigirUsuario();
@@ -181,9 +229,9 @@ export async function exigirAdmin() {
   return usuario;
 }
 
-/** Empresas que o usuário pode ver: o admin vê todas; os demais, as liberadas em "acessos". */
+/** Empresas que o usuário pode ver: o admin (e o gestor de todos os clientes) vê todas; os demais, as liberadas em "acessos". */
 export const empresasDoUsuario = cache(async (usuario: Usuario) => {
-  if (usuario.perfil === "admin") return consulta<Empresa>("select * from empresas order by nome");
+  if (veTodos(usuario)) return consulta<Empresa>("select * from empresas order by nome");
   return consulta<Empresa>(
     "select e.* from empresas e join acessos a on a.empresa_id = e.id where a.usuario_id = $1 order by e.nome",
     [usuario.id],
@@ -192,7 +240,7 @@ export const empresasDoUsuario = cache(async (usuario: Usuario) => {
 
 /** Empresa pelo slug, só se o usuário tiver acesso a ela. Sem acesso, é como se não existisse. */
 export const empresaPermitida = cache(async (usuario: Usuario, slug: string) => {
-  if (usuario.perfil === "admin") return umaLinha<Empresa>("select * from empresas where slug = $1", [slug]);
+  if (veTodos(usuario)) return umaLinha<Empresa>("select * from empresas where slug = $1", [slug]);
   return umaLinha<Empresa>(
     "select e.* from empresas e join acessos a on a.empresa_id = e.id where e.slug = $1 and a.usuario_id = $2",
     [slug, usuario.id],
@@ -202,7 +250,7 @@ export const empresaPermitida = cache(async (usuario: Usuario, slug: string) => 
 /** Mesma checagem, pelo id (usado nas Server Actions, que recebem ids do formulário). */
 export async function empresaPermitidaPorId(usuario: Usuario, id: number) {
   if (!Number.isInteger(id) || id <= 0) return null;
-  if (usuario.perfil === "admin") return umaLinha<Empresa>("select * from empresas where id = $1", [id]);
+  if (veTodos(usuario)) return umaLinha<Empresa>("select * from empresas where id = $1", [id]);
   return umaLinha<Empresa>(
     "select e.* from empresas e join acessos a on a.empresa_id = e.id where e.id = $1 and a.usuario_id = $2",
     [id, usuario.id],

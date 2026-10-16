@@ -14,9 +14,11 @@ export default async function LayoutEmpresa({ children, params }: { children: Re
   const [empresas, equipeEditando] = await Promise.all([empresasDoUsuario(usuario), mostrarEdicao(usuario)]);
   const base = `/painel/${empresa.slug}`;
 
-  // Avisos de pagamento: para o cliente (e para a equipe no modo "ver como cliente").
+  // Avisos de pagamento: para o cliente (e para o admin no modo "ver como cliente").
+  // O gestor nunca vê cobranças nem valores pagos pelo cliente.
+  const veFinanceiro = usuario.perfil !== "gestor";
   const referencia = hoje();
-  const aviso = equipeEditando ? null : avisoDoDia(await listarCobrancas(empresa.id), referencia);
+  const aviso = equipeEditando || !veFinanceiro ? null : avisoDoDia(await listarCobrancas(empresa.id), referencia);
   const atraso = aviso?.situacao.tipo === "atrasada" ? aviso.situacao.dias : 0;
   const tf = t.financeiro;
 
@@ -33,7 +35,7 @@ export default async function LayoutEmpresa({ children, params }: { children: Re
             { href: `${base}/reunioes`, rotulo: t.menu2.reunioes },
             { href: `${base}/relatorios`, rotulo: t.menu2.relatorios },
             { href: `${base}/arquivos`, rotulo: t.menu2.arquivos },
-            { href: `${base}/financeiro`, rotulo: tf.menu },
+            ...(veFinanceiro ? [{ href: `${base}/financeiro`, rotulo: tf.menu }] : []),
           ]}
         />
       </Cabecalho>
