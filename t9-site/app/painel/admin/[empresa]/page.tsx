@@ -356,7 +356,7 @@ export default async function GestaoCliente({ params }: { params: Promise<{ empr
       <FormComEstado acao={salvarEmpresa} className="painel-cartao mt-4 p-6">
         <h2 className="mb-4 font-display text-lg font-extrabold">Dados e metas</h2>
         <input type="hidden" name="empresa" value={empresa.id} />
-        <CamposEmpresa empresa={empresa} />
+        <CamposEmpresa empresa={empresa} admin={admin} />
         <BotaoEnviar enviando="Salvando..." className="botao-painel mt-6">
           Salvar dados e metas
         </BotaoEnviar>

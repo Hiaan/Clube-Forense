@@ -1,10 +1,10 @@
 import type { Empresa } from "@/lib/painel/auth";
-import { situacaoDe, type Cobranca, type Situacao } from "@/lib/painel/financeiro";
-import { MOEDAS, diaCurto } from "@/lib/painel/formato";
+import { proximoVencimento, situacaoDe, type Cobranca, type Situacao } from "@/lib/painel/financeiro";
+import { MOEDAS, dataLonga, diaCurto, dinheiro } from "@/lib/painel/formato";
 import { hoje } from "@/lib/painel/dados";
 import type { TextosPainel } from "@/lib/painel/textos";
 import { fmt, type Idioma } from "@/lib/i18n";
-import { darBaixa, desfazerBaixa, excluirCobranca, salvarCobranca } from "../acoes-financeiro";
+import { alternarCobrancaAutomatica, darBaixa, desfazerBaixa, excluirCobranca, salvarCobranca } from "../acoes-financeiro";
 import { BotaoEnviar } from "./Botoes";
 import FormComEstado from "./FormComEstado";
 
@@ -139,5 +139,63 @@ export function FormCobranca({
         {c ? "Salvar" : "Criar cobrança"}
       </BotaoEnviar>
     </FormComEstado>
+  );
+}
+
+/** Linha de "Mensalidades": valor do contrato e o botão de ligar/desligar a cobrança automática. */
+export function LinhaMensalidade({
+  e,
+}: {
+  e: Pick<Empresa, "id" | "nome" | "slug" | "mensalidade" | "mensalidade_moeda" | "cobranca_automatica" | "vencimento_dia">;
+}) {
+  const valor = Number(e.mensalidade) || 0;
+  return (
+    <tr className="align-top">
+      <td className="font-medium">{e.nome}</td>
+      <td className="text-right whitespace-nowrap tabular-nums">
+        {valor > 0 ? dinheiro(valor, e.mensalidade_moeda ?? "BRL", "pt") : <span className="text-white/40">sem valor</span>}
+      </td>
+      <td>
+        <FormComEstado acao={alternarCobrancaAutomatica}>
+          <input type="hidden" name="empresa" value={e.id} />
+          {e.cobranca_automatica ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-emerald-400/15 px-2.5 py-0.5 text-xs text-emerald-200">
+                Ligada · todo dia {e.vencimento_dia} · próxima {dataLonga(proximoVencimento(e.vencimento_dia ?? 1), "pt")}
+              </span>
+              <input type="hidden" name="ligar" value="0" />
+              <BotaoEnviar enviando="Desligando..." className="text-xs text-white/55 hover:text-white">
+                Desligar
+              </BotaoEnviar>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-white/45">Desligada</span>
+              <input type="hidden" name="ligar" value="1" />
+              <label className="flex items-center gap-1 text-xs text-white/55">
+                vence dia
+                <input
+                  name="dia"
+                  inputMode="numeric"
+                  defaultValue={e.vencimento_dia ?? ""}
+                  required
+                  className="painel-campo !min-h-[32px] !w-16 !py-1 !text-sm"
+                  aria-label={`Dia do vencimento de ${e.nome}`}
+                />
+              </label>
+              {valor > 0 && (
+                <BotaoEnviar
+                  enviando="Ligando..."
+                  className="botao-painel botao-painel-sec !min-h-[32px] !py-1 !text-xs"
+                  confirmar={`Ligar a cobrança automática de ${e.nome}? Todo mês a mensalidade será lançada 7 dias antes do vencimento e o cliente verá os avisos de pagamento.`}
+                >
+                  Ligar
+                </BotaoEnviar>
+              )}
+            </div>
+          )}
+        </FormComEstado>
+      </td>
+    </tr>
   );
 }

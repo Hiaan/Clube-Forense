@@ -248,6 +248,15 @@ const ESQUEMA = [
     valor text,
     atualizado_em timestamptz not null default now()
   )`,
+  // Quanto o cliente paga à T9 por mês (contrato), na moeda em que paga.
+  `alter table empresas add column if not exists mensalidade numeric`,
+  `alter table empresas add column if not exists mensalidade_moeda text`,
+  // Cobrança automática da mensalidade: desligada até o admin ligar, cliente por cliente.
+  `alter table empresas add column if not exists cobranca_automatica boolean not null default false`,
+  `alter table empresas add column if not exists vencimento_dia integer`,
+  // Mês ("2026-11") da mensalidade gerada automaticamente: no máximo uma por cliente e mês.
+  `alter table cobrancas add column if not exists referencia text`,
+  `create unique index if not exists cobrancas_referencia on cobrancas (empresa_id, referencia) where referencia is not null`,
 ];
 
 /** Cria as tabelas na primeira consulta de cada instância (comandos idempotentes). */

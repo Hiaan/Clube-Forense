@@ -13,6 +13,10 @@ export default async function Carteira() {
   const comAlerta = linhas.filter((l) => l.alertas.length).length;
   const totalPorMoeda = new Map<string, number>();
   for (const l of linhas) totalPorMoeda.set(l.moeda, (totalPorMoeda.get(l.moeda) ?? 0) + l.gm);
+  // Receita mensal contratada (mensalidades), só para o admin.
+  const admin = usuario.perfil === "admin";
+  const mensalidades = new Map<string, number>();
+  if (admin) for (const l of linhas) if (l.mensalidade) mensalidades.set(l.mensalidade_moeda ?? "BRL", (mensalidades.get(l.mensalidade_moeda ?? "BRL") ?? 0) + Number(l.mensalidade));
 
   return (
     <>
@@ -41,8 +45,14 @@ export default async function Carteira() {
         )}
       </div>
 
-      {totalPorMoeda.size > 0 && (
+      {(totalPorMoeda.size > 0 || mensalidades.size > 0) && (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[...mensalidades].map(([moeda, total]) => (
+            <div key={`m-${moeda}`} className="painel-cartao p-4">
+              <p className="text-xs tracking-wide text-white/55 uppercase">Mensalidades ({moeda})</p>
+              <p className="mt-2 font-display text-2xl font-extrabold">{dinheiro(total, moeda, "pt", true)}</p>
+            </div>
+          ))}
           {[...totalPorMoeda].map(([moeda, total]) => (
             <div key={moeda} className="painel-cartao p-4">
               <p className="text-xs tracking-wide text-white/55 uppercase">Investido no mês ({moeda})</p>
@@ -82,6 +92,7 @@ export default async function Carteira() {
                       </Link>
                       <span className="block text-xs text-white/45">
                         {ecommerce ? "E-commerce" : "Geração de leads"} · {e.pais} · {e.moeda}
+                        {admin && e.mensalidade ? ` · ${dinheiro(Number(e.mensalidade), e.mensalidade_moeda ?? "BRL", "pt")}/mês` : ""}
                       </span>
                     </td>
                     <td className="text-right tabular-nums">

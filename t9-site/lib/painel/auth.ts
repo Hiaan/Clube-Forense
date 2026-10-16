@@ -37,6 +37,13 @@ export type Empresa = {
   eduzz_ultimo_evento: string | null;
   /** Números (separados por vírgula) que recebem cada lead novo no WhatsApp. */
   whatsapp_leads: string | null;
+  /** Quanto o cliente paga à T9 por mês, na moeda `mensalidade_moeda` (BRL se vazio). */
+  mensalidade: number | null;
+  mensalidade_moeda: string | null;
+  /** Gera a cobrança da mensalidade todo mês (com os avisos ao cliente). Desligada por padrão. */
+  cobranca_automatica: boolean;
+  /** Dia do mês em que a mensalidade vence (1 a 31; em meses curtos, o último dia). */
+  vencimento_dia: number | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";

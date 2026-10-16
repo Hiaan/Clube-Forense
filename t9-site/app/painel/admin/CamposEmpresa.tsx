@@ -3,7 +3,8 @@ import { MOEDAS } from "@/lib/painel/formato";
 import { CONFIG_IDIOMA, IDIOMAS } from "@/lib/i18n";
 
 /** Campos de cadastro e metas da empresa, usados em "Novo cliente" e na edição. */
-export default function CamposEmpresa({ empresa }: { empresa?: Empresa }) {
+/** `admin`: mostra o contrato com a T9 (mensalidade), que gestores não veem. */
+export default function CamposEmpresa({ empresa, admin = false }: { empresa?: Empresa; admin?: boolean }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <label className="sm:col-span-2">
@@ -39,6 +40,24 @@ export default function CamposEmpresa({ empresa }: { empresa?: Empresa }) {
         <span className="painel-rotulo">País (sigla)</span>
         <input name="pais" defaultValue={empresa?.pais ?? "BR"} maxLength={2} className="painel-campo uppercase" />
       </label>
+
+      {admin && (
+        <>
+          <p className="pt-2 font-display text-base font-extrabold sm:col-span-2">Contrato com a T9</p>
+          <label>
+            <span className="painel-rotulo">Mensalidade (quanto o cliente paga por mês)</span>
+            <input name="mensalidade" inputMode="decimal" defaultValue={empresa?.mensalidade ?? ""} className="painel-campo" placeholder="Ex.: 3000" />
+          </label>
+          <label>
+            <span className="painel-rotulo">Moeda da mensalidade</span>
+            <select name="mensalidade_moeda" defaultValue={empresa?.mensalidade_moeda ?? "BRL"} className="painel-campo">
+              {MOEDAS.map((m) => (
+                <option key={m}>{m}</option>
+              ))}
+            </select>
+          </label>
+        </>
+      )}
 
       <p className="pt-2 font-display text-base font-extrabold sm:col-span-2">Metas mensais</p>
       <label>

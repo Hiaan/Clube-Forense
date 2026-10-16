@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { exigirAdmin } from "@/lib/painel/auth";
+import { exigirAdmin, type Empresa } from "@/lib/painel/auth";
 import { consulta } from "@/lib/painel/db";
 import { hoje, somarDias } from "@/lib/painel/dados";
 import { cobrancasDaCarteira, situacaoDe, somarPorMoeda, type CobrancaComEmpresa } from "@/lib/painel/financeiro";
 import { dataLonga, dinheiro } from "@/lib/painel/formato";
 import { TEXTOS_PAINEL } from "@/lib/painel/textos";
-import { AcoesCobranca, FormCobranca, SeloSituacao } from "../../_ui/Financeiro";
+import { AcoesCobranca, FormCobranca, LinhaMensalidade, SeloSituacao } from "../../_ui/Financeiro";
 
 const tf = TEXTOS_PAINEL.pt.financeiro;
 
@@ -13,8 +13,12 @@ export default async function FinanceiroAdmin() {
   const usuario = await exigirAdmin();
   const [cobrancas, empresas] = await Promise.all([
     cobrancasDaCarteira(usuario),
-    consulta<{ id: number; nome: string }>("select id, nome from empresas order by nome"),
+    consulta<Pick<Empresa, "id" | "nome" | "slug" | "mensalidade" | "mensalidade_moeda" | "cobranca_automatica" | "vencimento_dia">>(
+      "select id, nome, slug, mensalidade, mensalidade_moeda, cobranca_automatica, vencimento_dia from empresas order by nome",
+    ),
   ]);
+  // Clientes com mensalidade primeiro; os sem valor ficam no fim.
+  const contratos = [...empresas].sort((a, b) => Number(Boolean(b.mensalidade)) - Number(Boolean(a.mensalidade)));
   const ref = hoje();
   const mes = ref.slice(0, 7);
   const abertas = cobrancas.filter((c) => !c.pago_em);
@@ -59,6 +63,32 @@ export default async function FinanceiroAdmin() {
           <div className="mt-4 max-w-2xl">
             <FormCobranca empresas={empresas} />
           </div>
+        </details>
+      )}
+
+      {contratos.length > 0 && (
+        <details className="painel-cartao mt-4 overflow-x-auto p-5">
+          <summary className="cursor-pointer font-display font-extrabold">
+            Mensalidades e cobrança automática ({empresas.filter((e) => e.cobranca_automatica).length} ligada(s))
+          </summary>
+          <p className="mt-2 text-sm text-white/55">
+            Desligada por padrão. Ligada, a mensalidade de cada mês é lançada 7 dias antes do vencimento e o cliente passa a ver os avisos. O valor
+            se edita em Dados e metas do cliente.
+          </p>
+          <table className="painel-tabela mt-3 w-full min-w-[760px] text-left text-sm">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th className="text-right">Mensalidade</th>
+                <th>Cobrança automática</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contratos.map((e) => (
+                <LinhaMensalidade key={e.id} e={e} />
+              ))}
+            </tbody>
+          </table>
         </details>
       )}
 

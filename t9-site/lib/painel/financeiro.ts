@@ -87,3 +87,49 @@ export function somarMeses(iso: string, meses: number) {
   alvo.setUTCDate(Math.min(d, ultimoDia));
   return alvo.toISOString().slice(0, 10);
 }
+
+// ---------- Mensalidade automática ----------
+// Só para os clientes em que o admin ligou a cobrança automática. A cobrança do mês
+// é criada 7 dias antes do vencimento (quando começa o primeiro aviso), nunca para trás.
+
+/** Vencimento no mês "AAAA-MM" para o dia escolhido (31 em fevereiro → último dia). */
+export function vencimentoNoMes(mes: string, dia: number) {
+  const ultimoDia = new Date(Date.UTC(Number(mes.slice(0, 4)), Number(mes.slice(5, 7)), 0)).getUTCDate();
+  return `${mes}-${String(Math.min(Math.max(Math.round(dia), 1), ultimoDia)).padStart(2, "0")}`;
+}
+
+/** Próximo vencimento a partir de hoje (inclusive). */
+export function proximoVencimento(dia: number, referencia = hoje()) {
+  const esteMes = vencimentoNoMes(referencia.slice(0, 7), dia);
+  return esteMes >= referencia ? esteMes : vencimentoNoMes(somarMeses(`${referencia.slice(0, 7)}-01`, 1).slice(0, 7), dia);
+}
+
+/** Antecedência com que a mensalidade automática é lançada (o primeiro aviso é em 7 dias). */
+export const DIAS_ANTECEDENCIA = Math.max(...DIAS_LEMBRETE);
+
+/** Cria as mensalidades que vencem nos próximos dias. Devolve o que foi criado. */
+export async function gerarMensalidades(referencia = hoje(), empresaId?: number) {
+  const empresas = await consulta<{ id: number; nome: string; mensalidade: number; mensalidade_moeda: string | null; vencimento_dia: number }>(
+    `select id, nome, mensalidade, mensalidade_moeda, vencimento_dia from empresas
+      where cobranca_automatica and mensalidade > 0 and vencimento_dia between 1 and 31
+        and ($1::int is null or id = $1)`,
+    [empresaId ?? null],
+  );
+  const criadas: Array<{ empresa: string; vencimento: string; valor: number; moeda: string }> = [];
+  for (const e of empresas) {
+    const vencimento = proximoVencimento(e.vencimento_dia, referencia);
+    if (diferenca(referencia, vencimento) > DIAS_ANTECEDENCIA) continue;
+    const mes = vencimento.slice(0, 7);
+    const moeda = e.mensalidade_moeda ?? "BRL";
+    // Se já existe cobrança desse cliente vencendo nesse mês (lançada à mão ou já gerada), não duplica.
+    const nova = await consulta<{ id: number }>(
+      `insert into cobrancas (empresa_id, descricao, valor, moeda, vencimento, referencia)
+       select $1, $2, $3, $4, $5, $6
+        where not exists (select 1 from cobrancas where empresa_id = $1 and to_char(vencimento, 'YYYY-MM') = $6)
+       on conflict do nothing returning id`,
+      [e.id, `Mensalidade ${mes.slice(5, 7)}/${mes.slice(0, 4)}`, e.mensalidade, moeda, vencimento, mes],
+    );
+    if (nova.length) criadas.push({ empresa: e.nome, vencimento, valor: e.mensalidade, moeda });
+  }
+  return criadas;
+}

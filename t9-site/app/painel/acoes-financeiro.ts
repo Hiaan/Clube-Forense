@@ -6,7 +6,7 @@ import { empresaPermitidaPorId, usuarioAtual } from "@/lib/painel/auth";
 import { consulta, registrar, umaLinha } from "@/lib/painel/db";
 import { lerData, lerNumero } from "@/lib/painel/csv";
 import { hoje } from "@/lib/painel/dados";
-import { somarMeses } from "@/lib/painel/financeiro";
+import { gerarMensalidades, somarMeses } from "@/lib/painel/financeiro";
 import { MOEDAS } from "@/lib/painel/formato";
 import type { Estado } from "./admin/acoes";
 
@@ -109,4 +109,33 @@ export async function salvarInstrucoes(_: Estado, f: FormData): Promise<Estado> 
   await registrar(u.id, empresa.id, "cobranca.instrucoes");
   atualizar();
   return sucesso("Instruções de pagamento salvas.");
+}
+
+/**
+ * Liga ou desliga a cobrança automática da mensalidade de um cliente.
+ * Ligada, a cobrança de cada mês é lançada 7 dias antes do vencimento e o cliente passa a ver os avisos.
+ */
+export async function alternarCobrancaAutomatica(_: Estado, f: FormData): Promise<Estado> {
+  const u = await admin();
+  const empresa = await empresaPermitidaPorId(u, id(f, "empresa"));
+  if (!empresa) return falha("Cliente não encontrado.");
+  const ligar = txt(f, "ligar") === "1";
+  if (!ligar) {
+    await consulta("update empresas set cobranca_automatica = false where id = $1", [empresa.id]);
+    await registrar(u.id, empresa.id, "cobranca.automatica", "desligada");
+    atualizar();
+    return sucesso(`Cobrança automática desligada para ${empresa.nome}. As cobranças já lançadas continuam na lista.`);
+  }
+  const dia = Math.round(lerNumero(txt(f, "dia")));
+  if (!(dia >= 1 && dia <= 31)) return falha("Informe o dia do vencimento (1 a 31).");
+  if (!(Number(empresa.mensalidade) > 0)) return falha("Cadastre a mensalidade do cliente antes (em Dados e metas).");
+  await consulta("update empresas set cobranca_automatica = true, vencimento_dia = $2 where id = $1", [empresa.id, dia]);
+  await registrar(u.id, empresa.id, "cobranca.automatica", `ligada, dia ${dia}`);
+  const criadas = await gerarMensalidades(hoje(), empresa.id);
+  atualizar();
+  return sucesso(
+    criadas.length
+      ? `Ligada. A mensalidade que vence em ${criadas[0].vencimento.split("-").reverse().join("/")} já foi lançada.`
+      : `Ligada para ${empresa.nome}, todo dia ${dia}. A cobrança de cada mês aparece 7 dias antes do vencimento.`,
+  );
 }
