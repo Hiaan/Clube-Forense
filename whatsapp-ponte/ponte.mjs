@@ -212,7 +212,8 @@ conectar().catch((e) => {
 
 /**
  * O túnel rápido da Cloudflare ganha um endereço novo a cada vez que liga. A ponte o lê nas
- * métricas do cloudflared e informa o painel; repete quando muda e, por garantia, a cada 6 horas.
+ * métricas do cloudflared e informa o painel; repete quando muda e, por garantia, a cada 10 minutos
+ * (se outra ponte tiver avisado por último, esta retoma o endereço; só deixe uma ligada).
  */
 let informado = "";
 let informadoEm = 0;
@@ -224,7 +225,7 @@ async function informarEndereco() {
     if (!host) return;
     url = `https://${host}`;
   }
-  if (url === informado && Date.now() - informadoEm < 6 * 3600_000) return;
+  if (url === informado && Date.now() - informadoEm < 10 * 60_000) return;
   const resposta = await fetch(`${PAINEL}/api/painel/whatsapp/ponte`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${SEGREDO}` },
