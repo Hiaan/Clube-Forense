@@ -38,6 +38,28 @@ quando ele voltar.
 - `docker compose restart`: reiniciar;
 - `docker compose down`: desligar. A sessão do WhatsApp fica guardada no volume.
 
+## Na nuvem (Railway), sem depender do PC
+
+A mesma ponte roda num serviço de nuvem com disco. Recomendado: **Railway**, com uso baixo, na faixa de US$ 5/mês.
+Lá ela ganha um endereço fixo, então não precisa do túnel.
+
+1. Crie a conta em railway.com (entre com o GitHub) e clique em **New Project → Deploy from GitHub repo → Hiaan/Clube-Forense**.
+2. No serviço criado, abra **Settings**:
+   - **Root Directory:** `whatsapp-ponte`;
+   - **Branch:** `claude/nifty-sagan-k4nk2n` (a branch do painel).
+
+   O Railway acha o `Dockerfile` sozinho.
+3. Em **Variables**, crie:
+   - `PONTE_SEGREDO`: o mesmo do `.env` do PC, que é o mesmo da `WHATSAPP_PONTE_SEGREDO` na Vercel;
+   - `PAINEL_URL`: `https://t9company.com.br`;
+   - `PORT`: `3100`;
+   - `PONTE_URL_PUBLICA`: o endereço do passo 5.
+4. Clique com o botão direito no serviço → **Attach Volume**, com **Mount path** `/app/.data`. É ali que fica a sessão do WhatsApp; sem o volume, cada atualização pede o QR de novo.
+5. Em **Settings → Networking → Generate Domain**, crie o endereço (algo como `https://t9-ponte.up.railway.app`) e coloque em `PONTE_URL_PUBLICA`.
+6. Faça o deploy. Em uns 15 segundos a ponte avisa o painel do endereço.
+7. Em **Gestão T9 → WhatsApp**, leia o QR com o celular do número da T9.
+8. No PC, rode `docker compose down` para desligar a ponte antiga. Duas pontes com o mesmo segredo brigariam pelo endereço no painel.
+
 ## Rotas
 
 Todas pedem o cabeçalho `Authorization: Bearer <PONTE_SEGREDO>`. Sem ele, a resposta é 401.

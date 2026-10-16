@@ -25,7 +25,8 @@ import path from "node:path";
 import makeWASocket, { Browsers, DisconnectReason, jidNormalizedUser, useMultiFileAuthState as abrirSessao } from "baileys";
 import QRCode from "qrcode";
 
-const PORTA = Number(process.env.PONTE_PORTA || 3100);
+// PORT: o nome que as plataformas de nuvem (Railway, Render, Fly) usam para dizer a porta.
+const PORTA = Number(process.env.PONTE_PORTA || process.env.PORT || 3100);
 const SEGREDO = (process.env.PONTE_SEGREDO || "").trim();
 const SESSAO = path.resolve(process.env.PONTE_SESSAO || ".data/sessao");
 /** Intervalo mínimo entre duas mensagens: rajada é o que mais chama atenção do WhatsApp. */
@@ -34,6 +35,8 @@ const TENTATIVAS = 3;
 /** Onde está o painel (para avisar o endereço do túnel) e o painel de métricas do cloudflared. */
 const PAINEL = (process.env.PAINEL_URL || "https://t9company.com.br").replace(/\/$/, "");
 const TUNEL = (process.env.TUNEL_METRICAS || "").replace(/\/$/, "");
+/** Na nuvem a ponte já tem endereço fixo (ex.: https://t9-ponte.up.railway.app): ela informa este, sem túnel. */
+const URL_PUBLICA = (process.env.PONTE_URL_PUBLICA || "").replace(/\/$/, "");
 /** De quantos em quantos minutos a ponte pede ao painel para buscar leads novos e enviar. */
 const ROTINA_MIN = Math.max(2, Number(process.env.PONTE_ROTINA_MIN || 5));
 
@@ -214,10 +217,13 @@ conectar().catch((e) => {
 let informado = "";
 let informadoEm = 0;
 async function informarEndereco() {
-  const r = await fetch(`${TUNEL}/quicktunnel`, { signal: AbortSignal.timeout(5000) }).catch(() => null);
-  const host = r?.ok ? String((await r.json().catch(() => ({}))).hostname || "") : "";
-  if (!host) return;
-  const url = `https://${host}`;
+  let url = URL_PUBLICA;
+  if (!url) {
+    const r = await fetch(`${TUNEL}/quicktunnel`, { signal: AbortSignal.timeout(5000) }).catch(() => null);
+    const host = r?.ok ? String((await r.json().catch(() => ({}))).hostname || "") : "";
+    if (!host) return;
+    url = `https://${host}`;
+  }
   if (url === informado && Date.now() - informadoEm < 6 * 3600_000) return;
   const resposta = await fetch(`${PAINEL}/api/painel/whatsapp/ponte`, {
     method: "POST",
@@ -231,7 +237,7 @@ async function informarEndereco() {
     informadoEm = Date.now();
   } else log("não consegui avisar o painel", resposta.status);
 }
-if (TUNEL) {
+if (TUNEL || URL_PUBLICA) {
   setInterval(() => void informarEndereco().catch(() => {}), 15000);
   void informarEndereco().catch(() => {});
 }
