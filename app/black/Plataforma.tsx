@@ -258,8 +258,8 @@ export default function Plataforma() {
             onClick={() => setAtivo(r.chave)}
             className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-bold transition ${
               r.chave === ativo
-                ? "bg-[#ffcd07] text-gray-900"
-                : "border border-white/15 text-white/60 hover:border-white/40 hover:text-white"
+                ? "bg-gray-900 text-[#ffcd07]"
+                : "border border-gray-300 text-gray-600 hover:border-gray-900 hover:text-gray-900"
             }`}
           >
             {r.nome}
@@ -269,12 +269,17 @@ export default function Plataforma() {
 
       <div className="mt-8 grid items-center gap-8 lg:grid-cols-2">
         <div className="order-2 lg:order-1">
-          <h3 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+          <p className="font-mono text-sm font-black text-[#b38f00]">
+            {String(RECURSOS.findIndex((r) => r.chave === recurso.chave) + 1).padStart(2, "0")}
+          </p>
+          <h3 className="mt-2 text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
             {recurso.titulo}
           </h3>
-          <p className="mt-4 text-base leading-relaxed text-white/60">{recurso.texto}</p>
+          <p className="mt-4 text-base leading-relaxed text-gray-600">{recurso.texto}</p>
         </div>
-        <div className="order-1 aspect-[4/3] w-full lg:order-2">
+        {/* Moldura de tela: a maquete é escura e, sobre o fundo claro, lê-se
+            como a tela do produto — que é exatamente o que ela representa. */}
+        <div className="order-1 aspect-[4/3] w-full overflow-hidden rounded-3xl border border-gray-200 bg-[#101016] p-2 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.35)] lg:order-2">
           <Midia recurso={recurso} />
         </div>
       </div>

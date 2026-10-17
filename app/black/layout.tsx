@@ -21,5 +21,8 @@ export const metadata: Metadata = {
 };
 
 export default function BlackLayout({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-[#0b0b0d]">{children}</div>;
+  // Cada bloco da página carrega o próprio fundo (a capa é preta, o miolo é
+  // claro), então a moldura fica neutra — sem isso, o branco das seções claras
+  // ficaria com uma borda preta embaixo em telas altas.
+  return <div className="min-h-screen bg-white">{children}</div>;
 }
