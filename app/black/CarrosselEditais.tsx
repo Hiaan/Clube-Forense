@@ -22,6 +22,8 @@
 // sozinha não precisa de estado em React, e assim a seção continua sendo
 // renderizada no servidor — com os dados do monitor já dentro do HTML.
 
+import Image from "next/image";
+
 import { orgaoDaUf } from "../blog/lib/taxonomia";
 import { NIVEL_COR, NIVEL_LABEL, type EstadoStatus } from "../monitor/lib/tipos";
 
@@ -53,18 +55,39 @@ function linhaDoConcurso(estado: EstadoStatus): string {
   return etapa;
 }
 
+/**
+ * Os brasões que o Clube já usa no carrossel do preparatório.
+ *
+ * Só existem para seis estados, e é por isso que o cartão sabe viver sem: o
+ * monitor cobre os 27, e um estado autorizado amanhã não pode ficar de fora da
+ * faixa por falta de arte. Sem brasão, entra a pastilha da UF na cor da etapa —
+ * que é o mesmo código visual do mapa.
+ */
+const COM_BRASAO = new Set(["DF", "TO", "PE", "PA", "RJ", "MA"]);
+
 function Cartao({ estado }: { estado: EstadoStatus }) {
   const cor = NIVEL_COR[estado.nivel];
   const sigla = orgaoDaUf(estado.uf)?.curto ?? estado.uf;
 
   return (
     <article className="flex w-[300px] shrink-0 items-center gap-4 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_30px_-14px_rgba(0,0,0,0.15)]">
-      <span
-        className="grid h-14 w-14 shrink-0 place-items-center rounded-xl text-sm font-black text-white"
-        style={{ backgroundColor: cor }}
-      >
-        {estado.uf}
-      </span>
+      {COM_BRASAO.has(estado.uf) ? (
+        <Image
+          src={`/black/orgaos/${estado.uf}.webp`}
+          alt=""
+          width={360}
+          height={360}
+          sizes="56px"
+          className="h-14 w-14 shrink-0 rounded-xl object-cover"
+        />
+      ) : (
+        <span
+          className="grid h-14 w-14 shrink-0 place-items-center rounded-xl text-sm font-black text-white"
+          style={{ backgroundColor: cor }}
+        >
+          {estado.uf}
+        </span>
+      )}
       <div className="min-w-0">
         <p className="truncate text-base font-black leading-tight text-gray-900">{sigla}</p>
         <p className="truncate text-[11px] font-bold uppercase tracking-wider text-gray-400">
