@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 
 import Contador from "./Contador";
 import { useLote } from "./Contador";
-import { LOTES, reaisComCentavos } from "./oferta";
+import { LOTES } from "./oferta";
 
 export default function BarraFixa() {
   const { lote } = useLote();
@@ -50,13 +50,17 @@ export default function BarraFixa() {
           <p className="truncate text-[11px] font-bold uppercase tracking-wider text-white/40">
             {mostrado.nome} termina em <Contador compacto />
           </p>
+          {/* SEM PREÇO AQUI. A barra acompanha a rolagem desde o fim da capa,
+              então mostrar o valor nela seria entregar o preço logo no começo
+              — exatamente o que a página decidiu não fazer. O que a barra
+              carrega é o prazo e o caminho para a oferta. */}
           <p className="truncate text-sm font-bold text-white">
-            {mostrado.parcelas}x {reaisComCentavos(mostrado.valorParcela)}
-            <span className="ml-1.5 font-normal text-white/45">todos os editais</span>
+            Todos os editais autorizados
+            <span className="ml-1.5 font-normal text-white/45">em um acesso só</span>
           </p>
         </div>
         <a
-          href={mostrado.checkout}
+          href="#oferta"
           className="shrink-0 rounded-xl bg-[#ffcd07] px-5 py-3 text-sm font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110"
         >
           Garantir vaga

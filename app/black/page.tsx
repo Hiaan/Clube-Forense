@@ -31,9 +31,11 @@ import Link from "next/link";
 
 import Avatar from "../components/Avatar";
 import BarraFixa from "./BarraFixa";
+import CarrosselEditais from "./CarrosselEditais";
 import CaixaDePreco from "./CaixaDePreco";
 import Contador from "./Contador";
 import DrBonet from "./DrBonet";
+import HeroComposicao from "./HeroComposicao";
 import Plataforma from "./Plataforma";
 import PrecoAtual from "./PrecoAtual";
 import Ticker from "./Ticker";
@@ -48,7 +50,7 @@ import {
 import { APROVADOS } from "../monitor/lib/aprovados";
 import { coletar } from "../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
-import { NIVEL_LABEL, type Nivel } from "../monitor/lib/tipos";
+import { type Nivel } from "../monitor/lib/tipos";
 
 // A lista de editais vem da coleta, que tem cache próprio de uma hora. A página
 // é dinâmica para que um concurso autorizado hoje apareça hoje.
@@ -86,15 +88,6 @@ const PROFESSORES = [
     texto:
       "Graduado pela UFPE, especialista em traumatologia e ortopedia e mestre em perícia forense.",
   },
-];
-
-/** Âncoras do topo — o mesmo percurso que a página conta, em uma linha. */
-const ATALHOS = [
-  { href: "#editais", texto: "Editais inclusos" },
-  { href: "#plataforma", texto: "Plataforma" },
-  { href: "#professores", texto: "Professores" },
-  { href: "#aprovados", texto: "Aprovados" },
-  { href: "#oferta", texto: "Preço" },
 ];
 
 function Secao({
@@ -172,87 +165,92 @@ export default async function BlackPage() {
   return (
     <div>
       {/* ----------------------------------------------------------- topo */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b0b0d]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+      {/* NÃO HÁ CABEÇALHO, E ISSO É A REGRA DA PÁGINA. Menu no topo de página
+          de venda é porta de saída: cada link leva para outro lugar que não é
+          o botão. No lugar dele vai a faixa da campanha, que ocupa a mesma
+          faixa de tela e trabalha a favor — lembra em que oferta a pessoa
+          entrou. A marca aparece dentro da capa, onde ela apresenta em vez de
+          navegar. */}
+      <Ticker texto="Black Forense · todos os editais autorizados · um preço só" />
+
+      {/* ----------------------------------------------------------- capa */}
+      {/* TEXTO À ESQUERDA, GENTE À DIREITA. É a divisão que a referência usa e
+          que funciona porque as duas metades respondem perguntas diferentes: a
+          da esquerda diz O QUE É, a da direita diz COM QUEM e EM QUE
+          PLATAFORMA. Centralizar tudo, como estava antes, obriga o olho a
+          descer em zigue-zague e empurra a prova (os professores) para baixo
+          da dobra.
+
+          PREÇO NÃO APARECE AQUI. Quem chega ainda não sabe o que está sendo
+          vendido; número antes do valor é só um susto. O preço mora numa
+          seção só dele, no fim, depois de a página ter contado quantos editais
+          entram, quem ensina e o que tem na plataforma. O contador fica — ele
+          marca o prazo do lote sem revelar quanto custa. */}
+      <div id="capa" className="relative overflow-hidden bg-[#0b0b0d]">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#ffcd07]/10 blur-[130px]" />
+
+        <Secao className="relative pb-20 pt-8 sm:pt-10">
           <Image
             src="/logo-fundo-escuro.png"
             alt="Clube Forense"
-            width={139}
-            height={24}
+            width={162}
+            height={28}
             priority
-            className="h-6 w-auto"
+            className="mx-auto h-7 w-auto lg:mx-0"
           />
-          <nav className="hidden items-center gap-6 lg:flex">
-            {ATALHOS.map((a) => (
-              <a
-                key={a.href}
-                href={a.href}
-                className="text-[13px] font-semibold text-white/50 transition hover:text-white"
-              >
-                {a.texto}
-              </a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-4">
-            <a
-              href={PLATAFORMA}
-              className="hidden text-[13px] font-semibold text-white/50 transition hover:text-white sm:block"
-            >
-              Já sou aluno
-            </a>
-            <a
-              href="#oferta"
-              className="rounded-full bg-[#ffcd07] px-4 py-2 text-[13px] font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110"
-            >
-              Ver a oferta
-            </a>
-          </div>
-        </div>
-      </header>
 
-      {/* ----------------------------------------------------------- capa */}
-      <div id="capa" className="relative overflow-hidden bg-[#0b0b0d]">
-        <div className="pointer-events-none absolute left-1/2 top-0 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[#ffcd07]/10 blur-[120px]" />
+          <div className="mt-10 grid items-center gap-14 lg:mt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
+            <div className="text-center lg:text-left">
+              <span className="badge-pulse inline-flex items-center gap-2 rounded-full border border-[#ffcd07]/30 bg-[#ffcd07]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[#ffcd07]">
+                Black Forense 2026
+              </span>
 
-        <Secao className="relative pb-16 pt-14 sm:pt-20">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="badge-pulse inline-flex items-center gap-2 rounded-full border border-[#ffcd07]/30 bg-[#ffcd07]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[#ffcd07]">
-              Black Forense 2026
-            </span>
+              <h1 className="mt-6 text-4xl font-black leading-[1.03] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Todos os editais de{" "}
+                <span className="text-[#ffcd07]">médico-legista</span> do país.
+                <br className="hidden sm:block" /> Um acesso só.
+              </h1>
 
-            <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl">
-              Todos os editais de
-              <br />
-              <span className="text-[#ffcd07]">médico-legista</span> do país.
-              <br />
-              Um preço só.
-            </h1>
+              <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65 lg:mx-0">
+                São <strong className="font-bold text-white">{inclusos.length} concursos</strong>{" "}
+                em andamento agora — e todo edital novo que sair nos próximos{" "}
+                <strong className="font-bold text-white">{ANOS_DE_ACESSO} anos</strong> entra
+                para você sem pagar de novo. Preparatório completo de cada um, pré e
+                pós-edital.
+              </p>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/65">
-              São <strong className="font-bold text-white">{inclusos.length} concursos</strong>{" "}
-              em andamento agora — e todo edital novo que sair nos próximos{" "}
-              <strong className="font-bold text-white">{ANOS_DE_ACESSO} anos</strong> entra para
-              você sem pagar de novo. Preparatório completo de cada um, pré e pós-edital.
-            </p>
+              <ul className="mx-auto mt-7 flex max-w-xl flex-col gap-2.5 text-left lg:mx-0">
+                {[
+                  "Professores que são médicos-legistas de carreira",
+                  "23 mil questões comentadas, com vídeo do professor resolvendo",
+                  "Aulão pré-prova e o Dr. Bonet para a dúvida da madrugada",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-3">
+                    <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
+                      ✓
+                    </span>
+                    <span className="text-sm leading-relaxed text-white/70">{t}</span>
+                  </li>
+                ))}
+              </ul>
 
-            <div className="mt-9 flex flex-col items-center gap-5">
-              <Contador />
-              <a
-                href="#oferta"
-                className="w-full max-w-sm rounded-2xl bg-[#ffcd07] px-8 py-5 text-center text-base font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110 sm:text-lg"
-              >
-                Quero garantir minha vaga
-              </a>
-              <a
-                href="#editais"
-                className="text-sm font-semibold text-white/50 underline-offset-4 hover:text-white hover:underline"
-              >
-                ver quais editais estão inclusos ↓
-              </a>
+              <div className="mt-9 flex flex-col items-center gap-4 lg:items-start">
+                <a
+                  href="#oferta"
+                  className="w-full max-w-sm rounded-2xl bg-[#ffcd07] px-8 py-5 text-center text-base font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110 sm:text-lg"
+                >
+                  Quero garantir minha vaga
+                </a>
+                <p className="text-[13px] font-semibold text-white/45">
+                  1º lote termina em <Contador compacto />
+                </p>
+              </div>
             </div>
+
+            <HeroComposicao aprovados={totalAprovados} />
           </div>
 
-          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4">
+          <div className="mx-auto mt-20 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4 lg:mt-24">
             {[
               { n: `${totalAprovados}`, t: "aprovados do Clube" },
               { n: "23 mil", t: "questões comentadas" },
@@ -272,108 +270,44 @@ export default async function BlackPage() {
 
       <Ticker texto="Black Forense · todos os editais autorizados · um preço só" />
 
-      {/* -------------------------------------------------------- editais */}
-      <div className="bg-[#0b0b0d]">
+      {/* ------------------------------------------- editais (claro) */}
+      {/* FUNDO CLARO E EM CARROSSEL, e as duas coisas vieram do mesmo pedido.
+          Em preto, a seção pesava como um painel de dados no meio de uma
+          página de venda; clara, ela respira como no site do preparatório. E
+          em carrossel os estados param de ser uma tabela: cada um ganha o seu
+          instante, e a faixa andando diz, sem escrever, que a lista continua
+          crescendo. */}
+      <div className="bg-[#f8f9fb]">
         <Secao id="editais" className="py-16">
-          <Titulo nota="o que está incluso hoje">
-            Estes concursos já estão de pé.
-            <br className="hidden sm:block" /> Você entra em todos.
+          <Titulo claro nota="o que está incluso hoje">
+            Concursos autorizados ou com
+            <br className="hidden sm:block" /> editais publicados
           </Titulo>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-white/55">
-            A lista abaixo é lida do nosso monitor, que varre as fontes oficiais de hora em
-            hora. Se um estado novo for autorizado depois da sua compra, o preparatório dele
-            entra automaticamente — é a mesma lista que o{" "}
-            <Link
-              href="/"
-              className="font-semibold text-[#ffcd07] underline-offset-4 hover:underline"
-            >
-              mapa dos concursos
-            </Link>{" "}
-            mostra.
+          <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-gray-600">
+            São <strong className="font-bold text-gray-900">{inclusos.length} concursos</strong>{" "}
+            de médico-legista de pé agora, e você entra em todos. A lista vem do nosso
+            monitor, que varre as fontes oficiais de hora em hora — se um estado novo for
+            autorizado depois da sua compra, o preparatório dele entra sozinho.
           </p>
+        </Secao>
 
-          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {inclusos.map((e) => {
-              const c = e.curadoria;
-              return (
-                <div
-                  key={e.uf}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#ffcd07]/40"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-lg font-black text-white">{e.nome}</p>
-                      <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-[#ffcd07]">
-                        {NIVEL_LABEL[e.nivel]}
-                      </p>
-                    </div>
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 font-mono text-sm font-black text-white/50">
-                      {e.uf}
-                    </span>
-                  </div>
+        <div className="pb-6">
+          <CarrosselEditais estados={inclusos} />
+        </div>
 
-                  <dl className="mt-4 space-y-1.5 text-sm">
-                    {c?.vagasImediatas ? (
-                      <div className="flex justify-between gap-2">
-                        <dt className="text-white/40">Vagas</dt>
-                        <dd className="font-semibold text-white/85">
-                          {c.vagasImediatas}
-                          {c.vagasCr ? ` + ${c.vagasCr} CR` : ""}
-                        </dd>
-                      </div>
-                    ) : null}
-                    {c?.salarioInicial ? (
-                      <div className="flex justify-between gap-2">
-                        <dt className="text-white/40">Salário</dt>
-                        <dd className="font-semibold text-white/85">
-                          {reais(c.salarioInicial)}
-                        </dd>
-                      </div>
-                    ) : null}
-                    {c?.banca ? (
-                      <div className="flex justify-between gap-2">
-                        <dt className="text-white/40">Banca</dt>
-                        <dd className="font-semibold text-white/85">{c.banca}</dd>
-                      </div>
-                    ) : null}
-                  </dl>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="mt-8 text-center text-sm text-white/40">
+        <Secao className="pb-16 text-center">
+          <p className="text-sm text-gray-500">
             + todo concurso de médico-legista autorizado nos próximos {ANOS_DE_ACESSO} anos
           </p>
-
-          {/* a conta, no mesmo fundo escuro: é a conclusão da lista acima */}
-          <div className="mt-14 rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
-            <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-[#ffcd07]">
-              a conta
-            </p>
-            <div className="mx-auto mt-8 grid max-w-3xl items-center gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl bg-white/[0.04] p-6 text-center sm:col-span-2">
-                <p className="text-sm text-white/50">
-                  {inclusos.length} preparatórios comprados separadamente
-                </p>
-                <p className="mt-2 text-3xl font-black text-white/40 line-through decoration-[#ff4d4d]/60 decoration-2">
-                  {reais(inclusos.length * PRECO_POR_EDITAL)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-[#ffcd07]/40 bg-[#ffcd07]/10 p-6 text-center">
-                <p className="text-sm font-semibold text-[#ffcd07]">na Black Forense</p>
-                <p className="mt-2 text-3xl font-black text-white">
-                  <PrecoAtual />
-                </p>
-              </div>
-            </div>
-            <p className="mx-auto mt-6 max-w-2xl text-center text-sm leading-relaxed text-white/45">
-              O preparatório avulso de um único edital sai por {reais(PRECO_POR_EDITAL)}. Aqui
-              você leva os {inclusos.length} que já estão de pé e todos os que ainda vão sair.
-            </p>
-          </div>
+          <Link
+            href="/"
+            className="mt-3 inline-block text-sm font-bold text-gray-900 underline decoration-[#ffcd07] decoration-2 underline-offset-4"
+          >
+            ver o mapa completo dos 27 estados
+          </Link>
         </Secao>
       </div>
+
 
       {/* ----------------------------------------------- o que leva (claro) */}
       <div className="bg-[#f8f9fb]">
@@ -599,12 +533,42 @@ export default async function BlackPage() {
       {/* --------------------------------------------------- oferta (preto) */}
       <div className="bg-[#0b0b0d]">
         <Secao id="oferta" className="py-16">
-          <Titulo nota="a oferta">O preço sobe a cada lote</Titulo>
+          <Titulo nota="a oferta">Agora sim, o preço</Titulo>
           <p className="mx-auto mt-4 max-w-xl text-center text-base text-white/55">
             São três lotes até o fim da campanha. Quem entra antes paga menos — e leva
             exatamente o mesmo.
           </p>
-          <div className="mx-auto mt-10 max-w-xl">
+
+          {/* A CONTA VEM IMEDIATAMENTE ANTES DO PREÇO, e esse lugar é o ponto.
+              Ela estava lá em cima, junto da lista de editais, e ali tinha o
+              efeito contrário: entregava o valor antes de a página explicar o
+              que está sendo comprado. Âncora funciona colada ao número que ela
+              ancora — a pessoa lê quanto custaria separado e, na linha
+              seguinte, quanto custa aqui. */}
+          <div className="mx-auto mt-12 max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+            <div className="grid items-center gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl bg-white/[0.04] p-5 text-center sm:col-span-2">
+                <p className="text-xs text-white/50">
+                  {inclusos.length} preparatórios comprados separadamente
+                </p>
+                <p className="mt-1.5 text-2xl font-black text-white/40 line-through decoration-[#ff4d4d]/60 decoration-2">
+                  {reais(inclusos.length * PRECO_POR_EDITAL)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-[#ffcd07]/40 bg-[#ffcd07]/10 p-5 text-center">
+                <p className="text-xs font-semibold text-[#ffcd07]">na Black Forense</p>
+                <p className="mt-1.5 text-2xl font-black text-white">
+                  <PrecoAtual />
+                </p>
+              </div>
+            </div>
+            <p className="mt-5 text-center text-xs leading-relaxed text-white/45">
+              O preparatório avulso de um único edital sai por {reais(PRECO_POR_EDITAL)}. Aqui
+              você leva os {inclusos.length} que já estão de pé e todos os que ainda vão sair.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-6 max-w-xl">
             <CaixaDePreco editaisInclusos={inclusos.length} />
           </div>
 
