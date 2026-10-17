@@ -25,42 +25,40 @@ const PROFESSORES = [
   { arquivo: "miguel.png", nome: "Dr. Miguel Souza" },
 ];
 
-/** A telinha que flutua na frente das fotos. */
+/**
+ * A telinha abaixo das fotos: a plataforma de verdade, rodando.
+ *
+ * Era uma maquete em CSS, por falta de material. Com a gravação do catálogo
+ * convertida para vídeo, a capa passa a mostrar o produto em vez de uma
+ * representação dele — que é o que a referência faz com os notebooks. Sem som,
+ * em laço e sem controles: é cenário, não mídia para assistir.
+ */
 function TelaFlutuante() {
   return (
-    <div className="w-[88%] max-w-[360px] rounded-2xl border border-white/15 bg-[#101016] p-4 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.8)]">
-      <div className="flex items-center gap-1.5 pb-2.5">
+    <div className="w-[92%] max-w-[380px] rounded-2xl border border-white/15 bg-[#101016] p-2 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.8)]">
+      <div className="flex items-center gap-1.5 px-1 pb-2">
         <span className="h-2 w-2 rounded-full bg-white/20" />
         <span className="h-2 w-2 rounded-full bg-white/20" />
         <span className="h-2 w-2 rounded-full bg-white/20" />
         <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider text-white/30">
-          Almanaque Forense
+          plataforma do Clube
         </span>
       </div>
-
-      <p className="text-[10px] font-bold uppercase tracking-wider text-[#ffcd07]">
-        Questão 1.284 · FGV
-      </p>
-      <p className="mt-1.5 text-[11px] leading-snug text-white/75">
-        Na cronotanatognose, a mancha verde abdominal costuma surgir na fossa ilíaca direita
-        porque…
-      </p>
-      <div className="mt-2 space-y-1.5">
-        <div className="rounded-md border border-green-500/40 bg-green-500/10 px-2 py-1.5 text-[10px] text-green-300">
-          é a região de maior proliferação bacteriana
-        </div>
-        <div className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[10px] text-white/40">
-          há menor espessura da parede abdominal
-        </div>
-      </div>
-      <div className="mt-2 flex items-center gap-1.5 rounded-md bg-[#ffcd07]/10 px-2 py-1.5">
-        <span className="grid h-5 w-5 place-items-center rounded-full bg-[#ffcd07] text-[9px] font-black text-gray-900">
-          ▶
-        </span>
-        <span className="text-[10px] font-semibold text-[#ffcd07]">
-          o professor resolvendo
-        </span>
-      </div>
+      {/* DOIS FORMATOS, E NÃO É PRECIOSISMO. O H.264 (mp4) é o que Safari e
+          iPhone tocam; o VP9 (webm) é o que builds livres do Chromium tocam —
+          o navegador de teste desta máquina é um deles, e com só o mp4 o quadro
+          ficava preto. O navegador escolhe a primeira fonte que sabe ler. */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        aria-hidden
+        className="aspect-[16/9] w-full rounded-lg object-cover"
+      >
+        <source src="/black/catalogo.webm" type="video/webm" />
+        <source src="/black/catalogo.mp4" type="video/mp4" />
+      </video>
     </div>
   );
 }

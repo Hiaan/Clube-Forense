@@ -37,6 +37,7 @@ import Contador from "./Contador";
 import DrBonet from "./DrBonet";
 import HeroComposicao from "./HeroComposicao";
 import Plataforma from "./Plataforma";
+import ProfessoresParceiros from "./ProfessoresParceiros";
 import PrecoAtual from "./PrecoAtual";
 import Ticker from "./Ticker";
 import {
@@ -439,9 +440,10 @@ export default async function BlackPage() {
               </div>
             ))}
           </div>
-          <p className="mt-6 text-center text-sm text-gray-500">
-            + professores parceiros das disciplinas que completam o edital
+          <p className="mt-10 text-center text-sm font-semibold text-gray-500">
+            + os professores parceiros das disciplinas que completam o edital
           </p>
+          <ProfessoresParceiros />
         </Secao>
       </div>
 
@@ -538,6 +540,45 @@ export default async function BlackPage() {
             São três lotes até o fim da campanha. Quem entra antes paga menos — e leva
             exatamente o mesmo.
           </p>
+
+          {/* A RECAPITULAÇÃO VEM ANTES DO NÚMERO, e é o que o site do
+              preparatório faz no fim da página. A pessoa percorreu seções
+              separadas — editais, plataforma, professores — e chega aqui sem
+              ter somado nada. A lista junta tudo em meia tela, para o preço
+              ser lido contra o conjunto, e não contra a última coisa que ela
+              viu. */}
+          <div className="mx-auto mt-12 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+            <p className="text-center text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
+              tudo que entra
+            </p>
+            <ul className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+              {[
+                "Material pré-edital e pós-edital de todos os concursos autorizados",
+                "Atualização gratuita quando o edital sai",
+                "Grupo de alunos e professores",
+                "Banco de questões exclusivo, com mais de 23 mil questões",
+                "Vídeo do professor resolvendo as questões",
+                "Nove eBooks de medicina legal",
+                "Resumos ilustrados e mapas mentais",
+                "Flashcards para revisão ativa",
+                "Mini-jogos para fixar conceito",
+                "Dr. Bonet, a nossa IA treinada nas referências da área",
+                "Contato direto com o professor para tirar dúvida",
+                "Aulão pré-prova e suporte pós-prova",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
+                    ✓
+                  </span>
+                  <span className="text-sm leading-relaxed text-white/75">{t}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 border-t border-white/10 pt-5 text-center text-sm leading-relaxed text-white/50">
+              E os professores são médicos-legistas de carreira — quem faz perícia, assina
+              laudo e já passou pelo concurso que você vai prestar.
+            </p>
+          </div>
 
           {/* A CONTA VEM IMEDIATAMENTE ANTES DO PREÇO, e esse lugar é o ponto.
               Ela estava lá em cima, junto da lista de editais, e ali tinha o

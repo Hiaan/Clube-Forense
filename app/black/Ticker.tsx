@@ -32,7 +32,14 @@ export default function Ticker({ texto }: { texto: string }) {
       className="overflow-hidden border-y border-[#ffcd07] bg-[#ffcd07] py-3"
       aria-hidden
     >
-      <div className="marquee-track flex w-max motion-reduce:animate-none">
+      {/* A duração vem daqui, e não da classe: `marquee-track` nasceu com 30s,
+          que para um texto que se lê passa rápido demais — o olho persegue a
+          frase em vez de absorvê-la. 70s é a metade da velocidade, pedida
+          depois de ver a primeira versão no ar. */}
+      <div
+        className="marquee-track flex w-max motion-reduce:animate-none"
+        style={{ animationDuration: "70s" }}
+      >
         <div className="flex shrink-0">{itens}</div>
         <div className="flex shrink-0">{itens}</div>
       </div>

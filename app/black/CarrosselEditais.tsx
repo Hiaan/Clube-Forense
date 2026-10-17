@@ -8,65 +8,71 @@
 // estática, e com o movimento parando quando o ponteiro chega perto, para
 // ninguém ter que correr atrás da informação.
 //
+// UMA LINHA POR CONCURSO, E ESSA FOI A CORREÇÃO MAIS IMPORTANTE DAQUI. A
+// primeira versão trazia vagas, salário e banca em cada cartão, e os estados
+// que ainda não divulgaram nada ficavam com um "vagas e banca ainda não
+// divulgadas" ocupando o mesmo espaço — ou seja, o cartão anunciava a própria
+// falta de informação. A arte que o Clube usa no preparatório resolve isso em
+// uma linha por concurso ("Banca CEBRASPE | Prova: 10 de janeiro de 2027"), e
+// é esse formato aqui: sigla do órgão, estado e a frase mais avançada que a
+// ficha permitir. Sem ficha, fica só a etapa — que é verdade e basta.
+//
 // EM CSS, SEM JAVASCRIPT. A animação é a `marquee` de globals.css, com a
 // classe `carousel-track`, que já vem com a pausa no hover. Uma lista que anda
 // sozinha não precisa de estado em React, e assim a seção continua sendo
 // renderizada no servidor — com os dados do monitor já dentro do HTML.
-//
-// A LISTA É DUPLICADA de propósito: quando a primeira cópia termina de sair, a
-// segunda está exatamente onde a primeira começou, e o laço não tem emenda.
 
+import { orgaoDaUf } from "../blog/lib/taxonomia";
 import { NIVEL_COR, NIVEL_LABEL, type EstadoStatus } from "../monitor/lib/tipos";
-import { reais } from "./oferta";
+
+/** "2027-01-10" → "10 de janeiro de 2027". Data por extenso lê-se como notícia. */
+function porExtenso(v: string | null | undefined): string | null {
+  if (!v?.trim()) return null;
+  const d = new Date(v.length <= 10 ? `${v}T12:00:00Z` : v);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+}
+
+/**
+ * A frase do concurso: a informação mais avançada que a ficha tiver.
+ *
+ * A ordem é a do que o candidato quer saber primeiro — data marcada ganha de
+ * banca, que ganha de previsão, que ganha da etapa sozinha.
+ */
+function linhaDoConcurso(estado: EstadoStatus): string {
+  const c = estado.curadoria;
+  const etapa = NIVEL_LABEL[estado.nivel];
+  const prova = porExtenso(c?.dataProva);
+  const inscricoes = porExtenso(c?.inscricoesAte);
+  const banca = c?.banca?.trim();
+
+  if (banca && prova) return `Banca ${banca} · Prova em ${prova}`;
+  if (inscricoes) return `Inscrições até ${inscricoes}`;
+  if (banca) return `${etapa} · Banca ${banca}`;
+  if (c?.previsao?.trim()) return `${etapa} · ${c.previsao.trim()}`;
+  return etapa;
+}
 
 function Cartao({ estado }: { estado: EstadoStatus }) {
-  const c = estado.curadoria;
   const cor = NIVEL_COR[estado.nivel];
+  const sigla = orgaoDaUf(estado.uf)?.curto ?? estado.uf;
 
   return (
-    <article className="w-[260px] shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)]">
-      <div className="h-1.5 w-full" style={{ backgroundColor: cor }} />
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-lg font-black leading-tight text-gray-900">{estado.nome}</p>
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gray-100 font-mono text-xs font-black text-gray-500">
-            {estado.uf}
-          </span>
-        </div>
-
-        <p
-          className="mt-1 text-[11px] font-black uppercase tracking-wider"
-          style={{ color: cor }}
-        >
-          {NIVEL_LABEL[estado.nivel]}
+    <article className="flex w-[300px] shrink-0 items-center gap-4 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_30px_-14px_rgba(0,0,0,0.15)]">
+      <span
+        className="grid h-14 w-14 shrink-0 place-items-center rounded-xl text-sm font-black text-white"
+        style={{ backgroundColor: cor }}
+      >
+        {estado.uf}
+      </span>
+      <div className="min-w-0">
+        <p className="truncate text-base font-black leading-tight text-gray-900">{sigla}</p>
+        <p className="truncate text-[11px] font-bold uppercase tracking-wider text-gray-400">
+          {estado.nome}
         </p>
-
-        <dl className="mt-4 space-y-1.5 border-t border-gray-100 pt-3 text-sm">
-          {c?.vagasImediatas ? (
-            <div className="flex justify-between gap-2">
-              <dt className="text-gray-400">Vagas</dt>
-              <dd className="font-bold text-gray-900">
-                {c.vagasImediatas}
-                {c.vagasCr ? ` + ${c.vagasCr} CR` : ""}
-              </dd>
-            </div>
-          ) : null}
-          {c?.salarioInicial ? (
-            <div className="flex justify-between gap-2">
-              <dt className="text-gray-400">Salário</dt>
-              <dd className="font-bold text-gray-900">{reais(c.salarioInicial)}</dd>
-            </div>
-          ) : null}
-          {c?.banca ? (
-            <div className="flex justify-between gap-2">
-              <dt className="text-gray-400">Banca</dt>
-              <dd className="font-bold text-gray-900">{c.banca}</dd>
-            </div>
-          ) : null}
-          {!c?.vagasImediatas && !c?.salarioInicial && !c?.banca && (
-            <p className="text-gray-400">Vagas e banca ainda não divulgadas</p>
-          )}
-        </dl>
+        <p className="mt-1.5 truncate text-[13px] font-semibold" style={{ color: cor }}>
+          {linhaDoConcurso(estado)}
+        </p>
       </div>
     </article>
   );
@@ -89,7 +95,12 @@ export default function CarrosselEditais({ estados }: { estados: EstadoStatus[] 
           "linear-gradient(to right, transparent, black 6%, black 94%, transparent)",
       }}
     >
-      <div className="carousel-track flex w-max gap-4 px-4 py-2 motion-reduce:animate-none">
+      <div
+        className="carousel-track flex w-max gap-4 px-4 py-2 motion-reduce:animate-none"
+        // Mesma razão da faixa do topo: o ritmo padrão da classe corre demais
+        // para quem está lendo o nome de um estado de cada vez.
+        style={{ animationDuration: "80s" }}
+      >
         {[0, 1].map((copia) => (
           <div key={copia} className="flex shrink-0 gap-4" aria-hidden={copia === 1}>
             {fila.map((e, i) => (

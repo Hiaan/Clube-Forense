@@ -8,12 +8,15 @@
 // ganha a tela inteira por um momento — e a escolha dela já é um pequeno
 // compromisso com a página.
 //
-// O ESPAÇO DA MÍDIA NÃO FICA VAZIO ESPERANDO O VÍDEO. Enquanto o GIF real da
-// plataforma não entra, cada aba mostra uma maquete desenhada em CSS do próprio
-// recurso — um flashcard que vira, uma questão com o botão de vídeo, o tabuleiro
-// do mini-jogo. É honesto (não é captura de tela fingida), fica de pé sozinho e
-// desaparece sob o arquivo de verdade no instante em que ele for colocado em
-// `public/black/`. Ver `RECURSOS[].midia` abaixo.
+// A MÍDIA É A PLATAFORMA DE VERDADE, ONDE ELA EXISTE. Aulas, questões e mapas
+// mostram gravações da própria plataforma — os GIFs que o Clube já usava no
+// site do preparatório, convertidos para vídeo (38 MB de GIF viraram 1,7 MB de
+// MP4; GIF é um formato de 1989 e paga caro por cada quadro).
+//
+// Onde ainda não há gravação — flashcards e mini-jogos —, a aba mostra uma
+// maquete desenhada em CSS do recurso. É honesto, não é captura de tela
+// fingida, e some sob o arquivo real no instante em que ele for colocado em
+// `public/black/` e escrito no campo `midia`.
 
 import { useState } from "react";
 
@@ -36,7 +39,7 @@ const RECURSOS: Recurso[] = [
     titulo: "O edital inteiro, na ordem certa",
     texto:
       "Videoaulas gravadas cobrindo o conteúdo de medicina legal do começo ao fim, na sequência em que ele se constrói — e não na ordem em que o edital lista. Quando um edital novo sai, o curso daquele concurso entra para você sem custo.",
-    midia: null,
+    midia: "aulas.mp4",
   },
   {
     chave: "questoes",
@@ -44,7 +47,7 @@ const RECURSOS: Recurso[] = [
     titulo: "23 mil questões, com o professor explicando",
     texto:
       "O Almanaque Forense reúne as questões das bancas que cobram o cargo, com comentário escrito e vídeo do professor resolvendo as que derrubam mais gente. Errar com explicação do lado é o que transforma erro em ponto.",
-    midia: null,
+    midia: "questoes.mp4",
   },
   {
     chave: "flashcards",
@@ -68,7 +71,7 @@ const RECURSOS: Recurso[] = [
     titulo: "Mapas mentais ilustrados e nove eBooks",
     texto:
       "Os mapas mentais do Clube condensam cada assunto em uma página ilustrada, e os nove eBooks trazem o conteúdo adaptado pelos nossos professores a partir de França, Hygino e Delton Croce.",
-    midia: null,
+    midia: "mapas.mp4",
   },
 ];
 
@@ -76,15 +79,24 @@ const RECURSOS: Recurso[] = [
 function Midia({ recurso }: { recurso: Recurso }) {
   if (recurso.midia) {
     const ehVideo = recurso.midia.endsWith(".mp4");
+    const semExtensao = recurso.midia.replace(/\.mp4$/, "");
     return ehVideo ? (
+      // Dois formatos: webm (VP9) e mp4 (H.264). Ver a explicação em
+      // HeroComposicao.tsx — com só um deles, parte dos navegadores mostra
+      // um retângulo preto no lugar da plataforma.
       <video
-        src={`/black/${recurso.midia}`}
         autoPlay
         loop
         muted
         playsInline
-        className="h-full w-full rounded-2xl object-cover"
-      />
+        // `contain` e não `cover`: a gravação é 16:9 dentro de uma moldura
+        // 4:3, e cortar as laterais come justamente o texto do slide e os
+        // filtros da tela — o que a pessoa foi ali ver.
+        className="h-full w-full rounded-2xl object-contain"
+      >
+        <source src={`/black/${semExtensao}.webm`} type="video/webm" />
+        <source src={`/black/${semExtensao}.mp4`} type="video/mp4" />
+      </video>
     ) : (
       // eslint-disable-next-line @next/next/no-img-element
       <img
