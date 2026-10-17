@@ -34,6 +34,7 @@ import BarraFixa from "./BarraFixa";
 import CarrosselEditais from "./CarrosselEditais";
 import CaixaDePreco from "./CaixaDePreco";
 import Contador from "./Contador";
+import Depoimentos from "./Depoimentos";
 import DrBonet from "./DrBonet";
 import HeroComposicao from "./HeroComposicao";
 import Plataforma from "./Plataforma";
@@ -491,8 +492,22 @@ export default async function BlackPage() {
         </Secao>
       </div>
 
-      {/* ---------------------------------------------- metodologia (claro) */}
+      {/* --------------------------------------------- depoimentos (claro) */}
       <div className="bg-white">
+        <Secao id="depoimentos" className="py-16">
+          <Titulo claro nota="quem já passou">
+            Veja o que dizem os nossos alunos
+          </Titulo>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
+            Nome, rosto e concurso. Clique para assistir ao depoimento de quem
+            estudou com o Clube e hoje é médico-legista.
+          </p>
+          <Depoimentos />
+        </Secao>
+      </div>
+
+      {/* ---------------------------------------------- metodologia (claro) */}
+      <div className="bg-[#f8f9fb]">
         <Secao className="py-16">
           <Titulo claro nota="como funciona">
             Quatro coisas, na ordem
