@@ -89,7 +89,10 @@ const DEPOIMENTOS: Depoimento[] = [
     nome: "Dr. André Souza",
     cargo: "aluno aprovado",
     texto:
-      "De início achei que não conseguiria estudar; depois de um certo tempo vi que poderia ser aprovado mesmo com tantas dificuldades de conciliar tempo para estudo, trabalho, família e amigos. No final acreditei que teria chances: persisti e continuei esperançoso, assim hoje aprovado.",
+      // Recortado do depoimento publicado, com as reticências marcando o
+      // corte: inteiro, ele tinha o dobro do tamanho dos outros cinco e
+      // esticava todos os cartões da faixa para caber.
+      "De início achei que não conseguiria estudar… No final acreditei que teria chances: persisti e continuei esperançoso, assim hoje aprovado.",
     capa: "andre-souza",
   },
   {
@@ -221,7 +224,12 @@ function Cartao({ d, aoAbrir }: { d: Depoimento; aoAbrir: () => void }) {
         alt={d.nome}
         width={600}
         height={800}
-        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 310px"
+        sizes="250px"
+        // O NAVEGADOR ACHAVA QUE ESTAVA ARRASTANDO A FOTO. Imagem é arrastável
+        // por padrão: no meio do puxão a faixa travava porque o Chrome tinha
+        // começado um arrastar-e-soltar da própria imagem e parado de mandar
+        // os eventos de ponteiro. Sem isto, a faixa anda uns 70 pixels e morre.
+        draggable={false}
         className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
       />
       {/* NADA DE NOME ESCRITO POR CIMA DA IMAGEM. Os vídeos já trazem o cargo e
@@ -238,7 +246,7 @@ function Cartao({ d, aoAbrir }: { d: Depoimento; aoAbrir: () => void }) {
   );
 
   return (
-    <figure className="card-white w-[78vw] shrink-0 snap-center overflow-hidden sm:w-auto">
+    <figure className="card-white w-[224px] shrink-0 overflow-hidden sm:w-[248px]">
       {temVideo ? (
         <button
           type="button"
@@ -253,18 +261,36 @@ function Cartao({ d, aoAbrir }: { d: Depoimento; aoAbrir: () => void }) {
         // do que um retângulo honesto.
         <div className="group relative block aspect-[3/4] w-full overflow-hidden">{capa}</div>
       )}
-      <figcaption className="px-5 pt-5">
-        <p className="text-base font-black leading-tight text-gray-900">{d.nome}</p>
-        <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-[#b38f00]">
+      <figcaption className="px-4 pt-4">
+        <p className="text-sm font-black leading-tight text-gray-900">{d.nome}</p>
+        <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#b38f00]">
           {d.cargo}
         </p>
       </figcaption>
-      <blockquote className="px-5 pb-5 pt-3 text-sm leading-relaxed text-gray-600">
+      <blockquote className="px-4 pb-5 pt-2.5 text-[13px] leading-relaxed text-gray-600">
         <span className="text-[#b38f00]">“</span>
         {d.texto}
         <span className="text-[#b38f00]">”</span>
       </blockquote>
     </figure>
+  );
+}
+
+/** A setinha das pontas. Vira para o outro lado com `espelhada`. */
+function Seta({ espelhada = false }: { espelhada?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={`h-5 w-5 ${espelhada ? "rotate-180" : ""}`}
+    >
+      <path d="m9 6 6 6-6 6" />
+    </svg>
   );
 }
 
@@ -275,17 +301,149 @@ export default function Depoimentos() {
   // efeito do player rodaria junto e o vídeo voltaria ao começo sozinho.
   const fechar = useCallback(() => setAberto(null), []);
 
+  const faixa = useRef<HTMLDivElement>(null);
+  const [noComeco, setNoComeco] = useState(true);
+  const [noFim, setNoFim] = useState(false);
+
+  // O estado do arrasto mora em ref, não em state: ele muda a cada pixel do
+  // mouse e um render por pixel transformaria o arrasto num slideshow.
+  const arrasto = useRef({ ativo: false, preso: false, x0: 0, scroll0: 0, andou: 0 });
+
+  /** Acende e apaga as setas conforme a faixa chega nas pontas. */
+  const medir = useCallback(() => {
+    const el = faixa.current;
+    if (!el) return;
+    setNoComeco(el.scrollLeft <= 1);
+    setNoFim(el.scrollLeft >= el.scrollWidth - el.clientWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = faixa.current;
+    if (!el) return;
+    medir();
+    const observador = new ResizeObserver(medir);
+    observador.observe(el);
+    return () => observador.disconnect();
+  }, [medir]);
+
+  /** Anda um cartão para o lado (a largura do primeiro + o vão). */
+  const andar = (direcao: 1 | -1) => {
+    const el = faixa.current;
+    const cartao = el?.firstElementChild as HTMLElement | undefined;
+    if (!el || !cartao) return;
+    el.scrollBy({ left: direcao * (cartao.clientWidth + 16), behavior: "smooth" });
+  };
+
   return (
     <>
-      {/* NO CELULAR, A MESMA GRADE VIRAVA UMA COLUNA DE QUASE CINCO MIL
-          PIXELS: seis cartões altos empilhados, no meio de uma página de
-          vendas que ainda tem oferta e FAQ pela frente. Virou faixa que desliza
-          com o dedo, um depoimento de cada vez — e a seção passa a ocupar uma
-          tela. Da largura `sm` em diante volta a ser grade, que é onde grade
-          faz sentido. */}
-      <div className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
-        {DEPOIMENTOS.map((d) => (
-          <Cartao key={d.nome} d={d} aoAbrir={() => setAberto(d.nome)} />
+      {/* TUDO NUMA LINHA SÓ, QUE SE PUXA COM O MOUSE — e foi pedido assim, com
+          razão: em grade, o olho varre seis cartões de uma vez e não para em
+          nenhum. Numa faixa, cada depoimento chega por vez e o próximo aparece
+          pela metade na borda, que é o que faz a pessoa continuar.
+
+          POR QUE NÃO É A MESMA FAIXA DOS EDITAIS. Aquela anda sozinha, em CSS,
+          porque lá o conteúdo é um dado curto que só precisa passar. Aqui a
+          pessoa escolhe quem vai assistir — uma faixa andando sozinha tiraria
+          da mão dela justamente a escolha. Então esta não anda: ela obedece. O
+          dedo já arrastava de graça (rolagem horizontal nativa); o mouse não,
+          e é o que este punhado de código adiciona.
+
+          O ARRASTO NÃO PODE VIRAR CLIQUE. Quem puxa a faixa segurando em cima
+          de um cartão solta o botão em cima de outro — e sem cuidado isso abre
+          um vídeo que ninguém pediu. Por isso o movimento é medido: passou de
+          6 pixels, o clique seguinte é engolido. */}
+      <div className="relative mt-10">
+        <div
+          ref={faixa}
+          onScroll={medir}
+          onPointerDown={(e) => {
+            // Só mouse. No toque, a rolagem nativa já faz isso melhor do que
+            // qualquer código nosso — e interceptar estragaria a inércia.
+            if (e.pointerType !== "mouse") return;
+            const el = faixa.current;
+            if (!el) return;
+            arrasto.current = {
+              ativo: true,
+              x0: e.clientX,
+              scroll0: el.scrollLeft,
+              andou: 0,
+              preso: false,
+            };
+          }}
+          onPointerMove={(e) => {
+            const a = arrasto.current;
+            const el = faixa.current;
+            if (!a.ativo || !el) return;
+            const dx = e.clientX - a.x0;
+            a.andou = Math.max(a.andou, Math.abs(dx));
+            // A CAPTURA SÓ COMEÇA DEPOIS QUE A MÃO ANDA, e esse detalhe custou
+            // caro: capturando já no apertar do botão, o clique passa a ser
+            // entregue à faixa em vez do cartão — e nenhum vídeo abria mais.
+            // Agora, enquanto o ponteiro está parado, ele é um clique comum;
+            // virou arrasto, a faixa toma o ponteiro para si e a pessoa pode
+            // puxar para fora da seção sem a faixa largar no meio do caminho.
+            if (!a.preso && a.andou > 4) {
+              el.setPointerCapture(e.pointerId);
+              a.preso = true;
+            }
+            el.scrollLeft = a.scroll0 - dx;
+          }}
+          onPointerUp={(e) => {
+            const a = arrasto.current;
+            if (a.preso) faixa.current?.releasePointerCapture(e.pointerId);
+            a.ativo = false;
+            a.preso = false;
+          }}
+          onPointerCancel={() => {
+            arrasto.current.ativo = false;
+            arrasto.current.preso = false;
+          }}
+          onClickCapture={(e) => {
+            if (arrasto.current.andou > 6) {
+              e.preventDefault();
+              e.stopPropagation();
+              arrasto.current.andou = 0;
+            }
+          }}
+          // `[scrollbar-width:none]` e o `::-webkit-scrollbar` escondem a barra:
+          // ela aparecia como um risco cinza no meio de uma seção clara. A
+          // rolagem continua lá, com o dedo, com a roda e com as setas.
+          // Sem `scroll-smooth` de propósito: com ele, cada `scrollLeft` do
+          // arrasto vira uma animação e a faixa passa a vir atrás do mouse,
+          // borrachuda. As setas pedem a animação por conta própria, no
+          // scrollBy.
+          className="-mx-4 flex cursor-grab gap-4 overflow-x-auto px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] active:cursor-grabbing sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+          style={{
+            // Sem isto o arrasto na horizontal também seleciona o texto das
+            // citações, e a faixa fica cheia de azul de seleção.
+            userSelect: "none",
+            WebkitUserSelect: "none",
+          }}
+        >
+          {DEPOIMENTOS.map((d) => (
+            <Cartao key={d.nome} d={d} aoAbrir={() => setAberto(d.nome)} />
+          ))}
+        </div>
+
+        {/* As setas existem para quem não descobre que dá para arrastar — e
+            para teclado, que não arrasta nada. Somem no celular, onde o dedo
+            resolve e elas só tapariam cartão. */}
+        {[
+          { lado: "esq" as const, desligada: noComeco },
+          { lado: "dir" as const, desligada: noFim },
+        ].map(({ lado, desligada }) => (
+          <button
+            key={lado}
+            type="button"
+            onClick={() => andar(lado === "dir" ? 1 : -1)}
+            disabled={desligada}
+            aria-label={lado === "dir" ? "Próximos depoimentos" : "Depoimentos anteriores"}
+            className={`absolute top-[34%] z-10 hidden h-11 w-11 place-items-center rounded-full border border-gray-200 bg-white text-gray-900 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.3)] transition hover:border-gray-900 disabled:pointer-events-none disabled:opacity-0 sm:grid ${
+              lado === "dir" ? "-right-3" : "-left-3"
+            }`}
+          >
+            <Seta espelhada={lado === "esq"} />
+          </button>
         ))}
       </div>
       {atual && <Player d={atual} aoFechar={fechar} />}
