@@ -1,6 +1,7 @@
 import { umaLinha, consulta } from "@/lib/painel/db";
 import { verificarLeadsNovos } from "@/lib/painel/meta";
 import { chamadaDaPonte } from "@/lib/painel/whatsapp";
+import { enviarPendentes } from "@/lib/painel/crm";
 
 // A ponte do WhatsApp (sempre ligada no PC da T9) chama esta rota de tempos em tempos:
 // o painel busca os leads de formulário novos e manda o aviso, sem ninguém clicar em nada.
@@ -18,6 +19,9 @@ export async function POST(request: Request) {
      on conflict (chave) do update set valor = excluded.valor, atualizado_em = now()`,
     [String(horas)],
   );
+  // Aproveita a rotina para reenviar à Meta as etapas do CRM que ficaram pendentes (falha de rede, token).
+  const crm = await enviarPendentes().catch((e) => [{ empresa: "-", enviados: 0, erro: e instanceof Error ? e.message : String(e) }]);
+  if (crm.length) console.log("[crm] etapas para a Meta", JSON.stringify(crm));
   const novos = resultado.reduce((s, r) => s + r.enviados, 0);
   if (novos || resultado.some((r) => r.erro) || horas > 3) console.log("[whatsapp] rotina", horas, "h", JSON.stringify(resultado));
   return Response.json({ ok: true, horas, resultado });

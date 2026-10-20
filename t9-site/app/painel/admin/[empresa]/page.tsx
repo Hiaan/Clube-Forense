@@ -21,6 +21,7 @@ import {
 } from "../acoes";
 import CamposEmpresa from "../CamposEmpresa";
 import SecaoMeta from "../SecaoMeta";
+import SecaoCrmMeta from "../SecaoCrmMeta";
 import SecaoEduzz from "../SecaoEduzz";
 import SecaoWhatsapp from "../SecaoWhatsapp";
 import FormComEstado from "../../_ui/FormComEstado";
@@ -82,6 +83,7 @@ export default async function GestaoCliente({ params }: { params: Promise<{ empr
       </div>
 
       <SecaoMeta empresa={empresa} />
+      <SecaoCrmMeta empresa={empresa} />
       <SecaoEduzz empresa={empresa} />
       <SecaoWhatsapp empresa={empresa} />
 

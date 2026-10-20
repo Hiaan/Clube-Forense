@@ -54,6 +54,11 @@ export type Empresa = {
   cobranca_automatica: boolean;
   /** Dia do mês em que a mensalidade vence (1 a 31; em meses curtos, o último dia). */
   vencimento_dia: number | null;
+  /** Conjunto de dados (pixel) da Meta que recebe as etapas do CRM. */
+  meta_dataset: string | null;
+  /** Token da API de Conversões gerado pelo cliente (se vazio, usa o token da T9). Nunca é exibido. */
+  meta_dataset_token: string | null;
+  meta_dataset_erro: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";

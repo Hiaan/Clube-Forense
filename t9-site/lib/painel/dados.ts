@@ -122,6 +122,8 @@ export type Lead = {
   origem: string | null;
   campanha: string | null;
   etapa: EtapaLead;
+  /** Etapa do CRM do cliente (crm_etapas); null = primeira coluna. */
+  etapa_id: number | null;
   valor: number | null;
   recebido_em: string;
   dados: Record<string, unknown> | null;
@@ -129,22 +131,24 @@ export type Lead = {
   whatsapp_enviado_em: string | null;
 };
 
-export async function listarLeads(empresaId: number, etapa?: EtapaLead, limite = 300) {
+/** Leads mais recentes; com `etapa`, só os daquela etapa do CRM (a primeira inclui os sem etapa). */
+export async function listarLeads(empresaId: number, etapa?: { id: number; primeira: boolean }, limite = 300) {
   return consulta<Lead>(
-    `select id, nome, email, whatsapp, origem, campanha, etapa, valor, recebido_em, dados,
+    `select id, nome, email, whatsapp, origem, campanha, etapa, etapa_id, valor, recebido_em, dados,
             (select max(w.criado_em) from whatsapp_envios w where w.lead_id = leads.id and w.ok) as whatsapp_enviado_em
-       from leads where empresa_id = $1 and ($2::text is null or etapa = $2)
-      order by recebido_em desc limit $3`,
-    [empresaId, etapa ?? null, limite],
+       from leads where empresa_id = $1 and ($2::int is null or etapa_id = $2 or ($3::boolean and etapa_id is null))
+      order by recebido_em desc limit $4`,
+    [empresaId, etapa?.id ?? null, etapa?.primeira ?? false, limite],
   );
 }
 
+/** Quantos leads há em cada etapa do CRM (a chave null = sem etapa, ou seja, a primeira coluna). */
 export async function contagemPorEtapa(empresaId: number) {
-  const linhas = await consulta<{ etapa: EtapaLead; total: number }>(
-    "select etapa, count(*)::int as total from leads where empresa_id = $1 group by etapa",
+  const linhas = await consulta<{ etapa_id: number | null; total: number }>(
+    "select etapa_id, count(*)::int as total from leads where empresa_id = $1 group by etapa_id",
     [empresaId],
   );
-  return Object.fromEntries(linhas.map((l) => [l.etapa, l.total])) as Partial<Record<EtapaLead, number>>;
+  return new Map(linhas.map((l) => [l.etapa_id, l.total]));
 }
 
 // ---------- Plano de 4 semanas ----------

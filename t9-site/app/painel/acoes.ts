@@ -17,7 +17,7 @@ import { consulta, registrar, umaLinha } from "@/lib/painel/db";
 import { emailComBotao, enviarEmail } from "@/lib/painel/email";
 import { linkDeAcesso } from "@/lib/painel/links";
 import { hashSenha, problemaNaSenha } from "@/lib/painel/senha";
-import { ETAPAS_LEAD, STATUS_PLANO, TEXTOS_PAINEL, type EtapaLead, type StatusPlano } from "@/lib/painel/textos";
+import { STATUS_PLANO, TEXTOS_PAINEL, type StatusPlano } from "@/lib/painel/textos";
 import { IDIOMAS, fmt, type Idioma } from "@/lib/i18n";
 
 const lerIdioma = (v: FormDataEntryValue | null): Idioma => (IDIOMAS.includes(v as Idioma) ? (v as Idioma) : "pt");
@@ -99,22 +99,6 @@ export async function mudarIdioma(formulario: FormData) {
   const usuario = await usuarioAtual();
   if (!usuario) redirect("/painel/entrar");
   await consulta("update usuarios set idioma = $1 where id = $2", [lerIdioma(formulario.get("idioma")), usuario.id]);
-  revalidatePath("/painel", "layout");
-}
-
-/** Cliente e equipe podem mover o lead no funil, desde que tenham acesso à empresa dele. */
-export async function mudarEtapaLead(formulario: FormData) {
-  const usuario = await usuarioAtual();
-  if (!usuario) redirect("/painel/entrar");
-  const id = Number(formulario.get("lead"));
-  const etapa = String(formulario.get("etapa")) as EtapaLead;
-  if (!Number.isInteger(id) || !ETAPAS_LEAD.includes(etapa)) return;
-
-  const lead = await umaLinha<{ empresa_id: number }>("select empresa_id from leads where id = $1", [id]);
-  if (!lead || !(await empresaPermitidaPorId(usuario, lead.empresa_id))) return;
-
-  await consulta("update leads set etapa = $1, atualizado_em = now() where id = $2", [etapa, id]);
-  await registrar(usuario.id, lead.empresa_id, "lead.etapa", `${id} → ${etapa}`);
   revalidatePath("/painel", "layout");
 }
 

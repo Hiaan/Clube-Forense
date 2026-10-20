@@ -1,5 +1,5 @@
 import "server-only";
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { consulta, transacao } from "./db";
 import { hoje, somarDias } from "./dados";
 import type { Empresa } from "./auth";
@@ -30,7 +30,7 @@ type ErroGraph = { error?: { message?: string; code?: number; error_subcode?: nu
 async function graph<T>(
   caminho: string,
   parametros: Record<string, string | number> = {},
-  opcoes: { metodo?: "GET" | "POST"; token?: string } = {},
+  opcoes: { metodo?: "GET" | "POST"; token?: string; semProva?: boolean } = {},
 ): Promise<T> {
   const token = opcoes.token ?? process.env.META_ACCESS_TOKEN;
   if (!token) throw new Error("META_ACCESS_TOKEN não configurado.");
@@ -39,7 +39,7 @@ async function graph<T>(
     for (const [k, v] of Object.entries(parametros)) url.searchParams.set(k, String(v));
     url.searchParams.set("access_token", token);
     // Prova do segredo do app: impede o uso do token por quem não tem o segredo (token de app dispensa).
-    if (process.env.META_APP_SECRET && !token.includes("|")) {
+    if (process.env.META_APP_SECRET && !token.includes("|") && !opcoes.semProva) {
       url.searchParams.set("appsecret_proof", createHmac("sha256", process.env.META_APP_SECRET).update(token).digest("hex"));
     }
   }
@@ -908,4 +908,92 @@ export async function estruturaDaConta(conta: string) {
     }
   }
   return { campanhas: saida, formularios: leituraFormularios };
+}
+
+// ---------- Etapas do CRM → API de Conversões (leads de conversão) ----------
+// Cada vez que o cliente move um lead para uma etapa marcada, a Meta recebe um evento com o
+// nome da etapa (ex.: "Agendou", "Vendeu"). Com isso a campanha aprende quais leads viram
+// negócio e passa a buscar mais gente parecida com eles.
+
+/** Conjuntos de dados (pixels) da conta de anúncio, para escolher no painel. */
+export async function listarConjuntosDeDados(conta: string) {
+  const brutos = await todasPaginas<{ id: string; name: string }>(`${conta}/adspixels`, { fields: "id,name", limit: 100 }, 5);
+  return brutos.map((p) => ({ id: p.id, nome: p.name }));
+}
+
+/** Confere se o token consegue usar o conjunto de dados. Devolve o nome dele. */
+export async function conferirConjuntoDeDados(dataset: string, token?: string) {
+  // Token do próprio cliente (gerado no Gerenciador de Eventos) não é do app da T9: vai sem a prova do segredo.
+  const r = await graph<{ id: string; name?: string }>(dataset, { fields: "id,name" }, { token, semProva: Boolean(token) });
+  return r.name ?? r.id;
+}
+
+export type EventoCrm = {
+  /** Id interno (crm_eventos.id), só para devolver o resultado. */
+  id: number;
+  evento: string;
+  eventoId: string;
+  quando: Date;
+  /** Id do lead no formulário da Meta (15 a 17 dígitos), quando veio de lá. */
+  metaLeadId: string | null;
+  email: string | null;
+  telefone: string | null;
+  valor: number | null;
+  moeda: string;
+};
+
+const sha256 = (v: string) => createHash("sha256").update(v).digest("hex");
+
+/** Telefone só com dígitos e com o código do país (no Brasil, acrescenta o 55 quando falta). */
+export function telefoneParaMeta(bruto: string | null, pais: string) {
+  const d = (bruto ?? "").replace(/\D/g, "").replace(/^0+/, "");
+  if (d.length < 8) return null;
+  return pais === "BR" && d.length <= 11 ? `55${d}` : d;
+}
+
+/** Monta o corpo no formato da Meta. O lead_id vai como número inteiro, sem passar por Number (perderia dígitos). */
+export function corpoEventosCrm(eventos: EventoCrm[], pais: string) {
+  const data = eventos.map((e) => {
+    const usuario: Record<string, unknown> = {};
+    if (e.metaLeadId && /^\d{6,20}$/.test(e.metaLeadId)) usuario.lead_id = `__LEAD_${e.metaLeadId}__`;
+    const email = e.email?.trim().toLowerCase();
+    if (email && email.includes("@")) usuario.em = [sha256(email)];
+    const telefone = telefoneParaMeta(e.telefone, pais);
+    if (telefone) usuario.ph = [sha256(telefone)];
+    return {
+      event_name: e.evento,
+      event_time: Math.floor(e.quando.getTime() / 1000),
+      event_id: e.eventoId,
+      action_source: "system_generated",
+      user_data: usuario,
+      custom_data: {
+        event_source: "crm",
+        lead_event_source: "Painel T9",
+        ...(e.valor != null && e.valor > 0 ? { value: e.valor, currency: e.moeda } : {}),
+      },
+    };
+  });
+  return JSON.stringify(data).replace(/"__LEAD_(\d+)__"/g, "$1");
+}
+
+/** Envia um lote de eventos (até 1000) ao conjunto de dados. Lança erro com a mensagem da Meta. */
+export async function enviarEventosCrm(dataset: string, eventos: EventoCrm[], pais: string, tokenProprio?: string | null) {
+  const token = tokenProprio || process.env.META_ACCESS_TOKEN;
+  if (!token) throw new Error("META_ACCESS_TOKEN não configurado.");
+  const corpo = new URLSearchParams({ data: corpoEventosCrm(eventos, pais), access_token: token });
+  if (process.env.META_APP_SECRET && !tokenProprio) {
+    corpo.set("appsecret_proof", createHmac("sha256", process.env.META_APP_SECRET).update(token).digest("hex"));
+  }
+  const resposta = await fetch(`${BASE}/${VERSAO}/${encodeURIComponent(dataset)}/events`, {
+    method: "POST",
+    body: corpo,
+    signal: AbortSignal.timeout(30_000),
+    cache: "no-store",
+  });
+  const r = (await resposta.json().catch(() => ({}))) as ErroGraph & { events_received?: number };
+  if (!resposta.ok || r.error) {
+    const e = r.error;
+    throw new Error(`Meta: ${e?.message ?? `HTTP ${resposta.status}`}${e?.code ? ` (código ${e.code})` : ""}`);
+  }
+  return r.events_received ?? eventos.length;
 }

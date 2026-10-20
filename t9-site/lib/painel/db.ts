@@ -268,6 +268,40 @@ const ESQUEMA = [
   `create index if not exists tentativas_senha_email on tentativas_senha (email, em)`,
   // Gestor que vê todos os clientes (sem precisar atribuir um por um). Nunca vê o financeiro.
   `alter table usuarios add column if not exists todos_clientes boolean not null default false`,
+  // CRM: etapas que cada cliente monta (colunas do quadro). Lead sem etapa_id fica na primeira coluna.
+  `create table if not exists crm_etapas (
+    id serial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    nome text not null,
+    ordem integer not null default 0,
+    tipo text not null default 'aberta' check (tipo in ('aberta', 'ganho', 'perdido')),
+    evento_meta text,
+    chave text,
+    criado_em timestamptz not null default now()
+  )`,
+  `create index if not exists crm_etapas_empresa on crm_etapas (empresa_id, ordem)`,
+  `alter table leads add column if not exists etapa_id integer references crm_etapas on delete set null`,
+  `alter table leads add column if not exists etapa_em timestamptz`,
+  // Conjunto de dados (pixel) que recebe as etapas do CRM pela API de Conversões. Token opcional, próprio do cliente.
+  `alter table empresas add column if not exists meta_dataset text`,
+  `alter table empresas add column if not exists meta_dataset_token text`,
+  `alter table empresas add column if not exists meta_dataset_erro text`,
+  `create table if not exists crm_eventos (
+    id bigserial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    lead_id integer not null references leads on delete cascade,
+    etapa_id integer references crm_etapas on delete set null,
+    evento text not null,
+    evento_id text not null,
+    valor numeric,
+    criado_em timestamptz not null default now(),
+    enviado_em timestamptz,
+    tentado_em timestamptz,
+    tentativas integer not null default 0,
+    erro text,
+    unique (empresa_id, evento_id)
+  )`,
+  `create index if not exists crm_eventos_pendentes on crm_eventos (empresa_id, criado_em) where enviado_em is null`,
 ];
 
 /** Cria as tabelas na primeira consulta de cada instância (comandos idempotentes). */

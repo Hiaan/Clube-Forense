@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { carregarVisao } from "./visao";
+import { etapaDoLead } from "@/lib/painel/crm";
 import { contextoEmpresa } from "./contexto";
 import { periodo } from "@/lib/painel/dados";
 import { dataHora, dataLonga, diaCurto, dinheiro, numero, porcentagem, razao } from "@/lib/painel/formato";
@@ -18,7 +19,7 @@ export default async function VisaoGeral({
 }) {
   const { empresa, idioma, t } = await contextoEmpresa(params);
   const p = periodo((await searchParams).periodo);
-  const { atual, anterior, serie, plataformas, ultima, mes, leads } = await carregarVisao(empresa, p);
+  const { atual, anterior, serie, plataformas, ultima, mes, leads, etapas } = await carregarVisao(empresa, p);
   const recentes = empresa.vendas_fonte === "eduzz" ? await vendasRecentes(empresa.id) : [];
 
   const $ = (v: number | null, compacto = false) => dinheiro(v, empresa.moeda, idioma, compacto);
@@ -176,7 +177,7 @@ export default async function VisaoGeral({
               <li key={l.id} className="flex items-center justify-between gap-3 border-t border-white/6 px-5 py-3 text-sm">
                 <span className="min-w-0 truncate font-medium">{l.nome ?? l.email ?? l.whatsapp}</span>
                 <span className="shrink-0 text-white/50">
-                  {t.leads.etapas[l.etapa]} · {dataHora(l.recebido_em, idioma)}
+                  {etapaDoLead(l.etapa_id, etapas)?.nome ?? t.leads.etapas[l.etapa]} · {dataHora(l.recebido_em, idioma)}
                 </span>
               </li>
             ))}
