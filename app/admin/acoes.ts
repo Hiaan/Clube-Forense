@@ -741,6 +741,10 @@ export async function coletarAgoraAcao(
  * atitude diferente de quem está olhando. Sem esta frase, a única saída era
  * abrir o log da Vercel.
  */
+function listaUfs(ufs: string[]): string {
+  return ufs.length ? ` (${ufs.join(", ")})` : "";
+}
+
 function porQueNadaVirouPauta(m: ResultadoPautas["motivos"]): string {
   if (m.examinadas === 0) {
     return "Nenhuma notícia nova nas fontes desde a última passada — as buscas rodaram e voltaram vazias.";
@@ -748,11 +752,11 @@ function porQueNadaVirouPauta(m: ResultadoPautas["motivos"]): string {
   const recusadas: string[] = [];
   if (m.repetidas > 0)
     recusadas.push(
-      `${m.repetidas} porque o blog já publicou essa mesma pauta nos últimos dias`,
+      `${m.repetidas} porque o blog já publicou essa mesma pauta nos últimos dias${listaUfs(m.repetidasUfs)}`,
     );
   if (m.fichaMagra > 0)
     recusadas.push(
-      `${m.fichaMagra} porque a ficha do estado ainda não tem dois fatos conferidos por nós (sem isso não dá para afirmar que o concurso tem vaga de legista)`,
+      `${m.fichaMagra} porque a ficha do estado ainda não tem dois fatos conferidos por nós${listaUfs(m.fichaMagraUfs)} — preencha vagas, salário, banca ou data da prova em Estados e a próxima busca já abre a pauta`,
     );
   if (m.antigas > 0) recusadas.push(`${m.antigas} por serem mais velhas que três semanas`);
   if (m.travadas > 0) recusadas.push(`${m.travadas} por serem de estado travado no painel`);

@@ -517,8 +517,18 @@ export interface Motivos {
   travadas: number;
   /** Ficha do estado com menos de dois fatos conferidos por nós. */
   fichaMagra: number;
+  /**
+   * Em quais estados isso aconteceu.
+   *
+   * É a única recusa que quem lê pode DESFAZER: basta preencher vagas,
+   * salário, banca ou data da prova na ficha daquele estado, em Estados, e a
+   * próxima passada já abre a pauta. Sem os nomes, o número é só um lamento.
+   */
+  fichaMagraUfs: string[];
   /** Pauta igual já publicada nos últimos dias. */
   repetidas: number;
+  /** E de quais estados — útil para saber que o assunto já está no blog. */
+  repetidasUfs: string[];
   /** Barradas pelo teto da rodada ou pelo limite de uma por estado. */
   limite: number;
 }
@@ -539,7 +549,9 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
     delicadas: 0,
     travadas: 0,
     fichaMagra: 0,
+    fichaMagraUfs: [],
     repetidas: 0,
+    repetidasUfs: [],
     limite: 0,
   };
 
@@ -615,6 +627,7 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
     const tabela = fichaDoEstado(ficha);
     if (tabela.length < FATOS_MINIMOS) {
       motivos.fichaMagra++;
+      if (!motivos.fichaMagraUfs.includes(m.uf)) motivos.fichaMagraUfs.push(m.uf);
       continue;
     }
 
@@ -628,6 +641,7 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
     // esta pauta acrescenta algo — ver jaSaiu.
     if (jaSaiu(m.uf, titulo, anteriores)) {
       motivos.repetidas++;
+      if (!motivos.repetidasUfs.includes(m.uf)) motivos.repetidasUfs.push(m.uf);
       continue;
     }
 
