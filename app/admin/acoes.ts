@@ -43,7 +43,7 @@ import { coletar } from "../monitor/lib/coletor";
 import { importarBlogAntigo } from "../monitor/lib/blogAntigo";
 import { abrirPautas, type ResultadoPautas } from "../monitor/lib/pautas";
 import { extrairFatos, reescrever } from "../monitor/lib/reescrever";
-import { reescreverComIA } from "../monitor/lib/reescreverIA";
+import { auditarComIA, reescreverComIA } from "../monitor/lib/reescreverIA";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import { registrarColeta } from "../lib/sistemaRepo";
@@ -891,7 +891,8 @@ export async function reescreverReferenciaAcao(
     // aritmética do que o modelo devolver.
     const r = reescrever({ texto, uf, ficha, etapaAtual });
 
-    const ia = await reescreverComIA({ texto, uf, ficha, etapaAtual, fatos: extrairFatos(texto) });
+    const fatos = extrairFatos(texto);
+    const ia = await reescreverComIA({ texto, uf, ficha, etapaAtual, fatos });
 
     if (ia.post) {
       const avisos = [...r.avisos];
@@ -899,6 +900,12 @@ export async function reescreverReferenciaAcao(
         avisos.push(
           `CONFIRA ESTES NÚMEROS: ${ia.post.suspeitos.join(", ")} — não encontrei nenhum deles na matéria que você colou nem na nossa ficha do estado. Pode ser arredondamento, pode ser erro do modelo.`,
         );
+      }
+
+      // A segunda leitura, por um modelo pequeno. Só acontece depois de haver
+      // texto para conferir, e o que ela devolve são avisos — nunca um bloqueio.
+      for (const p of await auditarComIA({ texto, ficha, fatos, post: ia.post })) {
+        avisos.push(`A conferência apontou: ${p}`);
       }
       return {
         ok: true,

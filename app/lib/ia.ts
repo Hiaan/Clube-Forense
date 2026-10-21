@@ -4,24 +4,38 @@
 // `npm install` a mais; a API são três cabeçalhos e um POST, e uma dependência
 // que entra no bundle de um projeto pequeno é uma dependência para manter.
 //
-// A CHAVE NUNCA SAI DAQUI. Mora em ANTHROPIC_API_KEY, no servidor, e este
-// arquivo não é importado por nenhum componente de cliente — se fosse, o Next
-// recusaria o build, e é essa a rede de segurança. Também não vai para log:
-// erro de autenticação é relatado como "chave recusada", sem ecoar o valor.
+// A CHAVE NUNCA SAI DAQUI, e o que garante isso é o nome dela. O Next só
+// embute no pacote do navegador as variáveis que começam com NEXT_PUBLIC_;
+// qualquer outra existe apenas no servidor, e `ANTHROPIC_API_KEY` lida do lado
+// do cliente seria string vazia. Some-se a isso que este arquivo só é
+// alcançado por server action. Ela também não vai para log: erro de
+// autenticação é relatado como "chave recusada", sem ecoar o valor.
 //
 // SEM CHAVE, NADA QUEBRA. `iaConfigurada()` responde false e quem chama cai no
 // caminho determinístico. Foi assim que o recurso nasceu e é assim que ele
 // continua funcionando se a chave for revogada, expirar ou estourar o crédito.
 
 /**
- * O modelo. Em variável de ambiente para trocar sem publicar código novo.
+ * Um modelo por tarefa, e cada um numa variável de ambiente própria.
  *
- * O padrão é o Opus 5.5. Para um blog de uma dezena de posts por mês, a conta
- * é de centavos por texto e não vale economizar na qualidade de quem escreve;
- * quem quiser mais barato põe `IA_MODELO=claude-sonnet-5-5` ou
- * `claude-haiku-5-5` nas variáveis da Vercel, sem mexer em código.
+ * A IDEIA É DE CUSTO x BENEFÍCIO, E ELA SÓ VALE ONDE O VOLUME EXISTE. Escrever
+ * um post custa centavos e acontece uma dezena de vezes por mês: a diferença
+ * entre o modelo mais caro e o mais barato é de poucos reais no mês inteiro, e
+ * economizar aí é economizar no texto que vende um curso de milhares de reais.
+ * Auditar é outra história — é tarefa curta, mecânica e repetida, exatamente o
+ * feitio do modelo pequeno, e barata o bastante para rodar em toda reescrita
+ * sem ninguém pensar duas vezes.
+ *
+ * Em variáveis separadas porque a escolha muda com a conta de luz: trocar o
+ * modelo de uma tarefa não deveria exigir publicar código, e nem arrastar as
+ * outras junto.
  */
-const MODELO = process.env.IA_MODELO ?? "claude-opus-5-5";
+export const MODELOS = {
+  /** Quem escreve o post a partir da matéria colada. */
+  escrita: process.env.IA_MODELO_ESCRITA ?? process.env.IA_MODELO ?? "claude-haiku-5-5",
+  /** Quem confere o post contra a matéria antes de ele aparecer na tela. */
+  auditoria: process.env.IA_MODELO_AUDITORIA ?? "claude-haiku-5-5",
+} as const;
 
 /** True quando há chave configurada. */
 export function iaConfigurada(): boolean {
@@ -42,11 +56,14 @@ export interface RespostaIA {
  * nesse caso é cair no gerador determinístico, que responde na hora.
  */
 export async function pedirAoClaude({
+  modelo,
   sistema,
   prompt,
   maxTokens = 8000,
   prazoMs = 90_000,
 }: {
+  /** Um dos valores de `MODELOS` — a tarefa escolhe, não esta função. */
+  modelo: string;
   sistema: string;
   prompt: string;
   maxTokens?: number;
@@ -67,7 +84,7 @@ export async function pedirAoClaude({
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: MODELO,
+        model: modelo,
         max_tokens: maxTokens,
         // SEM `temperature`, E ISSO NÃO É DESCUIDO. A primeira versão mandava
         // `temperature: 0` — o reflexo de quem quer resposta previsível — e a
@@ -104,7 +121,7 @@ export async function pedirAoClaude({
       const tipo = r.status === 401 ? "chave recusada" : `erro ${r.status}`;
       return {
         texto: null,
-        erro: `a API do Claude respondeu ${tipo}${detalhe ? ` — ${detalhe}` : ""}`,
+        erro: `a API do Claude respondeu ${tipo} (modelo ${modelo})${detalhe ? ` — ${detalhe}` : ""}`,
       };
     }
 

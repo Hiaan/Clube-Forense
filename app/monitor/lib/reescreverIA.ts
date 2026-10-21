@@ -20,7 +20,7 @@
 // conferência no código, porque foi onde o gerador determinístico escorregou
 // primeiro — e o que um gerador erra, um modelo também erra.
 
-import { pedirAoClaude, iaConfigurada } from "../../lib/ia";
+import { MODELOS, pedirAoClaude, iaConfigurada } from "../../lib/ia";
 import { ESTADO_POR_UF } from "./estados";
 import { orgaoDaUf } from "../../blog/lib/taxonomia";
 import { NIVEL_LABEL, type Nivel } from "./tipos";
@@ -206,7 +206,7 @@ export async function reescreverComIA({
     "Escreva o post. Responda só com o JSON.",
   ].join("\n");
 
-  const r = await pedirAoClaude({ sistema: SISTEMA, prompt });
+  const r = await pedirAoClaude({ modelo: MODELOS.escrita, sistema: SISTEMA, prompt });
   if (!r.texto) return { post: null, erro: r.erro };
 
   // O modelo às vezes embrulha o JSON em cercas de código, mesmo proibido.
@@ -232,5 +232,95 @@ export async function reescreverComIA({
     };
   } catch {
     return { post: null, erro: "a resposta não veio em JSON" };
+  }
+}
+
+// --------------------------------------------------------------- auditoria
+
+const SISTEMA_AUDITOR = `Você confere textos do blog do Clube Forense ANTES de eles irem ao ar. O blog fala de concursos para MÉDICO-LEGISTA e é lido por médicos que decidem, a partir dele, estudar meses para uma prova.
+
+Você recebe a MATÉRIA (o material de origem), a FICHA (a base conferida pelo Clube) e o POST escrito a partir das duas. Sua única tarefa é apontar o que o post AFIRMA e as duas fontes NÃO sustentam.
+
+Procure, nesta ordem de gravidade:
+1. Número, valor, data ou nome próprio que não aparece na matéria nem na ficha.
+2. Previsão apresentada como certeza ("as inscrições vão até X" quando a origem diz "a expectativa é").
+3. Vaga, salário ou exigência de OUTRO cargo apresentada como sendo de médico-legista — matéria de polícia civil traz vários cargos juntos, e esse é o erro mais fácil de cometer.
+4. Frase copiada da matéria em vez de reescrita.
+5. Qualquer afirmação sobre o concurso que a origem não faça.
+
+Não comente estilo, tamanho, tom, ordem das seções ou escolha de palavras. Não sugira melhorias. Se o post estiver sustentado, devolva a lista vazia — lista vazia é a resposta esperada na maioria das vezes, e inventar problema para parecer útil é pior do que não conferir.
+
+Responda só com um objeto JSON, sem cercas de código:
+{"problemas": ["frase curta dizendo o que o post afirma e a origem não sustenta", "..."]}`;
+
+/**
+ * Uma segunda leitura, por um modelo pequeno, antes do texto chegar à tela.
+ *
+ * POR QUE UM AUDITOR SEPARADO, E NÃO MAIS REGRAS NO PEDIDO DE ESCRITA. Quem
+ * escreve está ocupado escrevendo: as cinco proibições do pedido competem com
+ * formato, ordem das seções e fluidez, e é assim que uma delas escorrega. O
+ * auditor não tem nada para escrever — ele compara duas coisas e responde uma
+ * lista. É tarefa curta, mecânica e repetida, que é exatamente onde um modelo
+ * pequeno trabalha bem e custa quase nada.
+ *
+ * E ELE PEGA O QUE O CÓDIGO NÃO PEGA. A conferência em `conferirNumeros` é
+ * aritmética: dinheiro e contagem de vaga. Previsão virando data marcada, vaga
+ * de outro cargo apresentada como nossa, frase copiada do jornalista — nada
+ * disso tem forma de número, e é só lendo que se percebe.
+ *
+ * NUNCA BLOQUEIA. Devolve uma lista de avisos; publicar continua sendo decisão
+ * de quem revisa. Falha de rede, resposta torta ou chave ausente devolvem
+ * lista vazia: um auditor que cai não pode impedir o post de existir.
+ */
+export async function auditarComIA({
+  texto,
+  ficha,
+  fatos,
+  post,
+}: {
+  texto: string;
+  ficha: Ficha | null;
+  fatos: Fatos;
+  post: { titulo: string; resumo: string; corpo: string };
+}): Promise<string[]> {
+  if (!iaConfigurada()) return [];
+
+  const prompt = [
+    fichaEmTexto(ficha, fatos),
+    "",
+    "MATÉRIA:",
+    "<<<",
+    texto.slice(0, 12000),
+    ">>>",
+    "",
+    "POST A CONFERIR:",
+    "<<<",
+    `${post.titulo}\n\n${post.resumo}\n\n${post.corpo}`.slice(0, 12000),
+    ">>>",
+    "",
+    "Responda só com o JSON.",
+  ].join("\n");
+
+  const r = await pedirAoClaude({
+    modelo: MODELOS.auditoria,
+    sistema: SISTEMA_AUDITOR,
+    prompt,
+    maxTokens: 1500,
+    // Mais curto que o da escrita: o post já está pronto e quem está esperando
+    // já esperou uma vez. Estourou o prazo, o texto vai sem a segunda leitura.
+    prazoMs: 45_000,
+  });
+  if (!r.texto) return [];
+
+  try {
+    const limpo = r.texto.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const d = JSON.parse(limpo) as { problemas?: unknown };
+    if (!Array.isArray(d.problemas)) return [];
+    return d.problemas
+      .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+      .map((x) => x.trim())
+      .slice(0, 8);
+  } catch {
+    return [];
   }
 }
