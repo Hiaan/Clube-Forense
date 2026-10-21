@@ -19,9 +19,44 @@
 // uma caixa de texto gigante no topo empurraria o título para fora da tela
 // todas as vezes.
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { reescreverReferenciaAcao, type ResultadoReescrita } from "../../../acoes";
+
+/**
+ * O relógio da espera.
+ *
+ * ELE EXISTE POR UM MOTIVO MEDIDO, NÃO POR ENFEITE. A reescrita leva algumas
+ * dezenas de segundos — o modelo lê a matéria, escreve o post e um segundo
+ * modelo confere o que saiu —, e durante toda a espera a tela dizia só
+ * "Reescrevendo…". Parado, sem número, aquilo lê como travado: a primeira
+ * reação de quem clicou foi concluir que nada tinha acontecido. Um contador
+ * subindo diz a única coisa que falta dizer, que é "ainda estou aqui".
+ *
+ * O setInterval mora em efeito e o estado muda dentro do callback, não no
+ * corpo — que é a diferença entre um contador e um laço de renderização.
+ */
+function Relogio() {
+  const [segundos, setSegundos] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setSegundos((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const etapa =
+    segundos < 12
+      ? "lendo a matéria"
+      : segundos < 30
+        ? "escrevendo o post"
+        : "conferindo os números";
+
+  return (
+    <span className="text-xs text-gray-500">
+      {etapa}… {segundos}s
+    </span>
+  );
+}
 
 export default function ColarReferencia({
   uf,
@@ -38,10 +73,24 @@ export default function ColarReferencia({
     ResultadoReescrita | null,
     FormData
   >(async (anterior, dados) => {
-    const r = await reescreverReferenciaAcao(anterior, dados);
-    // O formulário é quem manda nos campos; esta caixa só avisa.
-    if (r.ok && r.post) aoReescrever(r);
-    return r;
+    try {
+      const r = await reescreverReferenciaAcao(anterior, dados);
+      // O formulário é quem manda nos campos; esta caixa só avisa.
+      if (r.ok && r.post) aoReescrever(r);
+      return r;
+    } catch {
+      // SILÊNCIO É O PIOR DEFEITO QUE ESTA TELA PODE TER, e já teve. A ação
+      // trata os próprios erros e devolve mensagem; o que ela não tem como
+      // tratar é morrer inteira — função desligada no meio por tempo, rede
+      // caída, deploy trocando sob os pés. Nesses casos a promessa é recusada,
+      // nenhum estado muda e o botão volta ao normal como se nada tivesse sido
+      // clicado. Este catch transforma qualquer um desses fins numa frase.
+      return {
+        ok: false,
+        mensagem:
+          "A reescrita não voltou do servidor. Normalmente é demora: tente de novo e, se repetir, me avise — o texto montado pelo modelo automático continua funcionando enquanto isso.",
+      };
+    }
   }, null);
 
   if (!aberto) {
@@ -103,9 +152,15 @@ export default function ColarReferencia({
         >
           {pendente ? "Reescrevendo…" : "Reescrever no nosso modelo"}
         </button>
-        <span className="text-xs text-gray-400">
-          Substitui o título, o resumo e o texto abaixo.
-        </span>
+        {pendente ? (
+          <Relogio />
+        ) : (
+          <span className="text-xs text-gray-400">
+            Substitui o título, o resumo e o texto abaixo. Leva algumas dezenas
+            de segundos: são duas leituras do modelo, uma para escrever e uma
+            para conferir.
+          </span>
+        )}
       </div>
 
       {resultado && (

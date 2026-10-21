@@ -77,7 +77,7 @@ const FATOS_MINIMOS = 2;
  * O estágio do funil já carrega essa informação: se o robô classificou a
  * notícia como "edital", é matéria de edital. O resto é notícia de andamento.
  */
-function categoriaDoNivel(nivel: Nivel): string {
+export function categoriaDoNivel(nivel: Nivel): string {
   return nivel === "edital" ? "edital" : "noticia";
 }
 

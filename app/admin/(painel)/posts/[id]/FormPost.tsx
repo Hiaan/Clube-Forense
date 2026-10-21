@@ -63,6 +63,10 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
   // novo. Efeito colateral assumido e avisado na tela: o que estava escrito à
   // mão é substituído, que é justamente o que se pede ao clicar em reescrever.
   const [reescrita, setReescrita] = useState<ResultadoReescrita | null>(null);
+  // A categoria também vem da reescrita: receber o texto pronto e ainda ter de
+  // acertar um campo à mão é o tipo de sobra que faz "pronto para postar" não
+  // ser pronto para postar.
+  const [categoria, setCategoria] = useState(inicial?.categoria ?? "noticia");
   const texto = {
     titulo: reescrita?.post?.titulo ?? inicial?.titulo ?? "",
     resumo: reescrita?.post?.resumo ?? inicial?.resumo ?? "",
@@ -115,6 +119,7 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
         aoReescrever={(r) => {
           setReescrita(r);
           if (r.post) setTitulo(r.post.titulo);
+          if (r.categoria) setCategoria(r.categoria);
         }}
       />
 
@@ -217,7 +222,8 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
             <select
               id="categoria"
               name="categoria"
-              defaultValue={inicial?.categoria ?? "noticia"}
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
               className={campo}
             >
               {CATEGORIAS.map((c) => (

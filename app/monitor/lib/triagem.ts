@@ -115,6 +115,7 @@ export async function triarNoticias(candidatas: Candidata[]): Promise<ResultadoT
     sistema: SISTEMA,
     prompt: `${novas.length} notícia(s) para triar:\n\n${lista}\n\nResponda só com o JSON.`,
     maxTokens: 2000,
+    esforco: "low",
     // Isto roda dentro do cron, sem ninguém esperando na tela; mas um pedido
     // pendurado seguraria a passada inteira, e a passada é de hora em hora.
     prazoMs: 60_000,

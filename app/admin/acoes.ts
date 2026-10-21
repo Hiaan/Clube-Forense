@@ -41,7 +41,7 @@ import { interpretarGabarito, type EstiloProva, type MateriaProva } from "../lib
 import { aSlug, categoriaPorSlug, orgaoDaUf } from "../blog/lib/taxonomia";
 import { coletar } from "../monitor/lib/coletor";
 import { importarBlogAntigo } from "../monitor/lib/blogAntigo";
-import { abrirPautas, type ResultadoPautas } from "../monitor/lib/pautas";
+import { abrirPautas, categoriaDoNivel, type ResultadoPautas } from "../monitor/lib/pautas";
 import { extrairFatos, reescrever } from "../monitor/lib/reescrever";
 import { auditarComIA, reescreverComIA } from "../monitor/lib/reescreverIA";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
@@ -843,6 +843,14 @@ export async function pesquisarAgoraAcao(): Promise<Resultado> {
 export interface ResultadoReescrita extends Resultado {
   /** O post pronto, no nosso modelo. */
   post?: { titulo: string; resumo: string; corpo: string };
+  /**
+   * A categoria do post, deduzida da etapa que a matéria descreve.
+   *
+   * Vem junto para a tela não deixar um campo para a pessoa acertar à mão
+   * depois de receber o texto pronto — que é o tipo de sobra que faz "pronto
+   * para postar" não ser pronto para postar.
+   */
+  categoria?: string;
   /** O que foi aproveitado do texto colado. */
   encontrados?: string[];
   /** O que não deu para ler, e o que conflita com a nossa base. */
@@ -918,6 +926,7 @@ export async function reescreverReferenciaAcao(
           "Texto reescrito a partir da matéria. Leia antes de publicar: o texto é nosso, mas quem escreveu foi o modelo." +
           (r.encontrados.length > 0 ? ` Fatos conferidos na extração: ${r.encontrados.join(", ")}.` : ""),
         post: { titulo: ia.post.titulo, resumo: ia.post.resumo, corpo: ia.post.corpo },
+        categoria: categoriaDoNivel(r.etapa),
         encontrados: r.encontrados,
         avisos,
         comIA: true,
@@ -934,6 +943,7 @@ export async function reescreverReferenciaAcao(
         `Texto montado pelo modelo automático${ia.erro ? ` (a IA não respondeu: ${ia.erro})` : ""}.` +
         (r.encontrados.length > 0 ? ` Aproveitei do que você colou: ${r.encontrados.join(", ")}.` : ""),
       post: { titulo: r.titulo, resumo: r.resumo, corpo: r.corpo },
+      categoria: categoriaDoNivel(r.etapa),
       encontrados: r.encontrados,
       avisos: r.avisos,
       comIA: false,

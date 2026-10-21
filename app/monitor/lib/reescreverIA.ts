@@ -206,7 +206,15 @@ export async function reescreverComIA({
     "Escreva o post. Responda só com o JSON.",
   ].join("\n");
 
-  const r = await pedirAoClaude({ modelo: MODELOS.escrita, sistema: SISTEMA, prompt });
+  const r = await pedirAoClaude({
+    modelo: MODELOS.escrita,
+    sistema: SISTEMA,
+    prompt,
+    // Somados, escrita e auditoria têm de caber com folga no teto da função
+    // (ver maxDuration na página do editor) — estourar lá não dá mensagem
+    // nenhuma, e é o pior fim possível para um clique.
+    prazoMs: 60_000,
+  });
   if (!r.texto) return { post: null, erro: r.erro };
 
   // O modelo às vezes embrulha o JSON em cercas de código, mesmo proibido.
@@ -306,9 +314,10 @@ export async function auditarComIA({
     sistema: SISTEMA_AUDITOR,
     prompt,
     maxTokens: 1500,
+    esforco: "low",
     // Mais curto que o da escrita: o post já está pronto e quem está esperando
     // já esperou uma vez. Estourou o prazo, o texto vai sem a segunda leitura.
-    prazoMs: 45_000,
+    prazoMs: 25_000,
   });
   if (!r.texto) return [];
 

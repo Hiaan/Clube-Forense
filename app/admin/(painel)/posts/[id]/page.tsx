@@ -11,6 +11,21 @@ import { lerPorId } from "../../../../lib/postsRepo";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Teto de tempo da função, e ele é o motivo de "clico e não acontece nada".
+ *
+ * As server actions desta tela rodam na função desta rota, e uma delas — a
+ * reescrita da matéria — faz duas chamadas a um modelo de linguagem. Sem este
+ * valor vale o padrão da plataforma, curto demais para isso: a função é morta
+ * no meio, a resposta nunca chega, e a tela fica exatamente como estava, sem
+ * texto e sem erro. A página dos estados já precisou do mesmo ajuste quando
+ * ganhou o botão de coletar.
+ *
+ * 300 é o máximo do plano; os prazos internos de cada chamada são bem menores
+ * (ver ia.ts), para falharmos com mensagem antes de a plataforma desligar a luz.
+ */
+export const maxDuration = 300;
+
 export default async function PaginaPost({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 

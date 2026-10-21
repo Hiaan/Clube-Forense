@@ -303,6 +303,8 @@ export interface Reescrito {
   encontrados: string[];
   /** Avisos: o que não deu para ler, e o que conflita com o que a gente tem. */
   avisos: string[];
+  /** A etapa que o post anuncia — a nossa, ou a da matéria quando é mais avançada. */
+  etapa: Nivel;
 }
 
 /** "2027-01-10" → "10 de janeiro de 2027". */
@@ -439,6 +441,7 @@ export function reescrever({
   }
 
   return {
+    etapa,
     titulo: tituloDoPost(nomeOrgao, etapa, mesclada, nomeEstado),
     resumo: resumoDoPost(nomeOrgao, comArtigo, etapa, mesclada),
     corpo: corpoDoPost(

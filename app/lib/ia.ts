@@ -70,6 +70,7 @@ export async function pedirAoClaude({
   prompt,
   maxTokens = 8000,
   prazoMs = 90_000,
+  esforco,
 }: {
   /** Um dos valores de `MODELOS` — a tarefa escolhe, não esta função. */
   modelo: string;
@@ -77,6 +78,15 @@ export async function pedirAoClaude({
   prompt: string;
   maxTokens?: number;
   prazoMs?: number;
+  /**
+   * Quanto o modelo pensa antes de responder.
+   *
+   * Nos modelos atuais é isto que regula profundidade — não existe mais
+   * temperatura. `low` é o certo para tarefa mecânica de formato fixo
+   * (triar manchete, conferir número contra texto): pensar mais não melhora
+   * um sim/não, só cobra mais caro e faz quem clicou esperar mais.
+   */
+  esforco?: "low" | "medium" | "high";
 }): Promise<RespostaIA> {
   const chave = process.env.ANTHROPIC_API_KEY?.trim();
   if (!chave) return { texto: null, erro: "sem chave configurada" };
@@ -100,6 +110,7 @@ export async function pedirAoClaude({
         // API devolvia 400 em todas as chamadas: os modelos atuais recusam
         // qualquer valor de amostragem que não seja o padrão. O que controla a
         // profundidade neles é `output_config.effort`, não a temperatura.
+        ...(esforco ? { output_config: { effort: esforco } } : {}),
         system: sistema,
         messages: [{ role: "user", content: prompt }],
       }),
