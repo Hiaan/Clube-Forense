@@ -8,12 +8,12 @@
 // percebe que o texto do robô ficou curto — e porque o resultado cai direto
 // nos campos logo abaixo.
 //
-// O QUE ELE FAZ E O QUE ELE NÃO FAZ, dito na própria tela e não só aqui: lê o
-// texto atrás de fatos (banca, vagas, salário, carga horária, datas, etapa,
-// Diário Oficial) e manda o nosso gerador escrever o post com eles. O texto
-// que sai é inteiramente nosso; da matéria vêm os números. Ele não entende
-// contexto nem resume argumento — se a matéria disser algo importante que não
-// caiba num desses campos, quem revisa escreve.
+// DOIS CAMINHOS, E A TELA DIZ QUAL SAIU. Com chave de IA configurada, quem
+// escreve é o Claude: ele lê a matéria inteira e devolve o post no nosso
+// modelo, com o que não cabe em campo nenhum. Sem chave — ou com a API fora do
+// ar, lenta ou respondendo torto —, o post sai do gerador de campos, que monta
+// o texto a partir de banca, vagas, salário, datas e etapa. Nunca sobra erro
+// no lugar do texto; o que muda é o aviso embaixo do botão.
 //
 // COMEÇA FECHADO. A maioria das aberturas do editor é para ajustar vírgula, e
 // uma caixa de texto gigante no topo empurraria o título para fora da tela
@@ -62,10 +62,10 @@ export default function ColarReferencia({
         <div>
           <h2 className="font-bold text-gray-900">Colar a referência</h2>
           <p className="mt-1 text-xs leading-relaxed text-gray-500">
-            Cole a matéria de onde saiu a notícia. Eu leio os fatos — banca,
-            vagas, salário, carga horária, datas, etapa e publicação no Diário
-            Oficial — e escrevo o post no modelo do Clube com eles. O texto que
-            sai é nosso; da matéria vêm só os números.
+            Cole a matéria de onde saiu a notícia e eu escrevo o post no
+            modelo do Clube. Os fatos vêm da matéria; as palavras são nossas —
+            nada de frase copiada, nada de número inventado e previsão nunca
+            vira data marcada. Leia antes de publicar.
           </p>
         </div>
         <button
@@ -115,6 +115,15 @@ export default function ColarReferencia({
             resultado.ok ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
           }`}
         >
+          {resultado.ok && (
+            <span
+              className={`mb-1.5 mr-2 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                resultado.comIA ? "bg-gray-900 text-[#ffcd07]" : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {resultado.comIA ? "escrito pela IA" : "modelo automático"}
+            </span>
+          )}
           {resultado.mensagem}
           {resultado.avisos?.map((a) => (
             <p key={a} className="mt-1.5 font-semibold text-amber-700">

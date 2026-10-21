@@ -42,7 +42,8 @@ import { aSlug, categoriaPorSlug, orgaoDaUf } from "../blog/lib/taxonomia";
 import { coletar } from "../monitor/lib/coletor";
 import { importarBlogAntigo } from "../monitor/lib/blogAntigo";
 import { abrirPautas, type ResultadoPautas } from "../monitor/lib/pautas";
-import { reescrever } from "../monitor/lib/reescrever";
+import { extrairFatos, reescrever } from "../monitor/lib/reescrever";
+import { reescreverComIA } from "../monitor/lib/reescreverIA";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import { registrarColeta } from "../lib/sistemaRepo";
@@ -841,6 +842,8 @@ export interface ResultadoReescrita extends Resultado {
   encontrados?: string[];
   /** O que não deu para ler, e o que conflita com a nossa base. */
   avisos?: string[];
+  /** Quem escreveu: o Claude, ou o gerador de campos. */
+  comIA?: boolean;
   /**
    * Carimbo desta reescrita. A tela usa como `key` para trocar o conteúdo dos
    * campos: sem ele, uma segunda reescrita não teria como substituir o texto
@@ -880,22 +883,48 @@ export async function reescreverReferenciaAcao(
     const relatorio = await coletar();
     const estado = relatorio.estados.find((e) => e.uf === uf);
 
-    const r = reescrever({
-      texto,
-      uf,
-      ficha: estado?.curadoria ?? null,
-      etapaAtual: estado?.nivel ?? "sem",
-    });
+    const ficha = estado?.curadoria ?? null;
+    const etapaAtual = estado?.nivel ?? "sem";
 
+    // O extrator roda SEMPRE, com IA ou sem. Ele é duas coisas aqui: a lista
+    // de fatos conferidos que vai no pedido ao modelo, e a conferência da
+    // aritmética do que o modelo devolver.
+    const r = reescrever({ texto, uf, ficha, etapaAtual });
+
+    const ia = await reescreverComIA({ texto, uf, ficha, etapaAtual, fatos: extrairFatos(texto) });
+
+    if (ia.post) {
+      const avisos = [...r.avisos];
+      if (ia.post.suspeitos.length > 0) {
+        avisos.push(
+          `CONFIRA ESTES NÚMEROS: ${ia.post.suspeitos.join(", ")} — não encontrei nenhum deles na matéria que você colou nem na nossa ficha do estado. Pode ser arredondamento, pode ser erro do modelo.`,
+        );
+      }
+      return {
+        ok: true,
+        mensagem:
+          "Texto reescrito a partir da matéria. Leia antes de publicar: o texto é nosso, mas quem escreveu foi o modelo." +
+          (r.encontrados.length > 0 ? ` Fatos conferidos na extração: ${r.encontrados.join(", ")}.` : ""),
+        post: { titulo: ia.post.titulo, resumo: ia.post.resumo, corpo: ia.post.corpo },
+        encontrados: r.encontrados,
+        avisos,
+        comIA: true,
+        em: new Date().toISOString(),
+      };
+    }
+
+    // A IA não respondeu (sem chave, fora do ar, demorou, veio torta). O post
+    // sai do gerador de campos, que responde na hora e nunca inventa — e a
+    // mensagem diz por quê, para ninguém achar que a IA escreveu isto.
     return {
       ok: true,
       mensagem:
-        r.encontrados.length > 0
-          ? `Texto reescrito no nosso modelo. Aproveitei do que você colou: ${r.encontrados.join(", ")}.`
-          : "Texto reescrito no nosso modelo.",
+        `Texto montado pelo modelo automático${ia.erro ? ` (a IA não respondeu: ${ia.erro})` : ""}.` +
+        (r.encontrados.length > 0 ? ` Aproveitei do que você colou: ${r.encontrados.join(", ")}.` : ""),
       post: { titulo: r.titulo, resumo: r.resumo, corpo: r.corpo },
       encontrados: r.encontrados,
       avisos: r.avisos,
+      comIA: false,
       em: new Date().toISOString(),
     };
   } catch (e) {
