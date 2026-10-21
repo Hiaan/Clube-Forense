@@ -17,6 +17,7 @@
 
 import { enviarEmail, emailConfigurado } from "../../lib/email";
 import type { PostDoRobo, ResultadoPautas } from "./pautas";
+import { baseDoSite } from "../../lib/site";
 
 /**
  * Para quem vai o aviso, da variável `EMAIL_AVISOS`.
@@ -50,7 +51,7 @@ function base(): string {
   const daVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
   if (daVercel) return `https://${daVercel}`;
 
-  return "https://blog.clubeforense.com.br";
+  return baseDoSite();
 }
 
 function escapar(s: string): string {

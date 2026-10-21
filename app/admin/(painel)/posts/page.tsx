@@ -12,6 +12,7 @@ import BotaoPesquisar from "./BotaoPesquisar";
 import BotaoPublicarTodos from "./BotaoPublicarTodos";
 import { contarEmRevisao, listarTodos, type StatusPost } from "../../../lib/postsRepo";
 import { lerUltimaColeta } from "../../../lib/sistemaRepo";
+import { lerResumoVisitas, lerVisitasPorSlug } from "../../../lib/visitasRepo";
 import { nomeCategoria, nomeEstado, orgaoPorSlug } from "../../../blog/lib/taxonomia";
 
 export const dynamic = "force-dynamic";
@@ -71,10 +72,12 @@ export default async function PaginaPosts({
   const bruta = Array.isArray(q.status) ? q.status[0] : q.status;
   const aba = (ABAS.find((a) => a.chave === bruta)?.chave ?? "revisao") as StatusPost | "todos";
 
-  const [posts, emRevisao, coleta] = await Promise.all([
+  const [posts, emRevisao, coleta, visitas, leituras] = await Promise.all([
     listarTodos(aba === "todos" ? undefined : aba),
     contarEmRevisao(),
     lerUltimaColeta(),
+    lerResumoVisitas(),
+    lerVisitasPorSlug(),
   ]);
 
   // Quantos o botão de publicar em massa realmente levaria. Conta o que está
@@ -133,6 +136,33 @@ export default async function PaginaPosts({
           </Link>
         </div>
       </div>
+
+      {/* QUANTA GENTE LEU. A contagem é de navegador com JavaScript, ou seja,
+          de pessoa: robô de buscador passa várias vezes por dia em cada post e
+          inflaria justamente o número que precisa ser honesto. Os cliques de
+          saída são a pergunta que vale dinheiro — não quantos leram, mas
+          quantos leram e foram ver o curso. */}
+      <div className="mt-6 grid gap-3 sm:grid-cols-4">
+        {[
+          { r: "Leituras (7 dias)", v: visitas.posts7 },
+          { r: "Leituras (30 dias)", v: visitas.posts30 },
+          { r: "Leituras no total", v: visitas.postsTotal },
+          { r: "Cliques para o curso (30 dias)", v: visitas.saidas30 },
+        ].map((c) => (
+          <div key={c.r} className="rounded-2xl border border-gray-200 bg-white px-4 py-3">
+            <p className="text-2xl font-black text-gray-900">{c.v.toLocaleString("pt-BR")}</p>
+            <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+              {c.r}
+            </p>
+          </div>
+        ))}
+      </div>
+      {visitas.postsTotal === 0 && (
+        <p className="mt-2 text-xs text-gray-400">
+          A contagem começa agora — ela só registra visitas a partir de hoje, e
+          não tem como recuperar o que aconteceu antes.
+        </p>
+      )}
 
       <nav className="mt-6 flex flex-wrap gap-2">
         {ABAS.map((a) => {
@@ -211,8 +241,14 @@ export default async function PaginaPosts({
                         <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{p.resumo}</p>
                       )}
                     </div>
-                    <span className="shrink-0 pt-1 text-xs text-gray-400">
+                    <span className="shrink-0 pt-1 text-right text-xs text-gray-400">
                       {quando(p.publicadoEm ?? p.criadoEm)}
+                      {p.status === "publicado" && (
+                        <span className="mt-0.5 block font-semibold text-gray-600">
+                          {(leituras.get(p.slug) ?? 0).toLocaleString("pt-BR")} leitura
+                          {(leituras.get(p.slug) ?? 0) === 1 ? "" : "s"}
+                        </span>
+                      )}
                     </span>
                   </Link>
                 </li>

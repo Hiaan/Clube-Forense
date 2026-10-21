@@ -8,6 +8,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import { urlDoPost } from "../../lib/site";
 import type { Metadata } from "next";
 
 import AvisoPostAntigo from "../AvisoPostAntigo";
@@ -15,6 +17,8 @@ import CartaoPost, { dataCurta } from "../CartaoPost";
 import Markdown from "../Markdown";
 import { lerPublicado, lerRelacionados } from "../../lib/postsRepo";
 import { nomeCategoria, nomeEstado, orgaoPorSlug } from "../lib/taxonomia";
+import ContarVisita from "../../components/ContarVisita";
+import ContarSaida from "../../components/ContarSaida";
 
 export const dynamic = "force-dynamic";
 
@@ -36,11 +40,12 @@ export async function generateMetadata({
       publishedTime: post.publicadoEm ?? undefined,
       images: post.capaUrl ? [post.capaUrl] : undefined,
     },
-    // A canônica aponta para o domínio do blog, e não para o caminho relativo:
-    // a mesma página responde em dois endereços (o /blog do mapa e o
-    // blog.clubeforense.com.br), e sem isso o Google escolhe sozinho qual
-    // indexar — às vezes um, às vezes o outro, dividindo a reputação dos dois.
-    alternates: { canonical: `https://blog.clubeforense.com.br/blog/${post.slug}` },
+    // A canônica é absoluta de propósito: a mesma página pode responder em
+    // mais de um endereço, e sem ela o Google escolhe sozinho qual indexar,
+    // dividindo a reputação entre os dois. O domínio vem de `baseDoSite` e não
+    // escrito aqui — apontado para um subdomínio que não existe, como estava,
+    // esta linha sozinha mandava o buscador embora de todo post publicado.
+    alternates: { canonical: urlDoPost(post.slug) },
   };
 }
 
@@ -54,6 +59,8 @@ export default async function PaginaPost({ params }: { params: Promise<{ slug: s
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
+      {/* Conta a leitura. Não desenha nada — ver ContarVisita.tsx. */}
+      <ContarVisita tipo="post" slug={post.slug} />
       <nav className="mb-6 text-xs font-semibold text-gray-500">
         <Link href="/blog" className="hover:text-gray-900">
           Blog
@@ -185,12 +192,15 @@ export default async function PaginaPost({ params }: { params: Promise<{ slug: s
           O preparatório do Clube Forense é feito só para esse cargo — aula,
           questão e revisão pelo recorte que cai na prova de perícia.
         </p>
-        <a
-          href="https://app.clubeforense.com.br"
-          className="mt-3 inline-flex rounded-full bg-gray-900 px-4 py-2 text-sm font-bold text-[#ffcd07] transition hover:bg-gray-800"
-        >
-          Conhecer o preparatório
-        </a>
+        {/* Envolvido para contar o clique de saída — o link segue inteiro. */}
+        <ContarSaida>
+          <a
+            href="https://app.clubeforense.com.br"
+            className="mt-3 inline-flex rounded-full bg-gray-900 px-4 py-2 text-sm font-bold text-[#ffcd07] transition hover:bg-gray-800"
+          >
+            Conhecer o preparatório
+          </a>
+        </ContarSaida>
       </aside>
 
       {relacionados.length > 0 && (

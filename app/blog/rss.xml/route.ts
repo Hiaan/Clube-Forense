@@ -6,10 +6,13 @@
 // que é como um blog novo é encontrado.
 
 import { listarPublicados } from "../../lib/postsRepo";
+import { baseDoSite } from "../../lib/site";
+
+const SITE = baseDoSite();
 
 export const dynamic = "force-dynamic";
 
-const SITE = "https://blog.clubeforense.com.br";
+
 
 /**
  * Escapa o que vai dentro de um nó XML.

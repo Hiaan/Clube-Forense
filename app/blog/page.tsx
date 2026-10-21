@@ -11,6 +11,7 @@ import CartaoPost from "./CartaoPost";
 import Filtros from "./Filtros";
 import { listarPublicados } from "../lib/postsRepo";
 import { categoriaPorSlug, nomeEstado, orgaoPorSlug } from "./lib/taxonomia";
+import ContarVisita from "../components/ContarVisita";
 
 export const dynamic = "force-dynamic";
 
@@ -78,6 +79,8 @@ export default async function BlogHome({
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
+      {/* Conta a abertura da capa do blog. Não desenha nada. */}
+      <ContarVisita tipo="blog" />
       <header className="mb-8">
         <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-gray-900 sm:text-[2.6rem]">
           {manchete(uf, orgao, categoria)}

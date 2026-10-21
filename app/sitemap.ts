@@ -9,13 +9,17 @@ import type { MetadataRoute } from "next";
 
 import { listarSlugsPublicados } from "./lib/postsRepo";
 import { CATEGORIAS } from "./blog/lib/taxonomia";
+import { baseDoSite } from "./lib/site";
 
-const BLOG = "https://blog.clubeforense.com.br";
+
 const MAPA = "https://mapa.clubeforense.com.br";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Mesma base da canônica: sitemap e canônica discordando é o buscador
+  // recebendo duas respostas para a mesma pergunta.
+  const BLOG = baseDoSite();
   const posts = await listarSlugsPublicados();
 
   return [

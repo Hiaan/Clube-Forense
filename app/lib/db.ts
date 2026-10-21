@@ -471,6 +471,26 @@ create table if not exists triagem_noticias (
 );
 `,
 
+  // Quantas pessoas leram o quê, por dia.
+  //
+  // POR DIA E NÃO POR VISITA: guardar uma linha por acesso daria uma tabela
+  // que só cresce, para responder perguntas que são todas de agregado — "quanto
+  // leram este post", "como foi a semana". Uma linha por dia por página
+  // responde as duas e cabe em qualquer plano de banco.
+  //
+  // `tipo` separa o que é leitura de post do que é clique de saída para o
+  // preparatório, que é a pergunta que vale dinheiro: não quantos leram, mas
+  // quantos leram e foram ver o curso.
+  `
+create table if not exists visitas (
+  dia   date not null,
+  tipo  text not null,
+  slug  text not null default '',
+  total integer not null default 0,
+  primary key (dia, tipo, slug)
+);
+`,
+
   // Posts do blog.
   //
   // O blog nasce colado ao monitor, e não como site à parte: o robô que varre
