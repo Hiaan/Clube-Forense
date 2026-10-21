@@ -170,7 +170,7 @@ function jaSaiu(uf: string, titulo: string, anteriores: JaPautado[]): boolean {
 
 // ------------------------------------------------------------------- dados
 
-type Ficha = NonNullable<EstadoStatus["curadoria"]>;
+export type Ficha = NonNullable<EstadoStatus["curadoria"]>;
 
 /** "14600" → "R$ 14.600". Sem centavos: salário de edital é número redondo. */
 function reais(v: number | null): string | null {
@@ -243,7 +243,7 @@ function fichaDoEstado(c: Ficha | null): string[][] {
  * ganha da etapa do funil. No fim da fila fica o título de situação, que é
  * sempre verdadeiro e sempre útil — "como está o concurso hoje".
  */
-function tituloDoPost(
+export function tituloDoPost(
   nomeOrgao: string,
   etapa: Nivel,
   ficha: Ficha | null,
@@ -390,12 +390,19 @@ const ORIENTACAO: Record<Nivel, string> = {
  * mudou, os números, o que isso muda para ela, e como se preparar. Sem
  * citação, sem crédito a veículo e sem frase reaproveitada de ninguém.
  */
-function corpoDoPost(
+export function corpoDoPost(
   uf: string,
   nomeEstado: string,
   nomeOrgao: string,
   etapa: Nivel,
   ficha: Ficha | null,
+  /**
+   * Uma frase a mais no primeiro bloco, quando existe um ato concreto para
+   * noticiar (o contrato da banca saiu no Diário Oficial de hoje, por
+   * exemplo). O robô não tem isso — ele só conhece a etapa. Quem cola a
+   * matéria de referência tem, e era justamente o que faltava no texto.
+   */
+  fatoNovo?: string | null,
 ): string {
   const comArtigo = (() => {
     const nome = estadoComArtigo(uf);
@@ -411,6 +418,8 @@ function corpoDoPost(
     "",
     abertura(nomeOrgao, comArtigo, etapa, ficha),
   ];
+
+  if (fatoNovo?.trim()) linhas.push("", fatoNovo.trim());
 
   const tabela = fichaDoEstado(ficha);
   if (tabela.length > 0) {
@@ -457,7 +466,7 @@ function corpoDoPost(
 }
 
 /** O resumo do cartão: a abertura, cortada no tamanho da listagem. */
-function resumoDoPost(
+export function resumoDoPost(
   nomeOrgao: string,
   comArtigo: string,
   etapa: Nivel,

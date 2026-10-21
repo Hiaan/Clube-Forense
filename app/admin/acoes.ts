@@ -42,6 +42,7 @@ import { aSlug, categoriaPorSlug, orgaoDaUf } from "../blog/lib/taxonomia";
 import { coletar } from "../monitor/lib/coletor";
 import { importarBlogAntigo } from "../monitor/lib/blogAntigo";
 import { abrirPautas, type ResultadoPautas } from "../monitor/lib/pautas";
+import { reescrever } from "../monitor/lib/reescrever";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { lerPlanilha } from "../monitor/lib/planilha";
 import { registrarColeta } from "../lib/sistemaRepo";
@@ -829,6 +830,76 @@ export async function pesquisarAgoraAcao(): Promise<Resultado> {
     };
   } catch (e) {
     return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na busca." };
+  }
+}
+
+/** O que a reescrita devolve para a tela do editor. */
+export interface ResultadoReescrita extends Resultado {
+  /** O post pronto, no nosso modelo. */
+  post?: { titulo: string; resumo: string; corpo: string };
+  /** O que foi aproveitado do texto colado. */
+  encontrados?: string[];
+  /** O que não deu para ler, e o que conflita com a nossa base. */
+  avisos?: string[];
+  /**
+   * Carimbo desta reescrita. A tela usa como `key` para trocar o conteúdo dos
+   * campos: sem ele, uma segunda reescrita não teria como substituir o texto
+   * que a pessoa já tinha na caixa.
+   */
+  em?: string;
+}
+
+/**
+ * Pega a matéria colada e devolve o post escrito no modelo do Clube.
+ *
+ * O texto de saída é nosso — ver o topo de reescrever.ts. O que vem de fora
+ * são os fatos: banca, vagas, salário, carga horária, datas e a etapa.
+ */
+export async function reescreverReferenciaAcao(
+  _anterior: ResultadoReescrita | null,
+  dados: FormData,
+): Promise<ResultadoReescrita> {
+  try {
+    await exigirAdmin();
+
+    const texto = String(dados.get("referencia") ?? "").trim();
+    const uf = String(dados.get("uf") ?? "").trim().toUpperCase();
+
+    if (texto.length < 40) {
+      return { ok: false, mensagem: "Cole o texto da matéria — pelo menos um parágrafo." };
+    }
+    if (!/^[A-Z]{2}$/.test(uf)) {
+      return {
+        ok: false,
+        mensagem: "Escolha o estado antes de reescrever: é ele que define o órgão e a ficha usada no texto.",
+      };
+    }
+
+    // A ficha e a etapa saem do monitor, que é a nossa base conferida. O cache
+    // de uma hora serve: a etapa de um estado não muda entre dois cliques.
+    const relatorio = await coletar();
+    const estado = relatorio.estados.find((e) => e.uf === uf);
+
+    const r = reescrever({
+      texto,
+      uf,
+      ficha: estado?.curadoria ?? null,
+      etapaAtual: estado?.nivel ?? "sem",
+    });
+
+    return {
+      ok: true,
+      mensagem:
+        r.encontrados.length > 0
+          ? `Texto reescrito no nosso modelo. Aproveitei do que você colou: ${r.encontrados.join(", ")}.`
+          : "Texto reescrito no nosso modelo.",
+      post: { titulo: r.titulo, resumo: r.resumo, corpo: r.corpo },
+      encontrados: r.encontrados,
+      avisos: r.avisos,
+      em: new Date().toISOString(),
+    };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha ao reescrever." };
   }
 }
 

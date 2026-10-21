@@ -11,11 +11,13 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import CampoFoto from "../../../graficos/CampoFoto";
+import ColarReferencia from "./ColarReferencia";
 import { enviarSemLimpar } from "../../../enviarSemLimpar";
 import {
   apagarPostAcao,
   salvarPostAcao,
   type Resultado,
+  type ResultadoReescrita,
 } from "../../../acoes";
 import type { Post } from "../../../../lib/postsRepo";
 import { aSlug, CATEGORIAS, ESTADOS_FILTRO, orgaoDaUf } from "../../../../blog/lib/taxonomia";
@@ -51,6 +53,21 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
   const [titulo, setTitulo] = useState(inicial?.titulo ?? "");
   const [slug, setSlug] = useState(inicial?.slug ?? "");
   const [uf, setUf] = useState(inicial?.uf ?? "");
+
+  // A REESCRITA TROCA O CONTEÚDO DAS CAIXAS, E ISSO PRECISOU DE UM TRUQUE. As
+  // três caixas de texto são não controladas (`defaultValue`), que é o certo
+  // para um formulário comprido — nada de um render por tecla digitada. Mas
+  // `defaultValue` só vale no primeiro render: mudar o valor depois não mexe
+  // numa caixa que já existe. A saída é trocar a `key` do bloco inteiro, o que
+  // faz o React jogar fora as caixas antigas e montar caixas novas com o texto
+  // novo. Efeito colateral assumido e avisado na tela: o que estava escrito à
+  // mão é substituído, que é justamente o que se pede ao clicar em reescrever.
+  const [reescrita, setReescrita] = useState<ResultadoReescrita | null>(null);
+  const texto = {
+    titulo: reescrita?.post?.titulo ?? inicial?.titulo ?? "",
+    resumo: reescrita?.post?.resumo ?? inicial?.resumo ?? "",
+    corpo: reescrita?.post?.corpo ?? inicial?.corpo ?? "",
+  };
 
   // O slug só é sugerido enquanto o post nunca foi gravado. Depois disso ele é
   // o endereço público, e reescrever a cada letra do título quebraria o link de
@@ -93,13 +110,24 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
         </div>
       )}
 
-      <section className="space-y-4 rounded-2xl border border-gray-200 bg-white p-5">
+      <ColarReferencia
+        uf={uf}
+        aoReescrever={(r) => {
+          setReescrita(r);
+          if (r.post) setTitulo(r.post.titulo);
+        }}
+      />
+
+      <section
+        key={reescrita?.em ?? "inicial"}
+        className="space-y-4 rounded-2xl border border-gray-200 bg-white p-5"
+      >
         <Campo nome="titulo" label="Título">
           <input
             id="titulo"
             name="titulo"
             required
-            value={titulo}
+            defaultValue={texto.titulo}
             onChange={(e) => setTitulo(e.target.value)}
             className={`${campo} text-base font-semibold`}
           />
@@ -114,7 +142,7 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
             id="resumo"
             name="resumo"
             rows={2}
-            defaultValue={inicial?.resumo ?? ""}
+            defaultValue={texto.resumo}
             className={campo}
           />
         </Campo>
@@ -128,7 +156,7 @@ export default function FormPost({ inicial }: { inicial: Post | null }) {
             id="corpo"
             name="corpo"
             rows={22}
-            defaultValue={inicial?.corpo ?? ""}
+            defaultValue={texto.corpo}
             className={`${campo} font-mono text-[13px] leading-relaxed`}
           />
         </Campo>
