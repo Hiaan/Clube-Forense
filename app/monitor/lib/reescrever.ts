@@ -44,6 +44,15 @@ export interface Fatos {
   etapa: Nivel | null;
   /** O texto fala em publicação no Diário Oficial / extrato de contrato. */
   noDiarioOficial: boolean;
+  /**
+   * Quando o ato saiu (ISO curto).
+   *
+   * É O DADO QUE MAIS FALTOU. "O contrato foi publicado no Diário Oficial" sem
+   * data é quase a mesma frase que o robô já escrevia sozinho; com a data, é
+   * notícia. Matéria de concurso quase sempre marca isso logo na abertura —
+   * "nesta terça-feira (21)" —, e era justamente o formato que ninguém lia.
+   */
+  dataDoAto: string | null;
   /** A UF que o texto cita, para avisar quando não bate com a escolhida. */
   uf: string | null;
   /**
@@ -181,6 +190,35 @@ function dataDaChave(
   return null;
 }
 
+/**
+ * A data em que o ato saiu.
+ *
+ * Duas formas, e a segunda é a que a imprensa usa de verdade: a data escrita
+ * por extenso perto da palavra ("publicado em 21 de outubro"), e o dia solto
+ * entre parênteses depois do dia da semana ("nesta terça-feira (21)"), que não
+ * traz mês nem ano e por isso nenhum leitor de datas comum enxerga. Esse
+ * segundo caso assume o mês corrente — é o que a convenção significa.
+ */
+function dataDoAto(
+  t: string,
+  datas: { iso: string; posicao: number }[],
+): string | null {
+  const dia = /\b(?:nest[ae]|n[oa])\s+(?:segunda|ter[çc]a|quarta|quinta|sexta|s[áa]bado|domingo)(?:-feira)?\s*\((\d{1,2})\)/i.exec(t);
+  if (dia) {
+    const hoje = new Date();
+    const d = Number(dia[1]);
+    if (d >= 1 && d <= 31) {
+      return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    }
+  }
+  const perto = dataDaChave(
+    t,
+    datas,
+    /di[áa]rio oficial|publicad|assinad|homologa|extrato/,
+  );
+  return perto && !perto.ehPrevisao ? perto.iso : null;
+}
+
 // ------------------------------------------------------------------ etapa
 
 /**
@@ -256,6 +294,7 @@ export function extrairFatos(texto: string): Fatos {
 
   const carga = /(\d{2})\s*(?:horas?|h)\s*semanais/i.exec(t);
 
+  const ato = dataDoAto(t, datas);
   const inscricoes = dataDaChave(t, datas, /inscri[çc][õo]es?/);
   const prova = dataDaChave(t, datas, /prova|aplica[çc][ãa]o/);
   const edital = dataDaChave(t, datas, /edital/);
@@ -273,6 +312,7 @@ export function extrairFatos(texto: string): Fatos {
     previsao: previsao(inscricoes, prova, edital),
     etapa: ETAPAS.find((e) => e.padrao.test(t))?.nivel ?? null,
     noDiarioOficial: /di[áa]rio oficial|\bDOE\b|\bDOU\b|extrato de contrato|homologa[çc][ãa]o do contrato/i.test(t),
+    dataDoAto: ato,
     uf,
     vagasDeLegista: Boolean(vagasDoCargo),
   };
@@ -332,19 +372,23 @@ function fraseDoFato(f: Fatos, nomeOrgao: string, etapa: Nivel): string | null {
   // e só isso, que esta frase acrescenta.
   if (!f.noDiarioOficial) return null;
 
+  // A data é o que separa notícia de constatação. Sem ela a frase vira quase a
+  // mesma coisa que o robô já dizia sozinho.
+  const quando = f.dataDoAto ? ` em ${porExtensoCompleto(f.dataDoAto)}` : "";
+
   if (f.banca && (etapa === "banca" || f.etapa === "banca")) {
-    return `O contrato com a ${f.banca} foi publicado no Diário Oficial.`;
+    return `O contrato com a ${f.banca} foi publicado no Diário Oficial${quando}.`;
   }
   if (etapa === "edital" || f.etapa === "edital") {
-    return "O edital foi publicado no Diário Oficial.";
+    return `O edital foi publicado no Diário Oficial${quando}.`;
   }
   if (etapa === "comissao" || f.etapa === "comissao") {
-    return "A portaria da comissão organizadora foi publicada no Diário Oficial.";
+    return `A portaria da comissão organizadora foi publicada no Diário Oficial${quando}.`;
   }
   if (etapa === "autorizado" || f.etapa === "autorizado") {
-    return "A autorização do concurso foi publicada no Diário Oficial.";
+    return `A autorização do concurso foi publicada no Diário Oficial${quando}.`;
   }
-  return "O ato foi publicado no Diário Oficial.";
+  return `O ato foi publicado no Diário Oficial${quando}.`;
 }
 
 /**
@@ -416,7 +460,11 @@ export function reescrever({
   if (fatos.dataProva) encontrados.push(`prova em ${porExtensoCompleto(fatos.dataProva)}`);
   if (fatos.previsao) encontrados.push(fatos.previsao);
   if (fatos.etapa) encontrados.push(`etapa: ${fatos.etapa}`);
-  if (fatos.noDiarioOficial) encontrados.push("publicado no Diário Oficial");
+  if (fatos.noDiarioOficial) {
+    encontrados.push(
+      `publicado no Diário Oficial${fatos.dataDoAto ? ` em ${porExtensoCompleto(fatos.dataDoAto)}` : ""}`,
+    );
+  }
 
   const avisos: string[] = [];
   if (encontrados.length === 0) {

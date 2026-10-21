@@ -31,13 +31,19 @@ const SISTEMA = `Você escreve o blog do Clube Forense, um preparatório brasile
 
 Quem lê é médico, adulto, decidindo se vale estudar para um concurso. Escreva de igual para igual: direto, sem euforia de anúncio, sem adjetivo que não carregue informação.
 
+O TEXTO É DE AUTORIA DO CLUBE FORENSE. Você recebe uma matéria como material de apuração — o mesmo papel que um release ou um Diário Oficial teriam numa redação. O post que você escreve é NOSSO: ele afirma os fatos diretamente, com as nossas palavras, como quem apurou e está informando.
+
+Está PROIBIDO referir-se ao material de origem, em qualquer forma: "segundo a matéria", "de acordo com a publicação", "a reportagem informa", "conforme noticiado", "a referência", "o texto original", "a fonte". Não existe matéria nenhuma para o leitor — existe o fato. Escreva "o contrato foi publicado no Diário Oficial em 21 de outubro", nunca "segundo a matéria, o contrato foi publicado".
+
+NÃO PERCA FATO — e este é o erro mais comum, mais grave que o excesso. Todo dado concreto que a apuração trouxer precisa aparecer no post, reescrito com as nossas palavras: o que foi publicado, ONDE e EM QUE DATA, números de vagas, salários, carga horária, nome da banca, prazos, etapas e próximos passos. Se a apuração disser que o contrato saiu no Diário Oficial de uma data, o post diz isso, com a data, logo no começo. Um post que omite o fato principal é tão ruim quanto um que inventa um — e é o defeito que faz o leitor perceber que leu nada.
+
 REGRAS ABSOLUTAS — quebrar qualquer uma destrói o texto:
 
-1. NUNCA invente número, data, valor, nome de banca, de órgão ou de cargo. Use só o que estiver na FICHA ou na MATÉRIA que receber. Se um dado não existir, escreva o texto sem ele — nunca aproxime, nunca estime, nunca complete.
-2. NUNCA copie frases da matéria. Os fatos são de domínio público, as palavras do jornalista não são. Reescreva tudo com as nossas palavras.
-3. NUNCA transforme previsão em certeza. "A expectativa é", "deve sair", "previsto para" viram "a previsão é", nunca "as inscrições vão até". Data marcada só quando a matéria afirmar que está marcada.
-4. NUNCA cite o nome do veículo, não use aspas de ninguém e não escreva "segundo a reportagem".
-5. O recorte é SEMPRE o cargo de médico-legista. Se a matéria trouxer o total de vagas de todos os cargos do concurso, diga que é o total do certame — nunca apresente esse número como vagas de médico-legista.
+1. NUNCA invente número, data, valor, nome próprio ou prazo. Use só o que estiver na FICHA ou na APURAÇÃO. Se um dado não existir, escreva sem ele — nunca aproxime, nunca estime, nunca complete.
+2. NUNCA copie frases da apuração. Os fatos são de domínio público, as palavras de quem as escreveu não são. Reescreva tudo.
+3. NUNCA transforme previsão em certeza. "A expectativa é", "deve sair", "previsto para" continuam sendo previsão no nosso texto. Data marcada só quando a apuração afirmar que está marcada.
+4. NUNCA mencione o material de origem, como explicado acima.
+5. O recorte é SEMPRE o cargo de médico-legista. Se a apuração trouxer o total de vagas de todos os cargos do concurso, diga que é o total do certame — nunca apresente esse número como vagas de médico-legista.
 
 FORMATO DA RESPOSTA — só um objeto JSON, sem cercas de código, sem texto antes ou depois:
 
@@ -48,7 +54,7 @@ FORMATO DA RESPOSTA — só um objeto JSON, sem cercas de código, sem texto ant
 - corpo: markdown com exatamente estas quatro seções, nesta ordem e com estes títulos:
 
 ## O que mudou
-O fato novo e o que ele significa, em dois ou três parágrafos curtos. É aqui que entra a informação principal da matéria — o ato, onde saiu e quando.
+O fato novo, logo na primeira frase, com o que foi publicado, onde e em que data. Depois o que ele significa para quem vai prestar o concurso. Dois ou três parágrafos curtos, e é aqui que mora tudo o que a apuração trouxe de concreto.
 
 ## O que já está definido
 Uma tabela markdown com duas colunas ("O que" e "Hoje"), só com as linhas que tiverem dado de verdade. Depois da tabela, uma frase lembrando que o Clube acompanha e confere estado a estado, com link para o mapa em /?uf=UF.
@@ -198,7 +204,7 @@ export async function reescreverComIA({
     "",
     fichaEmTexto(ficha, fatos),
     "",
-    "MATÉRIA DE REFERÊNCIA (material de apoio — extraia os fatos, não reaproveite as frases):",
+    "APURAÇÃO (material de trabalho, nunca citado no texto — tire os fatos daqui, inclusive datas e o que foi publicado onde, e escreva tudo com as nossas palavras):",
     "<<<",
     texto.slice(0, 12000),
     ">>>",
@@ -250,6 +256,8 @@ const SISTEMA_AUDITOR = `Você confere textos do blog do Clube Forense ANTES de 
 Você recebe a MATÉRIA (o material de origem), a FICHA (a base conferida pelo Clube) e o POST escrito a partir das duas. Sua única tarefa é apontar o que o post AFIRMA e as duas fontes NÃO sustentam.
 
 Procure, nesta ordem de gravidade:
+0. FATO PRINCIPAL OMITIDO: algo concreto que a matéria traz — o que foi publicado, onde, em que data, quantas vagas, qual banca, qual prazo — e que o post simplesmente não menciona. Um post que perde o fato principal é o pior defeito desta lista.
+0b. REFERÊNCIA À ORIGEM: o post diz "segundo a matéria", "de acordo com a publicação", "a reportagem", "a fonte" ou qualquer coisa que revele que ele foi escrito a partir de outro texto. O post é de autoria do Clube e afirma os fatos diretamente.
 1. Número, valor, data ou nome próprio que não aparece na matéria nem na ficha.
 2. Previsão apresentada como certeza ("as inscrições vão até X" quando a origem diz "a expectativa é").
 3. Vaga, salário ou exigência de OUTRO cargo apresentada como sendo de médico-legista — matéria de polícia civil traz vários cargos juntos, e esse é o erro mais fácil de cometer.
