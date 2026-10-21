@@ -492,6 +492,35 @@ export interface ResultadoPautas {
   titulos: string[];
   /** O detalhe de cada uma, para o aviso. */
   posts: PostDoRobo[];
+  /**
+   * Por que as notícias que NÃO viraram pauta ficaram de fora.
+   *
+   * EXISTE PORQUE "nenhuma pauta nova" é a resposta mais comum do robô e a
+   * mais difícil de interpretar: não dá para saber se a busca falhou, se não
+   * saiu notícia nenhuma ou se saiu e foi recusada — e as três pedem atitudes
+   * diferentes. Com a contagem, o painel diz qual das três foi.
+   */
+  motivos: Motivos;
+}
+
+/** Quantas candidatas morreram em cada peneira, na ordem em que elas correm. */
+export interface Motivos {
+  /** Notícias de fora examinadas nesta passada. */
+  examinadas: number;
+  /** Mais velhas que a janela de 21 dias. */
+  antigas: number;
+  /** Seleção temporária — o blog não cobre. */
+  temporarias: number;
+  /** Fraude, suspensão, liminar e afins: assunto de gente, não de robô. */
+  delicadas: number;
+  /** Estado travado no painel, onde a manchete engana. */
+  travadas: number;
+  /** Ficha do estado com menos de dois fatos conferidos por nós. */
+  fichaMagra: number;
+  /** Pauta igual já publicada nos últimos dias. */
+  repetidas: number;
+  /** Barradas pelo teto da rodada ou pelo limite de uma por estado. */
+  limite: number;
 }
 
 /**
@@ -503,6 +532,16 @@ export interface ResultadoPautas {
  */
 export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas> {
   const candidatas: { m: Mencao; etapa: Nivel; ficha: Ficha | null }[] = [];
+  const motivos: Motivos = {
+    examinadas: 0,
+    antigas: 0,
+    temporarias: 0,
+    delicadas: 0,
+    travadas: 0,
+    fichaMagra: 0,
+    repetidas: 0,
+    limite: 0,
+  };
 
   for (const estado of relatorio.estados) {
     for (const m of estado.mencoes) {
@@ -510,13 +549,26 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
       // sistema se citando como se fosse descoberta de fora.
       if (m.daCuradoria) continue;
       if (!m.link?.startsWith("http")) continue;
-      if (!recente(m.data)) continue;
+      motivos.examinadas++;
+      if (!recente(m.data)) {
+        motivos.antigas++;
+        continue;
+      }
       // Os cortes que o blog exige e o mapa não.
-      if (m.temporaria) continue;
-      if (NOTICIA_DELICADA.test(m.titulo.toLowerCase())) continue;
+      if (m.temporaria) {
+        motivos.temporarias++;
+        continue;
+      }
+      if (NOTICIA_DELICADA.test(m.titulo.toLowerCase())) {
+        motivos.delicadas++;
+        continue;
+      }
       // Estado travado na planilha é onde a gente já sabe que a manchete
       // engana. Post sobre ele é decisão de quem escreve, nunca do robô.
-      if (estado.curadoria?.travado) continue;
+      if (estado.curadoria?.travado) {
+        motivos.travadas++;
+        continue;
+      }
 
       candidatas.push({
         m,
@@ -544,18 +596,27 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
   const nestaRodadaPorUf = new Map<string, number>();
 
   for (const { m, etapa, ficha } of candidatas) {
-    if (posts.length >= TETO_POR_RODADA) break;
+    if (posts.length >= TETO_POR_RODADA) {
+      motivos.limite++;
+      break;
+    }
 
     const estado = ESTADO_POR_UF[m.uf];
     if (!estado) continue;
-    if ((nestaRodadaPorUf.get(m.uf) ?? 0) >= PAUTAS_POR_UF_POR_RODADA) continue;
+    if ((nestaRodadaPorUf.get(m.uf) ?? 0) >= PAUTAS_POR_UF_POR_RODADA) {
+      motivos.limite++;
+      continue;
+    }
 
     // Ficha magra não sustenta post, e é também o que responde se o concurso
     // tem vaga de legista: sem vagas, salário, banca ou data conferidos por
     // nós, o texto seria a etapa repetida em quatro seções — e sobre um
     // certame que a gente nem confirmou que inclui o cargo.
     const tabela = fichaDoEstado(ficha);
-    if (tabela.length < FATOS_MINIMOS) continue;
+    if (tabela.length < FATOS_MINIMOS) {
+      motivos.fichaMagra++;
+      continue;
+    }
 
     const orgao = orgaoDaUf(m.uf);
     const nomeOrgao = orgao?.curto ?? estado.nome;
@@ -565,7 +626,10 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
 
     // O título é gerado ANTES da checagem de repetição porque é ele que diz se
     // esta pauta acrescenta algo — ver jaSaiu.
-    if (jaSaiu(m.uf, titulo, anteriores)) continue;
+    if (jaSaiu(m.uf, titulo, anteriores)) {
+      motivos.repetidas++;
+      continue;
+    }
 
     const pauta: PostParaGravar = {
       // A data entra no slug para a pauta do mês que vem não colidir com a
@@ -633,5 +697,6 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
     naFila: posts.length,
     titulos: posts.map((p) => p.titulo),
     posts,
+    motivos,
   };
 }

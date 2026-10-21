@@ -732,6 +732,102 @@ export async function coletarAgoraAcao(
   }
 }
 
+/**
+ * Explica, em uma frase, por que a passada não rendeu pauta nenhuma.
+ *
+ * O PORQUÊ VALE MAIS QUE O NÚMERO. "Nenhuma pauta nova" é a resposta mais
+ * frequente do robô e também a mais ambígua: pode ser que a busca falhou, que
+ * não saiu notícia nenhuma ou que saiu e foi recusada — e cada uma pede uma
+ * atitude diferente de quem está olhando. Sem esta frase, a única saída era
+ * abrir o log da Vercel.
+ */
+function porQueNadaVirouPauta(m: ResultadoPautas["motivos"]): string {
+  if (m.examinadas === 0) {
+    return "Nenhuma notícia nova nas fontes desde a última passada — as buscas rodaram e voltaram vazias.";
+  }
+  const recusadas: string[] = [];
+  if (m.repetidas > 0)
+    recusadas.push(
+      `${m.repetidas} porque o blog já publicou essa mesma pauta nos últimos dias`,
+    );
+  if (m.fichaMagra > 0)
+    recusadas.push(
+      `${m.fichaMagra} porque a ficha do estado ainda não tem dois fatos conferidos por nós (sem isso não dá para afirmar que o concurso tem vaga de legista)`,
+    );
+  if (m.antigas > 0) recusadas.push(`${m.antigas} por serem mais velhas que três semanas`);
+  if (m.travadas > 0) recusadas.push(`${m.travadas} por serem de estado travado no painel`);
+  if (m.delicadas > 0)
+    recusadas.push(`${m.delicadas} por falarem de fraude, suspensão ou liminar`);
+  if (m.temporarias > 0) recusadas.push(`${m.temporarias} por serem seleção temporária`);
+  if (m.limite > 0) recusadas.push(`${m.limite} pelo limite de uma pauta por estado na rodada`);
+
+  if (recusadas.length === 0) {
+    return `${m.examinadas} notícia(s) examinada(s), nenhuma sobre concurso de médico-legista.`;
+  }
+  return `${m.examinadas} notícia(s) examinada(s). Ficaram de fora: ${recusadas.join("; ")}.`;
+}
+
+/**
+ * Roda a passada completa do robô agora, a pedido.
+ *
+ * É EXATAMENTE O QUE O CRON FAZ — lê as fontes sem cache, grava a hora da
+ * checagem e abre pauta —, e existe porque até aqui a única forma de forçar
+ * uma busca era pelo botão de um estado específico, dentro de Estados. Quem
+ * está no Blog olhando uma fila parada não tem por que saber disso, nem por
+ * que adivinhar em qual estado clicar.
+ *
+ * Diferente do botão de estado, este devolve o balanço da rodada inteira, com
+ * o motivo de cada recusa.
+ */
+// Sem parâmetros de propósito: a passada é a mesma para todo mundo, não há
+// campo nenhum no formulário. `useActionState` chama com (estado, FormData) e
+// ignorar os dois aqui é o que diz isso em código.
+export async function pesquisarAgoraAcao(): Promise<Resultado> {
+  try {
+    await exigirAdmin();
+
+    const relatorio = await coletar({ semCache: true });
+
+    await registrarColeta({
+      em: relatorio.atualizadoEm,
+      estadosComNovidade: relatorio.estados.filter((e) => e.nivel !== "sem").length,
+      fonteIndisponivel: relatorio.fonteIndisponivel,
+    });
+
+    const pautas = await abrirPautas(relatorio);
+
+    revalidatePath("/");
+    revalidatePath("/blog");
+    revalidatePath("/monitor");
+    revalidatePath("/admin");
+    revalidatePath("/admin/posts");
+
+    if (relatorio.fonteIndisponivel) {
+      return {
+        ok: false,
+        mensagem:
+          "Nenhuma fonte externa respondeu agora. Não é conclusão sobre os concursos — é a busca que não chegou. Tente de novo em alguns minutos.",
+      };
+    }
+
+    if (pautas.abertas > 0) {
+      return {
+        ok: true,
+        mensagem:
+          `Busca refeita agora.${avisoPautas(pautas)} ` +
+          "Recarregue a página para ver a fila.",
+      };
+    }
+
+    return {
+      ok: true,
+      mensagem: `Busca refeita agora, nenhuma pauta nova. ${porQueNadaVirouPauta(pautas.motivos)}`,
+    };
+  } catch (e) {
+    return { ok: false, mensagem: e instanceof Error ? e.message : "Falha na busca." };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Blog
 // ---------------------------------------------------------------------------

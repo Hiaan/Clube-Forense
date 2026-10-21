@@ -74,7 +74,7 @@ export async function GET(request: Request) {
   console.log(
     `coleta: ${estadosComNovidade} estados com novidade, ` +
       `${relatorio.totalMencoes} menções, ${pautas.abertas} pautas novas, ` +
-      `aviso=${aviso}`,
+      `aviso=${aviso}, recusadas=${JSON.stringify(pautas.motivos)}`,
   );
 
   revalidatePath("/");
@@ -105,6 +105,10 @@ export async function GET(request: Request) {
     pautasAbertas: pautas.abertas,
     pautasPublicadas: pautas.publicadas,
     pautasNaFila: pautas.naFila,
+    // Por que as outras não viraram pauta. Sem isto, o log do agendador diz
+    // "0 pautas novas" e não dá para separar busca quebrada de busca que
+    // rodou e recusou tudo — que é o caso normal.
+    motivos: pautas.motivos,
     aviso,
     planosSemeados,
     planosCorrigidos,

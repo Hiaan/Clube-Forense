@@ -8,8 +8,10 @@
 import Link from "next/link";
 
 import BotaoImportar from "./BotaoImportar";
+import BotaoPesquisar from "./BotaoPesquisar";
 import BotaoPublicarTodos from "./BotaoPublicarTodos";
 import { contarEmRevisao, listarTodos, type StatusPost } from "../../../lib/postsRepo";
+import { lerUltimaColeta } from "../../../lib/sistemaRepo";
 import { nomeCategoria, nomeEstado, orgaoPorSlug } from "../../../blog/lib/taxonomia";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +35,24 @@ const ROTULOS: Record<StatusPost, string> = {
   rascunho: "Rascunho",
 };
 
+/** Acima disto, a rotina automática provavelmente parou (ela roda de hora em hora). */
+const HORAS_BUSCA_ATRASADA = 6;
+
+function buscaAtrasada(iso: string): boolean {
+  return (Date.now() - new Date(iso).getTime()) / 3_600_000 > HORAS_BUSCA_ATRASADA;
+}
+
+/** "há 40 minutos", "há 3 horas", "há 2 dias" — do jeito que se fala. */
+function haQuantoTempo(iso: string): string {
+  const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+  if (min < 2) return "agora";
+  if (min < 60) return `há ${min} minutos`;
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `há ${horas} ${horas === 1 ? "hora" : "horas"}`;
+  const dias = Math.floor(horas / 24);
+  return `há ${dias} ${dias === 1 ? "dia" : "dias"}`;
+}
+
 function quando(iso: string | null): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("pt-BR", {
@@ -51,9 +71,10 @@ export default async function PaginaPosts({
   const bruta = Array.isArray(q.status) ? q.status[0] : q.status;
   const aba = (ABAS.find((a) => a.chave === bruta)?.chave ?? "revisao") as StatusPost | "todos";
 
-  const [posts, emRevisao] = await Promise.all([
+  const [posts, emRevisao, coleta] = await Promise.all([
     listarTodos(aba === "todos" ? undefined : aba),
     contarEmRevisao(),
+    lerUltimaColeta(),
   ]);
 
   // Quantos o botão de publicar em massa realmente levaria. Conta o que está
@@ -69,11 +90,33 @@ export default async function PaginaPosts({
           <p className="mt-1 text-sm text-gray-500">
             O robô do monitor abre a pauta; aqui ela é revisada e vai ao ar.
           </p>
+          {/* A HORA DA BUSCA, NÃO A DO ÚLTIMO POST — e a diferença entre as
+              duas é o mal-entendido que esta linha existe para desfazer. A
+              lista abaixo mostra a data dos posts, então uma fila parada há
+              uma semana parece busca parada há uma semana. Quase sempre não é:
+              a busca rodou dezenas de vezes e recusou tudo, que é o trabalho
+              dela. Só esta linha sabe dizer qual dos dois casos é. */}
+          <p className="mt-2 text-xs text-gray-400">
+            {coleta ? (
+              <>
+                Última busca do robô:{" "}
+                <strong
+                  className={buscaAtrasada(coleta.em) ? "text-amber-700" : "text-gray-600"}
+                >
+                  {haQuantoTempo(coleta.em)}
+                </strong>
+                {buscaAtrasada(coleta.em) && " — a rotina automática pode ter parado."}
+              </>
+            ) : (
+              "O robô ainda não registrou nenhuma busca."
+            )}
+          </p>
         </div>
         <div className="flex flex-wrap items-start gap-2">
           {/* Só na aba da fila: o botão publica o que está EM REVISÃO, e
               oferecê-lo na aba de rascunhos sugeriria outra coisa. */}
           {aba === "revisao" && <BotaoPublicarTodos quantos={prontos} />}
+          <BotaoPesquisar />
           <BotaoImportar />
           <Link
             href="/blog"
