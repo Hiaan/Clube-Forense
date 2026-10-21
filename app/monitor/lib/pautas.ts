@@ -38,6 +38,7 @@ import {
 } from "../../lib/postsRepo";
 import { aSlug, estadoComArtigo, orgaoDaUf } from "../../blog/lib/taxonomia";
 import { ESTADO_POR_UF } from "./estados";
+import { triarNoticias } from "./triagem";
 import {
   NIVEL_LABEL,
   type EstadoStatus,
@@ -540,6 +541,10 @@ export interface Motivos {
   repetidasUfs: string[];
   /** Barradas pelo teto da rodada ou pelo limite de uma por estado. */
   limite: number;
+  /** Lidas pela triagem e recusadas: a notícia não é do cargo de legista. */
+  foraDoCargo: number;
+  /** Quantas manchetes foram perguntadas ao modelo nesta passada. */
+  triadas: number;
 }
 
 /**
@@ -562,6 +567,8 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
     repetidas: 0,
     repetidasUfs: [],
     limite: 0,
+    foraDoCargo: 0,
+    triadas: 0,
   };
 
   for (const estado of relatorio.estados) {
@@ -613,6 +620,19 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
     (p) => ({ uf: p.uf, palavras: palavras(p.titulo) }),
   );
 
+  // A TRIAGEM, ANTES DO SEGUNDO LAÇO E SÓ UMA VEZ. Vai em lote para o modelo
+  // responder tudo numa chamada; o que já tem veredito guardado nem sai daqui.
+  const triagem = await triarNoticias(
+    candidatas.map(({ m }) => ({
+      link: m.link,
+      titulo: m.titulo,
+      resumo: m.resumo,
+      fonte: m.fonte,
+      uf: m.uf,
+    })),
+  );
+  motivos.triadas = triagem.perguntadas;
+
   const posts: PostDoRobo[] = [];
   const nestaRodadaPorUf = new Map<string, number>();
 
@@ -629,14 +649,32 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
       continue;
     }
 
-    // Ficha magra não sustenta post, e é também o que responde se o concurso
-    // tem vaga de legista: sem vagas, salário, banca ou data conferidos por
-    // nós, o texto seria a etapa repetida em quatro seções — e sobre um
-    // certame que a gente nem confirmou que inclui o cargo.
+    // A FICHA MAGRA DEIXOU DE SER VETO E VIROU PERGUNTA. Ela nasceu fazendo
+    // dois trabalhos ao mesmo tempo: garantir que o post teria números para
+    // mostrar, e servir de prova de que o concurso inclui o nosso cargo. O
+    // segundo trabalho ela fazia mal — estado cuja ficha ninguém preencheu
+    // ficava mudo no blog para sempre, por mais notícia que saísse, e foi o
+    // que travou sete estados por semanas. Agora quem responde "isso é de
+    // médico-legista?" é a triagem, que leu a manchete; a ficha volta a
+    // responder só o que ela sabe, que é se há número para publicar.
     const tabela = fichaDoEstado(ficha);
-    if (tabela.length < FATOS_MINIMOS) {
+    const magra = tabela.length < FATOS_MINIMOS;
+    const veredito = triagem.vereditos.get(m.link);
+
+    if (magra && !veredito?.relevante) {
+      // Sem ficha E sem um "sim" da triagem — inclusive quando não houve
+      // triagem nenhuma, por falta de chave ou de rede. O comportamento aqui é
+      // exatamente o de antes, que é o que se quer de um caminho de falha.
       motivos.fichaMagra++;
       if (!motivos.fichaMagraUfs.includes(m.uf)) motivos.fichaMagraUfs.push(m.uf);
+      continue;
+    }
+
+    if (!magra && veredito && !veredito.relevante) {
+      // Ficha cheia mas a triagem leu a notícia e disse que não é do cargo.
+      // A ficha descreve o ESTADO; a triagem leu ESTA notícia, e entre as duas
+      // quem fala da notícia tem a palavra final sobre ela.
+      motivos.foraDoCargo++;
       continue;
     }
 
@@ -667,7 +705,19 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
         etapa,
         ficha,
       ),
-      corpo: corpoDoPost(m.uf, estado.nome, nomeOrgao, etapa, ficha),
+      corpo:
+        corpoDoPost(m.uf, estado.nome, nomeOrgao, etapa, ficha) +
+        // A pauta que entrou pela triagem não tem número nosso para mostrar, e
+        // o texto sai curto. A marca é a mesma convenção do resto do painel:
+        // ela não aparece para o leitor, mantém o post fora do "publicar
+        // todos" e acende o aviso "Falta texto" na lista. O caminho de saída
+        // está escrito nela — é a caixa de colar a matéria, logo acima.
+        (magra
+          ? `\n\n<!-- TEXTO INCOMPLETO. A ficha de ${estado.nome} ainda não tem\n` +
+            `     os números deste concurso, então o texto acima só conta a etapa.\n` +
+            `     Abra ${m.link}, copie a matéria e cole em "Colar a referência",\n` +
+            `     no topo desta página: o texto é reescrito com os dados dela. -->`
+          : ""),
       // A CAPA É NOSSA, E ISSO MUDOU POR UM MOTIVO SÉRIO. Antes o robô baixava a
       // foto de abertura da matéria de origem e guardava uma cópia, creditando
       // o veículo. Com o texto passando a ser escrito por nós e sem crédito a

@@ -758,19 +758,24 @@ function porQueNadaVirouPauta(m: ResultadoPautas["motivos"]): string {
     );
   if (m.fichaMagra > 0)
     recusadas.push(
-      `${m.fichaMagra} porque a ficha do estado ainda não tem dois fatos conferidos por nós${listaUfs(m.fichaMagraUfs)} — preencha vagas, salário, banca ou data da prova em Estados e a próxima busca já abre a pauta`,
+      `${m.fichaMagra} porque a ficha do estado não tem dois fatos conferidos por nós E a leitura da notícia não confirmou vaga de médico-legista${listaUfs(m.fichaMagraUfs)} — basta uma das duas coisas para a pauta nascer: preencha vagas, salário, banca ou data da prova em Estados, ou confira a notícia à mão`,
     );
   if (m.antigas > 0) recusadas.push(`${m.antigas} por serem mais velhas que três semanas`);
   if (m.travadas > 0) recusadas.push(`${m.travadas} por serem de estado travado no painel`);
   if (m.delicadas > 0)
     recusadas.push(`${m.delicadas} por falarem de fraude, suspensão ou liminar`);
   if (m.temporarias > 0) recusadas.push(`${m.temporarias} por serem seleção temporária`);
+  if (m.foraDoCargo > 0)
+    recusadas.push(
+      `${m.foraDoCargo} porque a leitura da notícia concluiu que o concurso não tem vaga de médico-legista`,
+    );
   if (m.limite > 0) recusadas.push(`${m.limite} pelo limite de uma pauta por estado na rodada`);
 
   if (recusadas.length === 0) {
     return `${m.examinadas} notícia(s) examinada(s), nenhuma sobre concurso de médico-legista.`;
   }
-  return `${m.examinadas} notícia(s) examinada(s). Ficaram de fora: ${recusadas.join("; ")}.`;
+  const lidas = m.triadas > 0 ? ` ${m.triadas} manchete(s) foram lidas pela triagem agora.` : "";
+  return `${m.examinadas} notícia(s) examinada(s).${lidas} Ficaram de fora: ${recusadas.join("; ")}.`;
 }
 
 /**

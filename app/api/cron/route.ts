@@ -74,7 +74,8 @@ export async function GET(request: Request) {
   console.log(
     `coleta: ${estadosComNovidade} estados com novidade, ` +
       `${relatorio.totalMencoes} menções, ${pautas.abertas} pautas novas, ` +
-      `aviso=${aviso}, recusadas=${JSON.stringify(pautas.motivos)}`,
+      `aviso=${aviso}, triadas=${pautas.motivos.triadas}, ` +
+      `recusadas=${JSON.stringify(pautas.motivos)}`,
   );
 
   revalidatePath("/");

@@ -450,6 +450,27 @@ create table if not exists sistema (
 );
 `,
 
+  // O veredito da triagem de cada notícia: ela fala de vaga de médico-legista?
+  //
+  // GUARDADO PORQUE A PERGUNTA CUSTA DINHEIRO E A RESPOSTA NÃO MUDA. A mesma
+  // manchete reaparece nos feeds a cada passada do robô, de hora em hora; sem
+  // esta tabela, a mesma notícia seria mandada para o modelo dezenas de vezes
+  // e a conta seria dezenas de vezes maior, para ouvir sempre o mesmo. A chave
+  // é o link, que é o que identifica a publicação.
+  //
+  // `motivo` existe para quem for conferir depois: um veredito sem explicação
+  // é impossível de auditar, e esta é a peneira que decide o que entra no blog.
+  `
+create table if not exists triagem_noticias (
+  link      text primary key,
+  uf        text not null,
+  relevante boolean not null,
+  motivo    text not null default '',
+  modelo    text not null default '',
+  em        timestamptz not null default now()
+);
+`,
+
   // Posts do blog.
   //
   // O blog nasce colado ao monitor, e não como site à parte: o robô que varre

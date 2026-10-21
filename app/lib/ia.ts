@@ -35,6 +35,15 @@ export const MODELOS = {
   escrita: process.env.IA_MODELO_ESCRITA ?? process.env.IA_MODELO ?? "claude-haiku-5-5",
   /** Quem confere o post contra a matéria antes de ele aparecer na tela. */
   auditoria: process.env.IA_MODELO_AUDITORIA ?? "claude-haiku-5-5",
+  /**
+   * Quem lê as manchetes coletadas e diz quais falam de vaga de médico-legista.
+   *
+   * É a única das três que roda sozinha, de hora em hora, sem ninguém pedindo
+   * — e a única em que a escolha do modelo mexe com dinheiro de verdade. Por
+   * isso é também a única com cache em banco: cada notícia é julgada uma vez
+   * na vida. Com o cache, são umas trinta perguntas por dia.
+   */
+  pesquisa: process.env.IA_MODELO_PESQUISA ?? "claude-sonnet-5-5",
 } as const;
 
 /** True quando há chave configurada. */
