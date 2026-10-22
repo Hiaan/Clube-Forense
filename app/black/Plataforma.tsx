@@ -67,11 +67,43 @@ const RECURSOS: Recurso[] = [
   },
   {
     chave: "mapas",
-    nome: "Mapas e eBooks",
-    titulo: "Mapas mentais ilustrados e nove eBooks",
+    nome: "Mapas mentais",
+    titulo: "Cada assunto numa página ilustrada",
     texto:
-      "Os mapas mentais do Clube condensam cada assunto em uma página ilustrada, e os nove eBooks trazem o conteúdo adaptado pelos nossos professores a partir de França, Hygino e Delton Croce.",
+      "Os mapas mentais do Clube condensam o assunto inteiro numa página desenhada — a que você olha na véspera e lembra do resto. Feitos para medicina legal, não adaptados de outra carreira.",
     midia: "mapas.mp4",
+  },
+  {
+    chave: "ebooks",
+    nome: "eBooks",
+    titulo: "eBooks de todas as matérias",
+    texto:
+      "Escritos pelos nossos professores a partir das principais bibliografias de cada matéria, já no recorte que a prova de perícia cobra. Você estuda pelo que cai, e não pelo livro inteiro.",
+    midia: "ebooks.mp4",
+  },
+  {
+    chave: "verticalizado",
+    nome: "Edital verticalizado",
+    titulo: "O edital inteiro, item por item",
+    texto:
+      "Cada tópico do conteúdo programático virado em linha, com o que você já estudou, o que falta e o que ainda precisa de revisão. É o edital deixando de ser um PDF e virando uma lista que você risca.",
+    midia: null,
+  },
+  {
+    chave: "painel",
+    nome: "Painel pericial",
+    titulo: "Onde você está, em números",
+    texto:
+      "O acompanhamento do seu desempenho por matéria e por assunto, para a próxima hora de estudo ir onde ela rende mais — e não onde é mais confortável.",
+    midia: null,
+  },
+  {
+    chave: "cronograma",
+    nome: "Cronograma",
+    titulo: "O edital encaixado na sua rotina",
+    texto:
+      "Você diz quanto tempo tem; o cronograma distribui o conteúdo e as revisões pelos seus dias, de forma automatizada. Atrasou numa semana, ele se refaz em vez de virar cobrança.",
+    midia: null,
   },
 ];
 
@@ -189,6 +221,107 @@ function Maquete({ chave }: { chave: string }) {
             }`}
           >
             {t}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (chave === "verticalizado") {
+    return (
+      <div className="flex h-full w-full flex-col gap-1.5 rounded-2xl bg-[#101016] p-5">
+        <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-[#ffcd07]">
+          Medicina Legal · 1. Tanatologia
+        </p>
+        {[
+          ["1.1 Conceito e tipos de morte", "ok"],
+          ["1.2 Fenômenos cadavéricos", "ok"],
+          ["1.3 Cronotanatognose", "revisar"],
+          ["1.4 Documentos médico-legais", "falta"],
+        ].map(([item, estado]) => (
+          <div
+            key={item}
+            className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2"
+          >
+            <span
+              className={`grid h-4 w-4 shrink-0 place-items-center rounded text-[9px] font-black ${
+                estado === "ok"
+                  ? "bg-green-500/80 text-gray-900"
+                  : estado === "revisar"
+                    ? "bg-[#ffcd07] text-gray-900"
+                    : "border border-white/20 text-transparent"
+              }`}
+            >
+              ✓
+            </span>
+            <span className="min-w-0 flex-1 truncate text-[11px] text-white/70">{item}</span>
+            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-white/30">
+              {estado === "ok" ? "estudado" : estado === "revisar" ? "revisar" : "a fazer"}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (chave === "painel") {
+    return (
+      <div className="flex h-full w-full flex-col gap-3 rounded-2xl bg-[#101016] p-5">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[#ffcd07]">
+          Seu desempenho
+        </p>
+        {[
+          ["Tanatologia", 82],
+          ["Traumatologia", 64],
+          ["Asfixiologia", 41],
+          ["Sexologia forense", 73],
+        ].map(([materia, pct]) => (
+          <div key={String(materia)}>
+            <div className="flex items-baseline justify-between">
+              <span className="text-[11px] text-white/70">{materia}</span>
+              <span className="text-[11px] font-bold text-white/50">{pct}%</span>
+            </div>
+            <span className="mt-1 block h-1.5 rounded-full bg-white/10">
+              <span
+                className="block h-1.5 rounded-full bg-[#ffcd07]"
+                style={{ width: `${pct}%` }}
+              />
+            </span>
+          </div>
+        ))}
+        <p className="mt-auto rounded-lg bg-[#ffcd07]/10 px-3 py-2 text-[11px] font-semibold text-[#ffcd07]">
+          Estude asfixiologia hoje — é onde você mais erra.
+        </p>
+      </div>
+    );
+  }
+
+  if (chave === "cronograma") {
+    return (
+      <div className="flex h-full w-full flex-col gap-2 rounded-2xl bg-[#101016] p-5">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[#ffcd07]">
+          Esta semana · 2h por dia
+        </p>
+        {[
+          ["Seg", "Tanatologia — aula 4", true],
+          ["Ter", "Questões: tanatologia", true],
+          ["Qua", "Traumatologia — aula 1", false],
+          ["Qui", "Revisão: fenômenos cadavéricos", false],
+        ].map(([dia, tarefa, feito]) => (
+          <div
+            key={String(dia)}
+            className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2"
+          >
+            <span className="w-8 shrink-0 text-[10px] font-black uppercase text-white/35">
+              {dia}
+            </span>
+            <span
+              className={`min-w-0 flex-1 truncate text-[11px] ${
+                feito ? "text-white/35 line-through" : "text-white/75"
+              }`}
+            >
+              {tarefa}
+            </span>
           </div>
         ))}
       </div>

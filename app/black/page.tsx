@@ -31,6 +31,7 @@ import Link from "next/link";
 
 import Avatar from "../components/Avatar";
 import BarraFixa from "./BarraFixa";
+import BioProfessor from "./BioProfessor";
 import CarrosselEditais from "./CarrosselEditais";
 import CaixaDePreco from "./CaixaDePreco";
 import Contador from "./Contador";
@@ -72,23 +73,23 @@ const PROFESSORES = [
   {
     arquivo: "erika.png",
     nome: "Dra. Erika Anjos",
-    cargo: "Médica-legista em Pernambuco",
+    cargo: "Perita médica-legista em Pernambuco",
     texto:
-      "Professora da UFPE. Residência em oftalmologia pelo HCPE, com especialização em estrabismo e neuroftalmologia, e mestrado em Psicologia Clínica.",
+      "Perita Médica Legista do Estado de Pernambuco, professora de Medicina Legal e Ética Médica na Universidade Federal de Pernambuco (UFPE) e formada nessa mesma universidade. Possui residência médica em Oftalmologia pelo HCPE, além de Fellowships em Estrabismo e Neuroftalmologia pela Santa Casa de Misericórdia de Belo Horizonte. É mestre em Ciências da Saúde/Psicologia Clínica pela Universidade Católica de Pernambuco. Atua também como Médica Oftalmologista, com sólida experiência na interface entre prática clínica e Medicina Legal.",
   },
   {
     arquivo: "joao-paulo.png",
     nome: "Dr. João Paulo",
-    cargo: "Médico-legista, 4 aprovações",
+    cargo: "Perito médico-legista, 4 aprovações",
     texto:
-      "Residência em patologia pelo IMIP. Atua no IML do Recife, na PEFOCE (Ceará) e no Laboratório Argos.",
+      "Perito Médico Legista do Estado de Pernambuco e também do Ceará, com quatro aprovações em concursos para a área. Formado em Medicina pela Universidade Estadual de Santa Cruz (UESC), na Bahia, com Residência Médica em Patologia pelo IMIP. Atualmente, exerce os cargos de Médico Perito Legista Oficial do Instituto de Medicina Legal em Recife, Médico Perito Legista Patologista da Perícia Forense do Estado do Ceará (PEFOCE) e Médico Patologista do Laboratório Argos. Possui ampla experiência em Medicina Legal e Patologia Forense.",
   },
   {
     arquivo: "miguel.png",
     nome: "Dr. Miguel Souza",
-    cargo: "Médico-legista desde 2018",
+    cargo: "Perito médico-legista desde 2018",
     texto:
-      "Graduado pela UFPE, especialista em traumatologia e ortopedia e mestre em perícia forense.",
+      "Perito Médico Legista do Estado de Pernambuco desde 2018. Médico formado pela Universidade Federal de Pernambuco (UFPE), com especialização em Traumato-Ortopedia pelo Hospital das Clínicas da UFPE. Mestre em Perícias Forenses pela Universidade de Pernambuco. Possui sólida atuação na área da Medicina Legal.",
   },
 ];
 
@@ -208,24 +209,21 @@ export default async function BlackPage() {
               </span>
 
               <h1 className="mt-6 text-4xl font-black leading-[1.03] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Todos os editais de{" "}
-                <span className="text-[#ffcd07]">médico-legista</span> do país.
-                <br className="hidden sm:block" /> Um acesso só.
+                A melhor oportunidade para garantir sua aprovação como{" "}
+                <span className="text-[#ffcd07]">médico legista</span>.
               </h1>
 
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65 lg:mx-0">
-                São <strong className="font-bold text-white">{inclusos.length} concursos</strong>{" "}
-                em andamento agora — e todo edital novo que sair nos próximos{" "}
-                <strong className="font-bold text-white">{ANOS_DE_ACESSO} anos</strong> entra
-                para você sem pagar de novo. Preparatório completo de cada um, pré e
-                pós-edital.
+                Tenha acesso a todos os nossos preparatórios para os concursos
+                que já foram autorizados. Material pré e pós-edital gravado e
+                com a maior e melhor plataforma do mercado.
               </p>
 
               <ul className="mx-auto mt-7 flex max-w-xl flex-col gap-2.5 text-left lg:mx-0">
                 {[
-                  "Professores que são médicos-legistas de carreira",
-                  "23 mil questões comentadas, com vídeo do professor resolvendo",
-                  "Aulão pré-prova e o Dr. Bonet para a dúvida da madrugada",
+                  "Contato com professores médicos-legistas",
+                  "+240 alunos aprovados",
+                  "Plataforma com questões, aulas, ebooks, flashcards e muito mais",
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-3">
                     <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
@@ -252,21 +250,6 @@ export default async function BlackPage() {
             <HeroComposicao aprovados={totalAprovados} />
           </div>
 
-          <div className="mx-auto mt-20 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4 lg:mt-24">
-            {[
-              { n: `${totalAprovados}`, t: "aprovados do Clube" },
-              { n: "23 mil", t: "questões comentadas" },
-              { n: "100%", t: "professores legistas" },
-              { n: `${ANOS_DE_ACESSO} anos`, t: "de editais inclusos" },
-            ].map((i) => (
-              <div key={i.t} className="bg-[#0b0b0d] px-4 py-5 text-center">
-                <p className="text-2xl font-black text-[#ffcd07]">{i.n}</p>
-                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-white/40">
-                  {i.t}
-                </p>
-              </div>
-            ))}
-          </div>
         </Secao>
       </div>
 
@@ -282,14 +265,14 @@ export default async function BlackPage() {
       <div className="bg-[#f8f9fb]">
         <Secao id="editais" className="py-16">
           <Titulo claro nota="o que está incluso hoje">
-            Concursos autorizados ou com
-            <br className="hidden sm:block" /> editais publicados
+            Você terá acesso ao preparatório
+            <br className="hidden sm:block" /> para esses editais:
           </Titulo>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-gray-600">
-            São <strong className="font-bold text-gray-900">{inclusos.length} concursos</strong>{" "}
-            de médico-legista de pé agora, e você entra em todos. A lista vem do nosso
-            monitor, que varre as fontes oficiais de hora em hora — se um estado novo for
-            autorizado depois da sua compra, o preparatório dele entra sozinho.
+            Você pagará apenas{" "}
+            <strong className="font-bold text-gray-900">um único valor</strong> e poderá
+            ter acesso a uma preparação completa, independente do edital, com os
+            professores que aprovaram todos os primeiros lugares nos últimos concursos.
           </p>
         </Secao>
 
@@ -301,12 +284,6 @@ export default async function BlackPage() {
           <p className="text-sm text-gray-500">
             + todo concurso de médico-legista autorizado nos próximos {ANOS_DE_ACESSO} anos
           </p>
-          <Link
-            href="/"
-            className="mt-3 inline-block text-sm font-bold text-gray-900 underline decoration-[#ffcd07] decoration-2 underline-offset-4"
-          >
-            ver o mapa completo dos 27 estados
-          </Link>
         </Secao>
       </div>
 
@@ -329,11 +306,11 @@ export default async function BlackPage() {
               },
               {
                 t: "Aulão pré-prova",
-                d: "Na reta final de cada concurso, uma imersão ao vivo com os professores no que mais cai e no que costuma derrubar candidato.",
+                d: "Na reta final de cada concurso, um aulão online com os professores no que mais cai e no que costuma derrubar candidato.",
               },
               {
                 t: "Almanaque Forense",
-                d: "Mais de 23 mil questões das bancas que cobram o cargo, com comentário escrito e vídeo do professor resolvendo.",
+                d: "Plataforma de questões completa: mais de 23 mil questões, com comentários do professor, vídeos explicativos, simulados personalizáveis e muito mais.",
               },
               {
                 t: "Dr. Bonet, 24 horas",
@@ -341,15 +318,19 @@ export default async function BlackPage() {
               },
               {
                 t: "Flashcards, mapas e mini-jogos",
-                d: "Revisão ativa de verdade: baralhos por tema, mapas mentais ilustrados e jogos para os conceitos que todo mundo troca na prova.",
+                d: "Revisão ativa de verdade: flashcards personalizáveis por tema, mapas mentais ilustrados e jogos para fixar os conceitos que todo mundo troca na prova.",
               },
               {
-                t: "Nove eBooks do Clube",
-                d: "Conteúdo adaptado pelos nossos professores a partir de França, Hygino e Delton Croce — escrito para o que a prova de perícia cobra.",
+                t: "eBooks de todas as matérias",
+                d: "Escritos pelos nossos professores a partir das principais bibliografias de cada matéria, já no recorte que a prova de perícia cobra — você estuda pelo que cai, não pelo livro inteiro.",
               },
               {
-                t: "Grupo com os professores",
-                d: "Dúvida respondida por quem é médico-legista de carreira, mais o acompanhamento da equipe do Clube do edital à posse.",
+                t: "Grupo com professores de med. legal e monitor de direito",
+                d: "Dúvida respondida por quem é médico-legista de carreira, e um monitor de direito para as matérias que completam o edital.",
+              },
+              {
+                t: "Cronograma interativo e edital verticalizado",
+                d: "Encaixe o estudo e a revisão de todo o edital na sua rotina, de forma automatizada.",
               },
             ].map((i) => (
               <div key={i.t} className="card-white flex gap-4 p-5">
@@ -436,7 +417,7 @@ export default async function BlackPage() {
                   <p className="text-[11px] font-bold uppercase tracking-wider text-[#b38f00]">
                     {p.cargo}
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-600">{p.texto}</p>
+                  <BioProfessor texto={p.texto} />
                 </div>
               </div>
             ))}
