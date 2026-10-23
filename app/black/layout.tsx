@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Black Forense 2026 — todos os editais de médico-legista | Clube Forense",
   description:
-    "Acesso ao preparatório de todos os concursos de médico-legista autorizados hoje, mais todo edital que sair nos próximos 2 anos. Professores que são médicos-legistas, mais de 25 mil questões comentadas e o Dr. Bonet.",
+    "Acesso ao preparatório de todos os concursos de médico-legista autorizados hoje, mais todo edital que sair nos próximos 2 anos. Professores que são médicos-legistas, mais de 25 mil questões e o Dr. Bonet.",
   openGraph: {
     title: "Black Forense 2026 — todos os editais de médico-legista",
     description:

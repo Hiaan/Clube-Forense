@@ -21,9 +21,9 @@
 // conta que a própria pessoa faria.
 //
 // O QUE NÃO TEM AQUI, DE PROPÓSITO: brinde físico (não existe), combo de
-// planos (a oferta é uma só) e qualquer captura de tela fingida da plataforma.
-// Onde o vídeo real ainda não entrou, há maquete desenhada em CSS — ver
-// Plataforma.tsx.
+// planos (a oferta é uma só) e qualquer captura de tela fingida da plataforma —
+// a seção da plataforma usa capturas reais, e o painel pericial, que mostra
+// números, vem marcado como exemplo ilustrativo.
 
 import Image from "next/image";
 import Link from "next/link";
@@ -37,7 +37,7 @@ import Contador from "./Contador";
 import Depoimentos from "./Depoimentos";
 import DrBonet from "./DrBonet";
 import HeroComposicao from "./HeroComposicao";
-import Plataforma from "./Plataforma";
+import SecaoPlataforma from "./plataforma/SecaoPlataforma";
 import ProfessoresParceiros from "./ProfessoresParceiros";
 import PrecoAtual from "./PrecoAtual";
 import Ticker from "./Ticker";
@@ -73,23 +73,23 @@ const PROFESSORES = [
   {
     arquivo: "erika.png",
     nome: "Dra. Erika Anjos",
-    cargo: "Perita médica-legista em Pernambuco",
+    cargo: "Médica legista em Pernambuco",
     texto:
-      "Perita Médica Legista do Estado de Pernambuco, professora de Medicina Legal e Ética Médica na Universidade Federal de Pernambuco (UFPE) e formada nessa mesma universidade. Possui residência médica em Oftalmologia pelo HCPE, além de Fellowships em Estrabismo e Neuroftalmologia pela Santa Casa de Misericórdia de Belo Horizonte. É mestre em Ciências da Saúde/Psicologia Clínica pela Universidade Católica de Pernambuco. Atua também como Médica Oftalmologista, com sólida experiência na interface entre prática clínica e Medicina Legal.",
+      "Médica Legista do Estado de Pernambuco, professora de Medicina Legal e Ética Médica na Universidade Federal de Pernambuco (UFPE) e formada nessa mesma universidade. Possui residência médica em Oftalmologia pelo HCPE, além de Fellowships em Estrabismo e Neuroftalmologia pela Santa Casa de Misericórdia de Belo Horizonte. É mestre em Ciências da Saúde/Psicologia Clínica pela Universidade Católica de Pernambuco. Atua também como Médica Oftalmologista, com sólida experiência na interface entre prática clínica e Medicina Legal.",
   },
   {
     arquivo: "joao-paulo.png",
     nome: "Dr. João Paulo",
-    cargo: "Perito médico-legista, 4 aprovações",
+    cargo: "Médico legista, 4 aprovações",
     texto:
-      "Perito Médico Legista do Estado de Pernambuco e também do Ceará, com quatro aprovações em concursos para a área. Formado em Medicina pela Universidade Estadual de Santa Cruz (UESC), na Bahia, com Residência Médica em Patologia pelo IMIP. Atualmente, exerce os cargos de Médico Perito Legista Oficial do Instituto de Medicina Legal em Recife, Médico Perito Legista Patologista da Perícia Forense do Estado do Ceará (PEFOCE) e Médico Patologista do Laboratório Argos. Possui ampla experiência em Medicina Legal e Patologia Forense.",
+      "Médico Legista do Estado de Pernambuco e também do Ceará, com quatro aprovações em concursos para a área. Formado em Medicina pela Universidade Estadual de Santa Cruz (UESC), na Bahia, com Residência Médica em Patologia pelo IMIP. Atualmente, exerce os cargos de Médico Legista Oficial do Instituto de Medicina Legal em Recife, Médico Legista Patologista da Perícia Forense do Estado do Ceará (PEFOCE) e Médico Patologista do Laboratório Argos. Possui ampla experiência em Medicina Legal e Patologia Forense.",
   },
   {
     arquivo: "miguel.png",
     nome: "Dr. Miguel Souza",
-    cargo: "Perito médico-legista desde 2018",
+    cargo: "Médico legista desde 2018",
     texto:
-      "Perito Médico Legista do Estado de Pernambuco desde 2018. Médico formado pela Universidade Federal de Pernambuco (UFPE), com especialização em Traumato-Ortopedia pelo Hospital das Clínicas da UFPE. Mestre em Perícias Forenses pela Universidade de Pernambuco. Possui sólida atuação na área da Medicina Legal.",
+      "Médico Legista do Estado de Pernambuco desde 2018. Médico formado pela Universidade Federal de Pernambuco (UFPE), com especialização em Traumato-Ortopedia pelo Hospital das Clínicas da UFPE. Mestre em Perícias Forenses pela Universidade de Pernambuco. Possui sólida atuação na área da Medicina Legal.",
   },
 ];
 
@@ -354,20 +354,9 @@ export default async function BlackPage() {
       </div>
 
       {/* ------------------------------------------------ plataforma (claro) */}
-      <div className="bg-white">
-        <Secao id="plataforma" className="py-16">
-          <Titulo claro nota="a plataforma">
-            Feita para este cargo, e só para ele
-          </Titulo>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
-            Curso de carreira policial adaptado não serve: a prova de médico-legista cobra
-            medicina legal em profundidade. Tudo aqui foi montado nesse recorte.
-          </p>
-          <div className="mt-12">
-            <Plataforma />
-          </div>
-        </Secao>
-      </div>
+      {/* A seção que veio pronta no pacote de 23/10 — título, abas, telas e
+          réplicas clicáveis. Ver app/black/plataforma/. */}
+      <SecaoPlataforma />
 
       {/* --------------------------------------------------- bonet (claro) */}
       <div className="bg-[#f8f9fb]">

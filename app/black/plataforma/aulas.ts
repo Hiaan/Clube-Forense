@@ -1,0 +1,1216 @@
+// As matérias e as aulas que a seção da plataforma mostra no "ver lista".
+//
+// Tirado do banco da plataforma em 23/10/2026 (veio no pacote da Black, em
+// aulas.js) e convertido para módulo: aqui ele entra no código já tipado, em
+// vez de pendurar uma variável global na janela.
+//
+// SÃO OS NOMES REAIS DAS AULAS, e por isso não foram reescritos: a lista
+// existe para a pessoa ver o que vai estudar, e trocar o título de uma aula
+// faria a página prometer um curso diferente do que está na plataforma.
+
+export interface Materia {
+  slug: string;
+  nome: string;
+  /** Caminho relativo a public/black/plataforma/. */
+  capa: string;
+  modulos: { nome: string; aulas: string[] }[];
+}
+
+export const MATERIAS: Materia[] = [
+  {
+    "slug": "medicina-legal",
+    "nome": "Medicina Legal",
+    "capa": "capas/medicina-legal.webp",
+    "modulos": [
+      {
+        "nome": "Fundamentos e perícia",
+        "aulas": [
+          "História da medicina legal",
+          "Perícias e peritos I (definição, finalidade e tipos de perícia, peritos oficiais e não oficiais, impedimento e suspensão)",
+          "Perícias e peritos II (assistentes técnicos e cadeia de custódia)",
+          "Documentos médico-legais (notificação compulsória, atestados, relatórios, parecer, depoimento oral)",
+          "Declaração de óbito (importância e orientações para preenchimento)"
+        ]
+      },
+      {
+        "nome": "Traumatologia e energias",
+        "aulas": [
+          "Traumatologia I (conceito, instrumentos perfurante, cortante, perfurocortante, contundente)",
+          "Traumatologia forense (instrumentos cortocontundente, perfurocontundente, lesão corporal)",
+          "Energias físicas: eletricidade",
+          "Asfixiologia I (conceitos, fases da asfixia, sinais externos e internos)",
+          "Asfixiologia II (confinamento, monóxido de carbono, sufocação direta e indireta, soterramento)",
+          "Asfixiologia III (afogamento)",
+          "Asfixiologia IV (asfixias por constrição cervical)"
+        ]
+      },
+      {
+        "nome": "Tanatologia",
+        "aulas": [
+          "Tanatologia I (morte encefálica, fases e processamento da morte, tempo de sobrevivência, fenômenos tanatológicos)",
+          "Tanatologia II (fenômenos tanatológicos, cronotanatognose, reação vital, destinos do cadáver e necrópsia)",
+          "Ilustrando a Tanatologia"
+        ]
+      },
+      {
+        "nome": "Sexologia e obstetrícia forense",
+        "aulas": [
+          "Sexologia forense I e II (transtornos da sexualidade e crimes sexuais)",
+          "Sexologia forense III (perícia do estupro)",
+          "Gravidez, parto e puerpério. Aborto",
+          "Aula de gravidez",
+          "Infanticídio"
+        ]
+      },
+      {
+        "nome": "Antropologia forense",
+        "aulas": [
+          "Antropologia forense"
+        ]
+      },
+      {
+        "nome": "Infortunística",
+        "aulas": [
+          "Infortunística (parte 1)",
+          "Infortunística (parte 2)",
+          "Acidente de trabalho: conceito e tipos",
+          "Acidente de trabalho: trajeto, concausa e perícia médica trabalhista",
+          "Doença profissional × doença do trabalho, classificação de Schilling",
+          "Acidente de trabalho: equiparações",
+          "Nexo técnico epidemiológico previdenciário"
+        ]
+      },
+      {
+        "nome": "Psicopatologia e toxicofilias",
+        "aulas": [
+          "Psicopatologia (imputabilidade, semi-imputabilidade, responsabilidade penal, simulação e dissimulação)",
+          "Toxicofilias e embriaguez (drogas psicoativas, metabolismo do álcool, aspectos jurídicos da embriaguez)"
+        ]
+      },
+      {
+        "nome": "Psiquiatria Forense",
+        "aulas": [
+          "Introdução à psiquiatria forense",
+          "Perícia psiquiátrica",
+          "Perícia de imputabilidade",
+          "Imputabilidade penal da dependência química",
+          "Perícia de superveniência",
+          "Perícia de cessação de periculosidade",
+          "Exame criminológico",
+          "A capacidade de consentir",
+          "Internações psiquiátricas",
+          "Perícias em direito civil (capacidade civil, curatela, interdição, capacidade laboral)",
+          "Perícias em direito previdenciário",
+          "Psicopatia (parte 1)",
+          "Psicopatia (parte 2)",
+          "Psicopatologia forense (perícias de imputabilidade, capacidade civil, classificação dos transtornos mentais)"
+        ]
+      },
+      {
+        "nome": "Patologia",
+        "aulas": [
+          "Patologia: conceitos básicos",
+          "Adaptação, lesão e morte celular",
+          "Inflamação",
+          "Regeneração e reparo (cicatrização) tecidual",
+          "Distúrbios hemodinâmicos: congestão, edema, hemorragia",
+          "Trombose, embolia e choque",
+          "Diagnósticos diferenciais",
+          "Principais doenças cardíacas não neoplásicas",
+          "Principais doenças pulmonares não neoplásicas",
+          "Principais doenças hepáticas não neoplásicas",
+          "Principais doenças do sistema nervoso central não neoplásicas",
+          "Principais doenças renais não neoplásicas",
+          "Processamento histológico: colorações de rotina e espécimes citológicos",
+          "Imuno-histoquímica",
+          "Coleta de amostras"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "lingua-portuguesa",
+    "nome": "Língua Portuguesa",
+    "capa": "capas/lingua-portuguesa.webp",
+    "modulos": [
+      {
+        "nome": "Língua Portuguesa",
+        "aulas": [
+          "Introdução à língua portuguesa: como a banca cobra a matéria",
+          "Tipologia textual: narração, descrição, dissertação e injunção",
+          "Questões comentadas: tipologia textual",
+          "Gêneros textuais: editorial, artigo de opinião, notícia, reportagem e conto",
+          "Interpretação de texto: estratégias de leitura e questões Cebraspe",
+          "Coesão, coerência e demais fatores de textualidade",
+          "Coesão referencial: anáfora, catáfora e pronomes demonstrativos",
+          "Reescritura de frases: correção gramatical, coerência e sentido",
+          "Significação das palavras: parônimos, homônimos, porquês e mal/mau",
+          "Acentuação gráfica: monossílabas, oxítonas, paroxítonas, proparoxítonas",
+          "Acentuação gráfica: hiatos, acentos diferenciais e Novo Acordo",
+          "Emprego do hífen: prefixos, compostos e regras do acordo ortográfico",
+          "Morfologia: classes de palavras, substantivo e artigo",
+          "Morfologia: adjetivo, numeral e pronomes",
+          "Morfologia: advérbio e verbo (tipos, modos, tempos e vozes)",
+          "Questões comentadas: classes de palavras",
+          "Sintaxe: frase, oração e período; sujeito e predicado",
+          "Questões comentadas: sujeito e predicado",
+          "Termos da oração: predicativos e objetos direto e indireto",
+          "Termos da oração: adjunto, complemento nominal, aposto e vocativo",
+          "Questões comentadas: termos integrantes e acessórios da oração",
+          "Regência verbal e nominal: verbos mais cobrados e questões comentadas",
+          "Crase: casos obrigatórios, proibidos, facultativos e especiais",
+          "Questões comentadas: crase",
+          "Concordância nominal e verbal com sujeito simples",
+          "Concordância verbal: sujeito composto, verbo ser, parecer e silepse",
+          "Colocação pronominal: próclise, mesóclise e ênclise",
+          "Orações coordenadas: assindéticas e sindéticas",
+          "Orações subordinadas: adjetivas, substantivas e adverbiais",
+          "Pontuação: sinais e uso da vírgula",
+          "Redação oficial: aspectos gerais, atributos e pronomes de tratamento",
+          "Redação oficial: padrão ofício e espécies de expediente",
+          "Questões comentadas: redação oficial e padrão ofício",
+          "Variações linguísticas: diatópica, diastrática, diafásica, diacrônica",
+          "Figuras de linguagem: palavras, pensamento, sintaxe e som",
+          "Questões comentadas: figuras de linguagem",
+          "Divisão silábica: regras e questões comentadas",
+          "Funções do SE: apassivador, indeterminação, reflexivo e conjunções",
+          "Funções do QUE: classes gramaticais e funções sintáticas",
+          "Fonética e fonologia: fonema, dígrafo, ditongo, tritongo e hiato",
+          "Estrutura das palavras: radical, desinências e afixos",
+          "Formação de palavras: derivação, composição e outros",
+          "Elementos da comunicação e funções da linguagem",
+          "Questões comentadas: fonética e fonologia",
+          "Questões comentadas: estrutura e formação de palavras",
+          "Correlação verbal: combinação de tempos e modos verbais",
+          "Questões comentadas: correlação verbal"
+        ]
+      },
+      {
+        "nome": "Análise textual: fato, opinião e argumentação",
+        "aulas": [
+          "Fato e opinião: intencionalidade discursiva e efeitos de sentido",
+          "Questões comentadas: fato, opinião e intencionalidade discursiva",
+          "Implícitos: pressupostos, subentendidos e inferência",
+          "Questões comentadas: pressupostos, subentendidos e inferência",
+          "Ideias principais e secundárias e recursos de argumentação",
+          "Questões comentadas: ideias principais e secundárias do texto",
+          "Gêneros textuais: informativo, publicitário, normativo e literário",
+          "Questões comentadas FGV: tipos de texto"
+        ]
+      },
+      {
+        "nome": "Redação oficial",
+        "aulas": [
+          "Redação oficial: clareza, precisão, objetividade e concisão",
+          "Redação oficial: coesão, coerência, impessoalidade e formalidade",
+          "Questões comentadas: princípios da redação oficial",
+          "Redação oficial: pronomes de tratamento, vocativo e endereçamento",
+          "Questões comentadas FGV: pronomes de tratamento",
+          "Redação oficial: padrão ofício (cabeçalho, endereçamento e assunto)",
+          "Redação oficial: padrão ofício, fecho, signatário e formato",
+          "Redação oficial: memorando, relatório, requerimento e parecer",
+          "Questões comentadas: padrão ofício e correspondência oficial",
+          "Discurso direto e indireto e intertextualidade: citação, paródia e paráfrase",
+          "Questões comentadas: intertextualidade e alusão a outros textos"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "informatica",
+    "nome": "Informática",
+    "capa": "capas/informatica.webp",
+    "modulos": [
+      {
+        "nome": "Hardware",
+        "aulas": [
+          "Hardware (aula 1)",
+          "Hardware (aula 2)",
+          "Hardware (aula 3)",
+          "Hardware (aula 4)"
+        ]
+      },
+      {
+        "nome": "Software",
+        "aulas": [
+          "Software"
+        ]
+      },
+      {
+        "nome": "Windows",
+        "aulas": [
+          "Windows (aula 1)",
+          "Windows (aula 2)",
+          "Windows (aula 3)",
+          "Windows (aula 4)",
+          "Windows (aula 5)",
+          "Windows (aula 6)",
+          "Windows (aula 7)",
+          "Windows (aula 8)",
+          "Windows (aula 9)",
+          "Windows (aula 10)",
+          "Windows (aula 11)",
+          "Windows (aula 12)"
+        ]
+      },
+      {
+        "nome": "Linux",
+        "aulas": [
+          "Linux (aula 1)",
+          "Linux (aula 2)",
+          "Linux (aula 3)",
+          "Linux (aula 4)"
+        ]
+      },
+      {
+        "nome": "Word",
+        "aulas": [
+          "Word (aula 1)",
+          "Word (aula 2)",
+          "Word (aula 3)",
+          "Word (aula 4)",
+          "Word (aula 5)",
+          "Word (aula 6)",
+          "Word (aula 7)",
+          "Word (aula 8)",
+          "Word (aula 9)",
+          "Word (aula 10)",
+          "Word (aula 11)",
+          "Word (aula 12)"
+        ]
+      },
+      {
+        "nome": "Excel",
+        "aulas": [
+          "Excel (aula 1)",
+          "Excel (aula 2)",
+          "Excel (aula 3)",
+          "Excel (aula 4)",
+          "Excel (aula 5)",
+          "Excel (aula 6)",
+          "Excel (aula 7)",
+          "Excel (aula 8)",
+          "Excel (aula 9)",
+          "Excel (aula 10)",
+          "Excel (aula 11)",
+          "Excel (aula 12)"
+        ]
+      },
+      {
+        "nome": "PowerPoint",
+        "aulas": [
+          "PowerPoint (aula 1)",
+          "PowerPoint (aula 2)"
+        ]
+      },
+      {
+        "nome": "LibreOffice",
+        "aulas": [
+          "LibreOffice (aula 1)",
+          "LibreOffice (aula 2)",
+          "LibreOffice (aula 3)"
+        ]
+      },
+      {
+        "nome": "Redes de computadores",
+        "aulas": [
+          "Redes de computadores (aula 1)",
+          "Redes de computadores (aula 2)",
+          "Redes de computadores (aula 3)",
+          "Redes de computadores (aula 4)",
+          "Redes de computadores (aula 5)",
+          "Redes de computadores (aula 6)",
+          "Redes de computadores (aula 7)",
+          "Redes de computadores (aula 8)"
+        ]
+      },
+      {
+        "nome": "Redes de comunicação",
+        "aulas": [
+          "Redes de comunicação (aula 1)",
+          "Redes de comunicação (aula 2)",
+          "Redes de comunicação (aula 3)",
+          "Redes de comunicação (aula 4)"
+        ]
+      },
+      {
+        "nome": "Internet",
+        "aulas": [
+          "Internet, intranet e extranet (aula 1)",
+          "Internet, intranet e extranet (aula 2)",
+          "Internet, intranet e extranet (aula 3)"
+        ]
+      },
+      {
+        "nome": "Navegadores web",
+        "aulas": [
+          "Navegadores web: geral (aula 1)",
+          "Navegadores web: geral (aula 2)",
+          "Navegadores web: geral (aula 3)",
+          "Internet Explorer",
+          "Edge",
+          "Firefox",
+          "Chrome"
+        ]
+      },
+      {
+        "nome": "Nuvem, e-mail e web",
+        "aulas": [
+          "Computação e armazenamento em nuvem",
+          "Correio eletrônico",
+          "Redes sociais",
+          "Buscadores web",
+          "Grupos de discussão",
+          "Dispositivos móveis"
+        ]
+      },
+      {
+        "nome": "Segurança da informação",
+        "aulas": [
+          "Conceitos de segurança da informação (aula 1)",
+          "Conceitos de segurança da informação (aula 2)",
+          "Conceitos de segurança da informação (aula 3)",
+          "Malwares (aula 1)",
+          "Malwares (aula 2)",
+          "Malwares (aula 3)",
+          "Malwares (aula 4)",
+          "Criptografia (aula 1)",
+          "Criptografia (aula 2)",
+          "Assinatura digital",
+          "Certificado digital"
+        ]
+      },
+      {
+        "nome": "Google Workspace",
+        "aulas": [
+          "Google Drive",
+          "Google Docs",
+          "Google Sheets",
+          "Google Apresentações"
+        ]
+      },
+      {
+        "nome": "Tecnologias e legislação",
+        "aulas": [
+          "Inteligência artificial",
+          "Business intelligence",
+          "Deep web, dark web e surface web (aula 1)",
+          "Deep web, dark web e surface web (aula 2)",
+          "Deep web, dark web e surface web (aula 3)",
+          "Marco Civil da Internet (aula 1)",
+          "Marco Civil da Internet (aula 2)",
+          "Marco Civil da Internet (aula 3)"
+        ]
+      },
+      {
+        "nome": "Resolução de questões",
+        "aulas": [
+          "Word multibancas (bloco 1)",
+          "Word multibancas (bloco 2)",
+          "Word multibancas (bloco 3)",
+          "Word multibancas (bloco 4)",
+          "Word multibancas (bloco 5)",
+          "Word multibancas (bloco 6)",
+          "Word multibancas (bloco 7)",
+          "Windows multibancas (bloco 1)",
+          "Windows multibancas (bloco 2)",
+          "Windows multibancas (bloco 3)",
+          "Windows multibancas (bloco 4)",
+          "Windows multibancas (bloco 5)"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "raciocinio-logico",
+    "nome": "Raciocínio Lógico",
+    "capa": "capas/raciocinio-logico.webp",
+    "modulos": [
+      {
+        "nome": "Raciocínio Lógico",
+        "aulas": [
+          "Noções de lógica",
+          "Tipos de proposição",
+          "Valores lógicos das proposições (parte 1)",
+          "Valores lógicos das proposições (parte 2)",
+          "Valores lógicos das proposições compostas: questões",
+          "Equivalências lógicas",
+          "Negação de proposição composta",
+          "Argumento: métodos de validação",
+          "Argumento: diagramas lógicos",
+          "Análise combinatória (parte 1)",
+          "Principais problemas de contagem",
+          "Análise combinatória (parte 2)",
+          "Permutação: problemas de troca de ordem",
+          "Casos especiais de permutação",
+          "Combinações",
+          "Combinação com repetição",
+          "Resolução de questões (parte 1)",
+          "Probabilidade",
+          "Probabilidade condicional",
+          "Resolução de questões (parte 2)",
+          "Introdução ao último módulo",
+          "Conjuntos numéricos",
+          "Problemas geométricos",
+          "Matrizes (parte 1)",
+          "Matrizes (parte 2)",
+          "Matrizes (parte 3)"
+        ]
+      },
+      {
+        "nome": "Matemática básica",
+        "aulas": [
+          "Introdução",
+          "Soma e subtração",
+          "Multiplicação",
+          "Divisão (parte 1)",
+          "Divisão (parte 2)",
+          "Divisão (parte 3)",
+          "Fração",
+          "Operações com fração",
+          "Potência (parte 1)",
+          "Potência (parte 2)",
+          "Expressão numérica"
+        ]
+      },
+      {
+        "nome": "Lógica e geometria analítica",
+        "aulas": [
+          "Equivalência",
+          "Negação: leis de De Morgan",
+          "Distância entre pontos",
+          "Plano cartesiano (parte 1)",
+          "Plano cartesiano (parte 2)",
+          "Progressão geométrica",
+          "Progressão aritmética",
+          "Geometria plana e distância entre pontos",
+          "Questões Fundatec",
+          "Resolução de questões"
+        ]
+      },
+      {
+        "nome": "Números complexos",
+        "aulas": [
+          "Motivação histórica",
+          "Definindo o conjunto dos complexos",
+          "Operações com complexos",
+          "Número complexo: forma trigonométrica",
+          "Número complexo: questões-chave",
+          "Leis de De Moivre"
+        ]
+      },
+      {
+        "nome": "Trigonometria",
+        "aulas": [
+          "Introdução à trigonometria (parte 1)",
+          "Introdução à trigonometria (parte 2)",
+          "Módulo de um número, comparação e soma",
+          "Trigonometria no triângulo retângulo",
+          "Ângulos notáveis",
+          "Resolução do triângulo retângulo",
+          "Trigonometria no ciclo trigonométrico",
+          "Trigonometria na circunferência",
+          "Resolução: trigonometria na circunferência",
+          "Transformações trigonométricas",
+          "Aula extra"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "direito-penal",
+    "nome": "Direito Penal",
+    "capa": "capas/direito-penal.webp",
+    "modulos": [
+      {
+        "nome": "Direito Penal Geral",
+        "aulas": [
+          "Noções introdutórias e princípios fundamentais do direito penal",
+          "Princípios constitucionais do direito penal (parte 1)",
+          "Princípios constitucionais do direito penal (parte 2)",
+          "Princípios constitucionais do direito penal (parte 3)",
+          "Princípios constitucionais do direito penal (parte 4)",
+          "Princípios constitucionais do direito penal (parte 5)",
+          "Aplicação da lei penal",
+          "Lei penal no espaço",
+          "Extraterritorialidade",
+          "Lei excepcional e lei temporária",
+          "Crime continuado e permanente",
+          "Interpretação e integração da lei penal",
+          "Introdução à teoria geral do crime",
+          "Sujeito passivo",
+          "Fato típico, ilícito e culpável (parte 1)",
+          "Fato típico, ilícito e culpável (parte 2)",
+          "Culpa",
+          "Extorsão",
+          "Ilicitude ou antijuridicidade",
+          "Legítima defesa",
+          "Culpabilidade",
+          "Inimputabilidade por embriaguez acidental completa",
+          "Punibilidade",
+          "Concurso de pessoas (parte 1)",
+          "Concurso de pessoas (parte 2)",
+          "Conflito aparente de normas (parte 1)",
+          "Conflito aparente de normas (parte 2)",
+          "Concurso de crimes"
+        ]
+      },
+      {
+        "nome": "Direito Penal Especial",
+        "aulas": [
+          "Introdução aos crimes contra a vida",
+          "Homicídio (aula 1)",
+          "Homicídio (aula 2)",
+          "Homicídio (aula 3)",
+          "Homicídio (aula 4)",
+          "Homicídio (aula 5)",
+          "Participação em suicídio ou automutilação (parte 1)",
+          "Participação em suicídio ou automutilação (parte 2)",
+          "Infanticídio",
+          "Aborto (parte 1)",
+          "Aborto (parte 2)",
+          "Lesão corporal (aula 1)",
+          "Lesão corporal (aula 2)",
+          "Lesão corporal (aula 3)",
+          "Lesão corporal (aula 4)",
+          "Da periclitação da vida e da saúde",
+          "Crimes contra a honra (aula 1)",
+          "Crimes contra a honra (aula 2)",
+          "Crimes contra a honra (aula 3)",
+          "Crimes contra a liberdade individual",
+          "Furto (aula 1)",
+          "Furto (aula 2)",
+          "Furto (aula 3)",
+          "Roubo (aula 1)",
+          "Roubo (aula 2)",
+          "Roubo (aula 3)",
+          "Extorsão",
+          "Extorsão mediante sequestro",
+          "Estelionato",
+          "Receptação e receptação de animais",
+          "Escusas absolutórias e relativas",
+          "Crimes contra o sentimento religioso",
+          "Crimes contra a dignidade sexual (parte 1)",
+          "Crimes contra a dignidade sexual (parte 2)",
+          "Crimes contra a dignidade sexual (parte 3)",
+          "Crimes contra a administração pública (aula 1)",
+          "Crimes contra a administração pública (aula 2)",
+          "Crimes contra a administração pública (aula 3)",
+          "Crimes contra a administração pública (aula 4)",
+          "Crimes contra a administração pública (aula 5)",
+          "Crimes contra a administração pública (aula 6)",
+          "Crimes contra a fé pública (aula 1)",
+          "Crimes contra a fé pública (aula 2)",
+          "Crimes contra a fé pública (aula 3)"
+        ]
+      },
+      {
+        "nome": "Atualizações 2026",
+        "aulas": [
+          "Homicídio (parte 1)",
+          "Homicídio (parte 2)",
+          "Homicídio (parte 3)",
+          "Feminicídio (121-A) e vicaricídio (121-B)"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "direito-processual-penal",
+    "nome": "Direito Processual Penal",
+    "capa": "capas/direito-processual-penal.webp",
+    "modulos": [
+      {
+        "nome": "Disposições preliminares do CPP",
+        "aulas": [
+          "Disposições preliminares do CPP (aula 0)",
+          "Disposições preliminares do CPP (aula 1)",
+          "Disposições preliminares do CPP (aula 2)",
+          "Disposições preliminares do CPP (aula 3)",
+          "Disposições preliminares do CPP (aula 4)"
+        ]
+      },
+      {
+        "nome": "Inquérito policial",
+        "aulas": [
+          "Inquérito policial (aula 1)",
+          "Inquérito policial (aula 2)",
+          "Inquérito policial (aula 3)",
+          "Inquérito policial (aula 4)",
+          "Inquérito policial (aula 5)",
+          "Inquérito policial (aula 6)",
+          "Inquérito policial (aula 7)",
+          "Inquérito policial (aula 8)",
+          "Inquérito policial (aula 9)",
+          "Inquérito policial (aula 10)",
+          "Inquérito policial (aula 11)",
+          "Inquérito policial (aula 12)"
+        ]
+      },
+      {
+        "nome": "Provas",
+        "aulas": [
+          "Teoria geral da prova (aula 1)",
+          "Teoria geral da prova (aula 2)",
+          "Provas em espécie (aula 1)",
+          "Provas em espécie (aula 2)",
+          "Oitiva do ofendido",
+          "Reconhecimento de pessoas e coisas",
+          "Acareação",
+          "Documentos de prova",
+          "Indícios",
+          "Cadeia de custódia das provas",
+          "Interrogatório do acusado e confissão (parte 1)",
+          "Interrogatório do acusado e confissão (parte 2)",
+          "Busca e apreensão",
+          "Das testemunhas (parte 1)",
+          "Das testemunhas (parte 2)"
+        ]
+      },
+      {
+        "nome": "Prisões",
+        "aulas": [
+          "Prisões (aula 1)",
+          "Prisões (aula 2)",
+          "Prisões (aula 3)",
+          "Prisão em flagrante (aula 1)",
+          "Prisão em flagrante (aula 2)",
+          "Prisão em flagrante (aula 3)",
+          "Prisão em flagrante (aula 4)",
+          "Prisão em flagrante (aula 5)",
+          "Prisão temporária",
+          "Prisão preventiva (aula 1)",
+          "Prisão preventiva (aula 2)",
+          "Prisão preventiva (aula 3)"
+        ]
+      },
+      {
+        "nome": "Ação penal",
+        "aulas": [
+          "Ação penal (aula 1)",
+          "Ação penal (aula 2)",
+          "Ação penal (aula 3)",
+          "Ação penal (aula 4)",
+          "Ação penal (aula 5)",
+          "Ação penal (aula 6)",
+          "Ação penal: conceito, condições e princípios",
+          "Ação penal (aula 8)",
+          "Ação penal (aula 9)",
+          "Ação penal (aula 10)",
+          "Ação penal (aula 11)",
+          "Ação penal (aula 12)",
+          "Ação penal: retratação da representação e Lei Maria da Penha",
+          "Ação penal (aula 14)",
+          "Ação penal (aula 15)",
+          "Ação penal (aula 16)",
+          "Ação penal (aula 17)"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "direito-constitucional",
+    "nome": "Direito Constitucional",
+    "capa": "capas/direito-constitucional.webp",
+    "modulos": [
+      {
+        "nome": "Direitos fundamentais",
+        "aulas": [
+          "Princípios fundamentais",
+          "Direitos fundamentais (aula 2)",
+          "Direitos fundamentais (aula 3)",
+          "Direitos fundamentais (aula 4)",
+          "Direitos fundamentais (aula 5)",
+          "Direitos fundamentais (aula 6)",
+          "Direitos fundamentais (aula 7)",
+          "Direitos fundamentais (aula 8)",
+          "Direitos fundamentais (aula 9)",
+          "Direitos políticos (aula 1)",
+          "Direitos políticos (aula 2)",
+          "Direitos políticos (aula 3)",
+          "Direitos políticos (aula 4)",
+          "Direitos sociais (aula 1)",
+          "Direitos sociais (aula 2)"
+        ]
+      },
+      {
+        "nome": "Nacionalidade",
+        "aulas": [
+          "Nacionalidade (aula 1)",
+          "Nacionalidade (aula 2)",
+          "Nacionalidade (aula 3)",
+          "Nacionalidade (aula 4)"
+        ]
+      },
+      {
+        "nome": "Remédios constitucionais",
+        "aulas": [
+          "Habeas corpus e habeas data",
+          "Mandado de injunção",
+          "Ação popular e ação civil pública",
+          "Mandado de segurança"
+        ]
+      },
+      {
+        "nome": "Organização do Estado",
+        "aulas": [
+          "Organização do Estado (aula 1)",
+          "Organização do Estado (aula 2)",
+          "Organização do Estado (aula 3)",
+          "Organização do Estado (aula 4)",
+          "Organização do Estado (aula 5)"
+        ]
+      },
+      {
+        "nome": "Administração pública",
+        "aulas": [
+          "Administração pública (aula 1)",
+          "Administração pública (aula 2)",
+          "Administração pública (aula 3)",
+          "Administração pública (aula 4)",
+          "Administração pública (aula 5)"
+        ]
+      },
+      {
+        "nome": "Os três poderes",
+        "aulas": [
+          "Poder Executivo (aula 1)",
+          "Poder Executivo (aula 2)",
+          "Poder Executivo (aula 3)",
+          "Poder Executivo (aula 4)",
+          "Poder Legislativo (aula 1)",
+          "Poder Legislativo (aula 2)",
+          "Poder Legislativo (aula 3)",
+          "Poder Legislativo (aula 4)",
+          "Poder Judiciário (aula 1)",
+          "Poder Judiciário (aula 2)",
+          "Poder Judiciário (aula 3)",
+          "Poder Judiciário (aula 4)"
+        ]
+      },
+      {
+        "nome": "Processo legislativo",
+        "aulas": [
+          "Processo legislativo (aula 1)",
+          "Processo legislativo (aula 2)"
+        ]
+      },
+      {
+        "nome": "Funções essenciais da justiça",
+        "aulas": [
+          "Funções essenciais da justiça (aula 1)",
+          "Funções essenciais da justiça (aula 2)"
+        ]
+      },
+      {
+        "nome": "Da defesa do Estado",
+        "aulas": [
+          "Da defesa do Estado (aula 1)",
+          "Da defesa do Estado (aula 2)",
+          "Da defesa do Estado (aula 3)",
+          "Da defesa do Estado (aula 4)"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "direito-administrativo",
+    "nome": "Direito Administrativo",
+    "capa": "capas/direito-administrativo.webp",
+    "modulos": [
+      {
+        "nome": "Estado, governo e administração",
+        "aulas": [
+          "Estado, governo e administração (aula 1)",
+          "Estado, governo e administração (aula 2)",
+          "Estado, governo e administração (aula 3)",
+          "Estado, governo e administração (aula 4)"
+        ]
+      },
+      {
+        "nome": "Princípios",
+        "aulas": [
+          "Princípios (aula 1)",
+          "Princípios (aula 2)",
+          "Princípios (aula 3)",
+          "Princípios (aula 4)",
+          "Princípios (aula 5)"
+        ]
+      },
+      {
+        "nome": "Organização da administração pública",
+        "aulas": [
+          "Organização da administração pública (aula 1)",
+          "Organização da administração pública (aula 2)",
+          "Organização da administração pública (aula 3)",
+          "Organização da administração pública (aula 4)",
+          "Organização da administração pública (aula 5)",
+          "Organização da administração pública (aula 6)",
+          "Organização da administração pública (aula 7)",
+          "Organização da administração pública (aula 8)",
+          "Organização da administração pública (aula 9)"
+        ]
+      },
+      {
+        "nome": "Poderes da administração",
+        "aulas": [
+          "Abuso de poder",
+          "Poder discricionário, vinculado e disciplinar",
+          "Poder hierárquico e normativo",
+          "Polícia administrativa (aula 1)",
+          "Polícia administrativa (aula 2)"
+        ]
+      },
+      {
+        "nome": "Atos administrativos",
+        "aulas": [
+          "Atos administrativos (aula 1)",
+          "Atos administrativos (aula 2)",
+          "Atos administrativos (aula 3)",
+          "Atos administrativos (aula 4)",
+          "Atos administrativos (aula 5)",
+          "Atos administrativos (aula 6)",
+          "Atos administrativos (aula 7)",
+          "Atos administrativos (aula 8)",
+          "Atos administrativos (aula 9)",
+          "Atos administrativos (aula 10)"
+        ]
+      },
+      {
+        "nome": "Agentes públicos",
+        "aulas": [
+          "Conceito e classificações",
+          "Cargo público: criação, extinção e espécies",
+          "Concurso público e estabilidade",
+          "Estabilidade × vitaliciedade",
+          "Cargo em comissão × função de confiança",
+          "Remuneração",
+          "Responsabilidade do Estado"
+        ]
+      },
+      {
+        "nome": "Responsabilidade civil do Estado",
+        "aulas": [
+          "Responsabilidade civil do Estado (aula 1)",
+          "Responsabilidade civil do Estado (aula 2)",
+          "Responsabilidade civil do Estado (aula 3)",
+          "Responsabilidade civil do Estado (aula 4)"
+        ]
+      },
+      {
+        "nome": "Controle da administração pública",
+        "aulas": [
+          "Controle da administração (aula 1)",
+          "Controle da administração (aula 2)",
+          "Controle da administração (aula 3)",
+          "Controle da administração (aula 4)"
+        ]
+      },
+      {
+        "nome": "Licitações",
+        "aulas": [
+          "Licitações (aula 1)",
+          "Licitações (aula 2)",
+          "Licitações (aula 3)",
+          "Licitações (aula 4)",
+          "Licitações (aula 5)",
+          "Licitações (aula 6)",
+          "Licitações (aula 7)",
+          "Licitações (aula 8)",
+          "Licitações (aula 9)"
+        ]
+      },
+      {
+        "nome": "Improbidade administrativa",
+        "aulas": [
+          "Improbidade administrativa: conceito e agentes públicos",
+          "Improbidade administrativa (aula 2)",
+          "Improbidade administrativa: sujeitos passivos",
+          "Improbidade administrativa (aula 4)",
+          "Improbidade administrativa (aula 5)",
+          "Improbidade administrativa (aula 6)",
+          "Improbidade administrativa (aula 7)",
+          "Improbidade administrativa (aula 8)",
+          "Improbidade administrativa (aula 9)",
+          "Improbidade administrativa (aula 10)",
+          "Improbidade administrativa (aula 11)"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "criminalistica",
+    "nome": "Criminalística",
+    "capa": "capas/criminalistica.webp",
+    "modulos": [
+      {
+        "nome": "Criminalística · Ian Marques",
+        "aulas": [
+          "Conceitos e histórico da criminalística",
+          "Postulados e princípios da criminalística",
+          "Locais de crime: conceitos e classificações",
+          "Isolamento e preservação do local de crime",
+          "Classificação dos vestígios",
+          "Corpo de delito (aula 1)",
+          "Corpo de delito (aula 2)",
+          "Corpo de delito (aula 3)",
+          "Corpo de delito (aula 4)",
+          "Perícia em locais de morte",
+          "Perícia em locais de morte por asfixia",
+          "Perícia em locais de morte por arma de fogo",
+          "Cadeia de custódia: conceitos e etapas externas",
+          "Cadeia de custódia: etapa interna",
+          "Documentos criminalísticos",
+          "Tipos de provas e finalidade da criminalística",
+          "Métodos em criminalística (aula 1)",
+          "Métodos em criminalística (aula 2)"
+        ]
+      },
+      {
+        "nome": "Criminalística · Pedro Canezin",
+        "aulas": [
+          "Histórico, conceito, postulados e princípios da criminalística",
+          "Exame de corpo de delito e cadeia de custódia",
+          "Perícias e peritos",
+          "Teoria geral do local de crime (aula 1)",
+          "Isolamento, preservação, finalidades do levantamento e buscas no local",
+          "Teoria geral do local de crime (aula 2)"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "genetica-forense",
+    "nome": "Genética Forense",
+    "capa": "capas/genetica-forense.webp",
+    "modulos": [
+      {
+        "nome": "Genética Forense",
+        "aulas": [
+          "Introdução à genética forense",
+          "Coleta de material biológico",
+          "Extração do DNA",
+          "Quantificação do DNA",
+          "Marcadores moleculares",
+          "Marcadores moleculares II",
+          "Eletroforese",
+          "Estatística",
+          "Entomologia forense I",
+          "Entomologia forense II",
+          "Banco de perfis genéticos (história)",
+          "Banco de perfis genéticos (legislação) I",
+          "Banco de perfis genéticos (legislação) II",
+          "Banco de perfis genéticos (funcionamento)",
+          "Banco de perfis balísticos",
+          "Análise de isótopos",
+          "Rastreabilidade de metais preciosos",
+          "Exclusão médico-legal da paternidade I",
+          "Exclusão médico-legal da paternidade II",
+          "Exclusão médico-legal da paternidade III",
+          "Genética de populações",
+          "Biologia molecular e engenharia genética",
+          "Organismos geneticamente modificados",
+          "Protocolos DVI e atendimento de desastres em massa I",
+          "Protocolos DVI e atendimento de desastres em massa II",
+          "Protocolos DVI e atendimento de desastres em massa III"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "toxicologia-forense",
+    "nome": "Toxicologia Forense",
+    "capa": "capas/toxicologia-forense.webp",
+    "modulos": [
+      {
+        "nome": "Toxicologia Forense",
+        "aulas": [
+          "Introdução à toxicologia",
+          "Introdução à toxicologia II",
+          "Matrizes",
+          "Etanol",
+          "Depressores do SNC",
+          "Metanol",
+          "Praguicidas",
+          "Cocaína",
+          "Maconha",
+          "Anfetaminas, LSD e inalantes",
+          "Drogas sintéticas",
+          "Médico legista, dopagem e entomotoxicologia",
+          "Médico legista, gases e metais"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "direitos-humanos",
+    "nome": "Direitos Humanos",
+    "capa": "capas/direitos-humanos.webp",
+    "modulos": [
+      {
+        "nome": "Evolução histórica dos direitos humanos",
+        "aulas": [
+          "Evolução histórica (aula 1)",
+          "Evolução histórica (aula 2)",
+          "Evolução histórica (aula 3)",
+          "Evolução histórica (aula 4)",
+          "Evolução histórica (aula 5)"
+        ]
+      },
+      {
+        "nome": "Teoria geral dos direitos humanos",
+        "aulas": [
+          "Conceitos, terminologias e noções introdutórias",
+          "Fundamentos",
+          "Fontes",
+          "Gerações ou dimensões dos direitos humanos",
+          "Princípios (aula 1)",
+          "Princípios (aula 2)",
+          "Características (aula 1)",
+          "Características (aula 2)",
+          "Classificações diversas",
+          "Resolução de questões (aula 1)",
+          "Resolução de questões (aula 2)",
+          "Resolução de questões (aula 3)"
+        ]
+      },
+      {
+        "nome": "Hermenêutica jurídica",
+        "aulas": [
+          "Hermenêutica jurídica (aula 1)",
+          "Hermenêutica jurídica (aula 2)"
+        ]
+      },
+      {
+        "nome": "Estrutura dos direitos humanos",
+        "aulas": [
+          "Estrutura normativa do sistema global (aula 1)",
+          "Estrutura normativa do sistema global (aula 2)",
+          "Estrutura normativa do sistema global (aula 3)",
+          "Estrutura normativa do sistema global (aula 4)",
+          "Estrutura normativa do sistema global (aula 5)",
+          "Estrutura normativa do sistema global (aula 6)",
+          "Estrutura normativa do sistema global (aula 7)",
+          "Estrutura normativa do sistema global (aula 8)",
+          "Estrutura normativa do sistema global (aula 9)",
+          "Estrutura normativa do sistema global (aula 10)",
+          "Estrutura normativa do sistema global (aula 11)",
+          "Estrutura normativa do sistema global (aula 12)",
+          "Estrutura normativa do sistema global (aula 13)",
+          "Estrutura normativa do sistema global (aula 14)",
+          "Questões: estrutura normativa do sistema global (1)",
+          "Questões: estrutura normativa do sistema global (2)",
+          "Questões: estrutura normativa do sistema global (3)"
+        ]
+      },
+      {
+        "nome": "Democratização dos direitos humanos",
+        "aulas": [
+          "Democratização dos direitos humanos"
+        ]
+      },
+      {
+        "nome": "Democracia, cidadania e direitos humanos",
+        "aulas": [
+          "Democracia, cidadania e direitos humanos (aula 1)",
+          "Democracia, cidadania e direitos humanos (aula 2)",
+          "Democracia, cidadania e direitos humanos (aula 3)",
+          "Democracia, cidadania e direitos humanos (aula 4)"
+        ]
+      },
+      {
+        "nome": "Constituição Federal de 1988",
+        "aulas": [
+          "CF/88 e direitos humanos (aula 1)",
+          "CF/88 e direitos humanos (aula 2)",
+          "CF/88 e direitos humanos (aula 3)",
+          "CF/88 e direitos humanos (aula 4)",
+          "CF/88 e direitos humanos (aula 5)",
+          "CF/88 e direitos humanos (aula 6)",
+          "CF/88 e direitos humanos (aula 7)",
+          "CF/88 e direitos humanos (aula 8)",
+          "CF/88 e direitos humanos (aula 9)",
+          "CF/88 e direitos humanos (aula 10)"
+        ]
+      },
+      {
+        "nome": "Convenção Americana de Direitos Humanos",
+        "aulas": [
+          "Convenção Americana sobre Direitos Humanos (aula 1)",
+          "Convenção Americana sobre Direitos Humanos (aula 2)",
+          "Convenção Americana sobre Direitos Humanos (aula 3)",
+          "Convenção Americana sobre Direitos Humanos (aula 4)",
+          "Convenção Americana sobre Direitos Humanos (aula 5)",
+          "Convenção Americana sobre Direitos Humanos (aula 6)"
+        ]
+      },
+      {
+        "nome": "Política Nacional de Direitos Humanos",
+        "aulas": [
+          "Política Nacional de Direitos Humanos (aula 1)",
+          "PNDH (aula 2)"
+        ]
+      },
+      {
+        "nome": "Grupos vulneráveis",
+        "aulas": [
+          "Grupos vulneráveis e minorias (aula 1)",
+          "Grupos vulneráveis e minorias (aula 2)",
+          "Grupos vulneráveis e minorias (aula 3)",
+          "Grupos vulneráveis e minorias (aula 4)",
+          "Grupos vulneráveis e minorias (aula 5)",
+          "Grupos vulneráveis e minorias (aula 6)"
+        ]
+      },
+      {
+        "nome": "Agenda 2030",
+        "aulas": [
+          "Agenda 2030"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "legislacao-extravagante",
+    "nome": "Legislação Extravagante",
+    "capa": "capas/legislacao-extravagante.webp",
+    "modulos": [
+      {
+        "nome": "Legislação Extravagante",
+        "aulas": [
+          "Crimes cibernéticos e perseguição (stalking, art. 147-A do CP)",
+          "Crimes do ECA e infiltração virtual de agentes",
+          "Crimes de tortura",
+          "Lei Maria da Penha: formas de violência e medidas protetivas",
+          "Crimes ambientais (Lei 9.605/98): penas, fauna e flora",
+          "Crimes hediondos (Lei 8.072/90): rol e consequências",
+          "Lei da perícia oficial e banco de perfis",
+          "Juizados Especiais Criminais (Lei 9.099/95) e despenalizadores",
+          "Execução penal (LEP) I",
+          "Execução penal (LEP) II: saídas, remição e livramento condicional",
+          "Interceptação telefônica (Lei 9.296/96) e captação ambiental",
+          "Lavagem de dinheiro (Lei 9.613/98)",
+          "Organizações criminosas (Lei 12.850/13) e meios de obtenção de prova",
+          "Lei 12.403/11: cautelares, fiança e Resolução CNJ (BNMP)",
+          "Lei 14.155/21: fraude eletrônica e invasão de dispositivo",
+          "Marco Civil da Internet (Lei 12.965/14)",
+          "Uso de algemas: Súmula Vinculante 11 e Lei 13.434"
+        ]
+      },
+      {
+        "nome": "Abuso de autoridade",
+        "aulas": [
+          "Abuso de autoridade (aula 1)",
+          "Abuso de autoridade (aula 2)",
+          "Abuso de autoridade (aula 3)",
+          "Abuso de autoridade (aula 4)",
+          "Abuso de autoridade (aula 5)",
+          "Abuso de autoridade (aula 6)",
+          "Crimes de abuso de autoridade",
+          "Questões: abuso de autoridade (1)",
+          "Questões: abuso de autoridade (2)"
+        ]
+      }
+    ]
+  }
+];

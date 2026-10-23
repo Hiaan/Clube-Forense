@@ -7,7 +7,7 @@
 // é por isso que ela precisa estar na página; mas três blocos desse tamanho
 // lado a lado viram uma parede de texto que ninguém lê, e o cartão do meio
 // fica com o dobro da altura do vizinho. Cortado, o olho vê três cartões
-// iguais e lê o começo de cada um — que é onde mora o que importa: perito de
+// iguais e lê o começo de cada um — que é onde mora o que importa: médico legista de
 // qual estado, formado onde.
 //
 // O CORTE É VISUAL, NÃO É PERDA. `line-clamp` esconde, não apaga: o texto
