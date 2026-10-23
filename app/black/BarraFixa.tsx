@@ -14,6 +14,7 @@
 
 import { useEffect, useState } from "react";
 
+import BotaoWhatsApp from "./BotaoWhatsApp";
 import Contador from "./Contador";
 import { useLote } from "./Contador";
 import { LOTES } from "./oferta";
@@ -40,32 +41,37 @@ export default function BarraFixa() {
   const mostrado = lote ?? LOTES[0];
 
   return (
-    <div
-      className={`fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0b0b0d]/95 backdrop-blur transition-transform duration-300 ${
-        visivel ? "translate-y-0" : "translate-y-full"
-      }`}
-    >
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[11px] font-bold uppercase tracking-wider text-white/40">
-            {mostrado.nome} termina em <Contador compacto />
-          </p>
-          {/* SEM PREÇO AQUI. A barra acompanha a rolagem desde o fim da capa,
+    <>
+      <BotaoWhatsApp elevado={visivel} />
+      <div
+        className={`fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0b0b0d]/95 backdrop-blur transition-transform duration-300 ${
+          visivel ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[11px] font-bold uppercase tracking-wider text-white/40">
+              {mostrado.nome} termina em <Contador compacto />
+            </p>
+            {/* SEM PREÇO AQUI. A barra acompanha a rolagem desde o fim da capa,
               então mostrar o valor nela seria entregar o preço logo no começo
               — exatamente o que a página decidiu não fazer. O que a barra
               carrega é o prazo e o caminho para a oferta. */}
-          <p className="truncate text-sm font-bold text-white">
-            Todos os editais autorizados
-            <span className="ml-1.5 font-normal text-white/45">em um acesso só</span>
-          </p>
+            <p className="truncate text-sm font-bold text-white">
+              Todos os editais autorizados
+              <span className="ml-1.5 font-normal text-white/45">
+                em um acesso só
+              </span>
+            </p>
+          </div>
+          <a
+            href="#oferta"
+            className="shrink-0 rounded-xl bg-[#ffcd07] px-5 py-3 text-sm font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110"
+          >
+            Garantir vaga
+          </a>
         </div>
-        <a
-          href="#oferta"
-          className="shrink-0 rounded-xl bg-[#ffcd07] px-5 py-3 text-sm font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110"
-        >
-          Garantir vaga
-        </a>
       </div>
-    </div>
+    </>
   );
 }
