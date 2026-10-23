@@ -34,6 +34,15 @@ export default function SecaoPlataforma() {
           Curso de carreira policial adaptado não serve: a prova de médico legista cobra
           medicina legal em profundidade. Tudo aqui foi montado nesse recorte.
         </p>
+        {/* Sem este aviso as abas passam por enfeite: quem chega pelo celular
+            vê uma fileira de rótulos e rola a página sem tocar em nenhum. */}
+        <p className="toque">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M9 11V5a2 2 0 0 1 4 0v6" />
+            <path d="M13 10.5a2 2 0 0 1 4 0V12a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-1a7 7 0 0 1-5.6-2.8L4.8 16.5a2 2 0 0 1 3.2-2.4L9 15.5" />
+          </svg>
+          Toque nas abas para explorar a plataforma
+        </p>
         <div className="abas" id="cf-pl-abas" role="tablist" aria-label="Recursos da plataforma" />
         <div id="cf-pl-painel" />
       </div>

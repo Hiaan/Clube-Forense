@@ -38,7 +38,6 @@ import Depoimentos from "./Depoimentos";
 import DrBonet from "./DrBonet";
 import HeroComposicao from "./HeroComposicao";
 import SecaoPlataforma from "./plataforma/SecaoPlataforma";
-import ProfessoresParceiros from "./ProfessoresParceiros";
 import PrecoAtual from "./PrecoAtual";
 import Ticker from "./Ticker";
 import {
@@ -417,10 +416,6 @@ export default async function BlackPage() {
               </div>
             ))}
           </div>
-          <p className="mt-10 text-center text-sm font-semibold text-gray-500">
-            + os professores parceiros das disciplinas que completam o edital
-          </p>
-          <ProfessoresParceiros />
         </Secao>
       </div>
 
