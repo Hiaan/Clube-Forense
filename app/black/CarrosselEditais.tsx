@@ -92,7 +92,7 @@ export interface EditalDaFaixa {
  * continua aqui: a lista é do Clube, e quem acrescentar um estado amanhã não
  * pode quebrar a faixa por esquecer de mandar a imagem.
  */
-const COM_DISTINTIVO = new Set(["AC", "DF", "ES", "MA", "MG", "PA", "RJ", "TO"]);
+const COM_DISTINTIVO = new Set(["AC", "DF", "ES", "MA", "MG", "MT", "PA", "RJ", "TO"]);
 
 /**
  * Um edital, em forma de lower third — a tarja de televisão que apresenta
