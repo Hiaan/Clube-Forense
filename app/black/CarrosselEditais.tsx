@@ -51,7 +51,15 @@ function linhaDoConcurso(estado: EstadoStatus): string {
   if (banca && prova) return `Banca ${banca} · Prova em ${prova}`;
   if (inscricoes) return `Inscrições até ${inscricoes}`;
   if (banca) return `${etapa} · Banca ${banca}`;
-  if (c?.previsao?.trim()) return `${etapa} · ${c.previsao.trim()}`;
+  if (c?.previsao?.trim()) {
+    // A previsão costuma ser escrita no painel começando pela própria etapa
+    // ("Comissão formada; banca em definição"), e colada depois do rótulo ela
+    // virava "Comissão formada · Comissão formada; banca…". Tira a repetição.
+    const resto = c.previsao
+      .trim()
+      .replace(new RegExp(`^${etapa.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*[;:,.·—–-]?\\s*`, "i"), "");
+    return resto ? `${etapa} · ${resto}` : etapa;
+  }
   return etapa;
 }
 
@@ -62,6 +70,8 @@ export interface EditalDaFaixa {
   sigla: string;
   /** Nome por extenso — vai para o texto alternativo do distintivo. */
   orgao: string;
+  /** Banca confirmada pelo Clube, para quando a ficha ainda não tem. */
+  banca?: string;
   /**
    * O que o monitor sabe deste estado. `null` quando ele ainda o classifica
    * abaixo de concurso andando — e aí o cartão não mostra etapa nenhuma, em
@@ -97,8 +107,21 @@ const COM_DISTINTIVO = new Set(["AC", "DF", "ES", "MA", "MG", "PA", "RJ", "TO"])
  * tarja, e não de caixa.
  */
 function Cartao({ edital }: { edital: EditalDaFaixa }) {
-  const { uf, sigla, orgao, estado } = edital;
-  const cor = estado ? NIVEL_COR[estado.nivel] : "#ffcd07";
+  const { uf, sigla, orgao, estado, banca } = edital;
+
+  // A banca que o Clube já confirmou entra quando o monitor ainda não sabe
+  // dela — e só nesse caso: ficha com banca no painel volta a mandar sozinha.
+  const usarBancaConfirmada = Boolean(banca && !estado?.curadoria?.banca?.trim());
+  const cor = usarBancaConfirmada
+    ? NIVEL_COR.banca
+    : estado
+      ? NIVEL_COR[estado.nivel]
+      : "#ffcd07";
+  const linha = usarBancaConfirmada
+    ? `${NIVEL_LABEL.banca} · Banca ${banca}`
+    : estado
+      ? linhaDoConcurso(estado)
+      : "Preparatório incluso";
   // O nome vem da tabela de estados, não do monitor: o cartão precisa dizer
   // "Minas Gerais" mesmo quando o monitor ainda não tem etapa para ele.
   const nome = ESTADO_POR_UF[uf]?.nome ?? uf;
@@ -118,7 +141,7 @@ function Cartao({ edital }: { edital: EditalDaFaixa }) {
             {nome}
           </p>
           <p className="mt-1 truncate text-[12px] font-semibold" style={{ color: cor }}>
-            {estado ? linhaDoConcurso(estado) : "Preparatório incluso"}
+            {linha}
           </p>
         </div>
       </div>
@@ -130,9 +153,11 @@ function Cartao({ edital }: { edital: EditalDaFaixa }) {
           width={256}
           height={256}
           sizes="124px"
-          // `drop-shadow` e não `shadow`: a sombra segue o contorno do
-          // distintivo, e não o quadrado transparente em volta dele.
-          className="absolute left-0 top-1/2 z-10 h-[124px] w-[124px] -translate-y-1/2 object-contain drop-shadow-[0_10px_14px_rgba(0,0,0,0.35)]"
+          // SEM SOMBRA, de propósito. Havia uma, para descolar o distintivo
+          // do fundo; sobre o cinza-claro da seção ela virava um borrão à
+          // esquerda e embaixo de cada distintivo — o "traço" que aparecia no
+          // site. O distintivo já tem relevo e brilho próprios; não precisa.
+          className="absolute left-0 top-1/2 z-10 h-[124px] w-[124px] -translate-y-1/2 object-contain"
         />
       ) : (
         <span

@@ -92,14 +92,25 @@ export const PRECO_POR_EDITAL = 4997;
  * Santo, PO para a Perícia Oficial do Maranhão. O brasão de cada um está em
  * public/black/orgaos/<UF>.webp.
  */
-export const EDITAIS_DA_BLACK: { uf: string; sigla: string; orgao: string }[] = [
+export const EDITAIS_DA_BLACK: {
+  uf: string;
+  sigla: string;
+  orgao: string;
+  /**
+   * Banca já confirmada pelo Clube, para quando a novidade chegou antes de a
+   * ficha do estado ser atualizada no painel. Só vale enquanto o monitor não
+   * souber a banca: assim que a ficha tiver banca (e depois data de prova), a
+   * linha do monitor volta a mandar e este campo vira sobra inofensiva.
+   */
+  banca?: string;
+}[] = [
   { uf: "MA", sigla: "PO-MA", orgao: "Perícia Oficial do Maranhão" },
   { uf: "RJ", sigla: "PCERJ", orgao: "Polícia Civil do Rio de Janeiro" },
   { uf: "DF", sigla: "PCDF", orgao: "Polícia Civil do Distrito Federal" },
   { uf: "ES", sigla: "PCI-ES", orgao: "Polícia Científica do Espírito Santo" },
   { uf: "PA", sigla: "PC-PA", orgao: "Polícia Civil do Pará" },
   { uf: "TO", sigla: "PC-TO", orgao: "Polícia Civil do Tocantins" },
-  { uf: "AC", sigla: "PC-AC", orgao: "Polícia Civil do Acre" },
+  { uf: "AC", sigla: "PC-AC", orgao: "Polícia Civil do Acre", banca: "Idecan" },
   { uf: "MG", sigla: "PC-MG", orgao: "Polícia Civil de Minas Gerais" },
 ];
 
