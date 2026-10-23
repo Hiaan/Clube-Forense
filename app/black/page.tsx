@@ -2,11 +2,10 @@
 //
 // A IDEIA QUE SUSTENTA A PÁGINA INTEIRA: a oferta não é "um curso com
 // desconto", é "todos os concursos de uma vez". Por isso a seção mais
-// importante não é a de preço — é a lista dos editais inclusos, puxada AO VIVO
-// do nosso monitor. Ela cresce sozinha a cada concurso autorizado, e é a prova
-// visível de que a promessa ("todo edital que sair nos próximos 2 anos") já
-// está sendo cumprida antes mesmo da compra. Nenhum concorrente consegue
-// copiar essa seção sem ter o monitor por trás.
+// importante não é a de preço — é a lista dos editais inclusos. Quem entra na
+// lista é decisão do Clube (EDITAIS_DA_BLACK, em oferta.ts); a situação de
+// cada um — banca, data de prova, etapa — vem AO VIVO do nosso monitor, e é
+// isso que nenhum concorrente consegue copiar sem ter o monitor por trás.
 //
 // O RITMO CLARO/ESCURO É DELIBERADO, E FOI CORREÇÃO DE ROTA. A primeira versão
 // era preta de ponta a ponta: ficou sóbria demais e longe da referência que o
@@ -44,6 +43,7 @@ import PrecoAtual from "./PrecoAtual";
 import Ticker from "./Ticker";
 import {
   ANOS_DE_ACESSO,
+  EDITAIS_DA_BLACK,
   PLATAFORMA,
   PRECO_POR_EDITAL,
   QUESTOES,
@@ -144,13 +144,19 @@ function Titulo({
 export default async function BlackPage() {
   const relatorio = await coletar();
 
-  // Estado travado na curadoria fica de fora, e esse filtro vale dinheiro: o
-  // travamento existe exatamente onde a manchete engana — concurso que avança
-  // sem vaga de médico-legista. Listá-lo aqui seria vender um edital que não
-  // serve ao nosso aluno.
-  const inclusos = relatorio.estados
-    .filter((e) => ETAPAS_INCLUSAS.includes(e.nivel) && !e.curadoria?.travado)
-    .sort((a, b) => b.score - a.score);
+  // QUEM ENTRA É A OFERTA QUE DIZ; EM QUE PÉ ESTÁ, É O MONITOR. A lista vem
+  // de EDITAIS_DA_BLACK (ver o porquê em oferta.ts — foi assim que São Paulo
+  // apareceu aqui sem ter comissão). Do monitor vem só a linha de situação de
+  // cada cartão, e só quando a etapa dele já é de concurso andando: um estado
+  // que o robô ainda classifica abaixo disso não ganha uma linha que contradiz
+  // o fato de ele estar sendo vendido.
+  const inclusos = EDITAIS_DA_BLACK.map((e) => {
+    const estado = relatorio.estados.find((x) => x.uf === e.uf) ?? null;
+    return {
+      ...e,
+      estado: estado && ETAPAS_INCLUSAS.includes(estado.nivel) ? estado : null,
+    };
+  });
 
   const totalAprovados = Object.values(APROVADOS).reduce((s, a) => s + a.total, 0);
   const estadosComAprovado = Object.keys(APROVADOS).length;
@@ -277,7 +283,7 @@ export default async function BlackPage() {
         </Secao>
 
         <div className="pb-6">
-          <CarrosselEditais estados={inclusos} />
+          <CarrosselEditais editais={inclusos} />
         </div>
 
         <Secao className="pb-16 text-center">
@@ -629,7 +635,7 @@ export default async function BlackPage() {
             {[
               {
                 p: "Quais editais exatamente estão inclusos?",
-                r: `Todos os concursos de médico-legista em andamento hoje — os ${inclusos.length} listados acima, que vêm do nosso monitor — e todos os que forem autorizados nos próximos ${ANOS_DE_ACESSO} anos. Quando um estado novo entra, o preparatório dele aparece na sua área de aluno sem você fazer nada.`,
+                r: `Os ${inclusos.length} concursos listados acima, e todos os que forem autorizados nos próximos ${ANOS_DE_ACESSO} anos. Quando um estado novo entra, o preparatório dele aparece na sua área de aluno sem você fazer nada.`,
               },
               {
                 p: "E se nenhum edital do meu estado sair nesse período?",

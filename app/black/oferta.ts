@@ -71,6 +71,38 @@ export const LOTES: Lote[] = [
  */
 export const PRECO_POR_EDITAL = 4997;
 
+/**
+ * Os editais que a Black vende, um por um, com o nome que o Clube usa.
+ *
+ * LISTA FIXA, E NÃO MAIS A DO MONITOR — e a troca veio de um erro concreto. A
+ * faixa era montada ao vivo a partir do monitor: todo estado numa etapa
+ * avançada e não travado entrava. Foi assim que São Paulo apareceu na página,
+ * anunciado como "comissão formada", sem ter comissão nenhuma, enquanto o
+ * Tocantins, que está na oferta, não aparecia. O monitor serve para dizer em
+ * que pé cada concurso está; o que a página de vendas PROMETE é decisão do
+ * Clube, e promessa não pode mudar sozinha quando um robô reclassifica um
+ * estado de madrugada.
+ *
+ * O monitor continua dando a linha de situação de cada cartão (banca, data de
+ * prova, etapa) — informação que muda e que ele acompanha melhor do que
+ * qualquer pessoa. A lista de quem entra é esta aqui.
+ *
+ * `sigla` é o nome curto do órgão que realiza o concurso, como o Clube
+ * apresenta: PC para Polícia Civil, PCI para a Polícia Científica do Espírito
+ * Santo, PO para a Perícia Oficial do Maranhão. O brasão de cada um está em
+ * public/black/orgaos/<UF>.webp.
+ */
+export const EDITAIS_DA_BLACK: { uf: string; sigla: string; orgao: string }[] = [
+  { uf: "MA", sigla: "PO-MA", orgao: "Perícia Oficial do Maranhão" },
+  { uf: "RJ", sigla: "PCERJ", orgao: "Polícia Civil do Rio de Janeiro" },
+  { uf: "DF", sigla: "PCDF", orgao: "Polícia Civil do Distrito Federal" },
+  { uf: "ES", sigla: "PCI-ES", orgao: "Polícia Científica do Espírito Santo" },
+  { uf: "PA", sigla: "PC-PA", orgao: "Polícia Civil do Pará" },
+  { uf: "TO", sigla: "PC-TO", orgao: "Polícia Civil do Tocantins" },
+  { uf: "AC", sigla: "PC-AC", orgao: "Polícia Civil do Acre" },
+  { uf: "MG", sigla: "PC-MG", orgao: "Polícia Civil de Minas Gerais" },
+];
+
 /** Por quantos anos a compra garante os editais que ainda vão sair. */
 export const ANOS_DE_ACESSO = 2;
 

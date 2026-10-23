@@ -24,7 +24,7 @@
 
 import Image from "next/image";
 
-import { orgaoDaUf } from "../blog/lib/taxonomia";
+import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { NIVEL_COR, NIVEL_LABEL, type EstadoStatus } from "../monitor/lib/tipos";
 
 /** "2027-01-10" → "10 de janeiro de 2027". Data por extenso lê-se como notícia. */
@@ -55,56 +55,78 @@ function linhaDoConcurso(estado: EstadoStatus): string {
   return etapa;
 }
 
-/**
- * Os brasões que o Clube já usa no carrossel do preparatório.
- *
- * Só existem para seis estados, e é por isso que o cartão sabe viver sem: o
- * monitor cobre os 27, e um estado autorizado amanhã não pode ficar de fora da
- * faixa por falta de arte. Sem brasão, entra a pastilha da UF na cor da etapa —
- * que é o mesmo código visual do mapa.
- */
-const COM_BRASAO = new Set(["DF", "TO", "PE", "PA", "RJ", "MA"]);
+/** Um edital da oferta, com a situação que o monitor tiver dele. */
+export interface EditalDaFaixa {
+  uf: string;
+  /** Nome curto do órgão, como o Clube apresenta (PC-PA, PCI-ES, PO-MA). */
+  sigla: string;
+  /** Nome por extenso — vai para o texto alternativo do distintivo. */
+  orgao: string;
+  /**
+   * O que o monitor sabe deste estado. `null` quando ele ainda o classifica
+   * abaixo de concurso andando — e aí o cartão não mostra etapa nenhuma, em
+   * vez de mostrar uma que contradiz a oferta.
+   */
+  estado: EstadoStatus | null;
+}
 
-function Cartao({ estado }: { estado: EstadoStatus }) {
-  const cor = NIVEL_COR[estado.nivel];
-  const sigla = orgaoDaUf(estado.uf)?.curto ?? estado.uf;
+/**
+ * Os distintivos dos órgãos, todos com arte do próprio Clube.
+ *
+ * ELES SUBSTITUÍRAM OS BRASÕES ANTIGOS, que eram de outra campanha e de outro
+ * desenho. Cada arquivo é o distintivo do órgão que realiza o concurso, num
+ * quadrado com fundo preto — por isso a moldura do cartão é preta e do mesmo
+ * tamanho: o fundo da arte vira o fundo da peça, e o distintivo flutua.
+ *
+ * Estado sem arquivo cai na pastilha com a UF, e é por isso que a pastilha
+ * continua aqui: a lista é do Clube, e quem acrescentar um estado amanhã não
+ * pode quebrar a faixa por esquecer de mandar a imagem.
+ */
+const COM_DISTINTIVO = new Set(["AC", "DF", "ES", "MA", "MG", "PA", "RJ", "TO"]);
+
+function Cartao({ edital }: { edital: EditalDaFaixa }) {
+  const { uf, sigla, orgao, estado } = edital;
+  const cor = estado ? NIVEL_COR[estado.nivel] : "#b38f00";
+  // O nome vem da tabela de estados, não do monitor: o cartão precisa dizer
+  // "Minas Gerais" mesmo quando o monitor ainda não tem etapa para ele.
+  const nome = ESTADO_POR_UF[uf]?.nome ?? uf;
 
   return (
     <article className="flex w-[300px] shrink-0 items-center gap-4 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_30px_-14px_rgba(0,0,0,0.15)]">
-      {COM_BRASAO.has(estado.uf) ? (
+      {COM_DISTINTIVO.has(uf) ? (
         <Image
-          src={`/black/orgaos/${estado.uf}.webp`}
-          alt=""
-          width={360}
-          height={360}
-          sizes="56px"
-          className="h-14 w-14 shrink-0 rounded-xl object-cover"
+          src={`/black/orgaos/${uf}.webp`}
+          alt={`Distintivo — ${orgao}`}
+          width={256}
+          height={256}
+          sizes="72px"
+          className="h-[72px] w-[72px] shrink-0 rounded-xl bg-black object-contain"
         />
       ) : (
         <span
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-xl text-sm font-black text-white"
+          className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl text-sm font-black text-white"
           style={{ backgroundColor: cor }}
         >
-          {estado.uf}
+          {uf}
         </span>
       )}
       <div className="min-w-0">
         <p className="truncate text-base font-black leading-tight text-gray-900">{sigla}</p>
         <p className="truncate text-[11px] font-bold uppercase tracking-wider text-gray-400">
-          {estado.nome}
+          {nome}
         </p>
         <p className="mt-1.5 truncate text-[13px] font-semibold" style={{ color: cor }}>
-          {linhaDoConcurso(estado)}
+          {estado ? linhaDoConcurso(estado) : "Preparatório incluso"}
         </p>
       </div>
     </article>
   );
 }
 
-export default function CarrosselEditais({ estados }: { estados: EstadoStatus[] }) {
+export default function CarrosselEditais({ editais }: { editais: EditalDaFaixa[] }) {
   // Com poucos estados a faixa ficaria curta demais para parecer contínua; a
   // repetição extra resolve sem mudar o que está escrito em cada cartão.
-  const fila = estados.length >= 6 ? estados : [...estados, ...estados];
+  const fila = editais.length >= 6 ? editais : [...editais, ...editais];
 
   return (
     <div
@@ -127,7 +149,7 @@ export default function CarrosselEditais({ estados }: { estados: EstadoStatus[] 
         {[0, 1].map((copia) => (
           <div key={copia} className="flex shrink-0 gap-4" aria-hidden={copia === 1}>
             {fila.map((e, i) => (
-              <Cartao key={`${copia}-${e.uf}-${i}`} estado={e} />
+              <Cartao key={`${copia}-${e.uf}-${i}`} edital={e} />
             ))}
           </div>
         ))}
