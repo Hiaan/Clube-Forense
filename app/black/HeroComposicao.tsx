@@ -20,8 +20,8 @@
 import Image from "next/image";
 
 const PROFESSORES = [
-  { arquivo: "erika.png", nome: "Dra. Erika Anjos" },
   { arquivo: "joao-paulo.png", nome: "Dr. João Paulo" },
+  { arquivo: "erika.png", nome: "Dra. Erika Anjos" },
   { arquivo: "miguel.png", nome: "Dr. Miguel Souza" },
 ];
 

@@ -71,12 +71,12 @@ export interface EditalDaFaixa {
 }
 
 /**
- * Os distintivos dos órgãos, todos com arte do próprio Clube.
+ * Os distintivos dos órgãos, com arte do próprio Clube.
  *
- * ELES SUBSTITUÍRAM OS BRASÕES ANTIGOS, que eram de outra campanha e de outro
- * desenho. Cada arquivo é o distintivo do órgão que realiza o concurso, num
- * quadrado com fundo preto — por isso a moldura do cartão é preta e do mesmo
- * tamanho: o fundo da arte vira o fundo da peça, e o distintivo flutua.
+ * Os arquivos vieram em quadrados de fundo preto e foram recortados: o preto
+ * ligado à borda da imagem virou transparência, e o preto de dentro do
+ * distintivo — gravação, faixa escura, sombra de relevo — ficou opaco. É o que
+ * deixa o distintivo inteiro, sem moldura, por cima da faixa.
  *
  * Estado sem arquivo cai na pastilha com a UF, e é por isso que a pastilha
  * continua aqui: a lista é do Clube, e quem acrescentar um estado amanhã não
@@ -84,41 +84,64 @@ export interface EditalDaFaixa {
  */
 const COM_DISTINTIVO = new Set(["AC", "DF", "ES", "MA", "MG", "PA", "RJ", "TO"]);
 
+/**
+ * Um edital, em forma de lower third — a tarja de televisão que apresenta
+ * quem está falando.
+ *
+ * A PRIMEIRA VERSÃO ERA UM CARTÃO BRANCO com o distintivo num quadradinho, e
+ * o distintivo, que é a peça mais forte do conjunto, virava ícone. Agora ele é
+ * o protagonista: grande, à esquerda, saindo para cima e para baixo da tarja
+ * escura, que nasce de trás dele e corre para a direita com sigla, estado e
+ * situação — do jeito que um telejornal apresenta um convidado. A ponta
+ * cortada em diagonal e o filete amarelo no topo são o que dá o desenho de
+ * tarja, e não de caixa.
+ */
 function Cartao({ edital }: { edital: EditalDaFaixa }) {
   const { uf, sigla, orgao, estado } = edital;
-  const cor = estado ? NIVEL_COR[estado.nivel] : "#b38f00";
+  const cor = estado ? NIVEL_COR[estado.nivel] : "#ffcd07";
   // O nome vem da tabela de estados, não do monitor: o cartão precisa dizer
   // "Minas Gerais" mesmo quando o monitor ainda não tem etapa para ele.
   const nome = ESTADO_POR_UF[uf]?.nome ?? uf;
 
   return (
-    <article className="flex w-[300px] shrink-0 items-center gap-4 overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_30px_-14px_rgba(0,0,0,0.15)]">
+    <article className="relative h-[132px] w-[360px] shrink-0">
+      {/* A tarja. Começa no meio do distintivo, para ele parecer estar na
+          frente dela e não ao lado. */}
+      <div
+        className="absolute inset-y-[26px] left-[52px] right-0 overflow-hidden bg-[#0b0b0d] shadow-[0_14px_30px_-12px_rgba(0,0,0,0.45)]"
+        style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%)" }}
+      >
+        <span className="absolute inset-x-0 top-0 h-[3px] bg-[#ffcd07]" />
+        <div className="flex h-full flex-col justify-center pl-[80px] pr-8">
+          <p className="truncate text-lg font-black leading-tight text-white">{sigla}</p>
+          <p className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">
+            {nome}
+          </p>
+          <p className="mt-1 truncate text-[12px] font-semibold" style={{ color: cor }}>
+            {estado ? linhaDoConcurso(estado) : "Preparatório incluso"}
+          </p>
+        </div>
+      </div>
+
       {COM_DISTINTIVO.has(uf) ? (
         <Image
           src={`/black/orgaos/${uf}.webp`}
           alt={`Distintivo — ${orgao}`}
           width={256}
           height={256}
-          sizes="72px"
-          className="h-[72px] w-[72px] shrink-0 rounded-xl bg-black object-contain"
+          sizes="124px"
+          // `drop-shadow` e não `shadow`: a sombra segue o contorno do
+          // distintivo, e não o quadrado transparente em volta dele.
+          className="absolute left-0 top-1/2 z-10 h-[124px] w-[124px] -translate-y-1/2 object-contain drop-shadow-[0_10px_14px_rgba(0,0,0,0.35)]"
         />
       ) : (
         <span
-          className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-xl text-sm font-black text-white"
+          className="absolute left-[14px] top-1/2 z-10 grid h-[96px] w-[96px] -translate-y-1/2 place-items-center rounded-2xl text-xl font-black text-gray-900"
           style={{ backgroundColor: cor }}
         >
           {uf}
         </span>
       )}
-      <div className="min-w-0">
-        <p className="truncate text-base font-black leading-tight text-gray-900">{sigla}</p>
-        <p className="truncate text-[11px] font-bold uppercase tracking-wider text-gray-400">
-          {nome}
-        </p>
-        <p className="mt-1.5 truncate text-[13px] font-semibold" style={{ color: cor }}>
-          {estado ? linhaDoConcurso(estado) : "Preparatório incluso"}
-        </p>
-      </div>
     </article>
   );
 }
@@ -141,13 +164,13 @@ export default function CarrosselEditais({ editais }: { editais: EditalDaFaixa[]
       }}
     >
       <div
-        className="carousel-track flex w-max gap-4 px-4 py-2 motion-reduce:animate-none"
+        className="carousel-track flex w-max gap-6 px-4 py-2 motion-reduce:animate-none"
         // Mesma razão da faixa do topo: o ritmo padrão da classe corre demais
         // para quem está lendo o nome de um estado de cada vez.
         style={{ animationDuration: "80s" }}
       >
         {[0, 1].map((copia) => (
-          <div key={copia} className="flex shrink-0 gap-4" aria-hidden={copia === 1}>
+          <div key={copia} className="flex shrink-0 gap-6" aria-hidden={copia === 1}>
             {fila.map((e, i) => (
               <Cartao key={`${copia}-${e.uf}-${i}`} edital={e} />
             ))}

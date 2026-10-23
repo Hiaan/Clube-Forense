@@ -312,15 +312,15 @@ export default async function BlackPage() {
               },
               {
                 t: "Aulão pré-prova",
-                d: "Na reta final de cada concurso, um aulão online com os professores no que mais cai e no que costuma derrubar candidato.",
+                d: "Na reta final de cada concurso, um aulão online com os professores, focando no que mais cai e no que costuma derrubar o candidato.",
               },
               {
                 t: "Almanaque Forense",
-                d: "Plataforma de questões completa: mais de 23 mil questões, com comentários do professor, vídeos explicativos, simulados personalizáveis e muito mais.",
+                d: "Plataforma de questões completa: mais de 25 mil questões, com comentários do professor, vídeos explicativos, simulados personalizáveis e muito mais.",
               },
               {
                 t: "Dr. Bonet, 24 horas",
-                d: "A nossa IA treinada nas referências da área responde sua dúvida aí mesmo — inclusive às três da manhã, quando o professor está dormindo.",
+                d: "Nossa IA treinada com as principais bibliografias de medicina legal. Responde sua dúvida aí mesmo, inclusive às 3 da manhã, quando o professor está dormindo.",
               },
               {
                 t: "Flashcards, mapas e mini-jogos",
@@ -328,7 +328,7 @@ export default async function BlackPage() {
               },
               {
                 t: "eBooks de todas as matérias",
-                d: "Escritos pelos nossos professores a partir das principais bibliografias de cada matéria, já no recorte que a prova de perícia cobra — você estuda pelo que cai, não pelo livro inteiro.",
+                d: "Escritos pelos nossos professores a partir das principais bibliografias de cada matéria, já no recorte que a prova de médico-legista cobra — você estuda pelo que cai, não pelo livro inteiro.",
               },
               {
                 t: "Grupo com professores de med. legal e monitor de direito",
@@ -558,13 +558,13 @@ export default async function BlackPage() {
                 "Material pré-edital e pós-edital de todos os concursos autorizados",
                 "Atualização gratuita quando o edital sai",
                 "Grupo de alunos e professores",
-                "Banco de questões exclusivo, com mais de 23 mil questões",
+                "Banco de questões exclusivo, com mais de 25 mil questões",
                 "Vídeo do professor resolvendo as questões",
                 "Nove eBooks de medicina legal",
                 "Resumos ilustrados e mapas mentais",
                 "Flashcards para revisão ativa",
                 "Mini-jogos para fixar conceito",
-                "Dr. Bonet, a nossa IA treinada nas referências da área",
+                "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal",
                 "Contato direto com o professor para tirar dúvida",
                 "Aulão pré-prova e suporte pós-prova",
               ].map((t) => (

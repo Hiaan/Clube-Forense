@@ -44,7 +44,7 @@ const RECURSOS: Recurso[] = [
   {
     chave: "questoes",
     nome: "Questões",
-    titulo: "23 mil questões, com o professor explicando",
+    titulo: "Mais de 25 mil questões, com o professor explicando",
     texto:
       "O Almanaque Forense reúne as questões das bancas que cobram o cargo, com comentário escrito e vídeo do professor resolvendo as que derrubam mais gente. Errar com explicação do lado é o que transforma erro em ponto.",
     midia: "questoes.mp4",
@@ -78,7 +78,7 @@ const RECURSOS: Recurso[] = [
     nome: "eBooks",
     titulo: "eBooks de todas as matérias",
     texto:
-      "Escritos pelos nossos professores a partir das principais bibliografias de cada matéria, já no recorte que a prova de perícia cobra. Você estuda pelo que cai, e não pelo livro inteiro.",
+      "Escritos pelos nossos professores a partir das principais bibliografias de cada matéria, já no recorte que a prova de médico-legista cobra. Você estuda pelo que cai, e não pelo livro inteiro.",
     midia: "ebooks.mp4",
   },
   {
