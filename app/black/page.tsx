@@ -546,6 +546,7 @@ export default async function BlackPage() {
                 "Gamificação através de jogos para fixar o conceito",
                 "Acesso ao WhatsApp pessoal dos professores para acompanhamento e dúvidas",
                 "Plataforma de questões completa, com mais de 25 mil questões",
+                "Todas as provas anteriores para médico-legista disponíveis na plataforma como simulado",
                 "eBooks e apostilas em PDF de todas as matérias",
                 "Flashcards feitos por médicos legistas, com sistema de revisão espaçada",
                 "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal, respondendo 24 horas",
