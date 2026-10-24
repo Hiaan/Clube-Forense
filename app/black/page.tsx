@@ -539,18 +539,19 @@ export default async function BlackPage() {
             </p>
             <ul className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
               {[
-                "Material pré-edital e pós-edital de todos os concursos autorizados",
-                "Atualização gratuita quando o edital sai",
+                "Material pré-edital e atualização pós-edital de todos os concursos autorizados",
+                "Suporte exclusivo para acompanhamento do aluno",
+                "Resolução de questões comentadas em vídeo",
+                "Mapas mentais ilustrados dos assuntos de medicina legal e direito",
+                "Gamificação através de jogos para fixar o conceito",
+                "Acesso ao WhatsApp pessoal dos professores para acompanhamento e dúvidas",
+                "Plataforma de questões completa, com mais de 25 mil questões",
+                "eBooks e apostilas em PDF de todas as matérias",
+                "Flashcards feitos por médicos legistas, com sistema de revisão espaçada",
+                "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal, respondendo 24 horas",
+                "Aulão pré-prova com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
+                "Suporte após a prova, com elaboração de recursos e acompanhamento durante as fases",
                 "Grupo de alunos e professores",
-                "Banco de questões exclusivo, com mais de 25 mil questões",
-                "Vídeo do professor resolvendo as questões",
-                "Nove eBooks de medicina legal",
-                "Resumos ilustrados e mapas mentais",
-                "Flashcards para revisão ativa",
-                "Mini-jogos para fixar conceito",
-                "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal",
-                "Contato direto com o professor para tirar dúvida",
-                "Aulão pré-prova e suporte pós-prova",
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
