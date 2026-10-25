@@ -537,7 +537,12 @@ export default async function BlackPage() {
             <p className="text-center text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
               tudo que entra
             </p>
-            <ul className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {/* CADA ITEM NUM LADRILHO. Soltos, itens de uma, duas e três linhas
+                lado a lado deixavam as duas colunas desencontradas, com o
+                visto de cada lado em alturas diferentes — parecia torto. Em
+                ladrilhos, a grade estica os dois da mesma linha para a mesma
+                altura e o texto fica centrado neles. */}
+            <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
               {[
                 "Material pré-edital e atualização pós-edital de todos os concursos autorizados",
                 "Suporte exclusivo para acompanhamento do aluno",
@@ -552,13 +557,16 @@ export default async function BlackPage() {
                 "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal, respondendo 24 horas",
                 "Aulão pré-prova com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
                 "Suporte após a prova, com elaboração de recursos e acompanhamento durante as fases",
-                "Grupo de alunos e professores",
+                "Grupo com alunos, professores e monitor de direito para discussão de questões e estudo de caso",
               ].map((t) => (
-                <li key={t} className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
+                <li
+                  key={t}
+                  className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3"
+                >
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
                     ✓
                   </span>
-                  <span className="text-sm leading-relaxed text-white/75">{t}</span>
+                  <span className="text-sm leading-snug text-white/80">{t}</span>
                 </li>
               ))}
             </ul>
