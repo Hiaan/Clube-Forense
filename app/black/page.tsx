@@ -132,12 +132,24 @@ export default async function BlackPage() {
   const estadosComAprovado = Object.keys(APROVADOS).length;
 
   // Cada aprovado divulgado, com o estado dele — para o mural de rostos.
+  //
+  // A COLOCAÇÃO DE CADA UM. Quando o estado lista uma colocação por nome
+  // (Pernambuco: 1º, 3º e 5º para os três nomes, na ordem), cada pessoa leva a
+  // sua. Quando é um destaque só, ele vale para o grupo inteiro (PF: "3 alunos
+  // no Top 5"). Fora disso — Santa Catarina, com três colocações para onze
+  // nomes — não há como saber quem foi o quê, e o cartão mostra só o estado:
+  // repetir "1º Lugar" em todos seria dizer algo que não é verdade.
   const mural = Object.entries(APROVADOS).flatMap(([uf, a]) =>
-    a.nomes.map((nome) => ({
+    a.nomes.map((nome, i) => ({
       nome,
       uf,
       onde: a.orgao ?? ESTADO_POR_UF[uf]?.nome ?? uf,
-      destaque: a.destaques[0] ?? null,
+      destaque:
+        a.destaques.length === a.nomes.length
+          ? a.destaques[i]
+          : a.destaques.length === 1
+            ? a.destaques[0]
+            : null,
     })),
   );
 
@@ -456,7 +468,7 @@ export default async function BlackPage() {
           </p>
 
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {mural.slice(0, 12).map((a) => (
+            {mural.map((a) => (
               <div
                 key={`${a.uf}-${a.nome}`}
                 className="card-white p-5 text-center"
@@ -640,7 +652,7 @@ export default async function BlackPage() {
               },
               {
                 p: "Por quanto tempo eu tenho acesso?",
-                r: `Os editais que saírem nos próximos ${ANOS_DE_ACESSO} anos entram para você, e o acesso ao conteúdo de cada concurso acompanha o ciclo dele — do pré-edital à prova.`,
+                r: `Os editais que saírem nos próximos ${ANOS_DE_ACESSO} anos entram para você, e o acesso ao conteúdo de cada concurso acompanha o ciclo dele — do pré-edital ao edital de forma vitalícia.`,
               },
               {
                 p: "Funciona no celular?",
@@ -687,9 +699,9 @@ export default async function BlackPage() {
             Seja o próximo primeiro colocado
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-gray-800">
-            {inclusos.length} concursos de pé agora, {ANOS_DE_ACESSO} anos de
-            editais inclusos e os professores que mais aprovam médico-legista no
-            Brasil.
+            {inclusos.length} concursos autorizados até agora, você terá acesso
+            vitalício ao conteúdo pré e pós-edital de todos eles e ainda qualquer
+            outro edital que sair até 2028.
           </p>
           <a
             href="#oferta"
