@@ -63,10 +63,8 @@ export default function CaixaDePreco({
   return (
     <div
       id={id}
-      className="relative overflow-hidden rounded-[28px] border border-[#ffcd07]/40 bg-gradient-to-b from-[#17171c] via-[#101014] to-[#0b0b0d] shadow-[0_40px_120px_-30px_rgba(255,205,7,0.35)]"
+      className="relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-b from-[#17171c] via-[#101014] to-[#0b0b0d] shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9)]"
     >
-      <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-full bg-[#ffcd07]/15 blur-3xl" />
-
       <div className="relative px-6 pb-8 pt-8 text-center sm:px-10">
         <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#ffcd07]">
           oferta única
@@ -80,10 +78,10 @@ export default function CaixaDePreco({
         </p>
 
         <Image
-          src="/black/recursos.webp"
+          src="/black/recursos-v2.webp"
           alt="Aulas, questões, cronograma, mapas mentais, eBooks, flashcards, mini-jogos, edital verticalizado e painel pericial"
           width={1200}
-          height={405}
+          height={397}
           sizes="(max-width: 640px) 90vw, 520px"
           className="mx-auto mt-7 h-auto w-full max-w-[520px] opacity-90"
         />
@@ -144,7 +142,7 @@ export default function CaixaDePreco({
             Por apenas {mostrado.parcelas}x de
           </p>
           <p
-            className={`mt-1 text-6xl font-black tracking-tight text-[#ffcd07] drop-shadow-[0_0_30px_rgba(255,205,7,0.35)] sm:text-7xl ${entra}`}
+            className={`mt-1 text-6xl font-black tracking-tight text-[#ffcd07] sm:text-7xl ${entra}`}
             style={atraso(450)}
           >
             {reaisComCentavos(mostrado.valorParcela)}
@@ -163,7 +161,7 @@ export default function CaixaDePreco({
 
         <a
           href={mostrado.checkout}
-          className={`mt-8 block w-full rounded-2xl bg-[#ffcd07] px-6 py-5 text-center text-base font-black uppercase tracking-wide text-gray-900 shadow-[0_12px_40px_-10px_rgba(255,205,7,0.7)] transition hover:brightness-110 sm:text-lg ${entra}`}
+          className={`mt-8 block w-full rounded-2xl bg-[#ffcd07] px-6 py-5 text-center text-base font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110 sm:text-lg ${entra}`}
           style={atraso(900)}
         >
           Quero a Black Vitalícia
