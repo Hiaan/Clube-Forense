@@ -15,8 +15,8 @@
 
 const CAPAS = ["RJ", "MA", "DF", "ES", "PA", "TO", "AC", "MG", "MT", "PE", "CE", "PI"];
 
-/** Quantas fileiras: o bastante para cobrir a seção inteira, mesmo inclinada. */
-const FILEIRAS = 16;
+/** Poucas fileiras de capas grandes, como na referência: capa pequena em excesso vira ruído. */
+const FILEIRAS = 7;
 
 function Fileira({ n }: { n: number }) {
   // Cada fileira começa num estado diferente, para as mesmas capas não
@@ -24,11 +24,11 @@ function Fileira({ n }: { n: number }) {
   const giro = (n * 5) % CAPAS.length;
   const ufs = [...CAPAS.slice(giro), ...CAPAS.slice(0, giro)];
   const fila = [...ufs, ...ufs];
-  const duracao = 70 + ((n * 13) % 40);
+  const duracao = 90 + ((n * 17) % 50);
 
   return (
     <div
-      className="flex w-max gap-3 motion-safe:animate-[marquee_linear_infinite] sm:gap-4"
+      className="flex w-max gap-5 motion-safe:animate-[marquee_linear_infinite] sm:gap-8"
       style={{
         animationDuration: `${duracao}s`,
         animationDirection: n % 2 ? "reverse" : "normal",
@@ -40,10 +40,10 @@ function Fileira({ n }: { n: number }) {
           key={`${uf}-${i}`}
           src={`/black/capas/${uf}.webp`}
           alt=""
-          width={180}
-          height={180}
+          width={360}
+          height={360}
           decoding="async"
-          className="h-28 w-28 shrink-0 rounded-xl border border-white/10 object-cover sm:h-40 sm:w-40 sm:rounded-2xl"
+          className="h-52 w-52 shrink-0 rounded-3xl border border-white/[0.06] object-cover sm:h-80 sm:w-80"
         />
       ))}
     </div>
@@ -53,7 +53,7 @@ function Fileira({ n }: { n: number }) {
 export default function FundoCapas() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute left-1/2 top-1/2 flex w-[180%] -translate-x-1/2 -translate-y-1/2 -rotate-[8deg] flex-col gap-3 opacity-60 sm:gap-4">
+      <div className="absolute left-1/2 top-1/2 flex w-[220%] -translate-x-1/2 -translate-y-1/2 -rotate-[14deg] flex-col gap-5 opacity-35 sm:gap-8">
         {Array.from({ length: FILEIRAS }, (_, n) => (
           <Fileira key={n} n={n} />
         ))}
@@ -61,7 +61,7 @@ export default function FundoCapas() {
 
       {/* Véus: o centro escurece para o título e o card lerem limpos, e as
           bordas de cima e de baixo somem no preto das seções vizinhas. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_28%_at_50%_18%,rgba(11,11,13,0.85)_0%,rgba(11,11,13,0.45)_65%,rgba(11,11,13,0.2)_100%)] sm:bg-[radial-gradient(ellipse_55%_45%_at_50%_40%,rgba(11,11,13,0.92)_0%,rgba(11,11,13,0.55)_60%,rgba(11,11,13,0.25)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_30%_at_50%_18%,rgba(11,11,13,0.9)_0%,rgba(11,11,13,0.6)_65%,rgba(11,11,13,0.45)_100%)] sm:bg-[radial-gradient(ellipse_45%_60%_at_50%_45%,rgba(11,11,13,0.95)_0%,rgba(11,11,13,0.65)_60%,rgba(11,11,13,0.45)_100%)]" />
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#0b0b0d] to-transparent" />
       <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0b0b0d] to-transparent" />
     </div>
