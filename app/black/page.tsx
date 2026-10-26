@@ -369,6 +369,43 @@ export default async function BlackPage() {
             </div>
             <DrBonet />
           </div>
+
+          {/* O BÔNUS DO GRUPO fica colado no Dr. Bonet de propósito: a seção
+              acabou de dizer que a IA não substitui o professor, e aqui está o
+              professor — 2 anos de grupo para tirar dúvida com gente. */}
+          <div className="mt-12 flex flex-col items-center gap-5 rounded-3xl bg-gray-900 p-6 text-center sm:flex-row sm:p-8 sm:text-left">
+            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#ffcd07] text-gray-900">
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </span>
+            <div className="flex-1">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#ffcd07]">
+                bônus exclusivo
+              </p>
+              <p className="mt-2 text-xl font-black leading-snug text-white sm:text-2xl">
+                2 anos de grupo com professores e alunos
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-white/65 sm:text-base">
+                Além da plataforma vitalícia, você terá acesso bônus ao grupo
+                com os professores e os alunos do Clube durante 2 anos, para
+                tirar suas dúvidas.
+              </p>
+            </div>
+          </div>
         </Secao>
       </div>
 
@@ -475,51 +512,6 @@ export default async function BlackPage() {
         </Secao>
       </div>
 
-      {/* ---------------------------------------------- metodologia (claro) */}
-      <div className="bg-[#f8f9fb]">
-        <Secao className="py-16">
-          <Titulo claro nota="como funciona">
-            Quatro coisas, na ordem
-          </Titulo>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                n: "01",
-                t: "Base antes do edital",
-                d: "Medicina legal leva meses para assentar. Começa pelo conteúdo que não muda de banca para banca.",
-              },
-              {
-                n: "02",
-                t: "Recorte quando o edital sai",
-                d: "Publicado o edital, o curso daquele concurso abre com o conteúdo programático e o estilo da banca.",
-              },
-              {
-                n: "03",
-                t: "Questão e revisão ativa",
-                d: "Almanaque, flashcards e mini-jogos: você sai de ler sobre o assunto para responder sobre ele.",
-              },
-              {
-                n: "04",
-                t: "Reta final e prova",
-                d: "Aulão pré-prova, simulados e o grupo aberto com os professores até o dia da aplicação.",
-              },
-            ].map((p) => (
-              <div key={p.n} className="card-white p-6">
-                <p className="font-mono text-sm font-black text-[#b38f00]">
-                  {p.n}
-                </p>
-                <p className="mt-3 text-lg font-black leading-tight text-gray-900">
-                  {p.t}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                  {p.d}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Secao>
-      </div>
-
       <Ticker texto="o preço sobe a cada lote · garantia de 7 dias" />
 
       {/* --------------------------------------------------- oferta (preto) */}
@@ -540,8 +532,10 @@ export default async function BlackPage() {
                 Essa oferta vai acabar!
               </h2>
               <p className="mx-auto mt-4 max-w-md text-base text-white/60">
-                São três lotes até o fim da campanha. Quem entra antes paga
-                menos — e leva exatamente o mesmo.
+                É a{" "}
+                <strong className="font-black text-white">PRIMEIRA VEZ</strong>{" "}
+                que liberamos uma oferta vitalícia e pode ser a última, garanta
+                a sua vaga.
               </p>
               <div className="mt-6 flex justify-center">
                 <Contador />

@@ -82,7 +82,7 @@ export default function CaixaDePreco({
           className="mx-auto mt-3 h-6 w-auto sm:h-7"
         />
         <p className="mt-4 text-base font-semibold text-white/60">
-          + todos os editais autorizados até 2028
+          + para todos os editais autorizados até 2028
         </p>
 
         <Image
