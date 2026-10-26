@@ -125,7 +125,10 @@ export default async function BlackPage() {
     };
   });
 
-  const totalAprovados = Object.values(APROVADOS).reduce((s, a) => s + a.total, 0);
+  const totalAprovados = Object.values(APROVADOS).reduce(
+    (s, a) => s + a.total,
+    0,
+  );
   const estadosComAprovado = Object.keys(APROVADOS).length;
 
   // Cada aprovado divulgado, com o estado dele — para o mural de rostos.
@@ -186,17 +189,21 @@ export default async function BlackPage() {
                   primeira pode quebrar, mas "1ª vez" nunca se separa. */}
               <h1 className="mt-6 text-[26px] font-black leading-[1.15] tracking-tight text-white sm:text-3xl lg:text-[31px]">
                 <span className="block lg:whitespace-nowrap">
-                  Black <span className="text-[#ffcd07]">Vitalícia</span> do Clube Forense:
+                  Black <span className="text-[#ffcd07]">Vitalícia</span> do
+                  Clube Forense:
                 </span>
                 <span className="block lg:whitespace-nowrap">
                   Oferta liberada pela{" "}
-                  <span className="whitespace-nowrap text-[#ffcd07]">1ª vez</span>.
+                  <span className="whitespace-nowrap text-[#ffcd07]">
+                    1ª vez
+                  </span>
+                  .
                 </span>
               </h1>
 
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65 lg:mx-0">
-                Acesso vitalício a toda a nossa plataforma e ao material pré e pós-edital de
-                todos os concursos que forem autorizados até 2028.
+                Acesso vitalício a toda a nossa plataforma e ao material pré e
+                pós-edital de todos os concursos que forem autorizados até 2028.
               </p>
 
               <ul className="mx-auto mt-7 flex max-w-xl flex-col gap-2.5 text-left lg:mx-0">
@@ -209,7 +216,9 @@ export default async function BlackPage() {
                     <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
                       ✓
                     </span>
-                    <span className="text-sm leading-relaxed text-white/70">{t}</span>
+                    <span className="text-sm leading-relaxed text-white/70">
+                      {t}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -229,7 +238,6 @@ export default async function BlackPage() {
 
             <HeroComposicao aprovados={totalAprovados} />
           </div>
-
         </Secao>
       </div>
 
@@ -250,9 +258,10 @@ export default async function BlackPage() {
           </Titulo>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-gray-600">
             Você pagará apenas{" "}
-            <strong className="font-bold text-gray-900">um único valor</strong> e poderá
-            ter acesso a uma preparação completa, independente do edital, com os
-            professores que aprovaram todos os primeiros lugares nos últimos concursos.
+            <strong className="font-bold text-gray-900">um único valor</strong>{" "}
+            e poderá ter acesso a uma preparação completa, independente do
+            edital, com os professores que aprovaram todos os primeiros lugares
+            nos últimos concursos.
           </p>
         </Secao>
 
@@ -262,11 +271,11 @@ export default async function BlackPage() {
 
         <Secao className="pb-16 text-center">
           <p className="text-sm text-gray-500">
-            + todo concurso de médico-legista autorizado nos próximos {ANOS_DE_ACESSO} anos
+            + todo concurso de médico-legista autorizado nos próximos{" "}
+            {ANOS_DE_ACESSO} anos
           </p>
         </Secao>
       </div>
-
 
       {/* ----------------------------------------------- o que leva (claro) */}
       <div className="bg-[#f8f9fb]">
@@ -319,7 +328,9 @@ export default async function BlackPage() {
                 </span>
                 <div>
                   <p className="font-bold text-gray-900">{i.t}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{i.d}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-gray-600">
+                    {i.d}
+                  </p>
                 </div>
               </div>
             ))}
@@ -344,15 +355,16 @@ export default async function BlackPage() {
                 O Dr. Bonet não dorme
               </h2>
               <p className="mt-5 text-base leading-relaxed text-gray-600">
-                É a nossa inteligência artificial treinada nas referências que a prova cobra —
-                França, Hygino, Delton Croce. Você pergunta em português, do jeito que a dúvida
-                apareceu, e ela responde com a fonte ao lado.
+                É a nossa inteligência artificial treinada nas referências que a
+                prova cobra — França, Hygino, Delton Croce. Você pergunta em
+                português, do jeito que a dúvida apareceu, e ela responde com a
+                fonte ao lado.
               </p>
               <p className="mt-4 text-base leading-relaxed text-gray-600">
-                Não substitui o professor: para discussão de caso e orientação de estudo, o
-                grupo com os legistas do Clube continua aberto. O Dr. Bonet é para aquela
-                dúvida da madrugada que, sem ele, você anotaria para perguntar depois — e
-                esqueceria.
+                Não substitui o professor: para discussão de caso e orientação
+                de estudo, o grupo com os legistas do Clube continua aberto. O
+                Dr. Bonet é para aquela dúvida da madrugada que, sem ele, você
+                anotaria para perguntar depois — e esqueceria.
               </p>
             </div>
             <DrBonet />
@@ -367,8 +379,9 @@ export default async function BlackPage() {
             Professores que são médicos-legistas
           </Titulo>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
-            Não é professor de cursinho que estudou o edital. É quem faz perícia, assina laudo
-            e já passou pelo concurso que você vai prestar.
+            Não é professor de cursinho que estudou o edital. É quem faz
+            perícia, assina laudo e já passou pelo concurso que você vai
+            prestar.
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {PROFESSORES.map((p) => (
@@ -407,11 +420,16 @@ export default async function BlackPage() {
 
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {mural.slice(0, 12).map((a) => (
-              <div key={`${a.uf}-${a.nome}`} className="card-white p-5 text-center">
+              <div
+                key={`${a.uf}-${a.nome}`}
+                className="card-white p-5 text-center"
+              >
                 <div className="flex justify-center">
                   <Avatar nome={a.nome} size={88} />
                 </div>
-                <p className="mt-3 text-sm font-bold leading-tight text-gray-900">{a.nome}</p>
+                <p className="mt-3 text-sm font-bold leading-tight text-gray-900">
+                  {a.nome}
+                </p>
                 <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#b38f00]">
                   {a.onde}
                 </p>
@@ -427,8 +445,13 @@ export default async function BlackPage() {
               .sort((a, b) => b[1].total - a[1].total)
               .slice(0, 4)
               .map(([uf, a]) => (
-                <div key={uf} className="rounded-2xl bg-gray-900 p-5 text-center">
-                  <p className="text-3xl font-black text-[#ffcd07]">{a.total}</p>
+                <div
+                  key={uf}
+                  className="rounded-2xl bg-gray-900 p-5 text-center"
+                >
+                  <p className="text-3xl font-black text-[#ffcd07]">
+                    {a.total}
+                  </p>
                   <p className="mt-1 text-sm font-semibold text-white">
                     {a.orgao ?? ESTADO_POR_UF[uf]?.nome ?? uf}
                   </p>
@@ -482,9 +505,15 @@ export default async function BlackPage() {
               },
             ].map((p) => (
               <div key={p.n} className="card-white p-6">
-                <p className="font-mono text-sm font-black text-[#b38f00]">{p.n}</p>
-                <p className="mt-3 text-lg font-black leading-tight text-gray-900">{p.t}</p>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">{p.d}</p>
+                <p className="font-mono text-sm font-black text-[#b38f00]">
+                  {p.n}
+                </p>
+                <p className="mt-3 text-lg font-black leading-tight text-gray-900">
+                  {p.t}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                  {p.d}
+                </p>
               </div>
             ))}
           </div>
@@ -500,31 +529,35 @@ export default async function BlackPage() {
           A lista completa do que entra vem logo depois do card, para quem
           quer conferir item por item antes de clicar. */}
       <div className="relative overflow-hidden bg-[#0b0b0d]">
-        <FundoCapas />
-        <Secao id="oferta" className="relative py-16">
-          <div className="pt-24 text-center sm:pt-32">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-[#ffcd07]">
-              a oferta
-            </p>
-            <h2 className="mt-3 text-4xl font-black leading-tight tracking-tight text-white sm:text-6xl">
-              Essa oferta vai acabar!
-            </h2>
-            <p className="mx-auto mt-4 max-w-md text-base text-white/60">
-              São três lotes até o fim da campanha. Quem entra antes paga menos — e leva
-              exatamente o mesmo.
-            </p>
-            <div className="mt-6 flex justify-center">
-              <Contador />
+        <div className="relative">
+          <FundoCapas />
+          <Secao id="oferta" className="relative pb-16 pt-16">
+            <div className="pt-16 text-center sm:pt-24">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-[#ffcd07]">
+                a oferta
+              </p>
+              <h2 className="mt-3 text-4xl font-black leading-tight tracking-tight text-white sm:text-6xl">
+                Essa oferta vai acabar!
+              </h2>
+              <p className="mx-auto mt-4 max-w-md text-base text-white/60">
+                São três lotes até o fim da campanha. Quem entra antes paga
+                menos — e leva exatamente o mesmo.
+              </p>
+              <div className="mt-6 flex justify-center">
+                <Contador />
+              </div>
             </div>
-          </div>
 
-          <div className="mx-auto mt-12 max-w-2xl">
-            <CaixaDePreco editaisInclusos={inclusos.length} />
-          </div>
+            <div className="mx-auto mt-12 max-w-2xl">
+              <CaixaDePreco editaisInclusos={inclusos.length} />
+            </div>
+          </Secao>
+        </div>
 
+        <Secao className="relative pb-16">
           {/* A RECAPITULAÇÃO, item por item. O card resume em ícones; aqui fica
               a lista completa para quem quer conferir tudo antes de comprar. */}
-          <div className="mx-auto mt-12 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <p className="text-center text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
               tudo que entra
             </p>
@@ -557,21 +590,27 @@ export default async function BlackPage() {
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">
                     ✓
                   </span>
-                  <span className="text-sm leading-snug text-white/80">{t}</span>
+                  <span className="text-sm leading-snug text-white/80">
+                    {t}
+                  </span>
                 </li>
               ))}
             </ul>
             <p className="mt-6 border-t border-white/10 pt-5 text-center text-sm leading-relaxed text-white/50">
-              E os professores são médicos-legistas de carreira — quem faz perícia, assina
-              laudo e já passou pelo concurso que você vai prestar.
+              E os professores são médicos-legistas de carreira — quem faz
+              perícia, assina laudo e já passou pelo concurso que você vai
+              prestar.
             </p>
           </div>
 
           <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <p className="text-lg font-black text-white">Garantia incondicional de 7 dias</p>
+            <p className="text-lg font-black text-white">
+              Garantia incondicional de 7 dias
+            </p>
             <p className="mt-2 text-sm leading-relaxed text-white/55">
-              Entre, veja tudo por dentro e decida. Se não for para você, devolvemos o valor
-              integral — sem burocracia e sem pergunta constrangedora.
+              Entre, veja tudo por dentro e decida. Se não for para você,
+              devolvemos o valor integral — sem burocracia e sem pergunta
+              constrangedora.
             </p>
           </div>
         </Secao>
@@ -620,7 +659,9 @@ export default async function BlackPage() {
                     +
                   </span>
                 </summary>
-                <p className="mt-3 text-sm leading-relaxed text-gray-600">{f.r}</p>
+                <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                  {f.r}
+                </p>
               </details>
             ))}
           </div>
@@ -644,8 +685,9 @@ export default async function BlackPage() {
             Seja o próximo primeiro colocado
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-gray-800">
-            {inclusos.length} concursos de pé agora, {ANOS_DE_ACESSO} anos de editais inclusos
-            e os professores que mais aprovam médico-legista no Brasil.
+            {inclusos.length} concursos de pé agora, {ANOS_DE_ACESSO} anos de
+            editais inclusos e os professores que mais aprovam médico-legista no
+            Brasil.
           </p>
           <a
             href="#oferta"
@@ -684,8 +726,9 @@ export default async function BlackPage() {
               </a>
             </div>
             <p className="max-w-xl text-xs leading-relaxed text-white/30">
-              © {new Date().getFullYear()} Clube Forense · CNPJ 53.323.379/0001-37. Esta página
-              não é afiliada ao Google ou ao Facebook.
+              © {new Date().getFullYear()} Clube Forense · CNPJ
+              53.323.379/0001-37. Esta página não é afiliada ao Google ou ao
+              Facebook.
             </p>
           </div>
         </Secao>
