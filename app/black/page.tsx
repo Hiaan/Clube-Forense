@@ -397,11 +397,11 @@ export default async function BlackPage() {
                 bônus exclusivo
               </p>
               <p className="mt-2 text-xl font-black leading-snug text-white sm:text-2xl">
-                2 anos de grupo com professores e alunos
+                2 anos de acesso ao nosso grupo exclusivo
               </p>
               <p className="mt-2 text-sm leading-relaxed text-white/65 sm:text-base">
-                Além da plataforma vitalícia, você terá acesso bônus ao grupo
-                com os professores e os alunos do Clube durante 2 anos, para
+                Além do acesso vitalício, você terá acesso bônus ao grupo com os
+                professores e os alunos do Clube Forense durante 2 anos, para
                 tirar suas dúvidas.
               </p>
             </div>
