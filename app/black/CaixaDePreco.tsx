@@ -82,8 +82,8 @@ export default function CaixaDePreco({
           alt="Aulas, questões, cronograma, mapas mentais, eBooks, flashcards, mini-jogos, edital verticalizado e painel pericial"
           width={1200}
           height={397}
-          sizes="(max-width: 640px) 90vw, 520px"
-          className="mx-auto mt-7 h-auto w-full max-w-[520px] opacity-90"
+          sizes="(max-width: 640px) 75vw, 380px"
+          className="mx-auto mt-6 h-auto w-[85%] max-w-[380px] opacity-80"
         />
 
         <Image
@@ -91,8 +91,8 @@ export default function CaixaDePreco({
           alt="Os preparatórios de todos os estados inclusos na Black"
           width={1100}
           height={697}
-          sizes="(max-width: 640px) 92vw, 560px"
-          className="mx-auto -mb-2 mt-6 h-auto w-full max-w-[560px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]"
+          sizes="(max-width: 640px) 75vw, 400px"
+          className="mx-auto mt-5 h-auto w-[85%] max-w-[400px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]"
         />
 
         {/* Os lotes como escada: onde a pessoa está e o que acontece se ela
