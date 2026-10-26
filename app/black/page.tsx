@@ -567,7 +567,7 @@ export default async function BlackPage() {
                 "Resolução de questões comentadas em vídeo",
                 "Mapas mentais ilustrados dos assuntos de medicina legal e direito",
                 "Gamificação através de jogos para fixar o conceito",
-                "Acesso exclusivo, por 2 anos, ao nosso grupo de alunos e professores para tirar suas dúvidas",
+                "Acesso exclusivo, por 2 anos, ao nosso grupo de alunos, professores e monitor de direito, para tirar suas dúvidas e discutir questões e estudos de caso",
                 "Plataforma de questões completa, com mais de 25 mil questões",
                 "Todas as provas anteriores para médico-legista disponíveis na plataforma como simulado",
                 "eBooks e apostilas em PDF das principais matérias",
@@ -575,7 +575,6 @@ export default async function BlackPage() {
                 "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal, respondendo 24 horas",
                 "Aulão pré-prova com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
                 "Suporte após a prova, com a orientação na elaboração de recursos e direcionamento durante as fases",
-                "Grupo com alunos, professores e monitor de direito para discussão de questões e estudo de caso",
               ].map((t) => (
                 <li
                   key={t}
