@@ -129,7 +129,7 @@ export default async function BlackPage() {
     (s, a) => s + a.total,
     0,
   );
-  const estadosComAprovado = Object.keys(APROVADOS).length;
+  const concursosComAprovado = Object.keys(APROVADOS).length;
 
   // Cada aprovado divulgado, com o estado dele — para o mural de rostos.
   //
@@ -460,7 +460,7 @@ export default async function BlackPage() {
       <div className="bg-[#f8f9fb]">
         <Secao id="aprovados" className="py-16">
           <Titulo claro nota="resultado">
-            {totalAprovados} aprovados, em {estadosComAprovado} estados
+            {totalAprovados} aprovados, em {concursosComAprovado} concursos
           </Titulo>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
             Desde 2024, alunos do Clube ficaram no topo de todos os concursos de
