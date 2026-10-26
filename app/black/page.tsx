@@ -34,21 +34,19 @@ import BioProfessor from "./BioProfessor";
 import CarrosselEditais from "./CarrosselEditais";
 import CaixaDePreco from "./CaixaDePreco";
 import Contador from "./Contador";
+import FundoCapas from "./FundoCapas";
 import Depoimentos from "./Depoimentos";
 import DrBonet from "./DrBonet";
 import HeroComposicao from "./HeroComposicao";
 import SecaoPlataforma from "./plataforma/SecaoPlataforma";
-import PrecoAtual from "./PrecoAtual";
 import { PROFESSORES } from "./professores";
 import Ticker from "./Ticker";
 import {
   ANOS_DE_ACESSO,
   EDITAIS_DA_BLACK,
   PLATAFORMA,
-  PRECO_POR_EDITAL,
   QUESTOES,
   WHATSAPP,
-  reais,
 } from "./oferta";
 import { APROVADOS } from "../monitor/lib/aprovados";
 import { coletar } from "../monitor/lib/coletor";
@@ -496,20 +494,36 @@ export default async function BlackPage() {
       <Ticker texto="o preço sobe a cada lote · garantia de 7 dias" />
 
       {/* --------------------------------------------------- oferta (preto) */}
-      <div className="bg-[#0b0b0d]">
-        <Secao id="oferta" className="py-16">
-          <Titulo nota="a oferta">Agora sim, o preço</Titulo>
-          <p className="mx-auto mt-4 max-w-xl text-center text-base text-white/55">
-            São três lotes até o fim da campanha. Quem entra antes paga menos — e leva
-            exatamente o mesmo.
-          </p>
+      {/* O PALCO DA OFERTA, no modelo do site de referência (Código Viral): as
+          capas de cada concurso correndo ao fundo, o aviso de que a oferta
+          acaba com o relógio do lote, e o card com o preço entrando em cena.
+          A lista completa do que entra vem logo depois do card, para quem
+          quer conferir item por item antes de clicar. */}
+      <div className="relative overflow-hidden bg-[#0b0b0d]">
+        <FundoCapas />
+        <Secao id="oferta" className="relative py-16">
+          <div className="pt-24 text-center sm:pt-32">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-[#ffcd07]">
+              a oferta
+            </p>
+            <h2 className="mt-3 text-4xl font-black leading-tight tracking-tight text-white sm:text-6xl">
+              Essa oferta vai acabar!
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-base text-white/60">
+              São três lotes até o fim da campanha. Quem entra antes paga menos — e leva
+              exatamente o mesmo.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <Contador />
+            </div>
+          </div>
 
-          {/* A RECAPITULAÇÃO VEM ANTES DO NÚMERO, e é o que o site do
-              preparatório faz no fim da página. A pessoa percorreu seções
-              separadas — editais, plataforma, professores — e chega aqui sem
-              ter somado nada. A lista junta tudo em meia tela, para o preço
-              ser lido contra o conjunto, e não contra a última coisa que ela
-              viu. */}
+          <div className="mx-auto mt-12 max-w-2xl">
+            <CaixaDePreco editaisInclusos={inclusos.length} />
+          </div>
+
+          {/* A RECAPITULAÇÃO, item por item. O card resume em ícones; aqui fica
+              a lista completa para quem quer conferir tudo antes de comprar. */}
           <div className="mx-auto mt-12 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <p className="text-center text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
               tudo que entra
@@ -551,39 +565,6 @@ export default async function BlackPage() {
               E os professores são médicos-legistas de carreira — quem faz perícia, assina
               laudo e já passou pelo concurso que você vai prestar.
             </p>
-          </div>
-
-          {/* A CONTA VEM IMEDIATAMENTE ANTES DO PREÇO, e esse lugar é o ponto.
-              Ela estava lá em cima, junto da lista de editais, e ali tinha o
-              efeito contrário: entregava o valor antes de a página explicar o
-              que está sendo comprado. Âncora funciona colada ao número que ela
-              ancora — a pessoa lê quanto custaria separado e, na linha
-              seguinte, quanto custa aqui. */}
-          <div className="mx-auto mt-12 max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-            <div className="grid items-center gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl bg-white/[0.04] p-5 text-center sm:col-span-2">
-                <p className="text-xs text-white/50">
-                  {inclusos.length} preparatórios comprados separadamente
-                </p>
-                <p className="mt-1.5 text-2xl font-black text-white/40 line-through decoration-[#ff4d4d]/60 decoration-2">
-                  {reais(inclusos.length * PRECO_POR_EDITAL)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-[#ffcd07]/40 bg-[#ffcd07]/10 p-5 text-center">
-                <p className="text-xs font-semibold text-[#ffcd07]">na Black Forense</p>
-                <p className="mt-1.5 text-2xl font-black text-white">
-                  <PrecoAtual />
-                </p>
-              </div>
-            </div>
-            <p className="mt-5 text-center text-xs leading-relaxed text-white/45">
-              O preparatório avulso de um único edital sai por {reais(PRECO_POR_EDITAL)}. Aqui
-              você leva os {inclusos.length} que já estão de pé e todos os que ainda vão sair.
-            </p>
-          </div>
-
-          <div className="mx-auto mt-6 max-w-xl">
-            <CaixaDePreco editaisInclusos={inclusos.length} />
           </div>
 
           <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-white/10 bg-white/[0.03] p-6">
