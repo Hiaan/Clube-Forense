@@ -303,8 +303,8 @@ export default async function BlackPage() {
             alt="Aulas, questões, cronograma, mapas mentais, eBooks, flashcards, mini-jogos, edital verticalizado e painel pericial"
             width={1400}
             height={820}
-            sizes="(max-width: 768px) 75vw, 360px"
-            className="mx-auto mt-6 h-auto w-[75%] max-w-[360px]"
+            sizes="(max-width: 768px) 85vw, 460px"
+            className="flutuar mx-auto mt-6 h-auto w-[85%] max-w-[460px] drop-shadow-[0_24px_24px_rgba(0,0,0,0.18)]"
           />
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {[

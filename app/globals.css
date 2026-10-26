@@ -87,3 +87,13 @@ body {
   50% { box-shadow: 0 0 0 10px rgba(255,205,7,0); }
 }
 .badge-pulse { animation: badge-pulse 2.5s ease-in-out infinite; }
+
+/* Flutuar: sobe e desce devagar, com um leve balanço — como algo apoiado na
+   água. Usado na imagem das caixas da Black. Para quem pede menos movimento,
+   fica parado. */
+@keyframes flutuar {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(-0.6deg); }
+}
+.flutuar { animation: flutuar 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .flutuar { animation: none; } }
