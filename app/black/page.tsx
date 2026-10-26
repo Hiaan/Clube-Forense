@@ -292,9 +292,20 @@ export default async function BlackPage() {
       {/* ----------------------------------------------- o que leva (claro) */}
       <div className="bg-[#f8f9fb]">
         <Secao className="py-16">
-          <Titulo claro nota="o que você leva">
-            Tudo isto, de uma vez
-          </Titulo>
+          <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-[#b38f00]">
+            o que você leva
+          </p>
+          {/* As caixas de cada recurso da plataforma, antes dos cartões: a
+              imagem mostra o tamanho do pacote de uma vez, e os cartões logo
+              abaixo explicam cada parte. */}
+          <Image
+            src="/black/recursos-caixas.webp"
+            alt="Aulas, questões, cronograma, mapas mentais, eBooks, flashcards, mini-jogos, edital verticalizado e painel pericial"
+            width={1400}
+            height={820}
+            sizes="(max-width: 768px) 100vw, 900px"
+            className="mx-auto mt-6 h-auto w-full max-w-[900px]"
+          />
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {[
               {
