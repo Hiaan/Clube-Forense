@@ -567,14 +567,14 @@ export default async function BlackPage() {
                 "Resolução de questões comentadas em vídeo",
                 "Mapas mentais ilustrados dos assuntos de medicina legal e direito",
                 "Gamificação através de jogos para fixar o conceito",
-                "Acesso ao WhatsApp pessoal dos professores para acompanhamento e dúvidas",
+                "Acesso exclusivo, por 2 anos, ao nosso grupo de alunos e professores para tirar suas dúvidas",
                 "Plataforma de questões completa, com mais de 25 mil questões",
                 "Todas as provas anteriores para médico-legista disponíveis na plataforma como simulado",
-                "eBooks e apostilas em PDF de todas as matérias",
+                "eBooks e apostilas em PDF das principais matérias",
                 "Flashcards feitos por médicos legistas, com sistema de revisão espaçada",
                 "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal, respondendo 24 horas",
                 "Aulão pré-prova com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
-                "Suporte após a prova, com elaboração de recursos e acompanhamento durante as fases",
+                "Suporte após a prova, com a orientação na elaboração de recursos e direcionamento durante as fases",
                 "Grupo com alunos, professores e monitor de direito para discussão de questões e estudo de caso",
               ].map((t) => (
                 <li
@@ -597,15 +597,24 @@ export default async function BlackPage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <p className="text-lg font-black text-white">
-              Garantia incondicional de 7 dias
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-white/55">
-              Entre, veja tudo por dentro e decida. Se não for para você,
-              devolvemos o valor integral — sem burocracia e sem pergunta
-              constrangedora.
-            </p>
+          <div className="mx-auto mt-8 flex max-w-xl items-center gap-5 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <Image
+              src="/black/selo-garantia.png"
+              alt="Selo de garantia de 7 dias"
+              width={214}
+              height={214}
+              className="h-16 w-16 shrink-0 opacity-90 sm:h-20 sm:w-20"
+            />
+            <div>
+              <p className="text-lg font-black text-white">
+                Garantia incondicional de 7 dias
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-white/55">
+                Entre, veja tudo por dentro e decida. Se não for para você,
+                devolvemos o valor integral — sem burocracia e sem pergunta
+                constrangedora.
+              </p>
+            </div>
           </div>
         </Secao>
       </div>
