@@ -69,11 +69,19 @@ export default function CaixaDePreco({
         <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#ffcd07]">
           oferta única
         </p>
-        <p className="mt-3 text-2xl font-black leading-tight text-white sm:text-3xl">
-          Black <span className="text-[#ffcd07]">Vitalícia</span> do Clube
-          Forense
+        {/* O nome da oferta em cima e a marca embaixo, em vez de uma frase só
+            ("Black Vitalícia do Clube Forense") que quebrava no meio. */}
+        <p className="mt-3 text-3xl font-black leading-none tracking-tight text-white sm:text-4xl">
+          Black <span className="text-[#ffcd07]">Vitalícia</span>
         </p>
-        <p className="mt-1 text-base font-semibold text-white/60">
+        <Image
+          src="/logo-fundo-escuro.png"
+          alt="Clube Forense"
+          width={162}
+          height={28}
+          className="mx-auto mt-3 h-6 w-auto sm:h-7"
+        />
+        <p className="mt-4 text-base font-semibold text-white/60">
           + todos os editais autorizados até 2028
         </p>
 
