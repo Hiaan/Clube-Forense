@@ -183,20 +183,27 @@ export default async function BlackPage() {
                 Black Forense 2026
               </span>
 
-              <h1 className="mt-6 text-4xl font-black leading-[1.03] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                A melhor oportunidade para garantir sua aprovação como{" "}
-                <span className="text-[#ffcd07]">médico legista</span>.
+              {/* Duas linhas, como o Clube definiu: a oferta e o "pela 1ª vez".
+                  No computador cada linha fica inteira (nowrap); no celular a
+                  primeira pode quebrar, mas "1ª vez" nunca se separa. */}
+              <h1 className="mt-6 text-[26px] font-black leading-[1.15] tracking-tight text-white sm:text-3xl lg:text-[31px]">
+                <span className="block lg:whitespace-nowrap">
+                  Black <span className="text-[#ffcd07]">Vitalícia</span> do Clube Forense:
+                </span>
+                <span className="block lg:whitespace-nowrap">
+                  Oferta liberada pela{" "}
+                  <span className="whitespace-nowrap text-[#ffcd07]">1ª vez</span>.
+                </span>
               </h1>
 
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65 lg:mx-0">
-                Tenha acesso a todos os nossos preparatórios para os concursos
-                que já foram autorizados. Material pré e pós-edital gravado e
-                com a maior e melhor plataforma do mercado.
+                Acesso vitalício a toda a nossa plataforma e ao material pré e pós-edital de
+                todos os concursos que forem autorizados até 2028.
               </p>
 
               <ul className="mx-auto mt-7 flex max-w-xl flex-col gap-2.5 text-left lg:mx-0">
                 {[
-                  "Contato com professores médicos-legistas",
+                  "Professores médicos-legistas",
                   "+240 alunos aprovados",
                   "Plataforma com questões, aulas, ebooks, flashcards e muito mais",
                 ].map((t) => (
