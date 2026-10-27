@@ -292,22 +292,14 @@ export default async function BlackPage() {
           <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-gray-600">
             Você pagará apenas{" "}
             <strong className="font-bold text-gray-900">um único valor</strong>{" "}
-            e poderá ter acesso a uma preparação completa, independente do
-            edital, com os professores que aprovaram todos os primeiros lugares
-            nos últimos concursos.
+            e terá acesso vitalício ao material pré e pós-edital de todos os
+            concursos autorizados ou que forem anunciados até 2028.
           </p>
         </Secao>
 
-        <div className="pb-6">
+        <div className="pb-16">
           <CarrosselEditais editais={inclusos} />
         </div>
-
-        <Secao className="pb-16 text-center">
-          <p className="text-sm text-gray-500">
-            + todo concurso de médico-legista autorizado nos próximos{" "}
-            {ANOS_DE_ACESSO} anos
-          </p>
-        </Secao>
       </div>
 
       {/* ----------------------------------------------- o que leva (claro) */}
@@ -405,10 +397,10 @@ export default async function BlackPage() {
                 fonte ao lado.
               </p>
               <p className="mt-4 text-base leading-relaxed text-gray-600">
-                Não substitui o professor: para discussão de caso e orientação
-                de estudo, o grupo com os legistas do Clube continua aberto. O
-                Dr. Bonet é para aquela dúvida da madrugada que, sem ele, você
-                anotaria para perguntar depois — e esqueceria.
+                Não substitui o professor: para orientação no seu estudo, o
+                grupo com os legistas do Clube continua aberto. O Dr. Bonet é
+                para aquela dúvida da madrugada que, sem ele, você anotaria para
+                perguntar depois e — provavelmente — esqueceria.
               </p>
             </div>
             <DrBonet />
