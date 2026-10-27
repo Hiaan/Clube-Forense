@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { validarAluno, type RespostaAluno } from "./acoes";
-import { PRECO_ALUNO_A_PARTIR } from "./cupons";
 import AvisoAluno from "./AvisoAluno";
 
 const MENSAGENS: Record<
@@ -60,7 +59,7 @@ export default function EntradaAluno() {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0b0b0d] px-4 py-16">
       <div className="pointer-events-none absolute left-1/2 top-0 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-[#ffcd07]/10 blur-[130px]" />
 
-      <div className="relative w-full max-w-md text-center">
+      <div className="relative w-full max-w-xl text-center">
         <Image
           src="/logo-fundo-escuro.png"
           alt="Clube Forense"
@@ -77,16 +76,15 @@ export default function EntradaAluno() {
           Clube
         </h1>
         <p className="mt-4 text-base leading-relaxed text-white/65">
-          A partir de{" "}
-          <strong className="font-black text-white">
-            R$ {PRECO_ALUNO_A_PARTIR.toLocaleString("pt-BR")}
-          </strong>
-          . O valor final é calculado a partir do seu cashback total com o
-          Clube. Digite o CPF que você usou na compra do seu curso para ver a
+          O valor final é calculado a partir do seu cashback total com o Clube
+          Forense. Digite o CPF que você usou na compra do seu curso para ver a
           sua oferta.
         </p>
 
-        <form onSubmit={enviar} className="mt-8 flex flex-col gap-3 text-left">
+        <form
+          onSubmit={enviar}
+          className="mx-auto mt-8 flex max-w-md flex-col gap-3 text-left"
+        >
           <label
             htmlFor="cpf"
             className="text-xs font-bold uppercase tracking-wider text-white/50"
@@ -123,7 +121,7 @@ export default function EntradaAluno() {
           </p>
         </form>
 
-        <div className="mt-10">
+        <div className="mt-8">
           <AvisoAluno />
         </div>
       </div>

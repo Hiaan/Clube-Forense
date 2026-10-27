@@ -219,6 +219,12 @@ export default function CaixaDePreco({
           )}
         </div>
 
+        {aluno && (
+          <p className="mt-7 rounded-xl border border-red-400/50 bg-[#2a1214] px-4 py-3 text-sm font-semibold leading-snug text-white">
+            Exclusivo para alunos do Clube: compras de quem não é aluno, ou
+            feitas por link recebido de outra pessoa, serão reembolsadas.
+          </p>
+        )}
         <a
           href={aluno ? aluno.link : mostrado.checkout}
           data-valor={aluno ? aluno.preco : mostrado.avista}
