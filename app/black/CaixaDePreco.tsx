@@ -108,10 +108,10 @@ export default function CaixaDePreco({
         />
 
         <Image
-          src="/black/pacote-black.webp"
+          src="/black/pacote-black-v2.webp"
           alt="Os preparatórios de todos os estados inclusos na Black"
           width={1100}
-          height={697}
+          height={615}
           sizes="(max-width: 640px) 75vw, 400px"
           className="mx-auto mt-5 h-auto w-[85%] max-w-[400px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]"
         />
