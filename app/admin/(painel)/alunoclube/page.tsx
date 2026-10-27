@@ -27,7 +27,7 @@ export default async function PainelAlunoClube() {
   const cupomDoProduto = new Map<number, string>();
   for (const r of REGRAS_CUPOM)
     for (const p of r.produtos)
-      if (!cupomDoProduto.has(p)) cupomDoProduto.set(p, r.cupom);
+      if (!cupomDoProduto.has(p)) cupomDoProduto.set(p, reais(r.preco));
 
   return (
     <>
@@ -68,11 +68,11 @@ export default async function PainelAlunoClube() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {REGRAS_CUPOM.map((r, i) => (
-              <tr key={r.cupom}>
+              <tr key={i}>
                 <td className="py-2">{i + 1}º</td>
                 <td>{r.rotulo}</td>
                 <td className="font-mono text-xs">{r.produtos.join(", ")}</td>
-                <td className="font-mono">{r.cupom}</td>
+                <td className="font-mono">{r.cupom || "(falta o cupom)"}</td>
                 <td>{reais(r.preco)}</td>
               </tr>
             ))}
@@ -122,7 +122,7 @@ export default async function PainelAlunoClube() {
               <th>Produto</th>
               <th className="text-right">Compradores</th>
               <th className="text-right">Com CPF na venda</th>
-              <th>Cupom</th>
+              <th>Faixa</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">

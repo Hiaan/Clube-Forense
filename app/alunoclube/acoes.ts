@@ -40,7 +40,8 @@ export async function validarAluno(
 ): Promise<RespostaAluno> {
   const cpf = limparCpf(String(cpfDigitado ?? ""));
   if (!cpfValido(cpf)) return { ok: false, motivo: "invalido" };
-  if (REGRAS_CUPOM.length === 0) return { ok: false, motivo: "configurando" };
+  if (!REGRAS_CUPOM.some((r) => r.cupom))
+    return { ok: false, motivo: "configurando" };
 
   const h = await headers();
   const ip =
@@ -64,6 +65,8 @@ export async function validarAluno(
   const regra = regraPara(comprados.ids, comprados.nomes);
   await registrarTentativa(ipHash, Boolean(regra));
   if (!regra) return { ok: false, motivo: "nao-encontrado" };
+  // Faixa sem cupom informado ainda: não manda o aluno a um checkout sem desconto.
+  if (!regra.cupom) return { ok: false, motivo: "configurando" };
 
   await registrarValidacao(hashDe(cpf, "cpf"), regra.cupom, regra.rotulo);
 

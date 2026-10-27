@@ -33,11 +33,82 @@ export interface RegraCupom {
 }
 
 /**
- * PREENCHER: a lista de produtos e cupons ainda não foi passada pelo Clube.
- * Enquanto estiver vazia, a página mostra que a validação está em
- * configuração, em vez de dizer a um aluno de verdade que ele não é aluno.
+ * As três faixas definidas pelo Clube em 27/10/2026, a partir do CSV de vendas
+ * da Eduzz (histórico de 11/2023 a 10/2026).
+ *
+ * A comparação é primeiro pelo código do produto na Eduzz — o que não muda —
+ * e, de reserva, por trechos do nome, para produto novo que ainda não esteja
+ * nos códigos. Quem cai em mais de uma faixa fica com a de menor preço.
+ *
+ * `cupom` vazio = cupom ainda não informado: enquanto estiver assim a página
+ * diz que a validação está em configuração, em vez de mandar o aluno a um
+ * checkout sem desconto.
  */
-export const REGRAS_CUPOM: RegraCupom[] = [];
+export const REGRAS_CUPOM: RegraCupom[] = [
+  {
+    rotulo: "aluno do Clube",
+    preco: 2497,
+    cupom: "",
+    // Pacotes de todos os editais, Black 2026, todos os preparatórios (pré e
+    // pós-edital de cada estado, Pré-edital Geral / Pacote Especialista,
+    // pacotes e combos de editais), todas as mentorias e a Promoção de Black
+    // Antecipada.
+    produtos: [
+      2893650, 2325387, 2546192, 2981633, 2882791, 2427875, 2450939, 2546071,
+      2711550, 3016915, 2546066, 2561671, 2934849, 2383206, 2392083, 2685826,
+      2546069, 2733060, 2887550, 2383204, 2823273, 2736123, 2685817, 2543596,
+      2612052, 2554536, 2193083, 2208880, 2269115, 2271262, 2271348, 2271325,
+      2272019, 2284489, 2288783, 2289729, 2316753, 2368281, 2377897, 2384582,
+      2368289, 2390402, 2390404, 2482214, 2485588, 2485925, 2486654, 2486123,
+      2870298, 2939238, 2941392, 2673863, 3056976,
+    ],
+    nomes: [
+      "mentoria",
+      "pre-edital",
+      "pre edital",
+      "pos-edital",
+      "pos edital",
+      "edital",
+      "todos os editais",
+      "black",
+      "preparatorio",
+      "pacote especialista",
+      "combo",
+    ],
+  },
+  {
+    rotulo: "aluno do Clube",
+    preco: 3497,
+    cupom: "",
+    // Pacote Analista e Pacote Básico, intensivões de questões, aulões e os
+    // 9 eBooks de resumo.
+    produtos: [
+      2324450, 2325432, 2420183, 2941858, 2909442, 2554521, 2925780, 2585969,
+      2587617, 2402787, 2588647, 2630749, 2153444, 2182992, 2280799,
+    ],
+    nomes: [
+      "pacote analista",
+      "pacote basico",
+      "intensivao",
+      "aulao",
+      "9 ebooks",
+    ],
+  },
+  {
+    rotulo: "aluno do Clube",
+    preco: 3997,
+    cupom: "",
+    // Produtos abaixo de R$ 500: 7 eBooks, Toxicologia Forense, Curso de
+    // Criminalística e o Resumo de Traumatologia + Tanatologia.
+    produtos: [2165832, 2370557, 2370472, 2153429],
+    nomes: [
+      "toxicologia",
+      "criminalistica",
+      "7 ebooks",
+      "resumo completo de traumatologia",
+    ],
+  },
+];
 
 /** O checkout da Black (o mesmo da página pública); o cupom vai no fim. */
 export const CHECKOUT_ALUNO = "https://chk.eduzz.com/G96RYB5QW1";
