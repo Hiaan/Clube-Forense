@@ -42,13 +42,47 @@ export function hashDe(valor: string, rotulo: string): string {
   return createHmac("sha256", segredo()).update(`${rotulo}:${valor}`).digest("base64url");
 }
 
-/** Os códigos de produto que este CPF comprou e pagou. `null` = banco fora. */
-export async function produtosDoCpf(cpf: string): Promise<number[] | null> {
+/**
+ * O que este CPF comprou e pagou: os códigos e os nomes dos produtos, somando
+ * as vendas espelhadas da Eduzz e a base subida por planilha. `null` = banco fora.
+ */
+export async function comprasDoCpf(cpf: string): Promise<{ ids: number[]; nomes: string[] } | null> {
+  const [vendas, base] = await Promise.all([produtosDoCpf(cpf), baseDoCpf(cpf)]);
+  if (vendas === null && base === null) return null;
+  const ids = new Set<number>();
+  const nomes = new Set<string>();
+  for (const l of [...(vendas ?? []), ...(base ?? [])]) {
+    if (l.id != null) ids.add(l.id);
+    if (l.nome) nomes.add(l.nome);
+  }
+  return { ids: [...ids], nomes: [...nomes] };
+}
+
+type Compra = { id: number | null; nome: string | null };
+
+/** Na base da planilha, pelo HMAC do CPF. */
+async function baseDoCpf(cpf: string): Promise<Compra[] | null> {
   if (!bancoConfigurado()) return null;
   try {
     await garantirEsquema();
     const linhas = (await sql().query(
-      `select distinct v.produto_id
+      `select distinct produto_id, produto from alunos_base where cpf_hash = $1`,
+      [hashDe(cpf, "cpf")],
+    )) as { produto_id: string | null; produto: string | null }[];
+    return linhas.map((l) => ({ id: l.produto_id == null ? null : Number(l.produto_id), nome: l.produto }));
+  } catch (erro) {
+    console.error("[alunoclube] busca na base falhou:", erro);
+    return null;
+  }
+}
+
+/** Nas vendas espelhadas da Eduzz. */
+async function produtosDoCpf(cpf: string): Promise<Compra[] | null> {
+  if (!bancoConfigurado()) return null;
+  try {
+    await garantirEsquema();
+    const linhas = (await sql().query(
+      `select distinct v.produto_id, v.produto
          from vendas v
         where v.paga
           and v.produto_id is not null
@@ -67,8 +101,8 @@ export async function produtosDoCpf(cpf: string): Promise<number[] | null> {
                     and regexp_replace(b.value #>> '{}', '\\D', '', 'g') = $1)
           )`,
       [cpf],
-    )) as { produto_id: string | number }[];
-    return linhas.map((l) => Number(l.produto_id));
+    )) as { produto_id: string | number; produto: string | null }[];
+    return linhas.map((l) => ({ id: Number(l.produto_id), nome: l.produto }));
   } catch (erro) {
     console.error("[alunoclube] busca do CPF falhou:", erro);
     return null;
@@ -180,6 +214,46 @@ export function lerPasse(valor: string | undefined): string | null {
   try {
     const { c, a } = JSON.parse(Buffer.from(corpo, "base64url").toString()) as { c: string; a: number };
     return typeof c === "string" && a > Date.now() ? c : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Substitui a base da planilha (ou acrescenta, nos lotes seguintes ao
+ * primeiro). Recebe os CPFs já limpos; grava só o HMAC.
+ */
+export async function gravarBase(
+  linhas: { cpf: string; produtoId: number | null; produto: string | null }[],
+  substituir: boolean,
+): Promise<number> {
+  await garantirEsquema();
+  const s = sql();
+  if (substituir) await s.query(`delete from alunos_base where fonte = 'csv'`);
+  if (linhas.length === 0) return 0;
+  await s.query(
+    `insert into alunos_base (cpf_hash, produto_id, produto, fonte)
+     select h, p, n, 'csv' from unnest($1::text[], $2::bigint[], $3::text[]) as t(h, p, n)`,
+    [
+      linhas.map((l) => hashDe(l.cpf, "cpf")),
+      linhas.map((l) => l.produtoId),
+      linhas.map((l) => l.produto),
+    ],
+  );
+  return linhas.length;
+}
+
+/** Para o painel: a base da planilha por produto. */
+export async function resumoBase(): Promise<
+  { produto: string; cpfs: number }[] | null
+> {
+  if (!bancoConfigurado()) return null;
+  try {
+    await garantirEsquema();
+    return (await sql().query(
+      `select coalesce(produto, '(sem nome)') as produto, count(distinct cpf_hash)::int as cpfs
+         from alunos_base group by 1 order by cpfs desc`,
+    )) as { produto: string; cpfs: number }[];
   } catch {
     return null;
   }

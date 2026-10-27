@@ -6,9 +6,11 @@
 // alunos já liberaram cada cupom.
 
 import {
+  resumoBase,
   resumoPorProduto,
   validacoesPorCupom,
 } from "../../../lib/alunoClubeRepo";
+import ImportarBase from "./ImportarBase";
 import { REGRAS_CUPOM } from "../../../alunoclube/cupons";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +18,10 @@ export const dynamic = "force-dynamic";
 const reais = (v: number) => `R$ ${v.toLocaleString("pt-BR")}`;
 
 export default async function PainelAlunoClube() {
-  const [produtos, validacoes] = await Promise.all([
+  const [produtos, validacoes, base] = await Promise.all([
     resumoPorProduto(),
     validacoesPorCupom(),
+    resumoBase(),
   ]);
 
   const cupomDoProduto = new Map<number, string>();
@@ -71,6 +74,35 @@ export default async function PainelAlunoClube() {
                 <td className="font-mono text-xs">{r.produtos.join(", ")}</td>
                 <td className="font-mono">{r.cupom}</td>
                 <td>{reais(r.preco)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <h2 className="mt-10 text-lg font-bold text-gray-900">
+        Base de alunos (planilha)
+      </h2>
+      <p className="mt-1 text-sm text-gray-600">
+        Complementa as vendas espelhadas (que começam em 2025) com o histórico
+        completo da Eduzz.
+      </p>
+      <div className="mt-3">
+        <ImportarBase />
+      </div>
+      {base && base.length > 0 && (
+        <table className="mt-4 w-full text-left text-sm">
+          <thead className="text-xs uppercase text-gray-500">
+            <tr>
+              <th className="py-2">Produto (planilha)</th>
+              <th className="text-right">CPFs</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {base.map((b) => (
+              <tr key={b.produto}>
+                <td className="py-1.5">{b.produto}</td>
+                <td className="text-right">{b.cpfs}</td>
               </tr>
             ))}
           </tbody>

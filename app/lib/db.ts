@@ -612,6 +612,20 @@ create table if not exists alunoclube_tentativas (
 );
 `,
   "create index if not exists alunoclube_tentativas_ip_idx on alunoclube_tentativas (ip_hash, em desc);",
+  // A base de alunos subida por planilha (CSV da Eduzz) no painel. Complementa
+  // as vendas espelhadas, que só começam em 2025: a planilha cobre desde 2024.
+  // Sem CPF em claro — só o HMAC, o mesmo usado na conferência.
+  `
+create table if not exists alunos_base (
+  id            bigserial primary key,
+  cpf_hash      text not null,
+  produto_id    bigint,
+  produto       text,
+  fonte         text not null default 'csv',
+  carregado_em  timestamptz not null default now()
+);
+`,
+  "create index if not exists alunos_base_cpf_idx on alunos_base (cpf_hash);",
 ];
 
 /** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */

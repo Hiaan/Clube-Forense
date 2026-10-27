@@ -6,8 +6,7 @@
 // A REGRA: o CPF digitado na página é procurado nas vendas PAGAS da Eduzz que
 // o site já espelha (tabela `vendas`). Se ele comprou um dos produtos abaixo,
 // recebe o cupom daquela linha. Quem comprou mais de um produto da lista
-// recebe o cupom da PRIMEIRA linha em que se encaixa — então a ordem aqui é a
-// ordem de prioridade: ponha em cima o cupom que deve vencer.
+// recebe o de MENOR preço (o maior cashback) — a ordem aqui não importa.
 //
 // `produtos` são os códigos de produto da Eduzz. Eles aparecem no painel, em
 // /admin/alunoclube, junto com quantos compradores de cada um têm o CPF
@@ -18,6 +17,12 @@ export interface RegraCupom {
   rotulo: string;
   /** Códigos de produto da Eduzz que dão direito a este cupom. */
   produtos: number[];
+  /**
+   * Nomes de produto que também dão direito (para a base subida por planilha,
+   * que pode vir sem código). Basta o nome da compra CONTER um destes trechos;
+   * maiúsculas e acentos não importam.
+   */
+  nomes?: string[];
   /** O código do cupom na Eduzz. */
   cupom: string;
   /**
@@ -57,3 +62,32 @@ export const COOKIE_ALUNO = "cf_aluno";
  * CONFERIR os nomes exatos dos produtos com o Clube.
  */
 export const NAO_INCLUI = ["as mentorias", "os intensivões"];
+
+/** Texto sem acento e em minúsculas, para comparar nomes de produto. */
+export function normalizarNome(v: string): string {
+  return v
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * A regra deste aluno: entre todas em que alguma compra dele se encaixa, a de
+ * MENOR preço — o maior cashback. Quem tem eBook e preparatório fica com o do
+ * preparatório; quem tem cinco preparatórios conta um só.
+ */
+export function regraPara(ids: number[], nomes: string[]): RegraCupom | null {
+  const ns = nomes.map(normalizarNome);
+  const cabem = REGRAS_CUPOM.filter(
+    (r) =>
+      r.produtos.some((p) => ids.includes(p)) ||
+      (r.nomes ?? []).some((trecho) =>
+        ns.some((n) => n.includes(normalizarNome(trecho))),
+      ),
+  );
+  return cabem.reduce<RegraCupom | null>(
+    (melhor, r) => (!melhor || r.preco < melhor.preco ? r : melhor),
+    null,
+  );
+}

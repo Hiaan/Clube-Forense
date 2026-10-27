@@ -13,12 +13,12 @@ import {
   cpfValido,
   hashDe,
   limparCpf,
-  produtosDoCpf,
+  comprasDoCpf,
   registrarTentativa,
   registrarValidacao,
   tentativasRecentes,
 } from "../lib/alunoClubeRepo";
-import { COOKIE_ALUNO, REGRAS_CUPOM } from "./cupons";
+import { COOKIE_ALUNO, REGRAS_CUPOM, regraPara } from "./cupons";
 
 export type RespostaAluno =
   | { ok: true }
@@ -55,15 +55,13 @@ export async function validarAluno(
     return { ok: false, motivo: "limite" };
   }
 
-  const comprados = await produtosDoCpf(cpf);
+  const comprados = await comprasDoCpf(cpf);
   if (comprados === null) {
     await registrarTentativa(ipHash, false);
     return { ok: false, motivo: "erro" };
   }
 
-  const regra = REGRAS_CUPOM.find((r) =>
-    r.produtos.some((p) => comprados.includes(p)),
-  );
+  const regra = regraPara(comprados.ids, comprados.nomes);
   await registrarTentativa(ipHash, Boolean(regra));
   if (!regra) return { ok: false, motivo: "nao-encontrado" };
 
