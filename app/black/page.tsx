@@ -28,7 +28,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import Avatar from "../components/Avatar";
 import BarraFixa from "./BarraFixa";
 import BioProfessor from "./BioProfessor";
 import CarrosselEditais from "./CarrosselEditais";
@@ -38,6 +37,7 @@ import FundoCapas from "./FundoCapas";
 import Depoimentos from "./Depoimentos";
 import DrBonet from "./DrBonet";
 import HeroComposicao from "./HeroComposicao";
+import MuralAprovados from "./MuralAprovados";
 import SecaoPlataforma from "./plataforma/SecaoPlataforma";
 import { PROFESSORES } from "./professores";
 import Ticker from "./Ticker";
@@ -439,9 +439,9 @@ export default async function BlackPage() {
             Professores que são médicos-legistas
           </Titulo>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
-            Não é professor de cursinho que estudou o edital. É quem faz
-            perícia, assina laudo e já passou pelo concurso que você vai
-            prestar.
+            Conheça um pouco mais dos professores e criadores do Clube Forense que
+            vivem e respiram medicina legal todos os dias, seja ensinando ou
+            trabalhando.
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {PROFESSORES.map((p) => (
@@ -478,32 +478,12 @@ export default async function BlackPage() {
             médico-legista realizados no país.
           </p>
 
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {mural.map((a) => (
-              <div
-                key={`${a.uf}-${a.nome}`}
-                className="card-white p-5 text-center"
-              >
-                <div className="flex justify-center">
-                  <Avatar nome={a.nome} size={88} />
-                </div>
-                <p className="mt-3 text-sm font-bold leading-tight text-gray-900">
-                  {a.nome}
-                </p>
-                <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#b38f00]">
-                  {a.onde}
-                </p>
-                {a.destaque && (
-                  <p className="mt-1 text-[11px] text-gray-500">{a.destaque}</p>
-                )}
-              </div>
-            ))}
-          </div>
+          <MuralAprovados aprovados={mural} />
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-4">
+          {/* O placar de todos os concursos, não só dos quatro maiores. */}
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {Object.entries(APROVADOS)
               .sort((a, b) => b[1].total - a[1].total)
-              .slice(0, 4)
               .map(([uf, a]) => (
                 <div
                   key={uf}
