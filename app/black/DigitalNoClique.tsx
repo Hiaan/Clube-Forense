@@ -47,7 +47,9 @@ export default function DigitalNoClique() {
       if (!alvo?.closest(ALVOS)) return;
 
       const marca = document.createElement("span");
-      marca.className = fundoClaro(alvo) ? "digital-marca digital-marca--escura" : "digital-marca";
+      marca.className = fundoClaro(alvo)
+        ? "digital-marca digital-marca--escura"
+        : "digital-marca";
       marca.setAttribute("aria-hidden", "true");
       marca.style.left = `${e.clientX}px`;
       marca.style.top = `${e.clientY}px`;

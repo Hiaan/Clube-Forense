@@ -15,11 +15,11 @@ export const metadata: Metadata = {
   title:
     "Black Forense 2026 — todos os editais de médico-legista | Clube Forense",
   description:
-    "Acesso ao preparatório de todos os concursos de médico-legista autorizados hoje, mais todo edital que sair nos próximos 2 anos. Professores que são médicos-legistas, mais de 25 mil questões e o Dr. Bonet.",
+    "Acesso vitalício ao preparatório de todos os concursos de médico-legista autorizados até agora. Professores que são médicos-legistas, mais de 25 mil questões e o Dr. Bonet.",
   openGraph: {
     title: "Black Forense 2026 — todos os editais de médico-legista",
     description:
-      "Um preço, todos os editais autorizados e os que ainda vão sair nos próximos 2 anos.",
+      "Um preço só e acesso vitalício a todos os editais de médico-legista autorizados até agora.",
     type: "website",
   },
   robots: { index: true, follow: true },

@@ -72,7 +72,11 @@ function semRelogio(): null {
 
 /** O lote que vale agora e quanto falta para ele fechar. */
 export function useLote(): { lote: Lote | null; falta: Restante | null } {
-  const segundo = useSyncExternalStore(assinarRelogio, segundoAtual, semRelogio);
+  const segundo = useSyncExternalStore(
+    assinarRelogio,
+    segundoAtual,
+    semRelogio,
+  );
 
   if (segundo === null) return { lote: null, falta: null };
 
@@ -124,7 +128,8 @@ export default function Contador({ compacto = false }: { compacto?: boolean }) {
     return (
       <span className="font-mono text-sm font-black tabular-nums text-[#ffcd07]">
         {falta.dias > 0 && `${falta.dias}d `}
-        {String(falta.horas).padStart(2, "0")}:{String(falta.minutos).padStart(2, "0")}:
+        {String(falta.horas).padStart(2, "0")}:
+        {String(falta.minutos).padStart(2, "0")}:
         {String(falta.segundos).padStart(2, "0")}
       </span>
     );

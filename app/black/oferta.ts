@@ -112,11 +112,13 @@ export const EDITAIS_DA_BLACK: {
   { uf: "TO", sigla: "PC-TO", orgao: "Polícia Civil do Tocantins" },
   { uf: "AC", sigla: "PC-AC", orgao: "Polícia Civil do Acre", banca: "Idecan" },
   { uf: "MG", sigla: "PC-MG", orgao: "Polícia Civil de Minas Gerais" },
-  { uf: "MT", sigla: "POLITEC-MT", orgao: "Perícia Oficial e Identificação Técnica de Mato Grosso" },
+  { uf: "AM", sigla: "PC-AM", orgao: "Polícia Civil do Amazonas" },
+  {
+    uf: "MT",
+    sigla: "POLITEC-MT",
+    orgao: "Perícia Oficial e Identificação Técnica de Mato Grosso",
+  },
 ];
-
-/** Por quantos anos a compra garante os editais que ainda vão sair. */
-export const ANOS_DE_ACESSO = 2;
 
 /** WhatsApp da equipe, para dúvida antes da compra. */
 export const WHATSAPP =

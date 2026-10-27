@@ -18,78 +18,76 @@ export interface Materia {
 
 export const MATERIAS: Materia[] = [
   {
-    "slug": "medicina-legal",
-    "nome": "Medicina Legal",
-    "capa": "capas/medicina-legal.webp",
-    "modulos": [
+    slug: "medicina-legal",
+    nome: "Medicina Legal",
+    capa: "capas/medicina-legal.webp",
+    modulos: [
       {
-        "nome": "Fundamentos e perícia",
-        "aulas": [
+        nome: "Fundamentos e perícia",
+        aulas: [
           "História da medicina legal",
           "Perícias e peritos I (definição, finalidade e tipos de perícia, peritos oficiais e não oficiais, impedimento e suspensão)",
           "Perícias e peritos II (assistentes técnicos e cadeia de custódia)",
           "Documentos médico-legais (notificação compulsória, atestados, relatórios, parecer, depoimento oral)",
-          "Declaração de óbito (importância e orientações para preenchimento)"
-        ]
+          "Declaração de óbito (importância e orientações para preenchimento)",
+        ],
       },
       {
-        "nome": "Traumatologia e energias",
-        "aulas": [
+        nome: "Traumatologia e energias",
+        aulas: [
           "Traumatologia I (conceito, instrumentos perfurante, cortante, perfurocortante, contundente)",
           "Traumatologia forense (instrumentos cortocontundente, perfurocontundente, lesão corporal)",
           "Energias físicas: eletricidade",
           "Asfixiologia I (conceitos, fases da asfixia, sinais externos e internos)",
           "Asfixiologia II (confinamento, monóxido de carbono, sufocação direta e indireta, soterramento)",
           "Asfixiologia III (afogamento)",
-          "Asfixiologia IV (asfixias por constrição cervical)"
-        ]
+          "Asfixiologia IV (asfixias por constrição cervical)",
+        ],
       },
       {
-        "nome": "Tanatologia",
-        "aulas": [
+        nome: "Tanatologia",
+        aulas: [
           "Tanatologia I (morte encefálica, fases e processamento da morte, tempo de sobrevivência, fenômenos tanatológicos)",
           "Tanatologia II (fenômenos tanatológicos, cronotanatognose, reação vital, destinos do cadáver e necrópsia)",
-          "Ilustrando a Tanatologia"
-        ]
+          "Ilustrando a Tanatologia",
+        ],
       },
       {
-        "nome": "Sexologia e obstetrícia forense",
-        "aulas": [
+        nome: "Sexologia e obstetrícia forense",
+        aulas: [
           "Sexologia forense I e II (transtornos da sexualidade e crimes sexuais)",
           "Sexologia forense III (perícia do estupro)",
           "Gravidez, parto e puerpério. Aborto",
           "Aula de gravidez",
-          "Infanticídio"
-        ]
+          "Infanticídio",
+        ],
       },
       {
-        "nome": "Antropologia forense",
-        "aulas": [
-          "Antropologia forense"
-        ]
+        nome: "Antropologia forense",
+        aulas: ["Antropologia forense"],
       },
       {
-        "nome": "Infortunística",
-        "aulas": [
+        nome: "Infortunística",
+        aulas: [
           "Infortunística (parte 1)",
           "Infortunística (parte 2)",
           "Acidente de trabalho: conceito e tipos",
           "Acidente de trabalho: trajeto, concausa e perícia médica trabalhista",
           "Doença profissional × doença do trabalho, classificação de Schilling",
           "Acidente de trabalho: equiparações",
-          "Nexo técnico epidemiológico previdenciário"
-        ]
+          "Nexo técnico epidemiológico previdenciário",
+        ],
       },
       {
-        "nome": "Psicopatologia e toxicofilias",
-        "aulas": [
+        nome: "Psicopatologia e toxicofilias",
+        aulas: [
           "Psicopatologia (imputabilidade, semi-imputabilidade, responsabilidade penal, simulação e dissimulação)",
-          "Toxicofilias e embriaguez (drogas psicoativas, metabolismo do álcool, aspectos jurídicos da embriaguez)"
-        ]
+          "Toxicofilias e embriaguez (drogas psicoativas, metabolismo do álcool, aspectos jurídicos da embriaguez)",
+        ],
       },
       {
-        "nome": "Psiquiatria Forense",
-        "aulas": [
+        nome: "Psiquiatria Forense",
+        aulas: [
           "Introdução à psiquiatria forense",
           "Perícia psiquiátrica",
           "Perícia de imputabilidade",
@@ -103,12 +101,12 @@ export const MATERIAS: Materia[] = [
           "Perícias em direito previdenciário",
           "Psicopatia (parte 1)",
           "Psicopatia (parte 2)",
-          "Psicopatologia forense (perícias de imputabilidade, capacidade civil, classificação dos transtornos mentais)"
-        ]
+          "Psicopatologia forense (perícias de imputabilidade, capacidade civil, classificação dos transtornos mentais)",
+        ],
       },
       {
-        "nome": "Patologia",
-        "aulas": [
+        nome: "Patologia",
+        aulas: [
           "Patologia: conceitos básicos",
           "Adaptação, lesão e morte celular",
           "Inflamação",
@@ -123,19 +121,19 @@ export const MATERIAS: Materia[] = [
           "Principais doenças renais não neoplásicas",
           "Processamento histológico: colorações de rotina e espécimes citológicos",
           "Imuno-histoquímica",
-          "Coleta de amostras"
-        ]
-      }
-    ]
+          "Coleta de amostras",
+        ],
+      },
+    ],
   },
   {
-    "slug": "lingua-portuguesa",
-    "nome": "Língua Portuguesa",
-    "capa": "capas/lingua-portuguesa.webp",
-    "modulos": [
+    slug: "lingua-portuguesa",
+    nome: "Língua Portuguesa",
+    capa: "capas/lingua-portuguesa.webp",
+    modulos: [
       {
-        "nome": "Língua Portuguesa",
-        "aulas": [
+        nome: "Língua Portuguesa",
+        aulas: [
           "Introdução à língua portuguesa: como a banca cobra a matéria",
           "Tipologia textual: narração, descrição, dissertação e injunção",
           "Questões comentadas: tipologia textual",
@@ -182,12 +180,12 @@ export const MATERIAS: Materia[] = [
           "Questões comentadas: fonética e fonologia",
           "Questões comentadas: estrutura e formação de palavras",
           "Correlação verbal: combinação de tempos e modos verbais",
-          "Questões comentadas: correlação verbal"
-        ]
+          "Questões comentadas: correlação verbal",
+        ],
       },
       {
-        "nome": "Análise textual: fato, opinião e argumentação",
-        "aulas": [
+        nome: "Análise textual: fato, opinião e argumentação",
+        aulas: [
           "Fato e opinião: intencionalidade discursiva e efeitos de sentido",
           "Questões comentadas: fato, opinião e intencionalidade discursiva",
           "Implícitos: pressupostos, subentendidos e inferência",
@@ -195,12 +193,12 @@ export const MATERIAS: Materia[] = [
           "Ideias principais e secundárias e recursos de argumentação",
           "Questões comentadas: ideias principais e secundárias do texto",
           "Gêneros textuais: informativo, publicitário, normativo e literário",
-          "Questões comentadas FGV: tipos de texto"
-        ]
+          "Questões comentadas FGV: tipos de texto",
+        ],
       },
       {
-        "nome": "Redação oficial",
-        "aulas": [
+        nome: "Redação oficial",
+        aulas: [
           "Redação oficial: clareza, precisão, objetividade e concisão",
           "Redação oficial: coesão, coerência, impessoalidade e formalidade",
           "Questões comentadas: princípios da redação oficial",
@@ -211,34 +209,32 @@ export const MATERIAS: Materia[] = [
           "Redação oficial: memorando, relatório, requerimento e parecer",
           "Questões comentadas: padrão ofício e correspondência oficial",
           "Discurso direto e indireto e intertextualidade: citação, paródia e paráfrase",
-          "Questões comentadas: intertextualidade e alusão a outros textos"
-        ]
-      }
-    ]
+          "Questões comentadas: intertextualidade e alusão a outros textos",
+        ],
+      },
+    ],
   },
   {
-    "slug": "informatica",
-    "nome": "Informática",
-    "capa": "capas/informatica.webp",
-    "modulos": [
+    slug: "informatica",
+    nome: "Informática",
+    capa: "capas/informatica.webp",
+    modulos: [
       {
-        "nome": "Hardware",
-        "aulas": [
+        nome: "Hardware",
+        aulas: [
           "Hardware (aula 1)",
           "Hardware (aula 2)",
           "Hardware (aula 3)",
-          "Hardware (aula 4)"
-        ]
+          "Hardware (aula 4)",
+        ],
       },
       {
-        "nome": "Software",
-        "aulas": [
-          "Software"
-        ]
+        nome: "Software",
+        aulas: ["Software"],
       },
       {
-        "nome": "Windows",
-        "aulas": [
+        nome: "Windows",
+        aulas: [
           "Windows (aula 1)",
           "Windows (aula 2)",
           "Windows (aula 3)",
@@ -250,21 +246,21 @@ export const MATERIAS: Materia[] = [
           "Windows (aula 9)",
           "Windows (aula 10)",
           "Windows (aula 11)",
-          "Windows (aula 12)"
-        ]
+          "Windows (aula 12)",
+        ],
       },
       {
-        "nome": "Linux",
-        "aulas": [
+        nome: "Linux",
+        aulas: [
           "Linux (aula 1)",
           "Linux (aula 2)",
           "Linux (aula 3)",
-          "Linux (aula 4)"
-        ]
+          "Linux (aula 4)",
+        ],
       },
       {
-        "nome": "Word",
-        "aulas": [
+        nome: "Word",
+        aulas: [
           "Word (aula 1)",
           "Word (aula 2)",
           "Word (aula 3)",
@@ -276,12 +272,12 @@ export const MATERIAS: Materia[] = [
           "Word (aula 9)",
           "Word (aula 10)",
           "Word (aula 11)",
-          "Word (aula 12)"
-        ]
+          "Word (aula 12)",
+        ],
       },
       {
-        "nome": "Excel",
-        "aulas": [
+        nome: "Excel",
+        aulas: [
           "Excel (aula 1)",
           "Excel (aula 2)",
           "Excel (aula 3)",
@@ -293,27 +289,24 @@ export const MATERIAS: Materia[] = [
           "Excel (aula 9)",
           "Excel (aula 10)",
           "Excel (aula 11)",
-          "Excel (aula 12)"
-        ]
+          "Excel (aula 12)",
+        ],
       },
       {
-        "nome": "PowerPoint",
-        "aulas": [
-          "PowerPoint (aula 1)",
-          "PowerPoint (aula 2)"
-        ]
+        nome: "PowerPoint",
+        aulas: ["PowerPoint (aula 1)", "PowerPoint (aula 2)"],
       },
       {
-        "nome": "LibreOffice",
-        "aulas": [
+        nome: "LibreOffice",
+        aulas: [
           "LibreOffice (aula 1)",
           "LibreOffice (aula 2)",
-          "LibreOffice (aula 3)"
-        ]
+          "LibreOffice (aula 3)",
+        ],
       },
       {
-        "nome": "Redes de computadores",
-        "aulas": [
+        nome: "Redes de computadores",
+        aulas: [
           "Redes de computadores (aula 1)",
           "Redes de computadores (aula 2)",
           "Redes de computadores (aula 3)",
@@ -321,52 +314,52 @@ export const MATERIAS: Materia[] = [
           "Redes de computadores (aula 5)",
           "Redes de computadores (aula 6)",
           "Redes de computadores (aula 7)",
-          "Redes de computadores (aula 8)"
-        ]
+          "Redes de computadores (aula 8)",
+        ],
       },
       {
-        "nome": "Redes de comunicação",
-        "aulas": [
+        nome: "Redes de comunicação",
+        aulas: [
           "Redes de comunicação (aula 1)",
           "Redes de comunicação (aula 2)",
           "Redes de comunicação (aula 3)",
-          "Redes de comunicação (aula 4)"
-        ]
+          "Redes de comunicação (aula 4)",
+        ],
       },
       {
-        "nome": "Internet",
-        "aulas": [
+        nome: "Internet",
+        aulas: [
           "Internet, intranet e extranet (aula 1)",
           "Internet, intranet e extranet (aula 2)",
-          "Internet, intranet e extranet (aula 3)"
-        ]
+          "Internet, intranet e extranet (aula 3)",
+        ],
       },
       {
-        "nome": "Navegadores web",
-        "aulas": [
+        nome: "Navegadores web",
+        aulas: [
           "Navegadores web: geral (aula 1)",
           "Navegadores web: geral (aula 2)",
           "Navegadores web: geral (aula 3)",
           "Internet Explorer",
           "Edge",
           "Firefox",
-          "Chrome"
-        ]
+          "Chrome",
+        ],
       },
       {
-        "nome": "Nuvem, e-mail e web",
-        "aulas": [
+        nome: "Nuvem, e-mail e web",
+        aulas: [
           "Computação e armazenamento em nuvem",
           "Correio eletrônico",
           "Redes sociais",
           "Buscadores web",
           "Grupos de discussão",
-          "Dispositivos móveis"
-        ]
+          "Dispositivos móveis",
+        ],
       },
       {
-        "nome": "Segurança da informação",
-        "aulas": [
+        nome: "Segurança da informação",
+        aulas: [
           "Conceitos de segurança da informação (aula 1)",
           "Conceitos de segurança da informação (aula 2)",
           "Conceitos de segurança da informação (aula 3)",
@@ -377,21 +370,21 @@ export const MATERIAS: Materia[] = [
           "Criptografia (aula 1)",
           "Criptografia (aula 2)",
           "Assinatura digital",
-          "Certificado digital"
-        ]
+          "Certificado digital",
+        ],
       },
       {
-        "nome": "Google Workspace",
-        "aulas": [
+        nome: "Google Workspace",
+        aulas: [
           "Google Drive",
           "Google Docs",
           "Google Sheets",
-          "Google Apresentações"
-        ]
+          "Google Apresentações",
+        ],
       },
       {
-        "nome": "Tecnologias e legislação",
-        "aulas": [
+        nome: "Tecnologias e legislação",
+        aulas: [
           "Inteligência artificial",
           "Business intelligence",
           "Deep web, dark web e surface web (aula 1)",
@@ -399,12 +392,12 @@ export const MATERIAS: Materia[] = [
           "Deep web, dark web e surface web (aula 3)",
           "Marco Civil da Internet (aula 1)",
           "Marco Civil da Internet (aula 2)",
-          "Marco Civil da Internet (aula 3)"
-        ]
+          "Marco Civil da Internet (aula 3)",
+        ],
       },
       {
-        "nome": "Resolução de questões",
-        "aulas": [
+        nome: "Resolução de questões",
+        aulas: [
           "Word multibancas (bloco 1)",
           "Word multibancas (bloco 2)",
           "Word multibancas (bloco 3)",
@@ -416,19 +409,19 @@ export const MATERIAS: Materia[] = [
           "Windows multibancas (bloco 2)",
           "Windows multibancas (bloco 3)",
           "Windows multibancas (bloco 4)",
-          "Windows multibancas (bloco 5)"
-        ]
-      }
-    ]
+          "Windows multibancas (bloco 5)",
+        ],
+      },
+    ],
   },
   {
-    "slug": "raciocinio-logico",
-    "nome": "Raciocínio Lógico",
-    "capa": "capas/raciocinio-logico.webp",
-    "modulos": [
+    slug: "raciocinio-logico",
+    nome: "Raciocínio Lógico",
+    capa: "capas/raciocinio-logico.webp",
+    modulos: [
       {
-        "nome": "Raciocínio Lógico",
-        "aulas": [
+        nome: "Raciocínio Lógico",
+        aulas: [
           "Noções de lógica",
           "Tipos de proposição",
           "Valores lógicos das proposições (parte 1)",
@@ -454,12 +447,12 @@ export const MATERIAS: Materia[] = [
           "Problemas geométricos",
           "Matrizes (parte 1)",
           "Matrizes (parte 2)",
-          "Matrizes (parte 3)"
-        ]
+          "Matrizes (parte 3)",
+        ],
       },
       {
-        "nome": "Matemática básica",
-        "aulas": [
+        nome: "Matemática básica",
+        aulas: [
           "Introdução",
           "Soma e subtração",
           "Multiplicação",
@@ -470,12 +463,12 @@ export const MATERIAS: Materia[] = [
           "Operações com fração",
           "Potência (parte 1)",
           "Potência (parte 2)",
-          "Expressão numérica"
-        ]
+          "Expressão numérica",
+        ],
       },
       {
-        "nome": "Lógica e geometria analítica",
-        "aulas": [
+        nome: "Lógica e geometria analítica",
+        aulas: [
           "Equivalência",
           "Negação: leis de De Morgan",
           "Distância entre pontos",
@@ -485,23 +478,23 @@ export const MATERIAS: Materia[] = [
           "Progressão aritmética",
           "Geometria plana e distância entre pontos",
           "Questões Fundatec",
-          "Resolução de questões"
-        ]
+          "Resolução de questões",
+        ],
       },
       {
-        "nome": "Números complexos",
-        "aulas": [
+        nome: "Números complexos",
+        aulas: [
           "Motivação histórica",
           "Definindo o conjunto dos complexos",
           "Operações com complexos",
           "Número complexo: forma trigonométrica",
           "Número complexo: questões-chave",
-          "Leis de De Moivre"
-        ]
+          "Leis de De Moivre",
+        ],
       },
       {
-        "nome": "Trigonometria",
-        "aulas": [
+        nome: "Trigonometria",
+        aulas: [
           "Introdução à trigonometria (parte 1)",
           "Introdução à trigonometria (parte 2)",
           "Módulo de um número, comparação e soma",
@@ -512,19 +505,19 @@ export const MATERIAS: Materia[] = [
           "Trigonometria na circunferência",
           "Resolução: trigonometria na circunferência",
           "Transformações trigonométricas",
-          "Aula extra"
-        ]
-      }
-    ]
+          "Aula extra",
+        ],
+      },
+    ],
   },
   {
-    "slug": "direito-penal",
-    "nome": "Direito Penal",
-    "capa": "capas/direito-penal.webp",
-    "modulos": [
+    slug: "direito-penal",
+    nome: "Direito Penal",
+    capa: "capas/direito-penal.webp",
+    modulos: [
       {
-        "nome": "Direito Penal Geral",
-        "aulas": [
+        nome: "Direito Penal Geral",
+        aulas: [
           "Noções introdutórias e princípios fundamentais do direito penal",
           "Princípios constitucionais do direito penal (parte 1)",
           "Princípios constitucionais do direito penal (parte 2)",
@@ -552,12 +545,12 @@ export const MATERIAS: Materia[] = [
           "Concurso de pessoas (parte 2)",
           "Conflito aparente de normas (parte 1)",
           "Conflito aparente de normas (parte 2)",
-          "Concurso de crimes"
-        ]
+          "Concurso de crimes",
+        ],
       },
       {
-        "nome": "Direito Penal Especial",
-        "aulas": [
+        nome: "Direito Penal Especial",
+        aulas: [
           "Introdução aos crimes contra a vida",
           "Homicídio (aula 1)",
           "Homicídio (aula 2)",
@@ -601,38 +594,38 @@ export const MATERIAS: Materia[] = [
           "Crimes contra a administração pública (aula 6)",
           "Crimes contra a fé pública (aula 1)",
           "Crimes contra a fé pública (aula 2)",
-          "Crimes contra a fé pública (aula 3)"
-        ]
+          "Crimes contra a fé pública (aula 3)",
+        ],
       },
       {
-        "nome": "Atualizações 2026",
-        "aulas": [
+        nome: "Atualizações 2026",
+        aulas: [
           "Homicídio (parte 1)",
           "Homicídio (parte 2)",
           "Homicídio (parte 3)",
-          "Feminicídio (121-A) e vicaricídio (121-B)"
-        ]
-      }
-    ]
+          "Feminicídio (121-A) e vicaricídio (121-B)",
+        ],
+      },
+    ],
   },
   {
-    "slug": "direito-processual-penal",
-    "nome": "Direito Processual Penal",
-    "capa": "capas/direito-processual-penal.webp",
-    "modulos": [
+    slug: "direito-processual-penal",
+    nome: "Direito Processual Penal",
+    capa: "capas/direito-processual-penal.webp",
+    modulos: [
       {
-        "nome": "Disposições preliminares do CPP",
-        "aulas": [
+        nome: "Disposições preliminares do CPP",
+        aulas: [
           "Disposições preliminares do CPP (aula 0)",
           "Disposições preliminares do CPP (aula 1)",
           "Disposições preliminares do CPP (aula 2)",
           "Disposições preliminares do CPP (aula 3)",
-          "Disposições preliminares do CPP (aula 4)"
-        ]
+          "Disposições preliminares do CPP (aula 4)",
+        ],
       },
       {
-        "nome": "Inquérito policial",
-        "aulas": [
+        nome: "Inquérito policial",
+        aulas: [
           "Inquérito policial (aula 1)",
           "Inquérito policial (aula 2)",
           "Inquérito policial (aula 3)",
@@ -644,12 +637,12 @@ export const MATERIAS: Materia[] = [
           "Inquérito policial (aula 9)",
           "Inquérito policial (aula 10)",
           "Inquérito policial (aula 11)",
-          "Inquérito policial (aula 12)"
-        ]
+          "Inquérito policial (aula 12)",
+        ],
       },
       {
-        "nome": "Provas",
-        "aulas": [
+        nome: "Provas",
+        aulas: [
           "Teoria geral da prova (aula 1)",
           "Teoria geral da prova (aula 2)",
           "Provas em espécie (aula 1)",
@@ -664,12 +657,12 @@ export const MATERIAS: Materia[] = [
           "Interrogatório do acusado e confissão (parte 2)",
           "Busca e apreensão",
           "Das testemunhas (parte 1)",
-          "Das testemunhas (parte 2)"
-        ]
+          "Das testemunhas (parte 2)",
+        ],
       },
       {
-        "nome": "Prisões",
-        "aulas": [
+        nome: "Prisões",
+        aulas: [
           "Prisões (aula 1)",
           "Prisões (aula 2)",
           "Prisões (aula 3)",
@@ -681,12 +674,12 @@ export const MATERIAS: Materia[] = [
           "Prisão temporária",
           "Prisão preventiva (aula 1)",
           "Prisão preventiva (aula 2)",
-          "Prisão preventiva (aula 3)"
-        ]
+          "Prisão preventiva (aula 3)",
+        ],
       },
       {
-        "nome": "Ação penal",
-        "aulas": [
+        nome: "Ação penal",
+        aulas: [
           "Ação penal (aula 1)",
           "Ação penal (aula 2)",
           "Ação penal (aula 3)",
@@ -703,19 +696,19 @@ export const MATERIAS: Materia[] = [
           "Ação penal (aula 14)",
           "Ação penal (aula 15)",
           "Ação penal (aula 16)",
-          "Ação penal (aula 17)"
-        ]
-      }
-    ]
+          "Ação penal (aula 17)",
+        ],
+      },
+    ],
   },
   {
-    "slug": "direito-constitucional",
-    "nome": "Direito Constitucional",
-    "capa": "capas/direito-constitucional.webp",
-    "modulos": [
+    slug: "direito-constitucional",
+    nome: "Direito Constitucional",
+    capa: "capas/direito-constitucional.webp",
+    modulos: [
       {
-        "nome": "Direitos fundamentais",
-        "aulas": [
+        nome: "Direitos fundamentais",
+        aulas: [
           "Princípios fundamentais",
           "Direitos fundamentais (aula 2)",
           "Direitos fundamentais (aula 3)",
@@ -730,50 +723,50 @@ export const MATERIAS: Materia[] = [
           "Direitos políticos (aula 3)",
           "Direitos políticos (aula 4)",
           "Direitos sociais (aula 1)",
-          "Direitos sociais (aula 2)"
-        ]
+          "Direitos sociais (aula 2)",
+        ],
       },
       {
-        "nome": "Nacionalidade",
-        "aulas": [
+        nome: "Nacionalidade",
+        aulas: [
           "Nacionalidade (aula 1)",
           "Nacionalidade (aula 2)",
           "Nacionalidade (aula 3)",
-          "Nacionalidade (aula 4)"
-        ]
+          "Nacionalidade (aula 4)",
+        ],
       },
       {
-        "nome": "Remédios constitucionais",
-        "aulas": [
+        nome: "Remédios constitucionais",
+        aulas: [
           "Habeas corpus e habeas data",
           "Mandado de injunção",
           "Ação popular e ação civil pública",
-          "Mandado de segurança"
-        ]
+          "Mandado de segurança",
+        ],
       },
       {
-        "nome": "Organização do Estado",
-        "aulas": [
+        nome: "Organização do Estado",
+        aulas: [
           "Organização do Estado (aula 1)",
           "Organização do Estado (aula 2)",
           "Organização do Estado (aula 3)",
           "Organização do Estado (aula 4)",
-          "Organização do Estado (aula 5)"
-        ]
+          "Organização do Estado (aula 5)",
+        ],
       },
       {
-        "nome": "Administração pública",
-        "aulas": [
+        nome: "Administração pública",
+        aulas: [
           "Administração pública (aula 1)",
           "Administração pública (aula 2)",
           "Administração pública (aula 3)",
           "Administração pública (aula 4)",
-          "Administração pública (aula 5)"
-        ]
+          "Administração pública (aula 5)",
+        ],
       },
       {
-        "nome": "Os três poderes",
-        "aulas": [
+        nome: "Os três poderes",
+        aulas: [
           "Poder Executivo (aula 1)",
           "Poder Executivo (aula 2)",
           "Poder Executivo (aula 3)",
@@ -785,61 +778,61 @@ export const MATERIAS: Materia[] = [
           "Poder Judiciário (aula 1)",
           "Poder Judiciário (aula 2)",
           "Poder Judiciário (aula 3)",
-          "Poder Judiciário (aula 4)"
-        ]
+          "Poder Judiciário (aula 4)",
+        ],
       },
       {
-        "nome": "Processo legislativo",
-        "aulas": [
+        nome: "Processo legislativo",
+        aulas: [
           "Processo legislativo (aula 1)",
-          "Processo legislativo (aula 2)"
-        ]
+          "Processo legislativo (aula 2)",
+        ],
       },
       {
-        "nome": "Funções essenciais da justiça",
-        "aulas": [
+        nome: "Funções essenciais da justiça",
+        aulas: [
           "Funções essenciais da justiça (aula 1)",
-          "Funções essenciais da justiça (aula 2)"
-        ]
+          "Funções essenciais da justiça (aula 2)",
+        ],
       },
       {
-        "nome": "Da defesa do Estado",
-        "aulas": [
+        nome: "Da defesa do Estado",
+        aulas: [
           "Da defesa do Estado (aula 1)",
           "Da defesa do Estado (aula 2)",
           "Da defesa do Estado (aula 3)",
-          "Da defesa do Estado (aula 4)"
-        ]
-      }
-    ]
+          "Da defesa do Estado (aula 4)",
+        ],
+      },
+    ],
   },
   {
-    "slug": "direito-administrativo",
-    "nome": "Direito Administrativo",
-    "capa": "capas/direito-administrativo.webp",
-    "modulos": [
+    slug: "direito-administrativo",
+    nome: "Direito Administrativo",
+    capa: "capas/direito-administrativo.webp",
+    modulos: [
       {
-        "nome": "Estado, governo e administração",
-        "aulas": [
+        nome: "Estado, governo e administração",
+        aulas: [
           "Estado, governo e administração (aula 1)",
           "Estado, governo e administração (aula 2)",
           "Estado, governo e administração (aula 3)",
-          "Estado, governo e administração (aula 4)"
-        ]
+          "Estado, governo e administração (aula 4)",
+        ],
       },
       {
-        "nome": "Princípios",
-        "aulas": [
+        nome: "Princípios",
+        aulas: [
           "Princípios (aula 1)",
           "Princípios (aula 2)",
           "Princípios (aula 3)",
           "Princípios (aula 4)",
-          "Princípios (aula 5)"
-        ]
+          "Princípios (aula 5)",
+        ],
       },
       {
-        "nome": "Organização da administração pública",
-        "aulas": [
+        nome: "Organização da administração pública",
+        aulas: [
           "Organização da administração pública (aula 1)",
           "Organização da administração pública (aula 2)",
           "Organização da administração pública (aula 3)",
@@ -848,22 +841,22 @@ export const MATERIAS: Materia[] = [
           "Organização da administração pública (aula 6)",
           "Organização da administração pública (aula 7)",
           "Organização da administração pública (aula 8)",
-          "Organização da administração pública (aula 9)"
-        ]
+          "Organização da administração pública (aula 9)",
+        ],
       },
       {
-        "nome": "Poderes da administração",
-        "aulas": [
+        nome: "Poderes da administração",
+        aulas: [
           "Abuso de poder",
           "Poder discricionário, vinculado e disciplinar",
           "Poder hierárquico e normativo",
           "Polícia administrativa (aula 1)",
-          "Polícia administrativa (aula 2)"
-        ]
+          "Polícia administrativa (aula 2)",
+        ],
       },
       {
-        "nome": "Atos administrativos",
-        "aulas": [
+        nome: "Atos administrativos",
+        aulas: [
           "Atos administrativos (aula 1)",
           "Atos administrativos (aula 2)",
           "Atos administrativos (aula 3)",
@@ -873,42 +866,42 @@ export const MATERIAS: Materia[] = [
           "Atos administrativos (aula 7)",
           "Atos administrativos (aula 8)",
           "Atos administrativos (aula 9)",
-          "Atos administrativos (aula 10)"
-        ]
+          "Atos administrativos (aula 10)",
+        ],
       },
       {
-        "nome": "Agentes públicos",
-        "aulas": [
+        nome: "Agentes públicos",
+        aulas: [
           "Conceito e classificações",
           "Cargo público: criação, extinção e espécies",
           "Concurso público e estabilidade",
           "Estabilidade × vitaliciedade",
           "Cargo em comissão × função de confiança",
           "Remuneração",
-          "Responsabilidade do Estado"
-        ]
+          "Responsabilidade do Estado",
+        ],
       },
       {
-        "nome": "Responsabilidade civil do Estado",
-        "aulas": [
+        nome: "Responsabilidade civil do Estado",
+        aulas: [
           "Responsabilidade civil do Estado (aula 1)",
           "Responsabilidade civil do Estado (aula 2)",
           "Responsabilidade civil do Estado (aula 3)",
-          "Responsabilidade civil do Estado (aula 4)"
-        ]
+          "Responsabilidade civil do Estado (aula 4)",
+        ],
       },
       {
-        "nome": "Controle da administração pública",
-        "aulas": [
+        nome: "Controle da administração pública",
+        aulas: [
           "Controle da administração (aula 1)",
           "Controle da administração (aula 2)",
           "Controle da administração (aula 3)",
-          "Controle da administração (aula 4)"
-        ]
+          "Controle da administração (aula 4)",
+        ],
       },
       {
-        "nome": "Licitações",
-        "aulas": [
+        nome: "Licitações",
+        aulas: [
           "Licitações (aula 1)",
           "Licitações (aula 2)",
           "Licitações (aula 3)",
@@ -917,12 +910,12 @@ export const MATERIAS: Materia[] = [
           "Licitações (aula 6)",
           "Licitações (aula 7)",
           "Licitações (aula 8)",
-          "Licitações (aula 9)"
-        ]
+          "Licitações (aula 9)",
+        ],
       },
       {
-        "nome": "Improbidade administrativa",
-        "aulas": [
+        nome: "Improbidade administrativa",
+        aulas: [
           "Improbidade administrativa: conceito e agentes públicos",
           "Improbidade administrativa (aula 2)",
           "Improbidade administrativa: sujeitos passivos",
@@ -933,19 +926,19 @@ export const MATERIAS: Materia[] = [
           "Improbidade administrativa (aula 8)",
           "Improbidade administrativa (aula 9)",
           "Improbidade administrativa (aula 10)",
-          "Improbidade administrativa (aula 11)"
-        ]
-      }
-    ]
+          "Improbidade administrativa (aula 11)",
+        ],
+      },
+    ],
   },
   {
-    "slug": "criminalistica",
-    "nome": "Criminalística",
-    "capa": "capas/criminalistica.webp",
-    "modulos": [
+    slug: "criminalistica",
+    nome: "Criminalística",
+    capa: "capas/criminalistica.webp",
+    modulos: [
       {
-        "nome": "Criminalística · Ian Marques",
-        "aulas": [
+        nome: "Criminalística · Ian Marques",
+        aulas: [
           "Conceitos e histórico da criminalística",
           "Postulados e princípios da criminalística",
           "Locais de crime: conceitos e classificações",
@@ -963,30 +956,30 @@ export const MATERIAS: Materia[] = [
           "Documentos criminalísticos",
           "Tipos de provas e finalidade da criminalística",
           "Métodos em criminalística (aula 1)",
-          "Métodos em criminalística (aula 2)"
-        ]
+          "Métodos em criminalística (aula 2)",
+        ],
       },
       {
-        "nome": "Criminalística · Pedro Canezin",
-        "aulas": [
+        nome: "Criminalística · Pedro Canezin",
+        aulas: [
           "Histórico, conceito, postulados e princípios da criminalística",
           "Exame de corpo de delito e cadeia de custódia",
           "Perícias e peritos",
           "Teoria geral do local de crime (aula 1)",
           "Isolamento, preservação, finalidades do levantamento e buscas no local",
-          "Teoria geral do local de crime (aula 2)"
-        ]
-      }
-    ]
+          "Teoria geral do local de crime (aula 2)",
+        ],
+      },
+    ],
   },
   {
-    "slug": "genetica-forense",
-    "nome": "Genética Forense",
-    "capa": "capas/genetica-forense.webp",
-    "modulos": [
+    slug: "genetica-forense",
+    nome: "Genética Forense",
+    capa: "capas/genetica-forense.webp",
+    modulos: [
       {
-        "nome": "Genética Forense",
-        "aulas": [
+        nome: "Genética Forense",
+        aulas: [
           "Introdução à genética forense",
           "Coleta de material biológico",
           "Extração do DNA",
@@ -1012,19 +1005,19 @@ export const MATERIAS: Materia[] = [
           "Organismos geneticamente modificados",
           "Protocolos DVI e atendimento de desastres em massa I",
           "Protocolos DVI e atendimento de desastres em massa II",
-          "Protocolos DVI e atendimento de desastres em massa III"
-        ]
-      }
-    ]
+          "Protocolos DVI e atendimento de desastres em massa III",
+        ],
+      },
+    ],
   },
   {
-    "slug": "toxicologia-forense",
-    "nome": "Toxicologia Forense",
-    "capa": "capas/toxicologia-forense.webp",
-    "modulos": [
+    slug: "toxicologia-forense",
+    nome: "Toxicologia Forense",
+    capa: "capas/toxicologia-forense.webp",
+    modulos: [
       {
-        "nome": "Toxicologia Forense",
-        "aulas": [
+        nome: "Toxicologia Forense",
+        aulas: [
           "Introdução à toxicologia",
           "Introdução à toxicologia II",
           "Matrizes",
@@ -1037,29 +1030,29 @@ export const MATERIAS: Materia[] = [
           "Anfetaminas, LSD e inalantes",
           "Drogas sintéticas",
           "Médico legista, dopagem e entomotoxicologia",
-          "Médico legista, gases e metais"
-        ]
-      }
-    ]
+          "Médico legista, gases e metais",
+        ],
+      },
+    ],
   },
   {
-    "slug": "direitos-humanos",
-    "nome": "Direitos Humanos",
-    "capa": "capas/direitos-humanos.webp",
-    "modulos": [
+    slug: "direitos-humanos",
+    nome: "Direitos Humanos",
+    capa: "capas/direitos-humanos.webp",
+    modulos: [
       {
-        "nome": "Evolução histórica dos direitos humanos",
-        "aulas": [
+        nome: "Evolução histórica dos direitos humanos",
+        aulas: [
           "Evolução histórica (aula 1)",
           "Evolução histórica (aula 2)",
           "Evolução histórica (aula 3)",
           "Evolução histórica (aula 4)",
-          "Evolução histórica (aula 5)"
-        ]
+          "Evolução histórica (aula 5)",
+        ],
       },
       {
-        "nome": "Teoria geral dos direitos humanos",
-        "aulas": [
+        nome: "Teoria geral dos direitos humanos",
+        aulas: [
           "Conceitos, terminologias e noções introdutórias",
           "Fundamentos",
           "Fontes",
@@ -1071,19 +1064,19 @@ export const MATERIAS: Materia[] = [
           "Classificações diversas",
           "Resolução de questões (aula 1)",
           "Resolução de questões (aula 2)",
-          "Resolução de questões (aula 3)"
-        ]
+          "Resolução de questões (aula 3)",
+        ],
       },
       {
-        "nome": "Hermenêutica jurídica",
-        "aulas": [
+        nome: "Hermenêutica jurídica",
+        aulas: [
           "Hermenêutica jurídica (aula 1)",
-          "Hermenêutica jurídica (aula 2)"
-        ]
+          "Hermenêutica jurídica (aula 2)",
+        ],
       },
       {
-        "nome": "Estrutura dos direitos humanos",
-        "aulas": [
+        nome: "Estrutura dos direitos humanos",
+        aulas: [
           "Estrutura normativa do sistema global (aula 1)",
           "Estrutura normativa do sistema global (aula 2)",
           "Estrutura normativa do sistema global (aula 3)",
@@ -1100,27 +1093,25 @@ export const MATERIAS: Materia[] = [
           "Estrutura normativa do sistema global (aula 14)",
           "Questões: estrutura normativa do sistema global (1)",
           "Questões: estrutura normativa do sistema global (2)",
-          "Questões: estrutura normativa do sistema global (3)"
-        ]
+          "Questões: estrutura normativa do sistema global (3)",
+        ],
       },
       {
-        "nome": "Democratização dos direitos humanos",
-        "aulas": [
-          "Democratização dos direitos humanos"
-        ]
+        nome: "Democratização dos direitos humanos",
+        aulas: ["Democratização dos direitos humanos"],
       },
       {
-        "nome": "Democracia, cidadania e direitos humanos",
-        "aulas": [
+        nome: "Democracia, cidadania e direitos humanos",
+        aulas: [
           "Democracia, cidadania e direitos humanos (aula 1)",
           "Democracia, cidadania e direitos humanos (aula 2)",
           "Democracia, cidadania e direitos humanos (aula 3)",
-          "Democracia, cidadania e direitos humanos (aula 4)"
-        ]
+          "Democracia, cidadania e direitos humanos (aula 4)",
+        ],
       },
       {
-        "nome": "Constituição Federal de 1988",
-        "aulas": [
+        nome: "Constituição Federal de 1988",
+        aulas: [
           "CF/88 e direitos humanos (aula 1)",
           "CF/88 e direitos humanos (aula 2)",
           "CF/88 e direitos humanos (aula 3)",
@@ -1130,54 +1121,52 @@ export const MATERIAS: Materia[] = [
           "CF/88 e direitos humanos (aula 7)",
           "CF/88 e direitos humanos (aula 8)",
           "CF/88 e direitos humanos (aula 9)",
-          "CF/88 e direitos humanos (aula 10)"
-        ]
+          "CF/88 e direitos humanos (aula 10)",
+        ],
       },
       {
-        "nome": "Convenção Americana de Direitos Humanos",
-        "aulas": [
+        nome: "Convenção Americana de Direitos Humanos",
+        aulas: [
           "Convenção Americana sobre Direitos Humanos (aula 1)",
           "Convenção Americana sobre Direitos Humanos (aula 2)",
           "Convenção Americana sobre Direitos Humanos (aula 3)",
           "Convenção Americana sobre Direitos Humanos (aula 4)",
           "Convenção Americana sobre Direitos Humanos (aula 5)",
-          "Convenção Americana sobre Direitos Humanos (aula 6)"
-        ]
+          "Convenção Americana sobre Direitos Humanos (aula 6)",
+        ],
       },
       {
-        "nome": "Política Nacional de Direitos Humanos",
-        "aulas": [
+        nome: "Política Nacional de Direitos Humanos",
+        aulas: [
           "Política Nacional de Direitos Humanos (aula 1)",
-          "PNDH (aula 2)"
-        ]
+          "PNDH (aula 2)",
+        ],
       },
       {
-        "nome": "Grupos vulneráveis",
-        "aulas": [
+        nome: "Grupos vulneráveis",
+        aulas: [
           "Grupos vulneráveis e minorias (aula 1)",
           "Grupos vulneráveis e minorias (aula 2)",
           "Grupos vulneráveis e minorias (aula 3)",
           "Grupos vulneráveis e minorias (aula 4)",
           "Grupos vulneráveis e minorias (aula 5)",
-          "Grupos vulneráveis e minorias (aula 6)"
-        ]
+          "Grupos vulneráveis e minorias (aula 6)",
+        ],
       },
       {
-        "nome": "Agenda 2030",
-        "aulas": [
-          "Agenda 2030"
-        ]
-      }
-    ]
+        nome: "Agenda 2030",
+        aulas: ["Agenda 2030"],
+      },
+    ],
   },
   {
-    "slug": "legislacao-extravagante",
-    "nome": "Legislação Extravagante",
-    "capa": "capas/legislacao-extravagante.webp",
-    "modulos": [
+    slug: "legislacao-extravagante",
+    nome: "Legislação Extravagante",
+    capa: "capas/legislacao-extravagante.webp",
+    modulos: [
       {
-        "nome": "Legislação Extravagante",
-        "aulas": [
+        nome: "Legislação Extravagante",
+        aulas: [
           "Crimes cibernéticos e perseguição (stalking, art. 147-A do CP)",
           "Crimes do ECA e infiltração virtual de agentes",
           "Crimes de tortura",
@@ -1194,12 +1183,12 @@ export const MATERIAS: Materia[] = [
           "Lei 12.403/11: cautelares, fiança e Resolução CNJ (BNMP)",
           "Lei 14.155/21: fraude eletrônica e invasão de dispositivo",
           "Marco Civil da Internet (Lei 12.965/14)",
-          "Uso de algemas: Súmula Vinculante 11 e Lei 13.434"
-        ]
+          "Uso de algemas: Súmula Vinculante 11 e Lei 13.434",
+        ],
       },
       {
-        "nome": "Abuso de autoridade",
-        "aulas": [
+        nome: "Abuso de autoridade",
+        aulas: [
           "Abuso de autoridade (aula 1)",
           "Abuso de autoridade (aula 2)",
           "Abuso de autoridade (aula 3)",
@@ -1208,9 +1197,9 @@ export const MATERIAS: Materia[] = [
           "Abuso de autoridade (aula 6)",
           "Crimes de abuso de autoridade",
           "Questões: abuso de autoridade (1)",
-          "Questões: abuso de autoridade (2)"
-        ]
-      }
-    ]
-  }
+          "Questões: abuso de autoridade (2)",
+        ],
+      },
+    ],
+  },
 ];

@@ -22,7 +22,8 @@ export default function FitaDeProgresso() {
       const el = fita.current;
       if (!el) return;
       const total = document.documentElement.scrollHeight - window.innerHeight;
-      const p = total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0;
+      const p =
+        total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0;
       el.style.transform = `scaleX(${p})`;
     };
     const pedir = () => {
@@ -39,8 +40,15 @@ export default function FitaDeProgresso() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-1.5">
-      <div ref={fita} className="fita-progresso h-full w-full" style={{ transform: "scaleX(0)" }} />
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-1.5"
+    >
+      <div
+        ref={fita}
+        className="fita-progresso h-full w-full"
+        style={{ transform: "scaleX(0)" }}
+      />
     </div>
   );
 }

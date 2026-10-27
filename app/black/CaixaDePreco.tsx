@@ -95,7 +95,7 @@ export default function CaixaDePreco({
           className="mx-auto mt-3 h-6 w-auto sm:h-7"
         />
         <p className="mt-4 text-base font-semibold text-white/60">
-          + para todos os editais autorizados até 2028
+          + para todos os editais autorizados até agora
         </p>
 
         <Image
@@ -237,7 +237,7 @@ export default function CaixaDePreco({
         <p className="mt-5 text-sm leading-relaxed text-white/60">
           Acesso <strong className="font-black text-white">VITALÍCIO</strong> à
           plataforma e ao material pré e pós-edital de todos os concursos
-          autorizados até 2028
+          autorizados até agora
         </p>
         <p className="mt-3 text-xs text-white/40">
           {aluno

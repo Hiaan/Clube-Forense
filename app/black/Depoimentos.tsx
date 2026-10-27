@@ -107,7 +107,12 @@ const DEPOIMENTOS: Depoimento[] = [
 /** O triângulo do play. Em SVG para não depender de fonte nem de emoji. */
 function Play({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className={className}
+    >
       <path d="M8 5.5v13a1 1 0 0 0 1.52.85l10.5-6.5a1 1 0 0 0 0-1.7L9.52 4.65A1 1 0 0 0 8 5.5Z" />
     </svg>
   );
@@ -199,8 +204,14 @@ function Player({ d, aoFechar }: { d: Depoimento; aoFechar: () => void }) {
                   que builds livres do Chromium tocam — sem ele, parte do Linux
                   abre o depoimento e vê um retângulo preto. O navegador pega a
                   primeira fonte que sabe ler e baixa só aquela. */}
-              <source src={`/black/depoimentos/${d.capa}.webm`} type="video/webm" />
-              <source src={`/black/depoimentos/${d.arquivo}`} type="video/mp4" />
+              <source
+                src={`/black/depoimentos/${d.capa}.webm`}
+                type="video/webm"
+              />
+              <source
+                src={`/black/depoimentos/${d.arquivo}`}
+                type="video/mp4"
+              />
             </video>
           )}
         </div>
@@ -259,10 +270,14 @@ function Cartao({ d, aoAbrir }: { d: Depoimento; aoAbrir: () => void }) {
       ) : (
         // Sem vídeo não há botão: um retângulo clicável que não faz nada é pior
         // do que um retângulo honesto.
-        <div className="group relative block aspect-[3/4] w-full overflow-hidden">{capa}</div>
+        <div className="group relative block aspect-[3/4] w-full overflow-hidden">
+          {capa}
+        </div>
       )}
       <figcaption className="px-4 pt-4">
-        <p className="text-sm font-black leading-tight text-gray-900">{d.nome}</p>
+        <p className="text-sm font-black leading-tight text-gray-900">
+          {d.nome}
+        </p>
         <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#b38f00]">
           {d.cargo}
         </p>
@@ -307,7 +322,13 @@ export default function Depoimentos() {
 
   // O estado do arrasto mora em ref, não em state: ele muda a cada pixel do
   // mouse e um render por pixel transformaria o arrasto num slideshow.
-  const arrasto = useRef({ ativo: false, preso: false, x0: 0, scroll0: 0, andou: 0 });
+  const arrasto = useRef({
+    ativo: false,
+    preso: false,
+    x0: 0,
+    scroll0: 0,
+    andou: 0,
+  });
 
   /** Acende e apaga as setas conforme a faixa chega nas pontas. */
   const medir = useCallback(() => {
@@ -331,7 +352,10 @@ export default function Depoimentos() {
     const el = faixa.current;
     const cartao = el?.firstElementChild as HTMLElement | undefined;
     if (!el || !cartao) return;
-    el.scrollBy({ left: direcao * (cartao.clientWidth + 16), behavior: "smooth" });
+    el.scrollBy({
+      left: direcao * (cartao.clientWidth + 16),
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -437,7 +461,9 @@ export default function Depoimentos() {
             type="button"
             onClick={() => andar(lado === "dir" ? 1 : -1)}
             disabled={desligada}
-            aria-label={lado === "dir" ? "Próximos depoimentos" : "Depoimentos anteriores"}
+            aria-label={
+              lado === "dir" ? "Próximos depoimentos" : "Depoimentos anteriores"
+            }
             className={`absolute top-[34%] z-10 hidden h-11 w-11 place-items-center rounded-full border border-gray-200 bg-white text-gray-900 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.3)] transition hover:border-gray-900 disabled:pointer-events-none disabled:opacity-0 sm:grid ${
               lado === "dir" ? "-right-3" : "-left-3"
             }`}

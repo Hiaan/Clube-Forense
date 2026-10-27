@@ -31,29 +31,59 @@ const A = (n: string) => BASE + (n.startsWith("capas/") ? n : `img/${n}`);
 const esc = (t: string) =>
   String(t).replace(
     /[&<>"]/g,
-    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string,
   );
 
 const ICO: Record<string, string> = {
   aula: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>',
-  questao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
-  ebook: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5a2 2 0 012-2h5v16H5a2 2 0 00-2 2zM21 5a2 2 0 00-2-2h-5v16h5a2 2 0 012 2z"/></svg>',
-  cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="3" width="14" height="16" rx="2"/><path d="M4 7v12a2 2 0 002 2h10"/></svg>',
+  questao:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+  ebook:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5a2 2 0 012-2h5v16H5a2 2 0 00-2 2zM21 5a2 2 0 00-2-2h-5v16h5a2 2 0 012 2z"/></svg>',
+  cards:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="3" width="14" height="16" rx="2"/><path d="M4 7v12a2 2 0 002 2h10"/></svg>',
   mapa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.3" fill="currentColor"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor"/></svg>',
-  simulado: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
-  timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
+  simulado:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
+  timer:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
 };
 
 type Quadro = [arquivo: string, legenda: string];
 
 // Destinos reais de Tanatologia (o que abre ao clicar no cronograma e no edital).
 const DESTINOS: Record<string, { t: string; imgs: Quadro[] }> = {
-  aula: { t: "Aula · Tanatologia I · Dra. Erika Anjos", imgs: [["destino-aula.jpg", "Aula do professor"]] },
-  questao: { t: "Questões · Tanatologia forense", imgs: [["destino-questao.jpg", "Banco de questões no assunto"]] },
-  simulado: { t: "Simulado · Tanatologia forense", imgs: [["destino-questao.jpg", "Simulado só com o assunto"]] },
-  ebook: { t: "eBook · Tanatologia Forense", imgs: [["destino-ebook-1.jpg", "eBook do assunto"], ["destino-ebook-2.jpg", "Página do eBook"]] },
-  cards: { t: "Flashcards", imgs: [["destino-cards.jpg", "Cards dos professores"]] },
-  mapa: { t: "Mapa mental · Tanatologia", imgs: [["destino-mapa-1.jpg", "Mapa mental ilustrado"], ["destino-mapa-2.jpg", "Por dentro do mapa"]] },
+  aula: {
+    t: "Aula · Tanatologia I · Dra. Erika Anjos",
+    imgs: [["destino-aula.jpg", "Aula do professor"]],
+  },
+  questao: {
+    t: "Questões · Tanatologia forense",
+    imgs: [["destino-questao.jpg", "Banco de questões no assunto"]],
+  },
+  simulado: {
+    t: "Simulado · Tanatologia forense",
+    imgs: [["destino-questao.jpg", "Simulado só com o assunto"]],
+  },
+  ebook: {
+    t: "eBook · Tanatologia Forense",
+    imgs: [
+      ["destino-ebook-1.jpg", "eBook do assunto"],
+      ["destino-ebook-2.jpg", "Página do eBook"],
+    ],
+  },
+  cards: {
+    t: "Flashcards",
+    imgs: [["destino-cards.jpg", "Cards dos professores"]],
+  },
+  mapa: {
+    t: "Mapa mental · Tanatologia",
+    imgs: [
+      ["destino-mapa-1.jpg", "Mapa mental ilustrado"],
+      ["destino-mapa-2.jpg", "Por dentro do mapa"],
+    ],
+  },
 };
 
 interface Aba {
@@ -71,34 +101,107 @@ interface Aba {
 }
 
 const ABAS: Aba[] = [
-  { id: "aulas", nome: "Aulas", titulo: "Conheça nossas aulas",
-    texto: "Clique na matéria que você tem interesse e veja a lista de aulas já disponíveis. Por dentro, cada aula tem o vídeo do professor, a lista das próximas aulas ao lado, os <b>bizus</b>, os <b>slides para baixar</b> e a nossa IA para tirar dúvida na hora.",
-    midia: "slides", frames: [["aula-1.jpg", "Aula do professor + lista de aulas"], ["aula-2.jpg", "Bizus da aula"], ["aula-3.jpg", "Slides para baixar"]], extra: "capas" },
-  { id: "questoes", nome: "Questões", titulo: "Mais de 25 mil questões das bancas do cargo",
-    texto: "Filtre por banca, ano, assunto e órgão. E veja os comentários dos professores <b>em texto, em áudio e em vídeo</b> — o professor resolvendo a questão com você.",
-    midia: "slides", frames: [["questao-1.jpg", "Questão real de prova"], ["questao-2.jpg", "Você marca a alternativa"], ["questao-3.jpg", "Comentário em texto"], ["questao-4.jpg", "Comentário em vídeo"]],
-    chips: [["Questão", 0], ["Comentário em texto", 2], ["Comentário em vídeo", 3]] },
-  { id: "cronograma", nome: "Cronograma", titulo: "Abriu o dia, já sabe o que estudar",
-    texto: "O cronograma monta as sessões do dia a partir do seu edital. Cada sessão já traz os atalhos: <b>clique em Aulas e a aula abre na tela</b>; em Mapas, o mapa mental; em Questões, as questões daquele tema. Experimente ao lado.",
-    midia: "crono" },
-  { id: "mapas", nome: "Mapas mentais", titulo: "Cada assunto numa página ilustrada",
-    texto: "Mapas mentais desenhados pelo Clube, para a revisão da véspera: você olha o mapa e lembra do resto.",
-    destaque: ["+30", "mapas mentais de Medicina Legal e Direito"], midia: "video", video: "mapas.mp4" },
-  { id: "ebooks", nome: "eBooks", titulo: "eBooks de todas as matérias",
-    texto: "Escritos pelos nossos professores a partir das principais bibliografias, já no recorte que a prova de médico legista cobra. Ao lado, as primeiras páginas do eBook de Traumatologia Forense.",
-    midia: "rolagem", img: "ebook-trauma-pilha.jpg" },
-  { id: "flashcards", nome: "Flashcards", titulo: "Revisão ativa, no intervalo do plantão",
-    texto: "Flashcards feitos pelos nossos professores médicos legistas: a pergunta de um lado, a resposta do outro, e a repetição espaçada cuidando de quando cada card volta para você.",
-    midia: "slides", frames: [["flash-2.jpg", "Cards dos professores"], ["flash-3.jpg", "Virou, conferiu"]] },
-  { id: "jogos", nome: "Mini-jogos", titulo: "Espectro Equimótico: acerte a idade da lesão",
-    texto: "Uma equimose na tela, a cor dela e uma pergunta: há quantos dias foi a lesão? O jogo corrige na hora e explica pelo espectro de Legrand du Saulle. É o primeiro de uma série de mini-jogos de medicina legal — os próximos já estão a caminho.",
-    midia: "slides", frames: [["jogo-2.jpg", "Espectro Equimótico"], ["jogo-3.jpg", "Leia a cor e responda"], ["jogo-4.jpg", "Correção com explicação"]] },
-  { id: "edital", nome: "Edital verticalizado", titulo: "O edital inteiro, item por item — e cada item leva ao material",
-    texto: "Cada tópico do edital vira uma linha, com teoria e revisões para marcar. E no ícone de <b>Materiais</b> você vai direto para a aula, as questões, um simulado, os cards ou o mapa daquele item. Clique ao lado.",
-    midia: "edital" },
-  { id: "painel", nome: "Painel pericial", titulo: "Onde você está, em números",
-    texto: "Acertos e erros no período, por disciplina e por assunto — para a próxima hora de estudo ir onde ela rende mais.",
-    midia: "painel" },
+  {
+    id: "aulas",
+    nome: "Aulas",
+    titulo: "Conheça nossas aulas",
+    texto:
+      "Clique na matéria que você tem interesse e veja a lista de aulas já disponíveis. Por dentro, cada aula tem o vídeo do professor, a lista das próximas aulas ao lado, os <b>bizus</b>, os <b>slides para baixar</b> e a nossa IA para tirar dúvida na hora.",
+    midia: "slides",
+    frames: [
+      ["aula-1.jpg", "Aula do professor + lista de aulas"],
+      ["aula-2.jpg", "Bizus da aula"],
+      ["aula-3.jpg", "Slides para baixar"],
+    ],
+    extra: "capas",
+  },
+  {
+    id: "questoes",
+    nome: "Questões",
+    titulo: "Mais de 25 mil questões das bancas do cargo",
+    texto:
+      "Filtre por banca, ano, assunto e órgão. E veja os comentários dos professores <b>em texto, em áudio e em vídeo</b> — o professor resolvendo a questão com você.",
+    midia: "slides",
+    frames: [
+      ["questao-1.jpg", "Questão real de prova"],
+      ["questao-2.jpg", "Você marca a alternativa"],
+      ["questao-3.jpg", "Comentário em texto"],
+      ["questao-4.jpg", "Comentário em vídeo"],
+    ],
+    chips: [
+      ["Questão", 0],
+      ["Comentário em texto", 2],
+      ["Comentário em vídeo", 3],
+    ],
+  },
+  {
+    id: "cronograma",
+    nome: "Cronograma",
+    titulo: "Abriu o dia, já sabe o que estudar",
+    texto:
+      "O cronograma monta as sessões do dia a partir do seu edital. Cada sessão já traz os atalhos: <b>clique em Aulas e a aula abre na tela</b>; em Mapas, o mapa mental; em Questões, as questões daquele tema. Experimente ao lado.",
+    midia: "crono",
+  },
+  {
+    id: "mapas",
+    nome: "Mapas mentais",
+    titulo: "Cada assunto numa página ilustrada",
+    texto:
+      "Mapas mentais desenhados pelo Clube, para a revisão da véspera: você olha o mapa e lembra do resto.",
+    destaque: ["+30", "mapas mentais de Medicina Legal e Direito"],
+    midia: "video",
+    video: "mapas.mp4",
+  },
+  {
+    id: "ebooks",
+    nome: "eBooks",
+    titulo: "eBooks de todas as matérias",
+    texto:
+      "Escritos pelos nossos professores a partir das principais bibliografias, já no recorte que a prova de médico legista cobra. Ao lado, as primeiras páginas do eBook de Traumatologia Forense.",
+    midia: "rolagem",
+    img: "ebook-trauma-pilha.jpg",
+  },
+  {
+    id: "flashcards",
+    nome: "Flashcards",
+    titulo: "Revisão ativa, no intervalo do plantão",
+    texto:
+      "Flashcards feitos pelos nossos professores médicos legistas: a pergunta de um lado, a resposta do outro, e a repetição espaçada cuidando de quando cada card volta para você.",
+    midia: "slides",
+    frames: [
+      ["flash-2.jpg", "Cards dos professores"],
+      ["flash-3.jpg", "Virou, conferiu"],
+    ],
+  },
+  {
+    id: "jogos",
+    nome: "Mini-jogos",
+    titulo: "Espectro Equimótico: acerte a idade da lesão",
+    texto:
+      "Uma equimose na tela, a cor dela e uma pergunta: há quantos dias foi a lesão? O jogo corrige na hora e explica pelo espectro de Legrand du Saulle. É o primeiro de uma série de mini-jogos de medicina legal — os próximos já estão a caminho.",
+    midia: "slides",
+    frames: [
+      ["jogo-2.jpg", "Espectro Equimótico"],
+      ["jogo-3.jpg", "Leia a cor e responda"],
+      ["jogo-4.jpg", "Correção com explicação"],
+    ],
+  },
+  {
+    id: "edital",
+    nome: "Edital verticalizado",
+    titulo: "O edital inteiro, item por item — e cada item leva ao material",
+    texto:
+      "Cada tópico do edital vira uma linha, com teoria e revisões para marcar. E no ícone de <b>Materiais</b> você vai direto para a aula, as questões, um simulado, os cards ou o mapa daquele item. Clique ao lado.",
+    midia: "edital",
+  },
+  {
+    id: "painel",
+    nome: "Painel pericial",
+    titulo: "Onde você está, em números",
+    texto:
+      "Acertos e erros no período, por disciplina e por assunto — para a próxima hora de estudo ir onde ela rende mais.",
+    midia: "painel",
+  },
 ];
 
 /**
@@ -107,14 +210,16 @@ const ABAS: Aba[] = [
 export function iniciarPlataforma(raiz: HTMLElement): () => void {
   const controle = new AbortController();
   const { signal } = controle;
-  const $ = <T extends Element = HTMLElement>(sel: string) => raiz.querySelector(sel) as T;
+  const $ = <T extends Element = HTMLElement>(sel: string) =>
+    raiz.querySelector(sel) as T;
 
   const abas = $("#cf-pl-abas");
   const painel = $("#cf-pl-painel");
   let pararAtual: () => void = () => {};
 
   abas.innerHTML = ABAS.map(
-    (a, i) => `<button class="aba" type="button" role="tab" data-i="${i}">${a.nome}</button>`,
+    (a, i) =>
+      `<button class="aba" type="button" role="tab" data-i="${i}">${a.nome}</button>`,
   ).join("");
   abas.addEventListener(
     "click",
@@ -128,7 +233,12 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
   // ---------- slideshow ("GIF") ----------
   function slides(vidro: HTMLElement, frames: Quadro[], intervalo = 3000) {
     vidro.innerHTML =
-      frames.map(([src], k) => `<img class="slide${k ? "" : " on"}" src="${A(src)}" alt="">`).join("") +
+      frames
+        .map(
+          ([src], k) =>
+            `<img class="slide${k ? "" : " on"}" src="${A(src)}" alt="">`,
+        )
+        .join("") +
       `<span class="legenda">${esc(frames[0][1])}</span>` +
       (frames.length > 1
         ? `<span class="pontos">${frames.map((_, k) => `<i class="${k ? "" : "on"}"></i>`).join("")}</span>`
@@ -188,7 +298,12 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
   // ---------- cronograma (réplica clicável) ----------
   function cronograma(vidro: HTMLElement) {
     // Sem o atalho "eBook" — ver o topo do arquivo.
-    const atalhos: [string, string][] = [["aula", "Aulas"], ["questao", "Questões"], ["cards", "Cards"], ["mapa", "Mapas"]];
+    const atalhos: [string, string][] = [
+      ["aula", "Aulas"],
+      ["questao", "Questões"],
+      ["cards", "Cards"],
+      ["mapa", "Mapas"],
+    ];
     const sessao = (n: number, ass: string, ativo: boolean) =>
       `<div class="sessao${ativo ? "" : " apagado"}"><div class="linha"><div><h5>SESSÃO ${n}</h5><div class="mat">MEDICINA LEGAL</div>
       <div class="ass">${ass}</div></div><span class="iniciar">⏱ INICIAR</span></div>
@@ -198,7 +313,9 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
       ${sessao(2, "Tanatologia forense: putrefação, transformações especiais do cadáver, lesões intra vitam e post mortem.", false)}
       ${sessao(3, "Traumatologia forense: lesões por instrumentos contundentes, cortantes, perfurantes e perfurocortantes.", false)}</div>`;
     const app = vidro.querySelector(".app") as HTMLElement;
-    const botoes = [...app.querySelectorAll<HTMLElement>(".sessao .atalho")].filter((b) => !b.closest(".apagado"));
+    const botoes = [
+      ...app.querySelectorAll<HTMLElement>(".sessao .atalho"),
+    ].filter((b) => !b.closest(".apagado"));
     let fecha: (() => void) | null = null;
     let demo: ReturnType<typeof setTimeout> | undefined;
     let passo = 0;
@@ -244,27 +361,65 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
   // ---------- edital verticalizado (réplica clicável) ----------
   function edital(vidro: HTMLElement) {
     const itens: [string, number, string, boolean?][] = [
-      ["Antropologia forense: identidade, identificação, identidades médico-legal e judiciária.", 1, "60%"],
-      ["Traumatologia forense: lesões por instrumentos contundentes, cortantes, perfurantes e perfurocortantes; projéteis de arma de fogo.", 1, "82%"],
-      ["Asfixiologia forense: enforcamento, estrangulamento, esganadura, sufocação, afogamento.", 0, ""],
-      ["Tanatologia forense: a vida e a morte, sinais de morte real, diagnóstico da morte, cronotanatognose, putrefação.", 0, "", true],
-      ["Toxicologia forense: venenos, vias de penetração, eliminação, perícia toxicológica.", 0, ""],
+      [
+        "Antropologia forense: identidade, identificação, identidades médico-legal e judiciária.",
+        1,
+        "60%",
+      ],
+      [
+        "Traumatologia forense: lesões por instrumentos contundentes, cortantes, perfurantes e perfurocortantes; projéteis de arma de fogo.",
+        1,
+        "82%",
+      ],
+      [
+        "Asfixiologia forense: enforcamento, estrangulamento, esganadura, sufocação, afogamento.",
+        0,
+        "",
+      ],
+      [
+        "Tanatologia forense: a vida e a morte, sinais de morte real, diagnóstico da morte, cronotanatognose, putrefação.",
+        0,
+        "",
+        true,
+      ],
+      [
+        "Toxicologia forense: venenos, vias de penetração, eliminação, perícia toxicológica.",
+        0,
+        "",
+      ],
       ["Necropsia: inspeções interna e externa do cadáver.", 0, ""],
     ];
-    const cx = (on: boolean | number) => `<button class="cx${on ? " on" : ""}" type="button" aria-label="Marcar">${on ? "✓" : ""}</button>`;
-    const rev = () => [1, 2, 3, 4, 5, 6].map((n) => `<td class="${n > 3 ? "r46" : ""}">${cx(false)}</td>`).join("");
+    const cx = (on: boolean | number) =>
+      `<button class="cx${on ? " on" : ""}" type="button" aria-label="Marcar">${on ? "✓" : ""}</button>`;
+    const rev = () =>
+      [1, 2, 3, 4, 5, 6]
+        .map((n) => `<td class="${n > 3 ? "r46" : ""}">${cx(false)}</td>`)
+        .join("");
     vidro.innerHTML = `<div class="app" style="padding:0">
       <div class="cabapp" style="background:#55565c;border-radius:0"><span style="font-size:10px;padding:5px 8px;border-radius:6px;background:#3d3e44">MEU CICLO · TODO O EDITAL</span><b>Edital verticalizado</b><span></span></div>
       <table class="ed"><thead><tr><th style="text-align:left;padding-left:8px">Disciplina / assunto</th><th class="vt">Iniciar</th><th class="vt">Materiais</th><th class="vt">Teoria</th>
         <th>1ª</th><th>2ª</th><th>3ª</th><th class="r46">4ª</th><th class="r46">5ª</th><th class="r46">6ª</th><th>Meu</th></tr></thead><tbody>
         <tr class="grupo"><td class="as">⌄ MEDICINA LEGAL</td><td></td><td></td><td>${cx(false)}</td>${rev()}<td class="pct">25%</td></tr>
-        ${itens.map(([t, teoria, pct, alvo], k) => `<tr><td class="as">${t}</td><td><button class="ic" type="button" aria-label="Iniciar">${ICO.timer}</button></td>
-          <td><button class="ic mats${alvo ? " pulsa" : ""}" type="button" data-k="${k}" aria-label="Materiais">${ICO.ebook}</button></td><td>${cx(teoria)}</td>${rev()}<td class="pct">${pct}</td></tr>`).join("")}
+        ${itens
+          .map(
+            (
+              [t, teoria, pct, alvo],
+              k,
+            ) => `<tr><td class="as">${t}</td><td><button class="ic" type="button" aria-label="Iniciar">${ICO.timer}</button></td>
+          <td><button class="ic mats${alvo ? " pulsa" : ""}" type="button" data-k="${k}" aria-label="Materiais">${ICO.ebook}</button></td><td>${cx(teoria)}</td>${rev()}<td class="pct">${pct}</td></tr>`,
+          )
+          .join("")}
         <tr class="grupo"><td class="as">› NOÇÕES DE DIREITO PENAL</td><td></td><td></td><td>${cx(false)}</td>${rev()}<td></td></tr>
         <tr class="grupo"><td class="as">› NOÇÕES DE DIREITO PROCESSUAL PENAL</td><td></td><td></td><td>${cx(false)}</td>${rev()}<td></td></tr>
       </tbody></table></div>`;
     const app = vidro.querySelector(".app") as HTMLElement;
-    const opcoes: [string, string][] = [["aula", "Aulas"], ["questao", "Resolver no banco de questões"], ["simulado", "Criar e resolver simulado"], ["cards", "Resolver cards"], ["mapa", "Mapas"]];
+    const opcoes: [string, string][] = [
+      ["aula", "Aulas"],
+      ["questao", "Resolver no banco de questões"],
+      ["simulado", "Criar e resolver simulado"],
+      ["cards", "Resolver cards"],
+      ["mapa", "Mapas"],
+    ];
     let fecha: (() => void) | null = null;
     const fechaMenu = () => app.querySelector(".menu")?.remove();
     app.addEventListener("click", (e) => {
@@ -283,24 +438,35 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
           fecha?.();
           fecha = janela(app, op.dataset.k!);
         } else {
-          aviso(app, "Nesta prévia, só o item de <b>Tanatologia</b> abre o material.<br>Na plataforma, todos os itens abrem.");
+          aviso(
+            app,
+            "Nesta prévia, só o item de <b>Tanatologia</b> abre o material.<br>Na plataforma, todos os itens abrem.",
+          );
         }
         return;
       }
       const m = alvo.closest<HTMLElement>(".mats");
       if (m) {
         fechaMenu();
-        app.querySelectorAll(".pulsa").forEach((x) => x.classList.remove("pulsa"));
+        app
+          .querySelectorAll(".pulsa")
+          .forEach((x) => x.classList.remove("pulsa"));
         const r = m.getBoundingClientRect();
         const a = app.getBoundingClientRect();
         const menu = document.createElement("div");
         menu.className = "menu";
         menu.dataset.item = m.dataset.k;
-        menu.innerHTML = opcoes.map(([k, t]) => `<button type="button" data-k="${k}">${ICO[k]}${t}</button>`).join("");
+        menu.innerHTML = opcoes
+          .map(
+            ([k, t]) =>
+              `<button type="button" data-k="${k}">${ICO[k]}${t}</button>`,
+          )
+          .join("");
         app.appendChild(menu);
         const top = r.bottom - a.top + app.scrollTop + 4;
         const left = Math.min(r.left - a.left, a.width - 222);
-        menu.style.top = Math.min(top, app.scrollHeight - menu.offsetHeight - 6) + "px";
+        menu.style.top =
+          Math.min(top, app.scrollHeight - menu.offsetHeight - 6) + "px";
         menu.style.left = Math.max(6, left) + "px";
         return;
       }
@@ -313,8 +479,14 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
 
   // ---------- painel pericial (réplica da tela, com números de exemplo) ----------
   function painelPericial(vidro: HTMLElement) {
-    const MATS: [string, number, number][] = [["Medicina Legal", 612, 557], ["Direito Penal", 188, 158], ["Direito Processual Penal", 164, 134],
-      ["Língua Portuguesa", 142, 122], ["Direito Constitucional", 98, 83], ["Raciocínio Lógico", 80, 64]];
+    const MATS: [string, number, number][] = [
+      ["Medicina Legal", 612, 557],
+      ["Direito Penal", 188, 158],
+      ["Direito Processual Penal", 164, 134],
+      ["Língua Portuguesa", 142, 122],
+      ["Direito Constitucional", 98, 83],
+      ["Raciocínio Lógico", 80, 64],
+    ];
     const total = MATS.reduce((s, m) => s + m[1], 0);
     const certas = MATS.reduce((s, m) => s + m[2], 0);
     const pct = Math.round((certas / total) * 100);
@@ -324,7 +496,9 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
     const er = [5, 6, 7, 7, 8, 8, 9, 8, 9, 9, 10, 10];
     const caminho = (v: number[]) => {
       const pts = v.map((y, i) => [10 + i * (280 / 11), 120 - y * 1.15]);
-      return "M" + pts.map((p) => p.map((c) => c.toFixed(1)).join(",")).join(" L");
+      return (
+        "M" + pts.map((p) => p.map((c) => c.toFixed(1)).join(",")).join(" L")
+      );
     };
     const area = (v: number[]) => caminho(v) + " L290,120 L10,120 Z";
     vidro.innerHTML = `<div class="app pp">
@@ -357,13 +531,19 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
   function mostra(i: number) {
     pararAtual();
     const a = ABAS[i];
-    [...abas.children].forEach((b, k) => b.setAttribute("aria-selected", k === i ? "true" : "false"));
+    [...abas.children].forEach((b, k) =>
+      b.setAttribute("aria-selected", k === i ? "true" : "false"),
+    );
     painel.innerHTML = `<div class="painel">
       <div><div class="num">${String(i + 1).padStart(2, "0")}</div><h3>${a.titulo}</h3><p class="texto">${a.texto}</p>
         ${a.destaque ? `<div class="destaque"><strong>${a.destaque[0]}</strong><span>${a.destaque[1]}</span></div>` : ""}
         ${a.chips ? `<div class="chips">${a.chips.map(([t, n], k) => `<button class="chip${k ? "" : " on"}" type="button" data-n="${n}">${t}</button>`).join("")}</div>` : ""}
-        ${a.extra === "capas" ? `<div class="capas-wrap"><div class="capas" id="cf-pl-capas">${MATERIAS.map((m, k) => `<button class="capa" type="button" data-k="${k}"><img src="${A(m.capa)}" alt="${esc(m.nome)}"><span>ver lista</span></button>`).join("")}</div>
-          <div class="setas"><button class="seta" type="button" data-d="-1" aria-label="Anteriores">←</button><button class="seta" type="button" data-d="1" aria-label="Próximas">→</button></div></div>` : ""}
+        ${
+          a.extra === "capas"
+            ? `<div class="capas-wrap"><div class="capas" id="cf-pl-capas">${MATERIAS.map((m, k) => `<button class="capa" type="button" data-k="${k}"><img src="${A(m.capa)}" alt="${esc(m.nome)}"><span>ver lista</span></button>`).join("")}</div>
+          <div class="setas"><button class="seta" type="button" data-d="-1" aria-label="Anteriores">←</button><button class="seta" type="button" data-d="1" aria-label="Próximas">→</button></div></div>`
+            : ""
+        }
       </div>
       <div class="tela"><div class="vidro"></div></div></div>`;
     const vidro = painel.querySelector(".vidro") as HTMLElement;
@@ -372,7 +552,9 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
       pararAtual = s.para;
       painel.querySelectorAll<HTMLElement>(".chip").forEach((c) =>
         c.addEventListener("click", () => {
-          painel.querySelectorAll(".chip").forEach((x) => x.classList.toggle("on", x === c));
+          painel
+            .querySelectorAll(".chip")
+            .forEach((x) => x.classList.toggle("on", x === c));
           s.vai(Number(c.dataset.n));
         }),
       );
@@ -385,7 +567,11 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
     } else if (a.midia === "rolagem" && a.img) {
       vidro.innerHTML = `<div class="rolagem"><img src="${A(a.img)}" alt="Primeiras páginas do eBook de Traumatologia Forense"></div><span class="legenda">eBook · Traumatologia Forense</span>`;
       const img = vidro.querySelector("img") as HTMLImageElement;
-      const ajusta = () => img.style.setProperty("--fim", `${-(img.offsetHeight - vidro.offsetHeight + 12)}px`);
+      const ajusta = () =>
+        img.style.setProperty(
+          "--fim",
+          `${-(img.offsetHeight - vidro.offsetHeight + 12)}px`,
+        );
       if (img.complete) ajusta();
       else img.addEventListener("load", ajusta);
       pararAtual = () => {};
@@ -399,9 +585,15 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
         const b = (e.target as HTMLElement).closest<HTMLElement>(".capa");
         if (b) lista(MATERIAS[Number(b.dataset.k)]);
       });
-      painel.querySelectorAll<HTMLElement>(".seta").forEach((s) =>
-        s.addEventListener("click", () => capas.scrollBy({ left: Number(s.dataset.d) * capas.clientWidth * 0.8 })),
-      );
+      painel
+        .querySelectorAll<HTMLElement>(".seta")
+        .forEach((s) =>
+          s.addEventListener("click", () =>
+            capas.scrollBy({
+              left: Number(s.dataset.d) * capas.clientWidth * 0.8,
+            }),
+          ),
+        );
     }
   }
 
@@ -413,7 +605,10 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
     const varios = m.modulos.length > 1;
     const caixa = $("#cf-pl-dlg-lista");
     caixa.innerHTML = m.modulos
-      .map((mod) => `${varios ? `<h5>${esc(mod.nome)}</h5>` : ""}<ol>${mod.aulas.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>`)
+      .map(
+        (mod) =>
+          `${varios ? `<h5>${esc(mod.nome)}</h5>` : ""}<ol>${mod.aulas.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>`,
+      )
       .join("");
     caixa.scrollTop = 0;
     dlg.showModal();

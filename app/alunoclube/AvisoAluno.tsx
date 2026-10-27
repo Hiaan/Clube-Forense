@@ -43,9 +43,9 @@ export default function AvisoAluno() {
             O que entra
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/80 sm:text-base">
-            Os preparatórios de todos os editais autorizados ou anunciados até
-            2028, com as atualizações pós-edital e o acesso à plataforma no
-            período descrito na oferta.
+            Os preparatórios de todos os editais de médico legista autorizados
+            até agora, com as atualizações pós-edital e acesso vitalício à
+            plataforma.
           </p>
         </div>
         <div className="rounded-2xl border-2 border-red-400/40 bg-[#2a1214] p-5">

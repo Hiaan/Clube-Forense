@@ -25,14 +25,22 @@
 import Image from "next/image";
 
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
-import { NIVEL_COR, NIVEL_LABEL, type EstadoStatus } from "../monitor/lib/tipos";
+import {
+  NIVEL_COR,
+  NIVEL_LABEL,
+  type EstadoStatus,
+} from "../monitor/lib/tipos";
 
 /** "2027-01-10" → "10 de janeiro de 2027". Data por extenso lê-se como notícia. */
 function porExtenso(v: string | null | undefined): string | null {
   if (!v?.trim()) return null;
   const d = new Date(v.length <= 10 ? `${v}T12:00:00Z` : v);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+  return d.toLocaleDateString("pt-BR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 /**
@@ -57,7 +65,13 @@ function linhaDoConcurso(estado: EstadoStatus): string {
     // virava "Comissão formada · Comissão formada; banca…". Tira a repetição.
     const resto = c.previsao
       .trim()
-      .replace(new RegExp(`^${etapa.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*[;:,.·—–-]?\\s*`, "i"), "");
+      .replace(
+        new RegExp(
+          `^${etapa.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*[;:,.·—–-]?\\s*`,
+          "i",
+        ),
+        "",
+      );
     return resto ? `${etapa} · ${resto}` : etapa;
   }
   return etapa;
@@ -92,7 +106,17 @@ export interface EditalDaFaixa {
  * continua aqui: a lista é do Clube, e quem acrescentar um estado amanhã não
  * pode quebrar a faixa por esquecer de mandar a imagem.
  */
-const COM_DISTINTIVO = new Set(["AC", "DF", "ES", "MA", "MG", "MT", "PA", "RJ", "TO"]);
+const COM_DISTINTIVO = new Set([
+  "AC",
+  "DF",
+  "ES",
+  "MA",
+  "MG",
+  "MT",
+  "PA",
+  "RJ",
+  "TO",
+]);
 
 /**
  * Um edital, em forma de lower third — a tarja de televisão que apresenta
@@ -111,7 +135,9 @@ function Cartao({ edital }: { edital: EditalDaFaixa }) {
 
   // A banca que o Clube já confirmou entra quando o monitor ainda não sabe
   // dela — e só nesse caso: ficha com banca no painel volta a mandar sozinha.
-  const usarBancaConfirmada = Boolean(banca && !estado?.curadoria?.banca?.trim());
+  const usarBancaConfirmada = Boolean(
+    banca && !estado?.curadoria?.banca?.trim(),
+  );
   const cor = usarBancaConfirmada
     ? NIVEL_COR.banca
     : estado
@@ -132,15 +158,22 @@ function Cartao({ edital }: { edital: EditalDaFaixa }) {
           frente dela e não ao lado. */}
       <div
         className="absolute inset-y-[26px] left-[52px] right-0 overflow-hidden bg-[#0b0b0d] shadow-[0_14px_30px_-12px_rgba(0,0,0,0.45)]"
-        style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%)" }}
+        style={{
+          clipPath: "polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%)",
+        }}
       >
         <span className="absolute inset-x-0 top-0 h-[3px] bg-[#ffcd07]" />
         <div className="flex h-full flex-col justify-center pl-[80px] pr-8">
-          <p className="truncate text-lg font-black leading-tight text-white">{sigla}</p>
+          <p className="truncate text-lg font-black leading-tight text-white">
+            {sigla}
+          </p>
           <p className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">
             {nome}
           </p>
-          <p className="mt-1 truncate text-[12px] font-semibold" style={{ color: cor }}>
+          <p
+            className="mt-1 truncate text-[12px] font-semibold"
+            style={{ color: cor }}
+          >
             {linha}
           </p>
         </div>
@@ -171,7 +204,11 @@ function Cartao({ edital }: { edital: EditalDaFaixa }) {
   );
 }
 
-export default function CarrosselEditais({ editais }: { editais: EditalDaFaixa[] }) {
+export default function CarrosselEditais({
+  editais,
+}: {
+  editais: EditalDaFaixa[];
+}) {
   // Com poucos estados a faixa ficaria curta demais para parecer contínua; a
   // repetição extra resolve sem mudar o que está escrito em cada cartão.
   const fila = editais.length >= 6 ? editais : [...editais, ...editais];
@@ -195,7 +232,11 @@ export default function CarrosselEditais({ editais }: { editais: EditalDaFaixa[]
         style={{ animationDuration: "80s" }}
       >
         {[0, 1].map((copia) => (
-          <div key={copia} className="flex shrink-0 gap-6" aria-hidden={copia === 1}>
+          <div
+            key={copia}
+            className="flex shrink-0 gap-6"
+            aria-hidden={copia === 1}
+          >
             {fila.map((e, i) => (
               <Cartao key={`${copia}-${e.uf}-${i}`} edital={e} />
             ))}

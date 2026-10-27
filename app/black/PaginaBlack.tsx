@@ -42,13 +42,7 @@ import MuralAprovados from "./MuralAprovados";
 import SecaoPlataforma from "./plataforma/SecaoPlataforma";
 import { PROFESSORES } from "./professores";
 import Ticker from "./Ticker";
-import {
-  ANOS_DE_ACESSO,
-  EDITAIS_DA_BLACK,
-  PLATAFORMA,
-  QUESTOES,
-  WHATSAPP,
-} from "./oferta";
+import { EDITAIS_DA_BLACK, PLATAFORMA, QUESTOES, WHATSAPP } from "./oferta";
 import { APROVADOS } from "../monitor/lib/aprovados";
 import { coletar } from "../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
@@ -232,7 +226,7 @@ export default async function PaginaBlack({
 
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65 lg:mx-0">
                 Acesso vitalício a toda a nossa plataforma e ao material pré e
-                pós-edital de todos os concursos que forem autorizados até 2028.
+                pós-edital de todos os concursos autorizados até agora.
               </p>
 
               <ul className="mx-auto mt-7 flex max-w-xl flex-col gap-2.5 text-left lg:mx-0">
@@ -322,7 +316,7 @@ export default async function PaginaBlack({
             Você pagará apenas{" "}
             <strong className="font-bold text-gray-900">um único valor</strong>{" "}
             e terá acesso vitalício ao material pré e pós-edital de todos os
-            concursos autorizados ou que forem anunciados até 2028.
+            concursos de médico legista autorizados até agora.
           </p>
         </Secao>
 
@@ -355,8 +349,8 @@ export default async function PaginaBlack({
                 d: "Pré-edital para chegar com a base pronta e pós-edital alinhado ao conteúdo programático de cada banca, para todos os concursos inclusos.",
               },
               {
-                t: `Todo edital novo por ${ANOS_DE_ACESSO} anos`,
-                d: "Autorizou, você entra. Sem pagar de novo, sem upgrade, sem letra miúda — é o coração desta oferta.",
+                t: "Todos os editais autorizados, num acesso só",
+                d: `Os ${inclusos.length} concursos de médico legista autorizados até agora, cada um com o seu preparatório completo — sem pagar um por um. É o coração desta oferta.`,
               },
               {
                 t: "Aulão pré-prova",
@@ -703,11 +697,11 @@ export default async function PaginaBlack({
             {[
               {
                 p: "Quais editais exatamente estão inclusos?",
-                r: `Os ${inclusos.length} concursos listados acima, e todos os que forem autorizados nos próximos ${ANOS_DE_ACESSO} anos. Quando um estado novo entra, o preparatório dele aparece na sua área de aluno sem você fazer nada.`,
+                r: `Os ${inclusos.length} concursos listados acima: todos os concursos de médico legista autorizados até agora. O preparatório de cada um aparece na sua área de aluno, sem você precisar comprar um por um.`,
               },
               {
-                p: "E se nenhum edital do meu estado sair nesse período?",
-                r: "Você estuda pelos que estiverem abertos. A base de medicina legal é a mesma em todo o país, e o nosso conteúdo pré-edital existe exatamente para isso: quem chega preparado presta o concurso do estado vizinho, que é o que a maioria dos nossos aprovados fez.",
+                p: "E se o concurso do meu estado não estiver na lista?",
+                r: "Você estuda pelos que estão na lista. A base de medicina legal é a mesma em todo o país, e o nosso conteúdo pré-edital existe exatamente para isso: quem chega preparado presta o concurso do estado vizinho, que é o que a maioria dos nossos aprovados fez.",
               },
               {
                 p: "Já sou aluno do preparatório. Como fica?",
@@ -715,7 +709,7 @@ export default async function PaginaBlack({
               },
               {
                 p: "Por quanto tempo eu tenho acesso?",
-                r: `Os editais que saírem nos próximos ${ANOS_DE_ACESSO} anos entram para você, e o acesso ao conteúdo de cada concurso acompanha o ciclo dele — do pré-edital ao edital de forma vitalícia.`,
+                r: "O acesso é vitalício: o material pré e pós-edital de cada concurso incluso fica com você, do pré-edital ao edital.",
               },
               {
                 p: "Funciona no celular?",
@@ -764,9 +758,8 @@ export default async function PaginaBlack({
             Seja o próximo primeiro colocado
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-gray-800">
-            {inclusos.length} concursos autorizados até agora, você terá acesso
-            vitalício ao conteúdo pré e pós-edital de todos eles e ainda
-            qualquer outro edital que sair até 2028.
+            {inclusos.length} concursos autorizados até agora, e você terá
+            acesso vitalício ao conteúdo pré e pós-edital de todos eles.
           </p>
           <a
             href="#oferta"
