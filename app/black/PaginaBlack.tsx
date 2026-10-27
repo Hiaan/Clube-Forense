@@ -634,7 +634,7 @@ export default async function PaginaBlack({
               a lista completa para quem quer conferir tudo antes de comprar. */}
           <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
             <p className="text-center text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
-              tudo que entra
+              tudo que está incluso
             </p>
             {/* CADA ITEM NUM LADRILHO. Soltos, itens de uma, duas e três linhas
                 lado a lado deixavam as duas colunas desencontradas, com o
@@ -654,7 +654,7 @@ export default async function PaginaBlack({
                 "eBooks e apostilas em PDF das principais matérias",
                 "Flashcards feitos por médicos legistas, com sistema de revisão espaçada",
                 "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal, respondendo 24 horas",
-                "Aulão pré-prova online com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
+                "Aulão pré-prova online de Medicina Legal na semana da prova, com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
                 "Suporte após a prova, com a orientação na elaboração de recursos e direcionamento durante as fases",
               ].map((t) => (
                 <li
