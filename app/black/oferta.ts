@@ -29,9 +29,9 @@ export interface Lote {
  *
  *   1. Os preços do 2º e do 3º lote são proposta minha, não valor que o Clube
  *      me passou. O que foi definido é o 1º lote: R$ 6.947.
- *   2. Os três links de checkout apontam para o da Black do ano passado, que
- *      tem OUTRO preço. Trocar pelos links novos da Eduzz antes de anunciar,
- *      um por lote — é o único item que impede a página de ir ao ar.
+ *   2. Os três lotes usam o link de checkout da Black 2026 que o Clube passou
+ *      (chk.eduzz.com/G96RYB5QW1, cupom BLACK). Se cada lote tiver link ou
+ *      cupom próprio, trocar aqui, um por lote.
  *   3. As datas assumem novembro de 2026 (campanha de Black Friday), no
  *      padrão "até o dia 10, do 10 ao 20, do 20 ao 30" que você descreveu.
  */
@@ -42,7 +42,7 @@ export const LOTES: Lote[] = [
     parcelas: 12,
     valorParcela: 718.5,
     fecha: "2026-11-10T23:59:59-03:00",
-    checkout: "https://sun.eduzz.com/801E8VBKW7?cupom=BLACKFORENSE",
+    checkout: "https://chk.eduzz.com/G96RYB5QW1?cupom=BLACK",
   },
   {
     nome: "2º lote",
@@ -50,7 +50,7 @@ export const LOTES: Lote[] = [
     parcelas: 12,
     valorParcela: 770.21,
     fecha: "2026-11-20T23:59:59-03:00",
-    checkout: "https://sun.eduzz.com/801E8VBKW7?cupom=BLACKFORENSE",
+    checkout: "https://chk.eduzz.com/G96RYB5QW1?cupom=BLACK",
   },
   {
     nome: "3º lote",
@@ -58,7 +58,7 @@ export const LOTES: Lote[] = [
     parcelas: 12,
     valorParcela: 821.93,
     fecha: "2026-11-30T23:59:59-03:00",
-    checkout: "https://sun.eduzz.com/801E8VBKW7?cupom=BLACKFORENSE",
+    checkout: "https://chk.eduzz.com/G96RYB5QW1?cupom=BLACK",
   },
 ];
 
