@@ -406,7 +406,8 @@ export default async function PaginaBlack({
       {/* ------------------------------------------------ plataforma (claro) */}
       {/* A seção que veio pronta no pacote de 23/10 — título, abas, telas e
           réplicas clicáveis. Ver app/black/plataforma/. */}
-      <SecaoPlataforma />
+      {/* Fora da página dos alunos: quem já é aluno conhece a plataforma. */}
+      {!aluno && <SecaoPlataforma />}
 
       {/* --------------------------------------------------- bonet (claro) */}
       <div className="bg-[#f8f9fb]">
@@ -475,47 +476,50 @@ export default async function PaginaBlack({
       </div>
 
       {/* ---------------------------------------------- professores (claro) */}
-      <div className="bg-white">
-        <Secao id="professores" className="py-16">
-          <Titulo claro nota="quem ensina">
-            Professores que são médicos-legistas
-          </Titulo>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
-            Conheça um pouco mais dos professores e criadores do Clube Forense
-            que vivem e respiram medicina legal todos os dias, seja ensinando ou
-            trabalhando.
-          </p>
-          {/* NO CELULAR, CARROSSEL. Um embaixo do outro, cada cartão ocupava a
-              tela inteira e os três professores davam três telas de rolagem.
-              Lado a lado, com o próximo cartão aparecendo na borda, a pessoa
-              arrasta com o dedo e vê que há mais. Do tablet para cima, volta a
-              ser a grade de três. */}
-          <div className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
-            {PROFESSORES.map((p) => (
-              <div
-                key={p.nome}
-                className="card-white w-[52%] shrink-0 snap-center overflow-hidden sm:w-auto"
-              >
-                <div className="relative aspect-[424/632] w-full bg-gray-100">
-                  <Image
-                    src={`/black/professores/${p.arquivo}`}
-                    alt={p.nome}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                    className="object-cover"
-                  />
+      {/* Fora da página dos alunos: quem já é aluno conhece. */}
+      {!aluno && (
+        <div className="bg-white">
+          <Secao id="professores" className="py-16">
+            <Titulo claro nota="quem ensina">
+              Professores que são médicos-legistas
+            </Titulo>
+            <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
+              Conheça um pouco mais dos professores e criadores do Clube Forense
+              que vivem e respiram medicina legal todos os dias, seja ensinando
+              ou trabalhando.
+            </p>
+            {/* NO CELULAR, CARROSSEL. Um embaixo do outro, cada cartão ocupava a
+                tela inteira e os três professores davam três telas de rolagem.
+                Lado a lado, com o próximo cartão aparecendo na borda, a pessoa
+                arrasta com o dedo e vê que há mais. Do tablet para cima, volta a
+                ser a grade de três. */}
+            <div className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+              {PROFESSORES.map((p) => (
+                <div
+                  key={p.nome}
+                  className="card-white w-[52%] shrink-0 snap-center overflow-hidden sm:w-auto"
+                >
+                  <div className="relative aspect-[424/632] w-full bg-gray-100">
+                    <Image
+                      src={`/black/professores/${p.arquivo}`}
+                      alt={p.nome}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-3.5 sm:p-5">
+                    <p className="text-[10px] font-bold sm:text-[11px] uppercase tracking-wider text-[#b38f00]">
+                      {p.cargo}
+                    </p>
+                    <BioProfessor texto={p.texto} />
+                  </div>
                 </div>
-                <div className="p-3.5 sm:p-5">
-                  <p className="text-[10px] font-bold sm:text-[11px] uppercase tracking-wider text-[#b38f00]">
-                    {p.cargo}
-                  </p>
-                  <BioProfessor texto={p.texto} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Secao>
-      </div>
+              ))}
+            </div>
+          </Secao>
+        </div>
+      )}
 
       {/* ----------------------------------------------- aprovados (claro) */}
       <div className="bg-[#f8f9fb]">
@@ -553,18 +557,21 @@ export default async function PaginaBlack({
       </div>
 
       {/* --------------------------------------------- depoimentos (claro) */}
-      <div className="bg-white">
-        <Secao id="depoimentos" className="py-16">
-          <Titulo claro nota="quem já passou">
-            Veja o que dizem os nossos alunos
-          </Titulo>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
-            Nome, rosto e concurso. Clique para assistir ao depoimento de quem
-            estudou com o Clube e hoje é médico-legista.
-          </p>
-          <Depoimentos />
-        </Secao>
-      </div>
+      {/* Fora da página dos alunos: quem já é aluno conhece. */}
+      {!aluno && (
+        <div className="bg-white">
+          <Secao id="depoimentos" className="py-16">
+            <Titulo claro nota="quem já passou">
+              Veja o que dizem os nossos alunos
+            </Titulo>
+            <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
+              Nome, rosto e concurso. Clique para assistir ao depoimento de quem
+              estudou com o Clube e hoje é médico-legista.
+            </p>
+            <Depoimentos />
+          </Secao>
+        </div>
+      )}
 
       <Ticker
         texto={

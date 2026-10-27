@@ -18,8 +18,18 @@ export default function SairAluno({ rotulo }: { rotulo?: string }) {
         disabled={saindo}
         onClick={() =>
           iniciar(async () => {
-            await sairAluno();
-            router.refresh();
+            try {
+              await Promise.race([
+                sairAluno(),
+                new Promise<never>((_, falha) =>
+                  setTimeout(() => falha(new Error("prazo")), 10_000),
+                ),
+              ]);
+              router.refresh();
+            } catch {
+              // Página de uma versão anterior do site: recarrega na nova.
+              window.location.reload();
+            }
           })
         }
         className="underline decoration-white/30 underline-offset-2 hover:text-white"

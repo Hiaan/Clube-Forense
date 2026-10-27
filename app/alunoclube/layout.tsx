@@ -1,5 +1,5 @@
-// Moldura da Black dos alunos: a mesma da Black (cursor de lupa, digital no
-// clique, fita no topo), fora do Google e sem prévia que entregue o preço.
+// Moldura da Black dos alunos: a da Black (digital no clique, fita no topo e
+// barra de rolagem zebrada), sem o cursor de lupa, e fora do Google.
 
 import type { Metadata } from "next";
 
@@ -19,7 +19,7 @@ export default function AlunoClubeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="cursor-lupa min-h-screen bg-white">
+    <div className="fita-zebrada min-h-screen bg-white">
       <FitaDeProgresso />
       {children}
       <DigitalNoClique />

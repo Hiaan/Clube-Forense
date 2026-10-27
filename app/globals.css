@@ -141,14 +141,14 @@ body {
    cor, e lá ela fica amarela sobre preto. (Não dá para pôr scrollbar-color
    para todos: o Chrome novo, quando vê essa propriedade, ignora o desenho
    abaixo — por isso ela vai só para o Firefox.) */
-html:has(.cursor-lupa)::-webkit-scrollbar {
+html:has(.cursor-lupa, .fita-zebrada)::-webkit-scrollbar {
   width: 12px;
   height: 12px;
 }
-html:has(.cursor-lupa)::-webkit-scrollbar-track {
+html:has(.cursor-lupa, .fita-zebrada)::-webkit-scrollbar-track {
   background: #0b0b0d;
 }
-html:has(.cursor-lupa)::-webkit-scrollbar-thumb {
+html:has(.cursor-lupa, .fita-zebrada)::-webkit-scrollbar-thumb {
   border: 2px solid #0b0b0d;
   border-radius: 999px;
   background: repeating-linear-gradient(
@@ -157,7 +157,7 @@ html:has(.cursor-lupa)::-webkit-scrollbar-thumb {
     #0b0b0d 7px 14px
   );
 }
-html:has(.cursor-lupa)::-webkit-scrollbar-thumb:hover {
+html:has(.cursor-lupa, .fita-zebrada)::-webkit-scrollbar-thumb:hover {
   background: repeating-linear-gradient(
     -45deg,
     #ffe14d 0 7px,
@@ -165,7 +165,7 @@ html:has(.cursor-lupa)::-webkit-scrollbar-thumb:hover {
   );
 }
 @supports (-moz-appearance: none) {
-  html:has(.cursor-lupa) {
+  html:has(.cursor-lupa, .fita-zebrada) {
     scrollbar-color: #ffcd07 #0b0b0d;
   }
 }

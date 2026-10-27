@@ -46,11 +46,22 @@ export default function EntradaAluno() {
     setErro(null);
     iniciar(async () => {
       try {
-        const r = await validarAluno(cpf);
+        // PÁGINA DE OUTRA VERSÃO. Se o site foi publicado de novo enquanto a
+        // página estava aberta, o botão chama uma função que o servidor novo
+        // não tem — e a chamada pode ficar pendurada para sempre, com o botão
+        // em "Conferindo…". O prazo corta a espera e recarrega a página, que
+        // volta já na versão nova.
+        const r = await Promise.race([
+          validarAluno(cpf),
+          new Promise<never>((_, falha) =>
+            setTimeout(() => falha(new Error("prazo")), 15_000),
+          ),
+        ]);
         if (r.ok) router.refresh();
         else setErro(MENSAGENS[r.motivo]);
       } catch {
-        setErro(MENSAGENS.erro);
+        setErro("A página foi atualizada. Recarregando…");
+        setTimeout(() => window.location.reload(), 1200);
       }
     });
   }
