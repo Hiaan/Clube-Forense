@@ -33,7 +33,8 @@ export interface RegraCupom {
 }
 
 /**
- * As três faixas definidas pelo Clube em 27/10/2026, a partir do CSV de vendas
+ * As três faixas definidas pelo Clube em 27/10/2026 (cupons e valores passados
+ * pelo Clube com os links de checkout de cada faixa), a partir do CSV de vendas
  * da Eduzz (histórico de 11/2023 a 10/2026).
  *
  * A comparação é primeiro pelo código do produto na Eduzz — o que não muda —
@@ -48,7 +49,7 @@ export const REGRAS_CUPOM: RegraCupom[] = [
   {
     rotulo: "aluno do Clube",
     preco: 2497,
-    cupom: "",
+    cupom: "EXCLUSIVOALUNO",
     // Pacotes de todos os editais, Black 2026, todos os preparatórios (pré e
     // pós-edital de cada estado, Pré-edital Geral / Pacote Especialista,
     // pacotes e combos de editais), todas as mentorias e a Promoção de Black
@@ -78,8 +79,8 @@ export const REGRAS_CUPOM: RegraCupom[] = [
   },
   {
     rotulo: "aluno do Clube",
-    preco: 3497,
-    cupom: "",
+    preco: 3447,
+    cupom: "EXCLUSIVOALUN0",
     // Pacote Analista e Pacote Básico, intensivões de questões, aulões e os
     // 9 eBooks de resumo.
     produtos: [
@@ -96,8 +97,8 @@ export const REGRAS_CUPOM: RegraCupom[] = [
   },
   {
     rotulo: "aluno do Clube",
-    preco: 3997,
-    cupom: "",
+    preco: 3947,
+    cupom: "EXLUSIV0ALUNO",
     // Produtos abaixo de R$ 500: 7 eBooks, Toxicologia Forense, Curso de
     // Criminalística e o Resumo de Traumatologia + Tanatologia.
     produtos: [2165832, 2370557, 2370472, 2153429],
@@ -127,12 +128,6 @@ export function linkComCupom(cupom: string): string {
 
 /** O cookie com o passe do aluno validado. */
 export const COOKIE_ALUNO = "cf_aluno";
-
-/**
- * O que a Black dos alunos NÃO inclui, para o aviso da página.
- * CONFERIR os nomes exatos dos produtos com o Clube.
- */
-export const NAO_INCLUI = ["as mentorias", "os intensivões"];
 
 /** Texto sem acento e em minúsculas, para comparar nomes de produto. */
 export function normalizarNome(v: string): string {

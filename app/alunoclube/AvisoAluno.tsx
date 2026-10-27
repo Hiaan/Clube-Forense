@@ -3,14 +3,6 @@
 // ser aluno precisa ter sido avisado com clareza antes de pagar. Aparecem na
 // entrada (antes do CPF) e de novo junto da oferta, na hora da compra.
 
-import { NAO_INCLUI } from "./cupons";
-
-function lista(itens: string[]): string {
-  return itens.length < 2
-    ? itens.join("")
-    : `${itens.slice(0, -1).join(", ")} nem ${itens.at(-1)}`;
-}
-
 export default function AvisoAluno() {
   return (
     <div className="space-y-3 text-left">
@@ -67,7 +59,8 @@ export default function AvisoAluno() {
             O que não entra
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/80 sm:text-base">
-            Esta oferta não inclui {lista(NAO_INCLUI)}.
+            Esta oferta não inclui as futuras turmas de mentoria e de intensivão
+            que o Clube abrir — elas são vendidas à parte.
           </p>
         </div>
       </div>
