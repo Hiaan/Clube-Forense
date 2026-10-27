@@ -654,7 +654,7 @@ export default async function PaginaBlack({
                 "eBooks e apostilas em PDF das principais matérias",
                 "Flashcards feitos por médicos legistas, com sistema de revisão espaçada",
                 "Dr. Bonet, nossa IA treinada com as principais bibliografias de medicina legal, respondendo 24 horas",
-                "Aulão pré-prova com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
+                "Aulão pré-prova online com os conceitos que mais caem e as pegadinhas que a banca costuma cobrar",
                 "Suporte após a prova, com a orientação na elaboração de recursos e direcionamento durante as fases",
               ].map((t) => (
                 <li

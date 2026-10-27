@@ -94,17 +94,14 @@ export default function CaixaDePreco({
           height={28}
           className="mx-auto mt-3 h-6 w-auto sm:h-7"
         />
-        <p className="mt-4 text-base font-semibold text-white/60">
-          + para todos os editais autorizados até agora
-        </p>
 
         <Image
           src="/black/recursos-v2.webp"
           alt="Aulas, questões, cronograma, mapas mentais, eBooks, flashcards, mini-jogos, edital verticalizado e painel pericial"
           width={1200}
           height={397}
-          sizes="(max-width: 640px) 75vw, 380px"
-          className="mx-auto mt-6 h-auto w-[85%] max-w-[380px] opacity-80"
+          sizes="(max-width: 640px) 60vw, 280px"
+          className="mx-auto mt-6 h-auto w-[65%] max-w-[280px] opacity-80"
         />
 
         <Image
