@@ -109,7 +109,7 @@ const ABAS: Aba[] = [
       "Clique na matéria que você tem interesse e veja a lista de aulas já disponíveis. Por dentro, cada aula tem o vídeo do professor, a lista das próximas aulas ao lado, os <b>bizus</b>, os <b>slides para baixar</b> e a nossa IA para tirar dúvida na hora.",
     midia: "slides",
     frames: [
-      ["aula-1.jpg", "Aula do professor + lista de aulas"],
+      ["aula-erika.mp4", "Aula do professor + lista de aulas"],
       ["aula-2.jpg", "Bizus da aula"],
       ["aula-3.jpg", "Slides para baixar"],
     ],
@@ -236,7 +236,12 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
       frames
         .map(
           ([src], k) =>
-            `<img class="slide${k ? "" : " on"}" src="${A(src)}" alt="">`,
+            // Quadro em vídeo (aula gravada): toca em laço, sem som, com o
+            // webm para o Chromium livre e o mp4 para o resto, e um pôster
+            // para não ficar um retângulo vazio enquanto carrega.
+            /\.mp4$/.test(src)
+              ? `<video class="slide${k ? "" : " on"}" autoplay loop muted playsinline poster="${A(src.replace(/\.mp4$/, ".jpg"))}"><source src="${A(src.replace(/\.mp4$/, ".webm"))}" type="video/webm"><source src="${A(src)}" type="video/mp4"></video>`
+              : `<img class="slide${k ? "" : " on"}" src="${A(src)}" alt="">`,
         )
         .join("") +
       `<span class="legenda">${esc(frames[0][1])}</span>` +
@@ -247,16 +252,32 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
     const leg = vidro.querySelector(".legenda") as HTMLElement;
     const pts = vidro.querySelectorAll(".pontos i");
     let i = 0;
-    let t: ReturnType<typeof setInterval> | undefined;
+    let t: ReturnType<typeof setTimeout> | undefined;
     const vai = (n: number) => {
       i = (n + frames.length) % frames.length;
       ims.forEach((m, k) => m.classList.toggle("on", k === i));
       pts.forEach((p, k) => p.classList.toggle("on", k === i));
       leg.textContent = frames[i][1];
     };
+    // O vídeo fica na tela o tempo inteiro dele (e recomeça do início); a
+    // imagem, o intervalo de sempre. Com um relógio fixo de 3 s, a aula seria
+    // cortada no começo.
+    const tempo = (n: number) => {
+      const v = ims[n];
+      return v instanceof HTMLVideoElement ? 12_000 : intervalo;
+    };
     const roda = () => {
-      clearInterval(t);
-      if (frames.length > 1) t = setInterval(() => vai(i + 1), intervalo);
+      clearTimeout(t);
+      if (frames.length < 2) return;
+      const v = ims[i];
+      if (v instanceof HTMLVideoElement) {
+        v.currentTime = 0;
+        void v.play().catch(() => {});
+      }
+      t = setTimeout(() => {
+        vai(i + 1);
+        roda();
+      }, tempo(i));
     };
     roda();
     return {
@@ -264,7 +285,7 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
         vai(n);
         roda();
       },
-      para: () => clearInterval(t),
+      para: () => clearTimeout(t),
     };
   }
 

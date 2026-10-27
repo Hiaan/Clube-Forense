@@ -106,6 +106,13 @@ export interface EditalDaFaixa {
  * continua aqui: a lista é do Clube, e quem acrescentar um estado amanhã não
  * pode quebrar a faixa por esquecer de mandar a imagem.
  */
+/**
+ * Distintivos trocados depois de publicados ganham um sufixo no nome do
+ * arquivo: com o mesmo endereço, navegador e otimizador de imagem continuariam
+ * servindo a versão antiga guardada.
+ */
+const VERSAO_DISTINTIVO: Record<string, string> = { AM: "-v2", PE: "-v2" };
+
 const COM_DISTINTIVO = new Set([
   "AC",
   "AM",
@@ -183,7 +190,7 @@ function Cartao({ edital }: { edital: EditalDaFaixa }) {
 
       {COM_DISTINTIVO.has(uf) ? (
         <Image
-          src={`/black/orgaos/${uf}.webp`}
+          src={`/black/orgaos/${uf}${VERSAO_DISTINTIVO[uf] ?? ""}.webp`}
           alt={`Distintivo — ${orgao}`}
           width={256}
           height={256}

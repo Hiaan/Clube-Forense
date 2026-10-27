@@ -285,8 +285,12 @@
   background: var(--ouro);
 }
 .cf-pl video.slide {
-  opacity: 1;
   object-fit: cover;
+}
+/* Vídeo sozinho na tela (aba Mapas) fica sempre visível; numa galeria, ele
+   entra e sai como as imagens. */
+.cf-pl video.slide:only-child {
+  opacity: 1;
 }
 .cf-pl .rolagem {
   position: absolute;
