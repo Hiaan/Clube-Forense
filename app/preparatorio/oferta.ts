@@ -41,12 +41,13 @@ export const PARCELA: Record<"cheio" | "black", number> = {
 /**
  * Checkout de cada versão.
  *
- * ATENÇÃO: os dois apontam para o link do botão de compra do site antigo, que
- * cobra o preço ANTIGO. Cada preço precisa do seu link (ou cupom) na Eduzz.
+ * A Black usa o link com o cupom BLACK passado pelo Clube em 27/10/2026. O
+ * cheio ainda é o link do site antigo, sem cupom: conferir o preço que ele
+ * cobra antes de a Black acabar (FIM_BLACK).
  */
 export const CHECKOUT: Record<"cheio" | "black", string> = {
   cheio: "https://sun.eduzz.com/2325387",
-  black: "https://sun.eduzz.com/2325387",
+  black: "https://chk.eduzz.com/2325387?cupom=BLACK",
 };
 
 export type Versao = "cheio" | "black";
