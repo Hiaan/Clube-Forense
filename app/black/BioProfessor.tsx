@@ -23,7 +23,7 @@ export default function BioProfessor({ texto }: { texto: string }) {
   return (
     <>
       <p
-        className={`mt-2 text-sm leading-relaxed text-gray-600 ${
+        className={`mt-2 text-xs leading-relaxed text-gray-600 sm:text-sm ${
           aberto ? "" : "line-clamp-5"
         }`}
       >

@@ -262,7 +262,9 @@ export default async function BlackPage() {
                 className="h-auto w-full"
               />
               <div className="absolute right-2 top-[12%] rounded-2xl border border-[#ffcd07]/40 bg-[#0b0b0d]/90 px-4 py-2.5 text-center backdrop-blur">
-                <p className="text-xl font-black leading-none text-[#ffcd07]">{totalAprovados}</p>
+                <p className="text-xl font-black leading-none text-[#ffcd07]">
+                  {totalAprovados}
+                </p>
                 <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-white/50">
                   aprovados
                 </p>
@@ -458,13 +460,21 @@ export default async function BlackPage() {
             Professores que são médicos-legistas
           </Titulo>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-gray-600">
-            Conheça um pouco mais dos professores e criadores do Clube Forense que
-            vivem e respiram medicina legal todos os dias, seja ensinando ou
+            Conheça um pouco mais dos professores e criadores do Clube Forense
+            que vivem e respiram medicina legal todos os dias, seja ensinando ou
             trabalhando.
           </p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          {/* NO CELULAR, CARROSSEL. Um embaixo do outro, cada cartão ocupava a
+              tela inteira e os três professores davam três telas de rolagem.
+              Lado a lado, com o próximo cartão aparecendo na borda, a pessoa
+              arrasta com o dedo e vê que há mais. Do tablet para cima, volta a
+              ser a grade de três. */}
+          <div className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
             {PROFESSORES.map((p) => (
-              <div key={p.nome} className="card-white overflow-hidden">
+              <div
+                key={p.nome}
+                className="card-white w-[52%] shrink-0 snap-center overflow-hidden sm:w-auto"
+              >
                 <div className="relative aspect-[424/632] w-full bg-gray-100">
                   <Image
                     src={`/black/professores/${p.arquivo}`}
@@ -474,8 +484,8 @@ export default async function BlackPage() {
                     className="object-cover"
                   />
                 </div>
-                <div className="p-5">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#b38f00]">
+                <div className="p-3.5 sm:p-5">
+                  <p className="text-[10px] font-bold sm:text-[11px] uppercase tracking-wider text-[#b38f00]">
                     {p.cargo}
                   </p>
                   <BioProfessor texto={p.texto} />
@@ -710,8 +720,8 @@ export default async function BlackPage() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-gray-800">
             {inclusos.length} concursos autorizados até agora, você terá acesso
-            vitalício ao conteúdo pré e pós-edital de todos eles e ainda qualquer
-            outro edital que sair até 2028.
+            vitalício ao conteúdo pré e pós-edital de todos eles e ainda
+            qualquer outro edital que sair até 2028.
           </p>
           <a
             href="#oferta"
