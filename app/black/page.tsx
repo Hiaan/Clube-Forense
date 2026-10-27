@@ -263,7 +263,7 @@ export default async function BlackPage() {
               />
               <div className="absolute right-2 top-[12%] rounded-2xl border border-[#ffcd07]/40 bg-[#0b0b0d]/90 px-4 py-2.5 text-center backdrop-blur">
                 <p className="text-xl font-black leading-none text-[#ffcd07]">
-                  {totalAprovados}
+                  +{totalAprovados}
                 </p>
                 <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-white/50">
                   aprovados
