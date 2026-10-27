@@ -134,3 +134,46 @@ body {
   color: #0b0b0d;
   filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
 }
+
+/* Barra de rolagem de fita de isolamento — só na Black (a página que tem a
+   moldura .cursor-lupa). Listras diagonais amarelo e preto no que se arrasta,
+   trilho preto. Chrome, Edge e Safari desenham tudo isso; o Firefox só aceita
+   cor, e lá ela fica amarela sobre preto. (Não dá para pôr scrollbar-color
+   para todos: o Chrome novo, quando vê essa propriedade, ignora o desenho
+   abaixo — por isso ela vai só para o Firefox.) */
+html:has(.cursor-lupa)::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+html:has(.cursor-lupa)::-webkit-scrollbar-track {
+  background: #0b0b0d;
+}
+html:has(.cursor-lupa)::-webkit-scrollbar-thumb {
+  border: 2px solid #0b0b0d;
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #ffcd07 0 7px,
+    #0b0b0d 7px 14px
+  );
+}
+html:has(.cursor-lupa)::-webkit-scrollbar-thumb:hover {
+  background: repeating-linear-gradient(
+    -45deg,
+    #ffe14d 0 7px,
+    #000 7px 14px
+  );
+}
+@supports (-moz-appearance: none) {
+  html:has(.cursor-lupa) {
+    scrollbar-color: #ffcd07 #0b0b0d;
+  }
+}
+
+/* A fita de progresso no topo (FitaDeProgresso.tsx): as mesmas listras,
+   esticando da esquerda conforme a página rola. */
+.fita-progresso {
+  background: repeating-linear-gradient(-45deg, #ffcd07 0 8px, #0b0b0d 8px 16px);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  transform-origin: 0 50%;
+}

@@ -8,6 +8,7 @@
 import type { Metadata } from "next";
 
 import DigitalNoClique from "./DigitalNoClique";
+import FitaDeProgresso from "./FitaDeProgresso";
 
 export const metadata: Metadata = {
   title: "Black Forense 2026 — todos os editais de médico-legista | Clube Forense",
@@ -28,9 +29,12 @@ export default function BlackLayout({ children }: { children: React.ReactNode })
   // ficaria com uma borda preta embaixo em telas altas.
   //
   // `cursor-lupa` troca o cursor pela lupa do Clube (globals.css), e a
-  // DigitalNoClique deixa a marca no clique dos botões de compra.
+  // DigitalNoClique deixa a marca no clique dos botões de compra. A mesma
+  // classe liga a barra de rolagem de fita zebrada, e a FitaDeProgresso estica
+  // a fita no topo conforme a página rola.
   return (
     <div className="cursor-lupa min-h-screen bg-white">
+      <FitaDeProgresso />
       {children}
       <DigitalNoClique />
     </div>
