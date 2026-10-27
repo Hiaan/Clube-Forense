@@ -100,18 +100,27 @@ function Resposta({
         {texto.slice(0, letras)}
         {!terminou && "▍"}
       </p>
-      {terminou && (
-        <p className="mt-2.5 text-[11px] font-semibold text-[#ffcd07]">📖 {fonte}</p>
-      )}
+      {/* A fonte ocupa o lugar desde o começo, só aparece no fim: surgir do
+          nada somava uma linha à caixa e empurrava a página. */}
+      <p
+        className={`mt-2.5 text-[11px] font-semibold text-[#ffcd07] transition-opacity ${
+          terminou ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        📖 {fonte}
+      </p>
     </div>
   );
 }
 
 export default function DrBonet() {
   const [indice, setIndice] = useState(0);
-  const reduzir = useSyncExternalStore(assinarMovimento, querMenosMovimento, semMovimento);
+  const reduzir = useSyncExternalStore(
+    assinarMovimento,
+    querMenosMovimento,
+    semMovimento,
+  );
   const anima = !reduzir;
-  const troca = EXEMPLOS[indice];
 
   // Passa para a próxima pergunta sozinho. O tempo é o de ler a resposta, e
   // não o de ver a animação: quem desligou o movimento também avança.
@@ -130,8 +139,12 @@ export default function DrBonet() {
             B
           </span>
           <span>
-            <span className="block text-sm font-bold text-white">Dr. Bonet</span>
-            <span className="block text-[11px] text-white/40">disponível a qualquer hora</span>
+            <span className="block text-sm font-bold text-white">
+              Dr. Bonet
+            </span>
+            <span className="block text-[11px] text-white/40">
+              disponível a qualquer hora
+            </span>
           </span>
         </div>
         <span className="rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40">
@@ -139,20 +152,48 @@ export default function DrBonet() {
         </span>
       </div>
 
-      <div className="min-h-[13rem] space-y-4 px-5 py-6">
-        <div className="flex justify-end">
-          <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-white/10 px-4 py-3 text-sm text-white/85">
-            {troca.pergunta}
-          </p>
-        </div>
-
-        <div className="flex justify-start">
-          <Resposta
-            key={indice}
-            texto={troca.resposta}
-            fonte={troca.fonte}
-            anima={anima}
-          />
+      {/* ALTURA FIXA, A DA MAIOR RESPOSTA. A conversa cresce enquanto a
+          resposta é "digitada" e encolhe quando a próxima pergunta entra; no
+          celular, cada mudança empurrava a página inteira para cima e para
+          baixo enquanto a pessoa lia mais embaixo. Todas as trocas ficam
+          empilhadas na mesma célula da grade — as que não estão na vez,
+          invisíveis mas ocupando lugar —, e a caixa fica sempre com a altura
+          da mais longa. */}
+      <div className="grid px-5 py-6">
+        {/* Camadas de medida: todas as trocas completas, invisíveis. A
+            célula fica com a altura da maior, inclusive enquanto ela mesma
+            está sendo digitada. */}
+        {EXEMPLOS.map((t) => (
+          <div
+            key={t.pergunta}
+            aria-hidden
+            className="invisible col-start-1 row-start-1 space-y-4"
+          >
+            <div className="flex justify-end">
+              <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-white/10 px-4 py-3 text-sm text-white/85">
+                {t.pergunta}
+              </p>
+            </div>
+            <div className="flex justify-start">
+              <Resposta texto={t.resposta} fonte={t.fonte} anima={false} />
+            </div>
+          </div>
+        ))}
+        {/* A troca da vez, por cima, no mesmo lugar. */}
+        <div className="col-start-1 row-start-1 space-y-4">
+          <div className="flex justify-end">
+            <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-white/10 px-4 py-3 text-sm text-white/85">
+              {EXEMPLOS[indice].pergunta}
+            </p>
+          </div>
+          <div className="flex justify-start">
+            <Resposta
+              key={indice}
+              texto={EXEMPLOS[indice].resposta}
+              fonte={EXEMPLOS[indice].fonte}
+              anima={anima}
+            />
+          </div>
         </div>
       </div>
 
@@ -163,7 +204,9 @@ export default function DrBonet() {
             onClick={() => setIndice(i)}
             aria-label={`Ver exemplo ${i + 1}`}
             className={`h-1.5 rounded-full transition-all ${
-              i === indice ? "w-7 bg-[#ffcd07]" : "w-3 bg-white/20 hover:bg-white/40"
+              i === indice
+                ? "w-7 bg-[#ffcd07]"
+                : "w-3 bg-white/20 hover:bg-white/40"
             }`}
           />
         ))}

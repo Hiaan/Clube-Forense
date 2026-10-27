@@ -509,14 +509,15 @@ export default async function BlackPage() {
 
           <MuralAprovados aprovados={mural} />
 
-          {/* O placar de todos os concursos, não só dos quatro maiores. */}
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {/* O placar de todos os concursos, não só dos quatro maiores. No
+              celular, carrossel de arrastar, como o mural acima. */}
+          <div className="-mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
             {Object.entries(APROVADOS)
               .sort((a, b) => b[1].total - a[1].total)
               .map(([uf, a]) => (
                 <div
                   key={uf}
-                  className="rounded-2xl bg-gray-900 p-5 text-center"
+                  className="w-[38%] shrink-0 snap-start rounded-2xl bg-gray-900 p-5 text-center sm:w-auto"
                 >
                   <p className="text-3xl font-black text-[#ffcd07]">
                     {a.total}
