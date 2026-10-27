@@ -77,6 +77,20 @@ function instalar() {
 }
 
 /**
+ * Dispara um evento padrão da Meta (ViewContent, InitiateCheckout, Contact…).
+ *
+ * Instala o pixel se ainda não estiver instalado: os componentes da página
+ * rodam antes deste, que fica no fim do layout raiz, e o evento não pode se
+ * perder por chegar primeiro. A fila do fbq guarda tudo na ordem.
+ */
+export function rastrear(evento: string, dados?: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  if (FORA.some((p) => window.location.pathname.startsWith(p))) return;
+  instalar();
+  window.fbq?.("track", evento, dados);
+}
+
+/**
  * A última rota já contada.
  *
  * Fora do componente de propósito: um `useRef` zera quando o componente

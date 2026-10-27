@@ -8,10 +8,12 @@
 import type { Metadata } from "next";
 
 import DigitalNoClique from "./DigitalNoClique";
+import EventosBlack from "./EventosBlack";
 import FitaDeProgresso from "./FitaDeProgresso";
 
 export const metadata: Metadata = {
-  title: "Black Forense 2026 — todos os editais de médico-legista | Clube Forense",
+  title:
+    "Black Forense 2026 — todos os editais de médico-legista | Clube Forense",
   description:
     "Acesso ao preparatório de todos os concursos de médico-legista autorizados hoje, mais todo edital que sair nos próximos 2 anos. Professores que são médicos-legistas, mais de 25 mil questões e o Dr. Bonet.",
   openGraph: {
@@ -23,7 +25,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function BlackLayout({ children }: { children: React.ReactNode }) {
+export default function BlackLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   // Cada bloco da página carrega o próprio fundo (a capa é preta, o miolo é
   // claro), então a moldura fica neutra — sem isso, o branco das seções claras
   // ficaria com uma borda preta embaixo em telas altas.
@@ -37,6 +43,7 @@ export default function BlackLayout({ children }: { children: React.ReactNode })
       <FitaDeProgresso />
       {children}
       <DigitalNoClique />
+      <EventosBlack />
     </div>
   );
 }

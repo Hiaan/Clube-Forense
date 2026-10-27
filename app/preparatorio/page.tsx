@@ -35,6 +35,7 @@ import { APROVADOS } from "../monitor/lib/aprovados";
 import { coletar } from "../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { type Nivel } from "../monitor/lib/tipos";
+import EventosDeVenda from "../components/EventosDeVenda";
 import BarraCompra from "./BarraCompra";
 import {
   CHECKOUT,
@@ -548,6 +549,7 @@ export default async function PreparatorioPage({
               )}
               <a
                 href={CHECKOUT[versao]}
+                data-valor={preco}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-7 block rounded-2xl bg-[#ffcd07] px-8 py-5 text-base font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110 sm:text-lg"
@@ -681,6 +683,14 @@ export default async function PreparatorioPage({
         </Secao>
       </footer>
 
+      <EventosDeVenda
+        produto={
+          black
+            ? "Preparatório Aprova Legista — Black"
+            : "Preparatório Aprova Legista"
+        }
+        valor={preco}
+      />
       <BarraCompra
         linha={
           black

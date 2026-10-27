@@ -169,6 +169,7 @@ export default function CaixaDePreco({
 
         <a
           href={mostrado.checkout}
+          data-valor={mostrado.avista}
           className={`mt-8 block w-full rounded-2xl bg-[#ffcd07] px-6 py-5 text-center text-base font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110 sm:text-lg ${entra}`}
           style={atraso(900)}
         >
