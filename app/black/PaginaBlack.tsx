@@ -322,6 +322,18 @@ export default async function PaginaBlack({
 
         <div className="pb-16">
           <CarrosselEditais editais={inclusos} />
+          {/* A lista por escrito, miúda, embaixo da faixa: a faixa anda e
+              nunca mostra todos de uma vez; aqui a pessoa confere de uma
+              olhada quais concursos estão na oferta. */}
+          <p className="mx-auto mt-8 max-w-3xl px-4 text-center text-xs leading-relaxed text-gray-500">
+            <strong className="font-semibold text-gray-700">
+              Editais contemplados ({inclusos.length}):
+            </strong>{" "}
+            {inclusos
+              .map((e) => `${e.sigla} (${ESTADO_POR_UF[e.uf]?.nome ?? e.uf})`)
+              .join(" · ")}
+            .
+          </p>
         </div>
       </div>
 
