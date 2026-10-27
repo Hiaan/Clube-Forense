@@ -108,12 +108,14 @@ export interface EditalDaFaixa {
  */
 const COM_DISTINTIVO = new Set([
   "AC",
+  "AM",
   "DF",
   "ES",
   "MA",
   "MG",
   "MT",
   "PA",
+  "PE",
   "RJ",
   "TO",
 ]);
