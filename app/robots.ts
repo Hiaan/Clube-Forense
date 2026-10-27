@@ -19,7 +19,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/admin/", "/api/"],
+      disallow: ["/admin", "/admin/", "/api/", "/alunoclube"],
     },
     sitemap: `${baseDoSite()}/sitemap.xml`,
   };

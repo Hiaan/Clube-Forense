@@ -19,7 +19,8 @@ import Contador from "./Contador";
 import { useLote } from "./Contador";
 import { LOTES } from "./oferta";
 
-export default function BarraFixa() {
+/** `aluno` troca o prazo do lote pela linha da página dos alunos. */
+export default function BarraFixa({ aluno = false }: { aluno?: boolean }) {
   const { lote } = useLote();
   const [visivel, setVisivel] = useState(false);
 
@@ -51,7 +52,13 @@ export default function BarraFixa() {
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] font-bold uppercase tracking-wider text-white/40">
-              {mostrado.nome} termina em <Contador compacto />
+              {aluno ? (
+                "Oferta exclusiva para alunos"
+              ) : (
+                <>
+                  {mostrado.nome} termina em <Contador compacto />
+                </>
+              )}
             </p>
             {/* SEM PREÇO AQUI. A barra acompanha a rolagem desde o fim da capa,
               então mostrar o valor nela seria entregar o preço logo no começo

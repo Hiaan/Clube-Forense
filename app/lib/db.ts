@@ -590,6 +590,28 @@ create table if not exists vigia_publicacoes (
   visto_em  timestamptz not null default now()
 );
 `,
+  // A página dos alunos (/alunoclube). Nenhuma das duas guarda CPF: só o HMAC
+  // dele, que serve para conferir depois ("este CPF pegou cupom?") e não
+  // devolve o número a quem ler a tabela.
+  `
+create table if not exists alunoclube_validacoes (
+  id         bigserial primary key,
+  cpf_hash   text not null,
+  cupom      text not null,
+  produto    text,
+  em         timestamptz not null default now()
+);
+`,
+  "create index if not exists alunoclube_validacoes_cpf_idx on alunoclube_validacoes (cpf_hash);",
+  `
+create table if not exists alunoclube_tentativas (
+  id       bigserial primary key,
+  ip_hash  text not null,
+  achou    boolean not null default false,
+  em       timestamptz not null default now()
+);
+`,
+  "create index if not exists alunoclube_tentativas_ip_idx on alunoclube_tentativas (ip_hash, em desc);",
 ];
 
 /** Promessa da preparação em curso — o esquema só é criado uma vez por processo. */

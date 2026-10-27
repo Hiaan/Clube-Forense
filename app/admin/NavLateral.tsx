@@ -17,9 +17,11 @@ const ITENS: { href: string; rotulo: string; icone: NomeIcone }[] = [
   { href: "/admin/aprovados", rotulo: "Aprovados", icone: "estrela" },
   { href: "/admin/leads", rotulo: "Leads", icone: "pessoas" },
   { href: "/admin/vendas", rotulo: "Vendas", icone: "dinheiro" },
+  { href: "/admin/alunoclube", rotulo: "Black dos alunos", icone: "pessoas" },
 ];
 
-const ITEM = "flex items-center gap-3 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition";
+const ITEM =
+  "flex items-center gap-3 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition";
 const APAGADO = "text-gray-400 hover:bg-white/5 hover:text-white";
 
 export default function NavLateral({ email }: { email: string | null }) {
@@ -56,18 +58,29 @@ export default function NavLateral({ email }: { email: string | null }) {
 
       <div className="mt-auto border-t border-white/10 p-3">
         {email && (
-          <p className="truncate px-4 pb-2 pt-3 text-xs text-gray-500" title={email}>
+          <p
+            className="truncate px-4 pb-2 pt-3 text-xs text-gray-500"
+            title={email}
+          >
             {email}
           </p>
         )}
 
-        <a href="/" target="_blank" rel="noopener noreferrer" className={`${ITEM} ${APAGADO}`}>
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${ITEM} ${APAGADO}`}
+        >
           <Icone nome="externo" />
           Ver o site
         </a>
 
         <form action={sair}>
-          <button type="submit" className={`${ITEM} w-full text-left ${APAGADO}`}>
+          <button
+            type="submit"
+            className={`${ITEM} w-full text-left ${APAGADO}`}
+          >
             <Icone nome="sair" />
             Sair
           </button>

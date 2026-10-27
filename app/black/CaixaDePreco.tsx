@@ -21,11 +21,24 @@ import { useEffect, useRef, useState } from "react";
 import { LOTES, PRECO_POR_EDITAL, reais, reaisComCentavos } from "./oferta";
 import { useLote } from "./Contador";
 
+/** A oferta já montada de um aluno validado (/alunoclube). */
+export interface OfertaAluno {
+  /** De que o aluno é aluno ("aluno do Preparatório"). */
+  rotulo: string;
+  /** O valor à vista dele. */
+  preco: number;
+  /** O checkout com o cupom dele. */
+  link: string;
+}
+
 export default function CaixaDePreco({
   editaisInclusos,
+  aluno,
   id,
 }: {
   editaisInclusos: number;
+  /** Presente na página dos alunos: troca os lotes pela oferta do aluno. */
+  aluno?: OfertaAluno;
   id?: string;
 }) {
   const { lote } = useLote();
@@ -103,35 +116,43 @@ export default function CaixaDePreco({
           className="mx-auto mt-5 h-auto w-[85%] max-w-[400px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]"
         />
 
-        {/* Os lotes como escada: onde a pessoa está e o que acontece se ela
+        {aluno ? (
+          <p className="mx-auto mt-6 inline-block rounded-full border border-[#ffcd07]/40 bg-[#ffcd07]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffcd07]">
+            Oferta de {aluno.rotulo}
+          </p>
+        ) : (
+          <>
+            {/* Os lotes como escada: onde a pessoa está e o que acontece se ela
             voltar amanhã. */}
-        <div className="mx-auto mt-6 flex max-w-sm items-center gap-1.5">
-          {LOTES.map((l, i) => {
-            const passou = lote ? i < indice : false;
-            const atual = lote ? i === indice : i === 0;
-            return (
-              <div key={l.nome} className="flex-1">
-                <div
-                  className={`h-1 rounded-full ${
-                    atual
-                      ? "bg-[#ffcd07]"
-                      : passou
-                        ? "bg-white/25"
-                        : "bg-white/10"
-                  }`}
-                />
-                <p
-                  className={`mt-1.5 text-[10px] font-bold uppercase tracking-wider ${
-                    atual ? "text-[#ffcd07]" : "text-white/35"
-                  }`}
-                >
-                  {l.nome}
-                  {passou && " · esgotado"}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+            <div className="mx-auto mt-6 flex max-w-sm items-center gap-1.5">
+              {LOTES.map((l, i) => {
+                const passou = lote ? i < indice : false;
+                const atual = lote ? i === indice : i === 0;
+                return (
+                  <div key={l.nome} className="flex-1">
+                    <div
+                      className={`h-1 rounded-full ${
+                        atual
+                          ? "bg-[#ffcd07]"
+                          : passou
+                            ? "bg-white/25"
+                            : "bg-white/10"
+                      }`}
+                    />
+                    <p
+                      className={`mt-1.5 text-[10px] font-bold uppercase tracking-wider ${
+                        atual ? "text-[#ffcd07]" : "text-white/35"
+                      }`}
+                    >
+                      {l.nome}
+                      {passou && " · esgotado"}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         <div ref={precoRef} className="mt-6">
           <p
@@ -143,37 +164,68 @@ export default function CaixaDePreco({
               {reais(avulso)}
             </span>
           </p>
-          <p
-            className={`mt-2 text-sm font-bold uppercase tracking-[0.15em] text-white/70 ${entra}`}
-            style={atraso(250)}
-          >
-            Por apenas {mostrado.parcelas}x de
-          </p>
-          <p
-            className={`mt-1 text-6xl font-black tracking-tight text-[#ffcd07] sm:text-7xl ${entra}`}
-            style={atraso(450)}
-          >
-            {reaisComCentavos(mostrado.valorParcela)}
-          </p>
-          <p
-            className={`mt-2 text-lg text-white/70 ${entra}`}
-            style={atraso(700)}
-          >
-            ou{" "}
-            <strong className="font-black text-white">
-              {reais(mostrado.avista)}
-            </strong>{" "}
-            à vista
-          </p>
+          {aluno ? (
+            <>
+              <p
+                className={`mt-2 text-sm font-bold uppercase tracking-[0.15em] text-white/70 ${entra}`}
+                style={atraso(250)}
+              >
+                Para você, por
+              </p>
+              <p
+                className={`mt-1 text-6xl font-black tracking-tight text-[#ffcd07] sm:text-7xl ${entra}`}
+                style={atraso(450)}
+              >
+                {reais(aluno.preco)}
+              </p>
+              <p
+                className={`mt-2 text-base text-white/70 ${entra}`}
+                style={atraso(700)}
+              >
+                à vista, ou em até 12x no cartão
+              </p>
+              <p
+                className={`mt-2 text-xs text-white/45 ${entra}`}
+                style={atraso(700)}
+              >
+                Valor calculado a partir do seu cashback total com o Clube.
+              </p>
+            </>
+          ) : (
+            <>
+              <p
+                className={`mt-2 text-sm font-bold uppercase tracking-[0.15em] text-white/70 ${entra}`}
+                style={atraso(250)}
+              >
+                Por apenas {mostrado.parcelas}x de
+              </p>
+              <p
+                className={`mt-1 text-6xl font-black tracking-tight text-[#ffcd07] sm:text-7xl ${entra}`}
+                style={atraso(450)}
+              >
+                {reaisComCentavos(mostrado.valorParcela)}
+              </p>
+              <p
+                className={`mt-2 text-lg text-white/70 ${entra}`}
+                style={atraso(700)}
+              >
+                ou{" "}
+                <strong className="font-black text-white">
+                  {reais(mostrado.avista)}
+                </strong>{" "}
+                à vista
+              </p>
+            </>
+          )}
         </div>
 
         <a
-          href={mostrado.checkout}
-          data-valor={mostrado.avista}
+          href={aluno ? aluno.link : mostrado.checkout}
+          data-valor={aluno ? aluno.preco : mostrado.avista}
           className={`mt-8 block w-full rounded-2xl bg-[#ffcd07] px-6 py-5 text-center text-base font-black uppercase tracking-wide text-gray-900 transition hover:brightness-110 sm:text-lg ${entra}`}
           style={atraso(900)}
         >
-          Quero a Black Vitalícia
+          {aluno ? "Garantir minha Black de aluno" : "Quero a Black Vitalícia"}
         </a>
 
         <p className="mt-5 text-sm leading-relaxed text-white/60">
@@ -182,7 +234,10 @@ export default function CaixaDePreco({
           autorizados até 2028
         </p>
         <p className="mt-3 text-xs text-white/40">
-          {mostrado.nome} · compra segura pela Eduzz · cartão, Pix ou boleto
+          {aluno
+            ? "Use no pagamento o mesmo CPF que você informou aqui"
+            : `${mostrado.nome} · compra segura pela Eduzz`}{" "}
+          · cartão, Pix ou boleto
         </p>
       </div>
     </div>
