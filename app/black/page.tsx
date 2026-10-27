@@ -36,7 +36,6 @@ import Contador from "./Contador";
 import FundoCapas from "./FundoCapas";
 import Depoimentos from "./Depoimentos";
 import DrBonet from "./DrBonet";
-import HeroComposicao from "./HeroComposicao";
 import MuralAprovados from "./MuralAprovados";
 import SecaoPlataforma from "./plataforma/SecaoPlataforma";
 import { PROFESSORES } from "./professores";
@@ -178,6 +177,7 @@ export default async function BlackPage() {
           entram, quem ensina e o que tem na plataforma. O contador fica — ele
           marca o prazo do lote sem revelar quanto custa. */}
       <div id="capa" className="relative overflow-hidden bg-[#0b0b0d]">
+        <FundoCapas veu="capa" />
         <div className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#ffcd07]/10 blur-[130px]" />
 
         <Secao className="relative pb-20 pt-8 sm:pt-10">
@@ -248,7 +248,26 @@ export default async function BlackPage() {
               </div>
             </div>
 
-            <HeroComposicao aprovados={totalAprovados} />
+            {/* Os três professores com a plataforma atrás. A base da foto já
+                vem esmaecida no próprio arquivo, para sumir no preto da capa
+                em vez de terminar num corte reto. */}
+            <div className="relative mx-auto w-full max-w-[520px] lg:max-w-[600px]">
+              <Image
+                src="/black/hero-professores.webp"
+                alt="Dr. João Paulo, Dra. Erika Anjos e Dr. Miguel Souza com a plataforma do Clube Forense"
+                width={900}
+                height={773}
+                priority
+                sizes="(max-width: 1024px) 92vw, 600px"
+                className="h-auto w-full"
+              />
+              <div className="absolute right-2 top-[12%] rounded-2xl border border-[#ffcd07]/40 bg-[#0b0b0d]/90 px-4 py-2.5 text-center backdrop-blur">
+                <p className="text-xl font-black leading-none text-[#ffcd07]">{totalAprovados}</p>
+                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-white/50">
+                  aprovados
+                </p>
+              </div>
+            </div>
           </div>
         </Secao>
       </div>
