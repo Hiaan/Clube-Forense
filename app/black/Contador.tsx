@@ -88,7 +88,7 @@ export function useLote(): { lote: Lote | null; falta: Restante | null } {
 }
 
 /** Quanto falta para um prazo fixo; `null` no servidor ou sem prazo. */
-function usePrazo(ate?: string): Restante | null {
+export function usePrazo(ate?: string): Restante | null {
   const segundo = useSyncExternalStore(
     assinarRelogio,
     segundoAtual,

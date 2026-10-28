@@ -36,6 +36,9 @@ export default async function AlunoClubePage() {
           preco: regra.preco,
           link: linkComCupom(regra.cupom),
           lote: FAIXA_UNICA ? LOTE_ALUNO : undefined,
+          avisoLote: FAIXA_UNICA
+            ? undefined
+            : "Valor do 1º lote · muda à meia-noite",
         }}
       />
       <EventosAluno valor={regra.preco} />

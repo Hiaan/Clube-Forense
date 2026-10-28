@@ -31,6 +31,8 @@ export interface OfertaAluno {
   link: string;
   /** Selo de lote no lugar de "Oferta de …" (ex.: "2º lote"). */
   lote?: string;
+  /** Aviso junto do preço (ex.: "Valor do 1º lote — muda à meia-noite"). */
+  avisoLote?: string;
 }
 
 export default function CaixaDePreco({
@@ -188,6 +190,11 @@ export default function CaixaDePreco({
                 style={atraso(700)}
               >
                 Valor calculado a partir do seu cashback total com o Clube.
+                {aluno.avisoLote && (
+                  <span className="mt-2 block font-black uppercase tracking-wide text-red-300">
+                    {aluno.avisoLote}
+                  </span>
+                )}
               </p>
             </>
           ) : (

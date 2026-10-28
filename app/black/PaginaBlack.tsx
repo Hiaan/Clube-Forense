@@ -34,6 +34,7 @@ import CarrosselEditais from "./CarrosselEditais";
 import CaixaDePreco, { type OfertaAluno } from "./CaixaDePreco";
 import AvisoAluno from "../alunoclube/AvisoAluno";
 import SairAluno from "../alunoclube/SairAluno";
+import AvisoLote from "../alunoclube/AvisoLote";
 import { FAIXA_UNICA, FIM_LOTE1_ALUNO } from "../alunoclube/cupons";
 import Contador from "./Contador";
 import FundoCapas from "./FundoCapas";
@@ -170,7 +171,9 @@ export default async function PaginaBlack({
       <Ticker
         texto={
           aluno
-            ? "Exclusivo para alunos do Clube · Black Vitalícia"
+            ? FAIXA_UNICA
+              ? "Exclusivo para alunos do Clube · Black Vitalícia"
+              : "O 1º lote vira à meia-noite · o valor será alterado"
             : "Black Forense · todos os editais autorizados · um preço só"
         }
       />
@@ -254,15 +257,12 @@ export default async function PaginaBlack({
                 >
                   Quero garantir minha vaga
                 </a>
+                {aluno && !FAIXA_UNICA && (
+                  <AvisoLote ate={FIM_LOTE1_ALUNO} compacto />
+                )}
                 <p className="text-[13px] font-semibold text-white/45">
                   {aluno ? (
                     <>
-                      {!FAIXA_UNICA && (
-                        <span className="mb-1 block text-[#ffcd07]">
-                          1º lote termina à meia-noite ·{" "}
-                          <Contador compacto ate={FIM_LOTE1_ALUNO} />
-                        </span>
-                      )}
                       <SairAluno rotulo={ofertaAluno?.rotulo} />
                     </>
                   ) : (
@@ -303,7 +303,9 @@ export default async function PaginaBlack({
       <Ticker
         texto={
           aluno
-            ? "Exclusivo para alunos do Clube · Black Vitalícia"
+            ? FAIXA_UNICA
+              ? "Exclusivo para alunos do Clube · Black Vitalícia"
+              : "O 1º lote vira à meia-noite · o valor será alterado"
             : "Black Forense · todos os editais autorizados · um preço só"
         }
       />
@@ -592,7 +594,9 @@ export default async function PaginaBlack({
       <Ticker
         texto={
           aluno
-            ? "oferta exclusiva para alunos · garantia de 7 dias"
+            ? FAIXA_UNICA
+              ? "oferta exclusiva para alunos · garantia de 7 dias"
+              : "o 1º lote vira à meia-noite · garanta o valor de agora"
             : "o preço sobe a cada lote · garantia de 7 dias"
         }
       />
@@ -621,12 +625,7 @@ export default async function PaginaBlack({
                 a sua vaga.
               </p>
               {aluno && !FAIXA_UNICA ? (
-                <div className="mt-6 flex flex-col items-center gap-3">
-                  <p className="text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
-                    O 1º lote encerra à meia-noite. O valor será alterado.
-                  </p>
-                  <Contador ate={FIM_LOTE1_ALUNO} />
-                </div>
+                <AvisoLote ate={FIM_LOTE1_ALUNO} />
               ) : (
                 <div className="mt-6 flex justify-center">
                   {!aluno && <Contador />}
