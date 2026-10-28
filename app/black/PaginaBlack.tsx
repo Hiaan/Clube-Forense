@@ -315,8 +315,9 @@ export default async function PaginaBlack({
           <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-gray-600">
             Você pagará apenas{" "}
             <strong className="font-bold text-gray-900">um único valor</strong>{" "}
-            e terá acesso vitalício ao material pré e pós-edital de todos os
-            concursos de médico legista autorizados até agora.
+            e terá acesso vitalício ao material pré-edital, com base nos últimos
+            concursos, e atualização gratuita pós-edital de todos os concursos
+            para médico legista autorizados até agora.
           </p>
         </Secao>
 
