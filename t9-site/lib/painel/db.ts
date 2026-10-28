@@ -301,6 +301,8 @@ const ESQUEMA = [
     erro text,
     unique (empresa_id, evento_id)
   )`,
+  // Fuso do cliente (IANA) para horários de leads e avisos; vazio = o principal do país.
+  `alter table empresas add column if not exists fuso text`,
   `create index if not exists crm_eventos_pendentes on crm_eventos (empresa_id, criado_em) where enviado_em is null`,
 ];
 

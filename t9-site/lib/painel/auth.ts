@@ -59,6 +59,8 @@ export type Empresa = {
   /** Token da API de Conversões gerado pelo cliente (se vazio, usa o token da T9). Nunca é exibido. */
   meta_dataset_token: string | null;
   meta_dataset_erro: string | null;
+  /** Fuso horário (IANA) do cliente; vazio = o principal do país (ver fusoDe). */
+  fuso: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";

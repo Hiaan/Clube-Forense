@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { contagemPorEtapa, listarLeads, type Lead } from "@/lib/painel/dados";
-import { dataHora, dinheiro, numero } from "@/lib/painel/formato";
+import { dataHora, dinheiro, fusoDe, numero, respostaNoFuso } from "@/lib/painel/formato";
 import { etapaDoLead, etapasDaEmpresa, type Etapa } from "@/lib/painel/crm";
 import { fmt } from "@/lib/i18n";
 import { SelectAutoEnvio } from "../../_ui/Botoes";
@@ -18,12 +18,12 @@ const soDigitos = (s: string) => s.replace(/\D/g, "");
 const BASICOS = new Set(["full_name", "first_name", "last_name", "email", "phone_number", "nome", "telefone", "whatsapp"]);
 
 /** Respostas extras do formulário da Meta (além de nome, e-mail e telefone). */
-function respostasExtras(dados: Lead["dados"]): [string, string][] {
+function respostasExtras(dados: Lead["dados"], fuso: string): [string, string][] {
   const respostas = (dados?.respostas ?? null) as Record<string, string> | null;
   if (!respostas) return [];
   return Object.entries(respostas)
     .filter(([k, v]) => !BASICOS.has(k) && v)
-    .map(([k, v]) => [k.replace(/_/g, " "), String(v)]);
+    .map(([k, v]) => [k.replace(/_/g, " "), respostaNoFuso(String(v), fuso)]);
 }
 
 export default async function Leads({
@@ -35,6 +35,8 @@ export default async function Leads({
 }) {
   const { usuario, empresa, idioma, t } = await contextoEmpresa(params);
   const tc = t.leads.crm;
+  // Horários no fuso do cliente (um cliente na Flórida vê a hora da Flórida).
+  const fuso = fusoDe(empresa);
   // Envio manual para o WhatsApp do cliente e importação de CSV: só a equipe.
   const equipe = await mostrarEdicao(usuario);
   const whatsapp = equipe && numerosDe(empresa.whatsapp_leads).length > 0;
@@ -121,10 +123,10 @@ export default async function Leads({
               whatsapp: l.whatsapp,
               email: l.email,
               origem: [l.origem, l.campanha].filter(Boolean).join(" · "),
-              recebido: dataHora(l.recebido_em, idioma),
+              recebido: dataHora(l.recebido_em, idioma, fuso),
               valor: l.valor != null ? dinheiro(l.valor, empresa.moeda, idioma) : null,
               valorBruto: l.valor,
-              respostas: respostasExtras(l.dados),
+              respostas: respostasExtras(l.dados, fuso),
             }),
           )}
         />
@@ -169,7 +171,7 @@ export default async function Leads({
                 </thead>
                 <tbody>
                   {leads.map((l) => {
-                    const extras = respostasExtras(l.dados);
+                    const extras = respostasExtras(l.dados, fuso);
                     return (
                       <tr key={l.id} className="align-top">
                         <td>
@@ -207,7 +209,7 @@ export default async function Leads({
                           )}
                         </td>
                         <td className="text-white/60">{[l.origem, l.campanha].filter(Boolean).join(" · ") || "—"}</td>
-                        <td className="whitespace-nowrap text-white/60">{dataHora(l.recebido_em, idioma)}</td>
+                        <td className="whitespace-nowrap text-white/60">{dataHora(l.recebido_em, idioma, fuso)}</td>
                         <td>
                           <form action={moverLeadForm}>
                             <input type="hidden" name="lead" value={l.id} />
@@ -224,7 +226,7 @@ export default async function Leads({
                             <EnviarLeadWhatsapp
                               acao={enviarLeadManual}
                               lead={l.id}
-                              enviadoEm={l.whatsapp_enviado_em ? dataHora(l.whatsapp_enviado_em, idioma) : null}
+                              enviadoEm={l.whatsapp_enviado_em ? dataHora(l.whatsapp_enviado_em, idioma, fuso) : null}
                             />
                           </td>
                         )}

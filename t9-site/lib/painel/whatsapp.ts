@@ -1,6 +1,7 @@
 import "server-only";
 import { timingSafeEqual } from "node:crypto";
 import { consulta, umaLinha } from "./db";
+import { FUSO, fusoDe, respostaNoFuso } from "./formato";
 
 // Avisos pelo WhatsApp da T9. Quem envia é a ponte (whatsapp-ponte/ na raiz do repositório),
 // um processo sempre ligado no PC da T9, conectado ao número da T9 pelo QR Code.
@@ -117,7 +118,11 @@ const rotulo = (campo: string) => {
   return t.charAt(0).toUpperCase() + t.slice(1);
 };
 
-export function mensagemDoLead(empresa: string, lead: LeadParaAviso) {
+/** Cliente como os avisos precisam dele: nome e, para os horários, fuso e país. */
+type EmpresaAviso = { id: number; nome: string; whatsapp_leads: string | null; fuso?: string | null; pais?: string | null };
+
+/** Monta o aviso. Respostas que são horários (a Meta manda em UTC) saem no fuso do cliente. */
+export function mensagemDoLead(empresa: string, lead: LeadParaAviso, fuso: string = FUSO) {
   const linhas = [`🔔 *Novo lead* — ${empresa}`, ""];
   if (lead.nome) linhas.push(`*Nome:* ${lead.nome}`);
   const telefone = lead.whatsapp ? numerosDe(lead.whatsapp)[0] : undefined;
@@ -129,7 +134,7 @@ export function mensagemDoLead(empresa: string, lead: LeadParaAviso) {
     linhas.push("");
     for (const [campo, valor] of extras.slice(0, 12)) {
       const r = rotulo(campo);
-      linhas.push(`*${/[?:]$/.test(r) ? r : `${r}:`}* ${valor.slice(0, 300)}`);
+      linhas.push(`*${/[?:]$/.test(r) ? r : `${r}:`}* ${respostaNoFuso(valor, fuso).slice(0, 300)}`);
     }
   }
   if (telefone) linhas.push("", `Chame agora: https://wa.me/${telefone}`);
@@ -144,7 +149,10 @@ export function mensagemDoLead(empresa: string, lead: LeadParaAviso) {
  */
 export async function avisarLeadsNovos(empresaId: number) {
   if (!ponteConfigurada()) return { enviados: 0 };
-  const empresa = await umaLinha<{ nome: string; whatsapp_leads: string | null }>("select nome, whatsapp_leads from empresas where id = $1", [empresaId]);
+  const empresa = await umaLinha<{ nome: string; whatsapp_leads: string | null; fuso: string | null; pais: string }>(
+    "select nome, whatsapp_leads, fuso, pais from empresas where id = $1",
+    [empresaId],
+  );
   const numeros = numerosDe(empresa?.whatsapp_leads);
   if (!empresa || !numeros.length) return { enviados: 0 };
 
@@ -165,7 +173,7 @@ export async function avisarLeadsNovos(empresaId: number) {
   for (const lead of leads) {
     let algum = false;
     if (!foraDoAr) {
-      const texto = mensagemDoLead(empresa.nome, lead);
+      const texto = mensagemDoLead(empresa.nome, lead, fusoDe(empresa));
       for (const numero of numeros) {
         try {
           await enviarWhatsapp(numero, texto);
@@ -190,7 +198,7 @@ export async function avisarLeadsNovos(empresaId: number) {
 }
 
 /** Mensagem de teste para os números do cliente. Devolve os números e os erros ("(83) 9…: motivo"). */
-export async function enviarTeste(empresa: { id: number; nome: string; whatsapp_leads: string | null }) {
+export async function enviarTeste(empresa: EmpresaAviso) {
   const numeros = numerosDe(empresa.whatsapp_leads);
   const texto = `✅ *Teste do painel T9* — ${empresa.nome}\n\nA partir de agora, cada lead novo dos formulários dos anúncios chega aqui na hora, com nome, contato e respostas.`;
   const erros: string[] = [];
@@ -211,7 +219,7 @@ export async function enviarTeste(empresa: { id: number; nome: string; whatsapp_
  * Manda um lead para o WhatsApp do cliente, no mesmo formato do aviso automático: o indicado
  * (envio manual, botão na aba Leads) ou, sem id, o lead de formulário mais recente.
  */
-export async function enviarLead(empresa: { id: number; nome: string; whatsapp_leads: string | null }, leadId?: number) {
+export async function enviarLead(empresa: EmpresaAviso, leadId?: number) {
   const numeros = numerosDe(empresa.whatsapp_leads);
   const lead = await umaLinha<LeadParaAviso & { recebido_em: string }>(
     leadId
@@ -221,7 +229,9 @@ export async function enviarLead(empresa: { id: number; nome: string; whatsapp_l
     leadId ? [empresa.id, leadId] : [empresa.id],
   );
   if (!lead || !numeros.length) return { numeros, lead: null, erros: [] as string[] };
-  const texto = mensagemDoLead(empresa.nome, lead);
+  // Sem fuso/país no objeto recebido, busca no cadastro: o aviso manual sai igual ao automático.
+  const fuso = empresa.pais !== undefined ? fusoDe(empresa) : fusoDe((await umaLinha<{ fuso: string | null; pais: string }>("select fuso, pais from empresas where id = $1", [empresa.id])) ?? {});
+  const texto = mensagemDoLead(empresa.nome, lead, fuso);
   const erros: string[] = [];
   for (const n of numeros) {
     try {
@@ -238,7 +248,7 @@ export async function enviarLead(empresa: { id: number; nome: string; whatsapp_l
 }
 
 /** Manda todos os leads de hoje (horário de Brasília) que ainda não saíram com sucesso para o WhatsApp do cliente. */
-export async function enviarLeadsDeHoje(empresa: { id: number; nome: string; whatsapp_leads: string | null }) {
+export async function enviarLeadsDeHoje(empresa: EmpresaAviso) {
   const pendentes = await consulta<{ id: number; nome: string | null }>(
     `select id, nome from leads l
       where empresa_id = $1 and recebido_em >= (date_trunc('day', now() at time zone 'America/Sao_Paulo') at time zone 'America/Sao_Paulo')

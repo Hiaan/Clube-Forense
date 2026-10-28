@@ -1,5 +1,5 @@
 import type { Empresa } from "@/lib/painel/auth";
-import { MOEDAS } from "@/lib/painel/formato";
+import { FUSOS, MOEDAS } from "@/lib/painel/formato";
 import { CONFIG_IDIOMA, IDIOMAS } from "@/lib/i18n";
 
 /** Campos de cadastro e metas da empresa, usados em "Novo cliente" e na edição. */
@@ -39,6 +39,17 @@ export default function CamposEmpresa({ empresa, admin = false }: { empresa?: Em
       <label>
         <span className="painel-rotulo">País (sigla)</span>
         <input name="pais" defaultValue={empresa?.pais ?? "BR"} maxLength={2} className="painel-campo uppercase" />
+      </label>
+      <label>
+        <span className="painel-rotulo">Fuso horário (avisos e horários dos leads)</span>
+        <select name="fuso" defaultValue={empresa?.fuso ?? ""} className="painel-campo">
+          <option value="">Automático pelo país</option>
+          {FUSOS.map((z) => (
+            <option key={z.id} value={z.id}>
+              {z.rotulo}
+            </option>
+          ))}
+        </select>
       </label>
 
       {admin && (

@@ -3,7 +3,7 @@ import { carregarVisao } from "./visao";
 import { etapaDoLead } from "@/lib/painel/crm";
 import { contextoEmpresa } from "./contexto";
 import { periodo } from "@/lib/painel/dados";
-import { dataHora, dataLonga, diaCurto, dinheiro, numero, porcentagem, razao } from "@/lib/painel/formato";
+import { dataHora, dataLonga, diaCurto, dinheiro, fusoDe, numero, porcentagem, razao } from "@/lib/painel/formato";
 import { fmt } from "@/lib/i18n";
 import Kpi from "../_ui/Kpi";
 import GraficoBarras from "../_ui/Grafico";
@@ -177,7 +177,7 @@ export default async function VisaoGeral({
               <li key={l.id} className="flex items-center justify-between gap-3 border-t border-white/6 px-5 py-3 text-sm">
                 <span className="min-w-0 truncate font-medium">{l.nome ?? l.email ?? l.whatsapp}</span>
                 <span className="shrink-0 text-white/50">
-                  {etapaDoLead(l.etapa_id, etapas)?.nome ?? t.leads.etapas[l.etapa]} · {dataHora(l.recebido_em, idioma)}
+                  {etapaDoLead(l.etapa_id, etapas)?.nome ?? t.leads.etapas[l.etapa]} · {dataHora(l.recebido_em, idioma, fusoDe(empresa))}
                 </span>
               </li>
             ))}
