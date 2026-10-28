@@ -87,6 +87,17 @@ export function useLote(): { lote: Lote | null; falta: Restante | null } {
   return { lote: atual.lote, falta: restanteAte(atual.lote.fecha, agora) };
 }
 
+/** Quanto falta para um prazo fixo; `null` no servidor ou sem prazo. */
+function usePrazo(ate?: string): Restante | null {
+  const segundo = useSyncExternalStore(
+    assinarRelogio,
+    segundoAtual,
+    semRelogio,
+  );
+  if (!ate || segundo === null) return null;
+  return restanteAte(ate, segundo * 1000);
+}
+
 function Casa({ valor, rotulo }: { valor: number; rotulo: string }) {
   return (
     <div className="flex flex-col items-center">
@@ -106,8 +117,24 @@ function Casa({ valor, rotulo }: { valor: number; rotulo: string }) {
  * `compacto` tira os dias e encolhe tudo: é a versão que cabe na barra fixa do
  * rodapé, onde o espaço é do botão.
  */
-export default function Contador({ compacto = false }: { compacto?: boolean }) {
-  const { lote, falta } = useLote();
+export default function Contador({
+  compacto = false,
+  ate,
+}: {
+  compacto?: boolean;
+  /**
+   * Prazo fixo, no lugar do fechamento do lote da Black (ISO com fuso). É o
+   * que a página dos alunos usa, com o lote dela. Passado o prazo, o
+   * contador some em vez de ficar parado em zero.
+   */
+  ate?: string;
+}) {
+  const doLote = useLote();
+  const prazo = usePrazo(ate);
+  const { lote, falta } = ate
+    ? { lote: prazo ? true : null, falta: prazo }
+    : doLote;
+  if (ate && prazo?.acabou) return null;
 
   if (!lote || !falta) {
     // Casca do mesmo tamanho, para a página não dar um salto quando os números

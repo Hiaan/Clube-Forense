@@ -20,7 +20,14 @@ import { useLote } from "./Contador";
 import { LOTES } from "./oferta";
 
 /** `aluno` troca o prazo do lote pela linha da página dos alunos. */
-export default function BarraFixa({ aluno = false }: { aluno?: boolean }) {
+export default function BarraFixa({
+  aluno = false,
+  prazoAluno,
+}: {
+  aluno?: boolean;
+  /** Fim do lote dos alunos, para o cronômetro da barra (só na página deles). */
+  prazoAluno?: string;
+}) {
   const { lote } = useLote();
   const [visivel, setVisivel] = useState(false);
 
@@ -53,7 +60,13 @@ export default function BarraFixa({ aluno = false }: { aluno?: boolean }) {
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] font-bold uppercase tracking-wider text-white/40">
               {aluno ? (
-                "Oferta exclusiva para alunos"
+                prazoAluno ? (
+                  <>
+                    1º lote termina em <Contador compacto ate={prazoAluno} />
+                  </>
+                ) : (
+                  "Oferta exclusiva para alunos"
+                )
               ) : (
                 <>
                   {mostrado.nome} termina em <Contador compacto />

@@ -34,6 +34,7 @@ import CarrosselEditais from "./CarrosselEditais";
 import CaixaDePreco, { type OfertaAluno } from "./CaixaDePreco";
 import AvisoAluno from "../alunoclube/AvisoAluno";
 import SairAluno from "../alunoclube/SairAluno";
+import { FAIXA_UNICA, FIM_LOTE1_ALUNO } from "../alunoclube/cupons";
 import Contador from "./Contador";
 import FundoCapas from "./FundoCapas";
 import Depoimentos from "./Depoimentos";
@@ -255,7 +256,15 @@ export default async function PaginaBlack({
                 </a>
                 <p className="text-[13px] font-semibold text-white/45">
                   {aluno ? (
-                    <SairAluno rotulo={ofertaAluno?.rotulo} />
+                    <>
+                      {!FAIXA_UNICA && (
+                        <span className="mb-1 block text-[#ffcd07]">
+                          1º lote termina à meia-noite ·{" "}
+                          <Contador compacto ate={FIM_LOTE1_ALUNO} />
+                        </span>
+                      )}
+                      <SairAluno rotulo={ofertaAluno?.rotulo} />
+                    </>
                   ) : (
                     <>
                       1º lote termina em <Contador compacto />
@@ -611,9 +620,18 @@ export default async function PaginaBlack({
                 que liberamos uma oferta vitalícia e pode ser a última, garanta
                 a sua vaga.
               </p>
-              <div className="mt-6 flex justify-center">
-                {!aluno && <Contador />}
-              </div>
+              {aluno && !FAIXA_UNICA ? (
+                <div className="mt-6 flex flex-col items-center gap-3">
+                  <p className="text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
+                    O 1º lote encerra à meia-noite. O valor será alterado.
+                  </p>
+                  <Contador ate={FIM_LOTE1_ALUNO} />
+                </div>
+              ) : (
+                <div className="mt-6 flex justify-center">
+                  {!aluno && <Contador />}
+                </div>
+              )}
             </div>
 
             <div className="mx-auto mt-12 max-w-2xl">
@@ -819,7 +837,10 @@ export default async function PaginaBlack({
         </Secao>
       </footer>
 
-      <BarraFixa aluno={aluno} />
+      <BarraFixa
+        aluno={aluno}
+        prazoAluno={FAIXA_UNICA ? undefined : FIM_LOTE1_ALUNO}
+      />
     </div>
   );
 }

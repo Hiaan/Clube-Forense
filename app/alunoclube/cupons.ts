@@ -136,6 +136,13 @@ export function regraDoCupom(cupom: string): RegraCupom | null {
  */
 export const FAIXA_UNICA: string | null = null;
 
+/**
+ * Fim do 1º lote dos alunos: meia-noite de 29/10/2026, horário de Brasília.
+ * Só alimenta o cronômetro da página — a troca de valor é manual (ligar
+ * FAIXA_UNICA), quando o Clube confirmar.
+ */
+export const FIM_LOTE1_ALUNO = "2026-10-29T00:00:00-03:00";
+
 /** O que aparece no selo do card de preço enquanto vale a faixa única. */
 export const LOTE_ALUNO = "2º lote · o 1º lote já encerrou";
 
