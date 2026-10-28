@@ -134,7 +134,7 @@ export function regraDoCupom(cupom: string): RegraCupom | null {
  * de maior valor. A conferência do CPF continua: a página segue exclusiva
  * para alunos. Para voltar às faixas, ponha `null`.
  */
-export const FAIXA_UNICA: string | null = "EXLUSIV0ALUNO";
+export const FAIXA_UNICA: string | null = null;
 
 /** O que aparece no selo do card de preço enquanto vale a faixa única. */
 export const LOTE_ALUNO = "2º lote · o 1º lote já encerrou";
