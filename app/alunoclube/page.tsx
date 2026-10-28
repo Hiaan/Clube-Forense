@@ -8,7 +8,13 @@ import { cookies } from "next/headers";
 
 import PaginaBlack from "../black/PaginaBlack";
 import { lerPasse } from "../lib/alunoClubeRepo";
-import { COOKIE_ALUNO, linkComCupom, regraDoCupom } from "./cupons";
+import {
+  COOKIE_ALUNO,
+  FAIXA_UNICA,
+  LOTE_ALUNO,
+  linkComCupom,
+  regraDoCupom,
+} from "./cupons";
 import EntradaAluno from "./EntradaAluno";
 import EventosAluno from "./EventosAluno";
 
@@ -29,6 +35,7 @@ export default async function AlunoClubePage() {
           rotulo: regra.rotulo,
           preco: regra.preco,
           link: linkComCupom(regra.cupom),
+          lote: FAIXA_UNICA ? LOTE_ALUNO : undefined,
         }}
       />
       <EventosAluno valor={regra.preco} />

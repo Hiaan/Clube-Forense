@@ -29,6 +29,8 @@ export interface OfertaAluno {
   preco: number;
   /** O checkout com o cupom dele. */
   link: string;
+  /** Selo de lote no lugar de "Oferta de …" (ex.: "2º lote"). */
+  lote?: string;
 }
 
 export default function CaixaDePreco({
@@ -115,7 +117,7 @@ export default function CaixaDePreco({
 
         {aluno ? (
           <p className="mx-auto mt-6 inline-block rounded-full border border-[#ffcd07]/40 bg-[#ffcd07]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffcd07]">
-            Oferta de {aluno.rotulo}
+            {aluno.lote ?? `Oferta de ${aluno.rotulo}`}
           </p>
         ) : (
           <>

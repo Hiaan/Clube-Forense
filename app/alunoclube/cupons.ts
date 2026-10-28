@@ -119,8 +119,25 @@ export const PRECO_ALUNO_A_PARTIR = 2497;
 
 /** A regra de um cupom, para montar a oferta de quem já foi validado. */
 export function regraDoCupom(cupom: string): RegraCupom | null {
-  return REGRAS_CUPOM.find((r) => r.cupom === cupom) ?? null;
+  const achada = REGRAS_CUPOM.find((r) => r.cupom === cupom) ?? null;
+  // Com faixa única, todo passe válido — inclusive os emitidos antes, com
+  // cupom de outra faixa — monta a oferta da faixa única.
+  if (achada && FAIXA_UNICA && cupom !== FAIXA_UNICA) {
+    return REGRAS_CUPOM.find((r) => r.cupom === FAIXA_UNICA) ?? achada;
+  }
+  return achada;
 }
+
+/**
+ * 2º LOTE DOS ALUNOS (28/10/2026): o 1º lote, com as três faixas de cashback,
+ * acabou. Todo aluno validado, de qualquer faixa, fica com o cupom abaixo — o
+ * de maior valor. A conferência do CPF continua: a página segue exclusiva
+ * para alunos. Para voltar às faixas, ponha `null`.
+ */
+export const FAIXA_UNICA: string | null = "EXLUSIV0ALUNO";
+
+/** O que aparece no selo do card de preço enquanto vale a faixa única. */
+export const LOTE_ALUNO = "2º lote · o 1º lote já encerrou";
 
 export function linkComCupom(cupom: string): string {
   return `${CHECKOUT_ALUNO}?cupom=${encodeURIComponent(cupom)}`;
@@ -152,6 +169,8 @@ export function regraPara(ids: number[], nomes: string[]): RegraCupom | null {
         ns.some((n) => n.includes(normalizarNome(trecho))),
       ),
   );
+  if (cabem.length === 0) return null;
+  if (FAIXA_UNICA) return regraDoCupom(FAIXA_UNICA);
   return cabem.reduce<RegraCupom | null>(
     (melhor, r) => (!melhor || r.preco < melhor.preco ? r : melhor),
     null,
