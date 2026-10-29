@@ -43,65 +43,67 @@ export function dataHora(valor: string | Date, idioma: Idioma, fuso: string = FU
 /** Divisão que devolve null em vez de Infinity/NaN. */
 export const razao = (a: number, b: number) => (b > 0 ? a / b : null);
 
-// ---------- Fuso horário do cliente ----------
-// Clientes nos EUA recebem leads com horário agendado; a Meta entrega esse horário em UTC
-// ("2026-10-28T16:00:00+0000"). O aviso e o painel mostram no fuso do cliente.
+// ---------- Horário dos leads: sempre no horário da Flórida ----------
+// Formulários com "melhor horário" chegam da Meta com o fuso que ela escolhe — UTC
+// ("2026-10-28T16:00:00+0000") ou o da conta de anúncio ("Oct 30, 2026 at 13:40 pm GMT-5").
+// A T9 liga da Flórida: o aviso e o painel convertem para lá, com o horário de verão certo.
 
-export const FUSOS = [
-  { id: "America/Sao_Paulo", rotulo: "Brasília" },
-  { id: "America/Manaus", rotulo: "Manaus" },
-  { id: "America/New_York", rotulo: "Flórida / Leste dos EUA" },
-  { id: "America/Chicago", rotulo: "Centro dos EUA" },
-  { id: "America/Denver", rotulo: "Montanhas dos EUA" },
-  { id: "America/Los_Angeles", rotulo: "Pacífico dos EUA" },
-  { id: "America/Argentina/Buenos_Aires", rotulo: "Buenos Aires" },
-  { id: "Europe/Lisbon", rotulo: "Lisboa" },
-] as const;
+export const FUSO_FLORIDA = "America/New_York";
 
-const FUSO_DO_PAIS: Record<string, string> = { BR: "America/Sao_Paulo", US: "America/New_York", AR: "America/Argentina/Buenos_Aires", PT: "Europe/Lisbon" };
+const MESES: Record<string, number> = {
+  jan: 1, ene: 1, feb: 2, fev: 2, mar: 3, apr: 4, abr: 4, may: 5, mai: 5, jun: 6, jul: 7,
+  aug: 8, ago: 8, sep: 9, set: 9, sept: 9, oct: 10, out: 10, nov: 11, dec: 12, dez: 12, dic: 12,
+};
 
-/** Fuso do cliente: o escolhido no cadastro ou, se vazio, o principal do país. */
-export function fusoDe(e: { fuso?: string | null; pais?: string | null }) {
-  if (e.fuso && FUSOS.some((f) => f.id === e.fuso)) return e.fuso;
-  return FUSO_DO_PAIS[(e.pais ?? "BR").toUpperCase()] ?? FUSO;
+/** Lê data, hora e fuso de uma resposta. Sem fuso escrito, não dá para saber o instante: devolve null. */
+export function lerHorarioComFuso(valor: string): number | null {
+  const v = valor.trim().toLowerCase();
+  if (v.length > 80) return null;
+
+  // Fuso: Z, UTC, GMT, opcionalmente com deslocamento (GMT-5, UTC+01:00, -04:00, +0000).
+  const f = v.match(/(?:\b(?:utc|gmt)\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?|\b(?:utc|gmt)\b|(?<=\d)z\b|(?<=\d(?::\d{2}){1,2}(?:\.\d+)?\s?)([+-])(\d{2}):?(\d{2}))/);
+  if (!f) return null;
+  const sinal = f[1] ?? f[4];
+  const horasFuso = Number(f[2] ?? f[5] ?? 0);
+  const minFuso = Number(f[3] ?? f[6] ?? 0);
+  const deslocamento = (sinal === "-" ? -1 : 1) * (horasFuso * 60 + minFuso);
+  const semFuso = v.slice(0, f.index) + " " + v.slice(f.index! + f[0].length);
+
+  // Data: 2026-10-30 | 30/10/2026 | Oct 30, 2026 | 30 de outubro de 2026 | 30 Oct 2026
+  let ano: number, mes: number, dia: number;
+  const iso = semFuso.match(/(\d{4})-(\d{2})-(\d{2})/);
+  const barra = semFuso.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);
+  const mesDia = semFuso.match(/\b([a-zç]{3,})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/);
+  const diaMes = semFuso.match(/\b(\d{1,2})\s+(?:de\s+)?([a-zç]{3,})\.?\s+(?:de\s+)?(\d{4})/);
+  const nomeMes = (n: string) => MESES[n.slice(0, 4)] ?? MESES[n.slice(0, 3)];
+  if (iso) [ano, mes, dia] = [+iso[1], +iso[2], +iso[3]];
+  else if (barra) [ano, mes, dia] = [+barra[3], +barra[2], +barra[1]];
+  else if (mesDia && nomeMes(mesDia[1])) [ano, mes, dia] = [+mesDia[3], nomeMes(mesDia[1]), +mesDia[2]];
+  else if (diaMes && nomeMes(diaMes[2])) [ano, mes, dia] = [+diaMes[3], nomeMes(diaMes[2]), +diaMes[1]];
+  else return null;
+
+  // Hora: 13:40, 1:40 pm, 13:40 pm (a Meta às vezes escreve assim: vale o 13).
+  const h = semFuso.match(/(?:^|[^\d])(\d{1,2})[:h](\d{2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?/);
+  if (!h) return null;
+  let hora = Number(h[1]);
+  const ampm = h[4]?.replace(/\./g, "");
+  if (ampm === "pm" && hora < 12) hora += 12;
+  if (ampm === "am" && hora === 12) hora = 0;
+  if (hora > 23 || +h[2] > 59 || mes < 1 || mes > 12 || dia < 1 || dia > 31) return null;
+
+  const instante = Date.UTC(ano, mes - 1, dia, hora, +h[2], +(h[3] ?? 0)) - deslocamento * 60_000;
+  return Number.isFinite(instante) ? instante : null;
 }
-
-export const rotuloDoFuso = (fuso: string) => FUSOS.find((f) => f.id === fuso)?.rotulo ?? fuso;
-
-// Data e hora com fuso explícito: "2026-10-28T16:00:00+0000", "2026-10-28 16:00 UTC", "...Z", "...-04:00".
-const DATA_HORA_COM_FUSO = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?\s*(Z|UTC|GMT|[+-]\d{2}:?\d{2})$/i;
 
 /**
- * Resposta de formulário que é um horário com fuso → o mesmo instante no fuso do cliente,
- * por extenso ("qua., 28/10/2026, 12:00 (Flórida / Leste dos EUA)"). Outros textos voltam como vieram.
+ * Resposta de formulário que é um horário com fuso → o mesmo instante no horário da Flórida
+ * ("sex., 30/10/2026 às 14:40 (horário da Flórida)"). Outros textos voltam como vieram.
  */
-export function respostaNoFuso(valor: string, fuso: string, idioma: Idioma = "pt") {
-  const m = valor.trim().match(DATA_HORA_COM_FUSO);
-  if (!m) {
-    // Outros formatos com UTC/GMT escrito ("Oct 28, 2026 4:00 PM UTC"), se o JavaScript souber ler.
-    const t = /\b(UTC|GMT)\b/i.test(valor) && /\d{1,2}:\d{2}/.test(valor) ? Date.parse(valor) : NaN;
-    return Number.isFinite(t) ? formatarNoFuso(t, fuso, idioma) : valor;
-  }
-  const [, a, mes, d, h, min, s, z] = m;
-  let offsetMin = 0;
-  if (!/^(Z|UTC|GMT)$/i.test(z)) {
-    const sinal = z.startsWith("-") ? -1 : 1;
-    const dig = z.slice(1).replace(":", "");
-    offsetMin = sinal * (Number(dig.slice(0, 2)) * 60 + Number(dig.slice(2, 4)));
-  }
-  const instante = Date.UTC(+a, +mes - 1, +d, +h, +min, +(s ?? 0)) - offsetMin * 60_000;
-  return Number.isFinite(instante) ? formatarNoFuso(instante, fuso, idioma) : valor;
-}
-
-function formatarNoFuso(instante: number, fuso: string, idioma: Idioma) {
-  const texto = new Date(instante).toLocaleString(locale(idioma), {
-    timeZone: fuso,
-    weekday: "short",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `${texto} (${rotuloDoFuso(fuso)})`;
+export function respostaNaFlorida(valor: string) {
+  const instante = lerHorarioComFuso(valor);
+  if (instante == null) return valor;
+  const d = new Date(instante);
+  const data = d.toLocaleDateString("pt-BR", { timeZone: FUSO_FLORIDA, weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
+  const hora = d.toLocaleTimeString("pt-BR", { timeZone: FUSO_FLORIDA, hour: "2-digit", minute: "2-digit" });
+  return `${data} às ${hora} (horário da Flórida)`;
 }

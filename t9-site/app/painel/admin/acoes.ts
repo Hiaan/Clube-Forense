@@ -16,7 +16,7 @@ import { emailComBotao, enviarEmail } from "@/lib/painel/email";
 import { linkDeAcesso } from "@/lib/painel/links";
 import { hashSenha, problemaNaSenha } from "@/lib/painel/senha";
 import { consolidar, interpretarPlanilha, lerData, lerNumero, type LinhaMetrica } from "@/lib/painel/csv";
-import { FUSOS, MOEDAS } from "@/lib/painel/formato";
+import { MOEDAS } from "@/lib/painel/formato";
 import { PLANO_PADRAO, TEXTOS_PAINEL } from "@/lib/painel/textos";
 import { IDIOMAS, fmt, type Idioma } from "@/lib/i18n";
 
@@ -88,7 +88,6 @@ function camposDaEmpresa(f: FormData) {
     meta_receita: num(f, "meta_receita"),
     mensalidade: num(f, "mensalidade"),
     mensalidade_moeda: (MOEDAS as readonly string[]).includes(txt(f, "mensalidade_moeda")) ? txt(f, "mensalidade_moeda") : "BRL",
-    fuso: FUSOS.some((z) => z.id === txt(f, "fuso")) ? txt(f, "fuso") : null,
   };
 }
 
@@ -105,9 +104,9 @@ export async function criarEmpresa(_: Estado, f: FormData): Promise<Estado> {
   for (let i = 2; await umaLinha("select 1 from empresas where slug = $1", [slug]); i++) slug = `${base}-${i}`;
 
   const nova = await umaLinha<{ id: number }>(
-    `insert into empresas (slug, nome, tipo, pais, moeda, idioma, meta_investimento, meta_leads, meta_cpl, meta_receita, mensalidade, mensalidade_moeda, fuso)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) returning id`,
-    [slug, c.nome, c.tipo, c.pais, c.moeda, c.idioma, c.meta_investimento, c.meta_leads, c.meta_cpl, c.meta_receita, c.mensalidade, c.mensalidade_moeda, c.fuso],
+    `insert into empresas (slug, nome, tipo, pais, moeda, idioma, meta_investimento, meta_leads, meta_cpl, meta_receita, mensalidade, mensalidade_moeda)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning id`,
+    [slug, c.nome, c.tipo, c.pais, c.moeda, c.idioma, c.meta_investimento, c.meta_leads, c.meta_cpl, c.meta_receita, c.mensalidade, c.mensalidade_moeda],
   );
   await semearPlano(nova!.id, c.idioma);
   await registrar(u.id, nova!.id, "empresa.criar", c.nome);
@@ -124,11 +123,11 @@ export async function salvarEmpresa(_: Estado, f: FormData): Promise<Estado> {
     // A mensalidade só aparece (e só muda) para o admin: o gestor mantém a que estava.
     const admin = u.perfil === "admin";
     await consulta(
-      `update empresas set nome = $2, tipo = $3, pais = $4, moeda = $5, idioma = $6, fuso = $14,
+      `update empresas set nome = $2, tipo = $3, pais = $4, moeda = $5, idioma = $6,
          meta_investimento = $7, meta_leads = $8, meta_cpl = $9, meta_receita = $10,
          mensalidade = case when $13 then $11 else mensalidade end,
          mensalidade_moeda = case when $13 then $12 else mensalidade_moeda end where id = $1`,
-      [empresa.id, c.nome, c.tipo, c.pais, c.moeda, c.idioma, c.meta_investimento, c.meta_leads, c.meta_cpl, c.meta_receita, c.mensalidade, c.mensalidade_moeda, admin, c.fuso],
+      [empresa.id, c.nome, c.tipo, c.pais, c.moeda, c.idioma, c.meta_investimento, c.meta_leads, c.meta_cpl, c.meta_receita, c.mensalidade, c.mensalidade_moeda, admin],
     );
     await registrar(u.id, empresa.id, "empresa.editar");
     revalidatePath("/painel", "layout");
