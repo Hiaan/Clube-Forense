@@ -177,6 +177,21 @@ export const PERGUNTAS: Pergunta[] = [
     mostrar: (r) => ["nunca", "nao_sei"].includes(um(r, "anuncia")),
   },
 
+  // Vídeos e criativos
+  {
+    id: "videos",
+    titulo: "Você usa vídeos para divulgar a empresa (anúncios, Reels, stories)?",
+    tipo: "unica",
+    opcoes: op(["roteiro", "Sim, com roteiro pensado antes"], ["sem_roteiro", "Sim, mas gravo na hora, sem roteiro"], ["raro", "Raramente"], ["nao", "Não uso vídeos"]),
+  },
+  {
+    id: "foco_video",
+    titulo: "Seus vídeos e anúncios falam mais sobre...",
+    tipo: "unica",
+    opcoes: op(["dores", "Os problemas e desejos do cliente"], ["produto", "O produto, o preço e a empresa"], ["nao_sei", "Não sei dizer"]),
+    mostrar: (r) => ["roteiro", "sem_roteiro"].includes(um(r, "videos")),
+  },
+
   // Atendimento e vendas
   {
     id: "atende",

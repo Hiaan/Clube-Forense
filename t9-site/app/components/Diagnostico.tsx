@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { EMAIL_VALIDO, HORARIOS, dataPorExtenso, mascararWhatsApp, proximosDiasUteis, whatsAppValido, type Dia } from "@/lib/agenda";
 import { perguntasAtivas, type Respostas } from "@/lib/diagnostico/perguntas";
-import type { Area, Diagnostico as Resultado } from "@/lib/diagnostico/regras";
+import { BENEFICIOS_T9, type Area, type Diagnostico as Resultado } from "@/lib/diagnostico/regras";
 import { enviarLeadPorEmail } from "@/lib/emailLead";
 import { IconeCadeado, IconeCalendario, IconeCheck, IconeRelogio, IconeSeta, IconeSetaEsquerda, MarcaWhatsApp } from "./Icones";
 
@@ -12,25 +12,37 @@ import { IconeCadeado, IconeCalendario, IconeCheck, IconeRelogio, IconeSeta, Ico
 // e, logo abaixo, a agenda para a reunião com a T9.
 
 const WHATSAPP_T9 = process.env.NEXT_PUBLIC_T9_WHATSAPP ?? "";
-const NOMES: Record<Area, string> = { redes: "Redes sociais", google: "Google", anuncios: "Anúncios", comercial: "Atendimento e vendas" };
+const NOMES: Record<Area, string> = {
+  redes: "Redes sociais",
+  google: "Google",
+  anuncios: "Anúncios",
+  criativos: "Vídeos e criativos",
+  comercial: "Atendimento e vendas",
+};
 type Publico = Omit<Resultado, "temperatura" | "motivoTemperatura">;
 type Contato = { nome: string; email: string; whatsapp: string; site: string };
 
 const corDaNota = (n: number) => (n >= 70 ? "#1fa34a" : n >= 40 ? "#e8a400" : "#e3121c");
 
 export default function Diagnostico() {
-  const [fase, setFase] = useState<"inicio" | "perguntas" | "contato" | "gerando" | "resultado">("inicio");
+  const [fase, setFase] = useState<"inicio" | "perguntas" | "gerando" | "falhou" | "resultado">("inicio");
   const [respostas, setRespostas] = useState<Respostas>({});
+  // Cópia sempre atual das respostas: o avanço automático roda num setTimeout, com o
+  // estado da renderização anterior, e sem isto a última resposta ficava de fora.
+  const atuais = useRef<Respostas>({});
   const [indice, setIndice] = useState(0);
   const [contato, setContato] = useState<Contato>({ nome: "", email: "", whatsapp: "", site: "" });
   const [erros, setErros] = useState<Partial<Record<keyof Contato, string>>>({});
   const [erroEnvio, setErroEnvio] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  // Referência do lead criado no início: o envio final completa o mesmo lead.
+  const [ref, setRef] = useState("");
   const [resultado, setResultado] = useState<Publico | null>(null);
   const topo = useRef<HTMLDivElement>(null);
 
   const ativas = useMemo(() => perguntasAtivas(respostas), [respostas]);
   const pergunta = ativas[Math.min(indice, ativas.length - 1)];
-  const progresso = fase === "contato" ? 100 : Math.round((indice / (ativas.length + 1)) * 100);
+  const progresso = Math.round((indice / ativas.length) * 100);
 
   // A cada tela nova, o topo do cartão volta para a vista (no celular a tela é curta).
   useEffect(() => {
@@ -38,36 +50,56 @@ export default function Diagnostico() {
     if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [fase, indice]);
 
-  const responder = (id: string, valor: string | string[]) => setRespostas((r) => ({ ...r, [id]: valor }));
-  const avancar = () => (indice + 1 >= ativas.length ? setFase("contato") : setIndice((i) => i + 1));
-  const voltar = () => (fase === "contato" ? setFase("perguntas") : indice === 0 ? setFase("inicio") : setIndice((i) => i - 1));
+  const responder = (id: string, valor: string | string[]) => {
+    atuais.current = { ...atuais.current, [id]: valor };
+    setRespostas(atuais.current);
+  };
+  const avancar = () => (indice + 1 >= perguntasAtivas(atuais.current).length ? gerar() : setIndice((i) => i + 1));
+  const voltar = () => (indice === 0 ? setFase("inicio") : setIndice((i) => i - 1));
 
-  async function gerar(e: FormEvent) {
-    e.preventDefault();
-    const encontrados: typeof erros = {};
-    if (contato.nome.trim().length < 2) encontrados.nome = "Digite seu nome.";
-    if (!EMAIL_VALIDO.test(contato.email.trim())) encontrados.email = "Digite um e-mail válido.";
-    if (!whatsAppValido(contato.whatsapp)) encontrados.whatsapp = "Digite o WhatsApp com DDD.";
-    setErros(encontrados);
-    if (Object.keys(encontrados).length) return;
-
-    setFase("gerando");
-    setErroEnvio("");
+  const enviar = async (corpo: Record<string, unknown>) => {
     const resposta = await fetch("/api/diagnostico", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...contato, respostas, origem: window.location.href }),
+      body: JSON.stringify({ ...contato, ...corpo, origem: window.location.href }),
     }).catch(() => null);
     const json = resposta ? await resposta.json().catch(() => ({})) : {};
-    if (!resposta?.ok || !json.ok) {
-      setErroEnvio(json.erro ?? "Não conseguimos gerar agora. Confira a internet e tente de novo.");
-      setFase("contato");
+    return resposta?.ok && json.ok ? { ok: true as const, json } : { ok: false as const, erro: (json.erro as string) ?? "Não conseguimos agora. Confira a internet e tente de novo." };
+  };
+
+  /** Contato primeiro: vira lead na hora, e só então começam as perguntas. */
+  async function comecar(e: FormEvent) {
+    e.preventDefault();
+    const encontrados: typeof erros = {};
+    if (contato.nome.trim().length < 2) encontrados.nome = "Digite seu nome.";
+    if (!whatsAppValido(contato.whatsapp)) encontrados.whatsapp = "Digite o WhatsApp com DDD.";
+    if (!EMAIL_VALIDO.test(contato.email.trim())) encontrados.email = "Digite um e-mail válido.";
+    setErros(encontrados);
+    if (Object.keys(encontrados).length) return;
+    // Voltou para corrigir algo depois de começar: segue sem criar outro lead.
+    if (ref) return setFase("perguntas");
+
+    setEnviando(true);
+    setErroEnvio("");
+    const r = await enviar({ etapa: "inicio" });
+    setEnviando(false);
+    if (!r.ok) return setErroEnvio(r.erro);
+    if (!contato.site) enviarLeadPorEmail({ etapa: "lead", nome: contato.nome, email: contato.email, whatsapp: contato.whatsapp, idioma: "pt" });
+    setRef(r.json.ref ?? "");
+    setIndice(0);
+    setFase("perguntas");
+  }
+
+  async function gerar() {
+    setFase("gerando");
+    setErroEnvio("");
+    const r = await enviar({ respostas: atuais.current, ref });
+    if (!r.ok) {
+      setErroEnvio(r.erro);
+      setFase("falhou");
       return;
     }
-    if (!contato.site) {
-      enviarLeadPorEmail({ etapa: "lead", nome: contato.nome, email: contato.email, whatsapp: contato.whatsapp, idioma: "pt" });
-    }
-    setResultado(json.diagnostico);
+    setResultado(r.json.diagnostico);
     setFase("resultado");
   }
 
@@ -84,14 +116,14 @@ export default function Diagnostico() {
         {fase !== "resultado" && (
           <div className="mt-6 rounded-[28px] border border-black/5 bg-white p-6 text-[#0b0b0b] shadow-[0_40px_100px_-30px_rgba(120,0,6,0.35)] sm:p-10">
             {fase === "inicio" && (
-              <div>
+              <form onSubmit={comecar} noValidate>
                 <p className="text-sm font-semibold tracking-wide text-[#e3121c] uppercase">Diagnóstico gratuito</p>
                 <h1 className="mt-3 font-display text-3xl leading-tight font-extrabold tracking-tight text-balance sm:text-5xl">
                   Descubra o que está travando as vendas da sua empresa
                 </h1>
                 <p className="mt-5 text-lg leading-relaxed text-[#3d3636]">
-                  Responda algumas perguntas rápidas sobre suas redes, seus anúncios e seu atendimento. Na hora, você recebe uma nota para cada
-                  área e as três ações que mais devem trazer resultado, em linguagem simples.
+                  Responda algumas perguntas rápidas sobre suas redes, seus vídeos, seus anúncios e seu atendimento. Na hora, você recebe uma nota
+                  para cada área, as três ações que mais devem trazer resultado e o que você ganha com cada uma.
                 </p>
                 <ul className="mt-6 space-y-2.5 text-[#1c1c1c]">
                   {["Leva cerca de 3 minutos", "Resultado na hora, sem custo", "Plano de 30 dias para começar"].map((b) => (
@@ -103,14 +135,76 @@ export default function Diagnostico() {
                     </li>
                   ))}
                 </ul>
-                <button type="button" className="botao botao-vermelho mt-8 w-full text-lg sm:w-auto" onClick={() => (setIndice(0), setFase("perguntas"))}>
-                  Começar o diagnóstico
-                  <IconeSeta className="h-5 w-5" />
+
+                <p className="mt-8 font-semibold">Para começar, conte quem é você:</p>
+                <div className="mt-4 space-y-4">
+                  <Campo rotulo="Seu nome" erro={erros.nome}>
+                    <input
+                      className="campo"
+                      autoComplete="name"
+                      placeholder="Como podemos te chamar?"
+                      value={contato.nome}
+                      onChange={(e) => setContato((c) => ({ ...c, nome: e.target.value }))}
+                      aria-invalid={!!erros.nome}
+                    />
+                  </Campo>
+                  <Campo rotulo="WhatsApp" erro={erros.whatsapp}>
+                    <input
+                      className="campo"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      placeholder="(11) 91234-5678"
+                      value={contato.whatsapp}
+                      onChange={(e) => setContato((c) => ({ ...c, whatsapp: mascararWhatsApp(e.target.value) }))}
+                      aria-invalid={!!erros.whatsapp}
+                    />
+                  </Campo>
+                  <Campo rotulo="E-mail" erro={erros.email}>
+                    <input
+                      className="campo"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="voce@empresa.com"
+                      value={contato.email}
+                      onChange={(e) => setContato((c) => ({ ...c, email: e.target.value }))}
+                      aria-invalid={!!erros.email}
+                    />
+                  </Campo>
+                  {/* Armadilha para robôs: invisível para pessoas */}
+                  <input
+                    type="text"
+                    name="site"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={contato.site}
+                    onChange={(e) => setContato((c) => ({ ...c, site: e.target.value }))}
+                    className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                    aria-hidden="true"
+                  />
+                </div>
+                {erroEnvio && (
+                  <p className="mt-4 rounded-xl bg-[#fdecec] px-4 py-3 text-sm text-[#a10b0b]" role="alert">
+                    {erroEnvio}
+                  </p>
+                )}
+                <button type="submit" className="botao botao-vermelho mt-8 w-full text-lg" disabled={enviando}>
+                  {enviando ? "Um instante..." : "Começar o diagnóstico"}
+                  {!enviando && <IconeSeta className="h-5 w-5" />}
                 </button>
-              </div>
+                <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-[#9b9292]">
+                  <IconeCadeado className="h-3.5 w-3.5 shrink-0" />
+                  Seus dados ficam só com a T9. Veja a{" "}
+                  <Link href="/privacidade" className="underline">
+                    política de privacidade
+                  </Link>
+                  .
+                </p>
+              </form>
             )}
 
-            {(fase === "perguntas" || fase === "contato") && (
+            {fase === "perguntas" && pergunta && (
               <div>
                 <div className="flex items-center justify-between gap-4">
                   <button type="button" onClick={voltar} className="inline-flex items-center gap-1.5 text-sm text-[#5b5353] hover:text-[#0b0b0b]">
@@ -121,87 +215,7 @@ export default function Diagnostico() {
                 <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#f1ecec]" aria-hidden="true">
                   <div className="h-full rounded-full bg-[#e3121c] transition-all duration-300" style={{ width: `${Math.max(4, progresso)}%` }} />
                 </div>
-
-                {fase === "perguntas" && pergunta && (
-                  <TelaPergunta
-                    key={pergunta.id}
-                    pergunta={pergunta}
-                    valor={respostas[pergunta.id]}
-                    responder={(v) => responder(pergunta.id, v)}
-                    avancar={avancar}
-                  />
-                )}
-
-                {fase === "contato" && (
-                  <form onSubmit={gerar} noValidate className="mt-8">
-                    <h2 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Pronto! Para onde mandamos o seu diagnóstico?</h2>
-                    <p className="mt-2 text-[#5b5353]">Ele aparece aqui na tela em seguida, e a gente também guarda uma cópia para a sua reunião.</p>
-                    <div className="mt-7 space-y-4">
-                      <Campo rotulo="Seu nome" erro={erros.nome}>
-                        <input
-                          className="campo"
-                          autoComplete="name"
-                          placeholder="Como podemos te chamar?"
-                          value={contato.nome}
-                          onChange={(e) => setContato((c) => ({ ...c, nome: e.target.value }))}
-                          aria-invalid={!!erros.nome}
-                        />
-                      </Campo>
-                      <Campo rotulo="WhatsApp" erro={erros.whatsapp}>
-                        <input
-                          className="campo"
-                          type="tel"
-                          inputMode="tel"
-                          autoComplete="tel-national"
-                          placeholder="(11) 91234-5678"
-                          value={contato.whatsapp}
-                          onChange={(e) => setContato((c) => ({ ...c, whatsapp: mascararWhatsApp(e.target.value) }))}
-                          aria-invalid={!!erros.whatsapp}
-                        />
-                      </Campo>
-                      <Campo rotulo="E-mail" erro={erros.email}>
-                        <input
-                          className="campo"
-                          type="email"
-                          inputMode="email"
-                          autoComplete="email"
-                          placeholder="voce@empresa.com"
-                          value={contato.email}
-                          onChange={(e) => setContato((c) => ({ ...c, email: e.target.value }))}
-                          aria-invalid={!!erros.email}
-                        />
-                      </Campo>
-                      {/* Armadilha para robôs: invisível para pessoas */}
-                      <input
-                        type="text"
-                        name="site"
-                        tabIndex={-1}
-                        autoComplete="off"
-                        value={contato.site}
-                        onChange={(e) => setContato((c) => ({ ...c, site: e.target.value }))}
-                        className="absolute -left-[9999px] h-0 w-0 opacity-0"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    {erroEnvio && (
-                      <p className="mt-4 rounded-xl bg-[#fdecec] px-4 py-3 text-sm text-[#a10b0b]" role="alert">
-                        {erroEnvio}
-                      </p>
-                    )}
-                    <button type="submit" className="botao botao-vermelho mt-8 w-full text-lg">
-                      Ver meu diagnóstico
-                      <IconeSeta className="h-5 w-5" />
-                    </button>
-                    <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-[#9b9292]">
-                      <IconeCadeado className="h-3.5 w-3.5 shrink-0" />
-                      Seus dados ficam só com a T9. Veja a{" "}
-                      <Link href="/privacidade" className="underline">
-                        política de privacidade
-                      </Link>
-                      .
-                    </p>
-                  </form>
-                )}
+                <TelaPergunta key={pergunta.id} pergunta={pergunta} valor={respostas[pergunta.id]} responder={(v) => responder(pergunta.id, v)} avancar={avancar} />
               </div>
             )}
 
@@ -210,6 +224,17 @@ export default function Diagnostico() {
                 <span className="mx-auto block h-12 w-12 animate-spin rounded-full border-4 border-[#f1ecec] border-t-[#e3121c]" aria-hidden="true" />
                 <p className="mt-6 font-display text-2xl font-extrabold">Montando o seu diagnóstico...</p>
                 <p className="mt-2 text-[#5b5353]">Leva só alguns segundos.</p>
+              </div>
+            )}
+
+            {fase === "falhou" && (
+              <div className="py-10 text-center">
+                <p className="rounded-xl bg-[#fdecec] px-4 py-3 text-sm text-[#a10b0b]" role="alert">
+                  {erroEnvio}
+                </p>
+                <button type="button" className="botao botao-vermelho mt-6 w-full text-lg" onClick={gerar}>
+                  Tentar de novo
+                </button>
               </div>
             )}
           </div>
@@ -364,6 +389,19 @@ function TelaResultado({ resultado, contato, primeiroNome }: { resultado: Public
               <div>
                 <h3 className="text-lg font-bold">{p.titulo}</h3>
                 <p className="mt-1.5 leading-relaxed text-[#3d3636]">{p.texto}</p>
+                {p.beneficios?.length > 0 && (
+                  <div className="mt-3 rounded-2xl bg-[#effaf2] px-4 py-3">
+                    <p className="text-xs font-semibold tracking-wide text-[#1a7f3c] uppercase">O que você ganha</p>
+                    <ul className="mt-1.5 space-y-1 text-sm text-[#1c3b26]">
+                      {p.beneficios.map((b) => (
+                        <li key={b} className="flex gap-2">
+                          <IconeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#1fa34a]" />
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </li>
           ))}
@@ -392,8 +430,16 @@ function TelaResultado({ resultado, contato, primeiroNome }: { resultado: Public
 
       <div id="reuniao" className="rounded-[28px] bg-[#0b0b0b] p-6 text-white sm:p-10">
         <p className="text-sm font-semibold tracking-wide text-[#ff4d55] uppercase">Quer que a T9 faça isso por você?</p>
-        <h2 className="mt-3 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Anúncios que trazem contatos + automações que fecham vendas</h2>
+        <h2 className="mt-3 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Vídeos que prendem, anúncios que trazem contatos e automações que fecham vendas</h2>
         <p className="mt-4 text-lg leading-relaxed text-white/80">{resultado.comoAT9Ajuda}</p>
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+          {BENEFICIOS_T9.map((b) => (
+            <li key={b} className="flex gap-3 rounded-2xl bg-white/6 p-4 text-sm leading-relaxed text-white/85">
+              <IconeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#ff4d55]" />
+              {b}
+            </li>
+          ))}
+        </ul>
         <AgendarReuniao contato={contato} primeiroNome={primeiroNome} />
       </div>
     </div>

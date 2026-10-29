@@ -1,19 +1,24 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { after } from "next/server";
 import { EMAIL_VALIDO, soDigitos, whatsAppValido } from "@/lib/agenda";
 import { limparRespostas } from "@/lib/diagnostico/perguntas";
 import { diagnosticar, NOMES_AREA, respostasEmTexto, type Area, type Diagnostico } from "@/lib/diagnostico/regras";
 import { iaConfigurada, personalizar } from "@/lib/diagnostico/ia";
 import { bancoConfigurado, consulta, umaLinha } from "@/lib/painel/db";
-import { salvarDiagnosticoNoPainel } from "@/lib/painel/leadsSite";
+import { iniciarDiagnosticoNoPainel, salvarDiagnosticoNoPainel } from "@/lib/painel/leadsSite";
 import { enviarWhatsapp, numeroLegivel, numerosDe } from "@/lib/painel/whatsapp";
 
-// Diagnóstico gratuito do site: recebe as respostas e o contato, monta o diagnóstico
-// (regras + texto da IA), guarda como lead da T9 e avisa a equipe no WhatsApp.
+// Diagnóstico gratuito do site, em dois envios:
+//   1. etapa "inicio": o contato, antes das perguntas. Já vira lead da T9 (mesmo que a
+//      pessoa desista no meio) e devolve uma referência.
+//   2. final: as respostas + a referência. Monta o diagnóstico (regras + texto da IA),
+//      completa o mesmo lead e avisa a equipe no WhatsApp.
 export const maxDuration = 60;
 
 /** Diagnósticos por aparelho (IP) em 24 horas. */
 const POR_IP_DIA = 5;
+/** Contatos iniciados por aparelho em 24 horas (quem volta e recomeça). */
+const INICIOS_POR_IP_DIA = 10;
 /** Teto diário de textos escritos pela IA: protege os créditos de um ataque. */
 const IA_POR_DIA = 300;
 
@@ -36,19 +41,41 @@ export async function POST(request: Request) {
   if (nome.length < 2) campos.push("nome");
   if (!EMAIL_VALIDO.test(email)) campos.push("email");
   if (!whatsAppValido(whatsappDigitado)) campos.push("whatsapp");
+  const whatsapp = whatsappDigitado.startsWith("+") ? soDigitos(whatsappDigitado) : `55${soDigitos(whatsappDigitado)}`;
+  const origem = texto(corpo.origem, 300) || null;
+  const inicio = corpo.etapa === "inicio";
   const { respostas, faltando } = limparRespostas(corpo.respostas);
-  if (campos.length || faltando.length) {
+  if (campos.length || (!inicio && faltando.length)) {
     return Response.json({ ok: false, erro: "Confira os campos destacados.", campos, faltando }, { status: 422 });
   }
 
   // Limite por aparelho. O IP vai com hash: o banco não guarda o endereço de ninguém.
   const ip = (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "sem-ip";
   const ipHash = createHash("sha256").update(`t9-diagnostico:${ip}`).digest("hex").slice(0, 32);
-  const recentes = await umaLinha<{ porIp: number; ia: number }>(
-    `select count(*) filter (where ip_hash = $1)::int as "porIp", count(*) filter (where ia)::int as ia
+  const recentes = await umaLinha<{ porIp: number; iniciosPorIp: number; ia: number }>(
+    `select count(*) filter (where ip_hash = $1 and etapa = 'completo')::int as "porIp",
+            count(*) filter (where ip_hash = $1)::int as "iniciosPorIp",
+            count(*) filter (where ia)::int as ia
        from diagnosticos where criado_em > now() - interval '1 day'`,
     [ipHash],
   );
+
+  if (inicio) {
+    if ((recentes?.iniciosPorIp ?? 0) >= INICIOS_POR_IP_DIA + POR_IP_DIA) {
+      return Response.json({ ok: false, erro: "Você já começou vários diagnósticos hoje. Tente de novo amanhã ou fale com a gente pelo WhatsApp." }, { status: 429 });
+    }
+    const ref = randomUUID();
+    if (texto(corpo.site)) return Response.json({ ok: true, ref }); // robô: finge que deu certo
+    try {
+      const { leadId } = await iniciarDiagnosticoNoPainel({ nome, email, whatsapp, origem });
+      await consulta("insert into diagnosticos (ip_hash, lead_id, respostas, resultado, etapa, ref) values ($1, $2, '{}', '{}', 'inicio', $3)", [ipHash, leadId, ref]);
+    } catch (erro) {
+      // Sem gravar, a pessoa segue: o envio final cria o lead.
+      console.error("[diagnostico] falha ao gravar o início:", erro, JSON.stringify({ nome, email, whatsapp }));
+    }
+    return Response.json({ ok: true, ref });
+  }
+
   if ((recentes?.porIp ?? 0) >= POR_IP_DIA) {
     return Response.json({ ok: false, erro: "Você já fez vários diagnósticos hoje. Tente de novo amanhã ou fale com a gente pelo WhatsApp." }, { status: 429 });
   }
@@ -65,13 +92,16 @@ export async function POST(request: Request) {
         ...rascunho,
         resumo: texto_ia.resumo,
         comoAT9Ajuda: texto_ia.comoAT9Ajuda,
-        prioridades: rascunho.prioridades.map((p, i) => ({ ...p, titulo: texto_ia.prioridades[i].titulo, texto: texto_ia.prioridades[i].texto })),
+        prioridades: rascunho.prioridades.map((p, i) => {
+          const ia = texto_ia.prioridades[i];
+          // Benefícios da IA só se vierem num tamanho razoável; senão ficam os das regras.
+          const beneficios = ia.beneficios.length >= 2 && ia.beneficios.length <= 4 ? ia.beneficios : p.beneficios;
+          return { ...p, titulo: ia.titulo, texto: ia.texto, beneficios };
+        }),
         personalizado: true,
       }
     : rascunho;
 
-  const whatsapp = whatsappDigitado.startsWith("+") ? soDigitos(whatsappDigitado) : `55${soDigitos(whatsappDigitado)}`;
-  const origem = texto(corpo.origem, 300) || null;
   const resumoEquipe = {
     Temperatura: `${EMOJI[diagnostico.temperatura]} (${diagnostico.motivoTemperatura})`,
     "Nota geral": `${diagnostico.notaGeral}/100`,
@@ -79,14 +109,29 @@ export async function POST(request: Request) {
   };
 
   try {
-    const { leadId, empresaId } = await salvarDiagnosticoNoPainel({ nome, email, whatsapp, origem, respostas: resumoEquipe, diagnostico });
-    await consulta("insert into diagnosticos (ip_hash, lead_id, respostas, resultado, ia) values ($1, $2, $3::jsonb, $4::jsonb, $5)", [
-      ipHash,
-      leadId,
-      JSON.stringify(respostas),
-      JSON.stringify(diagnostico),
-      diagnostico.personalizado,
-    ]);
+    // O lead criado no início (pela referência devolvida naquele envio) é completado aqui.
+    const ref = texto(corpo.ref, 40);
+    const iniciado = ref
+      ? await umaLinha<{ id: number; lead_id: number | null }>("select id, lead_id from diagnosticos where ref = $1 and etapa = 'inicio'", [ref])
+      : null;
+    const { leadId, empresaId } = await salvarDiagnosticoNoPainel({
+      leadId: iniciado?.lead_id ?? null,
+      nome,
+      email,
+      whatsapp,
+      origem,
+      respostas: resumoEquipe,
+      diagnostico,
+    });
+    const valores = [ipHash, leadId, JSON.stringify(respostas), JSON.stringify(diagnostico), diagnostico.personalizado];
+    if (iniciado) {
+      await consulta(
+        "update diagnosticos set ip_hash = $1, lead_id = $2, respostas = $3::jsonb, resultado = $4::jsonb, ia = $5, etapa = 'completo', criado_em = now() where id = $6",
+        [...valores, iniciado.id],
+      );
+    } else {
+      await consulta("insert into diagnosticos (ip_hash, lead_id, respostas, resultado, ia) values ($1, $2, $3::jsonb, $4::jsonb, $5)", valores);
+    }
     // O aviso para a equipe sai depois da resposta: a pessoa não espera pelo WhatsApp.
     after(() => avisarEquipe(empresaId, leadId, { nome, email, whatsapp, diagnostico, legiveis }));
   } catch (erro) {
@@ -128,6 +173,7 @@ async function avisarEquipe(
     `*Faturamento:* ${pega("Quanto a empresa fatura") ?? "—"}`,
     `*Anuncia:* ${pega("Hoje você faz anúncios") ?? "—"}${pega("Quanto você investe") ? ` · ${pega("Quanto você investe")}` : ""}${pega("Quem faz") ? ` · ${pega("Quem faz")}` : ""}`,
     ...(pega("O que não está bom") ? [`*Problemas:* ${pega("O que não está bom")}`] : []),
+    `*Vídeos:* ${pega("Você usa vídeos") ?? "—"}${pega("Seus vídeos e anúncios") ? ` · falam mais sobre ${pega("Seus vídeos e anúncios")!.toLowerCase()}` : ""}`,
     `*Quer começar:* ${pega("Se fizer sentido") ?? "—"}`,
     "",
     `*Nota geral:* ${d.diagnostico.notaGeral}/100 (${notas})`,

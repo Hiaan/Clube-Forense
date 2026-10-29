@@ -279,6 +279,11 @@ const ESQUEMA = [
     ia boolean not null default false
   )`,
   `create index if not exists diagnosticos_ip on diagnosticos (ip_hash, criado_em)`,
+  // O contato vem antes das perguntas: o envio "inicio" cria o lead e devolve uma referência
+  // que o envio final usa para completar o mesmo lead.
+  `alter table diagnosticos add column if not exists etapa text not null default 'completo'`,
+  `alter table diagnosticos add column if not exists ref text`,
+  `create unique index if not exists diagnosticos_ref on diagnosticos (ref) where ref is not null`,
   // CRM: etapas que cada cliente monta (colunas do quadro). Lead sem etapa_id fica na primeira coluna.
   `create table if not exists crm_etapas (
     id serial primary key,

@@ -15,18 +15,20 @@ export const iaConfigurada = () => Boolean(process.env.ANTHROPIC_API_KEY);
 
 const Texto = z.object({
   resumo: z.string(),
-  prioridades: z.array(z.object({ titulo: z.string(), texto: z.string() })),
+  prioridades: z.array(z.object({ titulo: z.string(), texto: z.string(), beneficios: z.array(z.string()) })),
   comoAT9Ajuda: z.string(),
 });
 
-const SISTEMA = `Você escreve o diagnóstico gratuito da T9, uma agência de marketing que faz gestão de anúncios (tráfego pago no Instagram, Facebook e Google) e automações de atendimento e vendas (WhatsApp automático, acompanhamento de quem não fechou, quadro de vendas).
+const SISTEMA = `Você escreve o diagnóstico gratuito da T9, uma agência de marketing que cria roteiros de vídeo para anúncios no método AIDA (Atenção, Interesse, Desejo, Ação, partindo das dores do cliente), faz gestão de anúncios (tráfego pago no Instagram, Facebook e Google) e monta automações de atendimento e vendas (WhatsApp automático, acompanhamento de quem não fechou, quadro de vendas).
 
 Você recebe as respostas do dono da empresa e um rascunho já pronto (resumo, prioridades e "como a T9 ajuda"). Reescreva o rascunho em português do Brasil para que ele soe feito para essa empresa:
 - Linguagem simples, de conversa, sem termos técnicos (nada de "CTR", "CPL", "funil", "lead"; diga "contato", "cliente", "custo de cada cliente").
 - Cite a área de atuação, a cidade e o que a pessoa respondeu quando ajudar a explicar.
 - Mantenha exatamente as mesmas prioridades, na mesma ordem e com o mesmo sentido. Não acrescente nem tire ações.
+- Cada prioridade tem "beneficios": o que a empresa ganha ao implementar. Reescreva-os pensando no negócio dessa pessoa (de 2 a 4 itens curtos, até 15 palavras cada), sempre como ganho para o dono, não como tarefa.
+- Se houver prioridade de vídeo, explique o método AIDA de forma concreta para a área da pessoa (qual dor abre o vídeo, que prova gera desejo, qual ação fecha).
 - Não prometa números, prazos ou resultados garantidos. Não cite concorrentes nem outras agências.
-- "comoAT9Ajuda" sempre termina convidando para a reunião gratuita e deixa claro que a T9 cuida dos anúncios e das automações.
+- "comoAT9Ajuda" sempre termina convidando para a reunião gratuita e deixa claro que a T9 cuida dos roteiros de vídeo, dos anúncios e das automações.
 - Resumo com até 3 frases; cada prioridade com título curto (até 10 palavras) e texto de 2 a 4 frases; "comoAT9Ajuda" com até 4 frases.`;
 
 let cliente: Anthropic | null = null;
@@ -48,7 +50,7 @@ export async function personalizar(respostas: Record<string, string>, rascunho: 
             respostas,
             rascunho: {
               resumo: rascunho.resumo,
-              prioridades: rascunho.prioridades.map((p) => ({ titulo: p.titulo, texto: p.texto })),
+              prioridades: rascunho.prioridades.map((p) => ({ titulo: p.titulo, texto: p.texto, beneficios: p.beneficios })),
               comoAT9Ajuda: rascunho.comoAT9Ajuda,
             },
           }),

@@ -52,15 +52,8 @@ function parametros(origem: string | null) {
   }
 }
 
-/** Lead que veio do diagnóstico gratuito: entra na T9 com as respostas e o resultado. Devolve o id. */
-export async function salvarDiagnosticoNoPainel(lead: {
-  nome: string;
-  email: string;
-  whatsapp: string;
-  origem: string | null;
-  respostas: Record<string, string>;
-  diagnostico: unknown;
-}) {
+/** Lead que começou o diagnóstico gratuito (deixou o contato antes das perguntas). Devolve o id. */
+export async function iniciarDiagnosticoNoPainel(lead: { nome: string; email: string; whatsapp: string; origem: string | null }) {
   const empresaId = await empresaT9();
   const utm = parametros(lead.origem);
   const linha = await umaLinha<{ id: number }>(
@@ -72,8 +65,39 @@ export async function salvarDiagnosticoNoPainel(lead: {
       lead.email,
       `+${lead.whatsapp}`,
       utm.get("utm_campaign"),
-      JSON.stringify({ respostas: lead.respostas, diagnostico: lead.diagnostico, origemCompleta: lead.origem }),
+      JSON.stringify({ respostas: { Situação: "Começou o diagnóstico e ainda não terminou" }, origemCompleta: lead.origem }),
     ],
+  );
+  return { leadId: linha!.id, empresaId };
+}
+
+/**
+ * Diagnóstico terminado: completa o lead criado no início (ou cria um, se não houver)
+ * com as respostas e o resultado. Devolve o id.
+ */
+export async function salvarDiagnosticoNoPainel(lead: {
+  leadId: number | null;
+  nome: string;
+  email: string;
+  whatsapp: string;
+  origem: string | null;
+  respostas: Record<string, string>;
+  diagnostico: unknown;
+}) {
+  const empresaId = await empresaT9();
+  const dados = JSON.stringify({ respostas: lead.respostas, diagnostico: lead.diagnostico, origemCompleta: lead.origem });
+  if (lead.leadId) {
+    const atualizado = await umaLinha<{ id: number }>(
+      "update leads set dados = $3::jsonb, atualizado_em = now() where id = $1 and empresa_id = $2 returning id",
+      [lead.leadId, empresaId, dados],
+    );
+    if (atualizado) return { leadId: atualizado.id, empresaId };
+  }
+  const utm = parametros(lead.origem);
+  const linha = await umaLinha<{ id: number }>(
+    `insert into leads (empresa_id, nome, email, whatsapp, origem, campanha, etapa, dados)
+     values ($1, $2, $3, $4, 'Diagnóstico', $5, 'novo', $6::jsonb) returning id`,
+    [empresaId, lead.nome, lead.email, `+${lead.whatsapp}`, utm.get("utm_campaign"), dados],
   );
   return { leadId: linha!.id, empresaId };
 }
