@@ -378,7 +378,7 @@ export default async function PaginaBlack({
               },
               {
                 t: "Aulão pré-prova",
-                d: "Na reta final de cada concurso, um aulão online com os professores, focando no que mais cai e no que costuma derrubar o candidato.",
+                d: "Na reta final de cada concurso, um aulão online com os professores de medicina legal, focando no que mais cai e no que costuma derrubar o candidato.",
               },
               {
                 t: "Almanaque Forense",
