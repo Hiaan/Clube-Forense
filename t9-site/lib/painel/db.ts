@@ -268,6 +268,17 @@ const ESQUEMA = [
   `create index if not exists tentativas_senha_email on tentativas_senha (email, em)`,
   // Gestor que vê todos os clientes (sem precisar atribuir um por um). Nunca vê o financeiro.
   `alter table usuarios add column if not exists todos_clientes boolean not null default false`,
+  // Diagnóstico gratuito do site: um registro por envio (limite por aparelho e teto diário da IA).
+  `create table if not exists diagnosticos (
+    id serial primary key,
+    criado_em timestamptz not null default now(),
+    ip_hash text not null,
+    lead_id integer references leads on delete set null,
+    respostas jsonb not null,
+    resultado jsonb not null,
+    ia boolean not null default false
+  )`,
+  `create index if not exists diagnosticos_ip on diagnosticos (ip_hash, criado_em)`,
   // CRM: etapas que cada cliente monta (colunas do quadro). Lead sem etapa_id fica na primeira coluna.
   `create table if not exists crm_etapas (
     id serial primary key,
