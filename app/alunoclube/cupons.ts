@@ -134,7 +134,7 @@ export function regraDoCupom(cupom: string): RegraCupom | null {
  * de maior valor. A conferência do CPF continua: a página segue exclusiva
  * para alunos. Para voltar às faixas, ponha `null`.
  */
-export const FAIXA_UNICA: string | null = null;
+export const FAIXA_UNICA: string | null = "EXLUSIV0ALUNO";
 
 /**
  * Fim do 1º lote dos alunos: meia-noite de 29/10/2026, horário de Brasília.
