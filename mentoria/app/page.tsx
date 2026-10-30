@@ -1,145 +1,136 @@
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 import Agendamento from "./components/Agendamento";
 import BarraFixa from "./components/BarraFixa";
-import Escala from "./components/Escala";
 import Perguntas from "./components/Perguntas";
 import { LINK_GRUPO_CASOS } from "../lib/site";
 
 import fotoBracos from "../public/fotos/miguel-bracos-cruzados.jpg";
 import fotoPerfil from "../public/fotos/miguel-cadeira-perfil.jpg";
-import fotoSorrindo from "../public/fotos/miguel-cadeira-sorrindo.jpg";
 import fotoAcademia from "../public/fotos/miguel-academia.jpg";
 import capaEbook from "../public/material/eponimos-capa.webp";
 import paginaFilhos from "../public/material/eponimos-filhos-langer.webp";
 import paginaArma from "../public/material/eponimos-arma-de-fogo.webp";
 import paginaEnforcamento from "../public/material/eponimos-enforcamento.webp";
+import conversa1 from "../public/grupo/conversa-1.jpg";
+import conversa2 from "../public/grupo/conversa-2.jpg";
+import conversa3 from "../public/grupo/conversa-3.jpg";
+import conversa4 from "../public/grupo/conversa-4.jpg";
+import conversa5 from "../public/grupo/conversa-5.jpg";
 
-/** Rótulo de seção no estilo de laudo: "§ 02 — O método". */
-function Secao({ n, nome, claro = false }: { n: string; nome: string; claro?: boolean }) {
+/** Etiqueta em pílula acima dos títulos. */
+function Pilula({ children, cor = "ouro" }: { children: React.ReactNode; cor?: "ouro" | "verde" | "preto" }) {
+  const estilos = {
+    ouro: "border-ouro/40 bg-ouro/10 text-ouro",
+    verde: "border-verde/40 bg-verde/10 text-verde",
+    preto: "border-preto/15 bg-preto/5 text-preto/70",
+  };
   return (
-    <p
-      className={`flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.22em] ${
-        claro ? "text-latao-claro" : "text-latao"
-      }`}
-    >
-      <span>§ {n}</span>
-      <span className={`h-px w-8 ${claro ? "bg-latao-claro/50" : "bg-latao/50"}`} />
-      <span>{nome}</span>
-    </p>
+    <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] ${estilos[cor]}`}>
+      <span className="size-1.5 rounded-full bg-current" />
+      {children}
+    </span>
   );
 }
 
-function BotaoAgendar({ className = "" }: { className?: string }) {
+function BotaoAgendar({ className = "", texto = "Agendar minha reunião" }: { className?: string; texto?: string }) {
   return (
     <a
       href="#agendar"
-      className={`group inline-flex items-center justify-between gap-6 bg-latao px-7 py-4 text-[17px] font-medium text-tinta transition hover:bg-latao-claro ${className}`}
+      className={`group inline-flex items-center justify-center gap-3 rounded-full bg-ouro px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(231,172,60,0.6)] transition hover:bg-ouro-claro ${className}`}
     >
-      Agendar minha reunião
-      <span aria-hidden className="transition group-hover:translate-x-1">
-        →
-      </span>
+      {texto}
+      <span aria-hidden className="transition group-hover:translate-x-1">→</span>
     </a>
   );
 }
 
+/** Captura do grupo dentro de uma moldura de celular. */
+function Celular({ img, alt, className = "" }: { img: StaticImageData; alt: string; className?: string }) {
+  return (
+    <div className={`rounded-[2.2rem] border border-white/15 bg-preto p-2 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9)] ${className}`}>
+      <Image src={img} alt={alt} sizes="(min-width: 1024px) 18vw, 62vw" className="h-auto w-full rounded-[1.7rem]" />
+    </div>
+  );
+}
+
+const FAIXA = [
+  "Encontros individuais semanais",
+  "Aulas individuais",
+  "Discussão de casos clínicos",
+  "Resolução contínua de questões",
+  "Planejamento de horários",
+  "Estratégias avançadas de estudo",
+  "WhatsApp direto com o mentor",
+];
+
 const CREDENCIAIS = [
-  { rotulo: "Atuação oficial", valor: "Médico legista de carreira" },
-  { rotulo: "Titulação", valor: "Mestre e doutorando em Perícias Forenses" },
-  { rotulo: "Formação policial", valor: "Instrutor titular da Academia de Polícia" },
-  { rotulo: "Docência", valor: "Mais de 240 alunos aprovados" },
+  ["Médico legista", "de carreira em Pernambuco"],
+  ["Doutorando", "em Perícias Forenses (UPE)"],
+  ["Instrutor titular", "da Academia de Polícia"],
+  ["Professor", "de preparatório para legista"],
 ];
 
-const COMPARACAO = [
-  ["Cronograma genérico, igual para todo mundo", "Rotina montada em cima dos seus plantões e da sua prova"],
-  ["A dúvida entra na fila do fórum", "A dúvida vai direto para o Miguel, no WhatsApp"],
-  ["Você descobre os erros no dia da prova", "Os erros são corrigidos toda semana, antes de virar hábito"],
-  ["Teoria longe da rotina do IML", "Casos discutidos por quem faz perícia de verdade"],
-];
-
-const CICLO = [
+const PASSOS = [
   {
-    titulo: "Encontro individual",
-    texto: "Uma hora ao vivo, só vocês dois, pelo Google Meet. O que você estudou, onde errou e o que vem a seguir.",
+    titulo: "Reunião de diagnóstico",
+    texto:
+      "Tudo começa com uma conversa individual: seu momento, sua prova-alvo, sua rotina e o que você já estudou. Não existe recomeçar do zero — existe ajustar a rota a partir de onde você está.",
   },
   {
-    titulo: "Rota ajustada",
-    texto: "O planejamento dos seus horários é reestruturado periodicamente, conforme seu desempenho e sua rotina.",
+    titulo: "Planejamento dos seus horários",
+    texto:
+      "O Miguel estrutura a sua semana de estudo em cima da vida real: plantões, família, cansaço. E reestrutura periodicamente, conforme o seu desempenho.",
   },
-  {
-    titulo: "Questões e casos",
-    texto: "Resolução contínua de questões e discussão de casos clínicos, para fixar o conteúdo aplicando.",
-  },
-  {
-    titulo: "WhatsApp direto",
-    texto: "Entre um encontro e outro, a dúvida não espera: vai direto para o Miguel.",
-  },
-];
-
-const ACHADOS = [
   {
     titulo: "Encontros individuais toda semana",
-    texto: "Atenção indivisa: uma hora ao vivo dedicada só à sua preparação, com acompanhamento dos estudos, direcionamento e alinhamento da rota.",
+    texto:
+      "Uma hora ao vivo, só vocês dois, pelo Google Meet. Acompanhamento do que foi estudado, direcionamento do que vem a seguir e alinhamento da rota até o dia da prova.",
   },
   {
-    titulo: "Aulas individuais",
-    texto: "O conteúdo explicado exatamente no ponto em que você travou, no seu ritmo — não no ritmo de uma turma.",
+    titulo: "Aulas individuais e estratégia avançada",
+    texto:
+      "O conteúdo explicado exatamente onde você travou, com técnicas de retenção pensadas para a Medicina Legal: epônimos, classificações, sinais e as pegadinhas que as bancas repetem.",
   },
   {
-    titulo: "Planejamento e estrutura periódica dos horários",
-    texto: "Uma rotina de estudo que cabe na sua vida real, revista a cada etapa da preparação.",
+    titulo: "Questões com leitura de banca",
+    texto:
+      "Resolução contínua de questões em cada encontro. CESPE segue o França, FGV pode seguir o Hygino — a mesma pergunta muda de gabarito conforme a banca, e você aprende a reconhecer isso.",
   },
   {
-    titulo: "Estratégias avançadas de estudo",
-    texto: "Técnicas de retenção pensadas para a Medicina Legal: epônimos, classificações, sinais e as armadilhas que as bancas repetem.",
+    titulo: "Casos clínicos e aprofundamento forense",
+    texto:
+      "Casos reais discutidos com o raciocínio de quem assina laudos. É onde a teoria vira reconhecimento rápido na hora da prova.",
   },
   {
-    titulo: "Discussão de casos clínicos",
-    texto: "Aplicação prática e aprofundamento forense, com o raciocínio de quem assina laudos.",
-  },
-  {
-    titulo: "Resolução contínua de questões",
-    texto: "Em cada encontro, no seu ritmo, com leitura estratégica do que a banca quer de você.",
-  },
-  {
-    titulo: "Suporte direto no WhatsApp",
-    texto: "O número privado do Miguel durante toda a mentoria, para resolver qualquer dúvida.",
+    titulo: "WhatsApp direto com o mentor",
+    texto:
+      "Entre um encontro e outro, a dúvida não espera: vai direto para o WhatsApp privado do Miguel, durante toda a mentoria.",
   },
 ];
 
-const TRAJETORIA = [
-  ["Medicina", "Universidade Federal de Pernambuco (UFPE)"],
-  ["Residência", "Ortopedia e Traumatologia — Hospital das Clínicas da UFPE"],
-  ["Especialização", "Pós-graduação em Medicina Legal e Perícia Médica"],
-  ["Carreira", "Perito oficial médico legista do estado de Pernambuco"],
-  ["Pós-graduação", "Mestre e doutorando em Perícias Forenses — UPE"],
-  ["Academia de Polícia", "Instrutor titular do Curso de Formação de Médico Legista (2021 e 2026)"],
-  ["Docência", "Professor de preparatório para médico legista, com mais de 240 aprovados"],
+const PROVAS_DO_GRUPO = [
+  ["Um caso por dia", "Foto, achado e a pergunta: o que provocou essa lesão?"],
+  ["Gabarito por banca", "O que vale para CESPE, o que vale para FGV — e em qual autor está."],
+  ["Além dos livros", "Respostas que não estão nem no França nem no Hygino."],
 ];
-
-const ROMANOS = ["I", "II", "III", "IV", "V", "VI", "VII"];
 
 export default function Pagina() {
   return (
     <>
-      {/* ───────────── Cabeçalho ───────────── */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.07] bg-tinta/85 backdrop-blur-md">
+      {/* ───────── Cabeçalho ───────── */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-preto/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-8">
-          <a href="#" className="flex items-center gap-3 text-osso">
-            <span className="grid size-9 place-items-center border border-latao/60 font-serif text-[15px] tracking-tight text-latao-claro">
-              MS
-            </span>
-            <span className="leading-tight">
-              <span className="block font-serif text-[17px]">Miguel Souza</span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.28em] text-osso/50">
-                Medicina Forensis
-              </span>
+          <a href="#" className="flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-lg bg-ouro font-impacto text-lg text-preto">MS</span>
+            <span className="leading-none">
+              <span className="block text-[15px] font-black uppercase tracking-wide">Miguel Souza</span>
+              <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.3em] text-osso/45">Medicina Forensis</span>
             </span>
           </a>
           <a
             href="#agendar"
-            className="hidden border border-latao/60 px-4 py-2 text-sm text-latao-claro transition hover:bg-latao hover:text-tinta sm:inline-block"
+            className="hidden rounded-full border border-ouro/50 px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-ouro transition hover:bg-ouro hover:text-preto sm:inline-block"
           >
             Agendar reunião
           </a>
@@ -147,181 +138,235 @@ export default function Pagina() {
       </header>
 
       <main>
-        {/* ───────────── Capa ───────────── */}
-        <section className="grao relative overflow-hidden bg-tinta pt-16 text-osso">
-          <div className="mx-auto grid max-w-7xl lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="relative z-10 px-4 pb-14 pt-14 sm:px-8 sm:pt-20 lg:pb-24 lg:pt-28">
-              <p className="animate-surgir font-mono text-[11px] uppercase tracking-[0.24em] text-latao-claro">
-                Mentoria individualizada · Medicina Legal para concursos
-              </p>
-              <h1 className="mt-7 animate-surgir font-serif text-[2.6rem] leading-[1.02] tracking-[-0.02em] [animation-delay:80ms] sm:text-6xl lg:text-[4.6rem]">
-                O professor de mais de 240 médicos legistas aprovados agora vai acompanhar{" "}
-                <em className="text-latao-claro">só você.</em>
-              </h1>
-              <p className="mt-7 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms] sm:text-xl">
-                Pela primeira vez, o Dr. Miguel Souza abre acompanhamento individual. Toda semana, ao vivo,
-                ele revisa seus estudos, corrige a rota e prepara você até o dia da prova — sem turma e sem
-                dividir a atenção com ninguém.
-              </p>
-              <div
-                id="topo"
-                className="mt-10 flex animate-surgir flex-col gap-4 [animation-delay:240ms] sm:flex-row sm:items-center"
-              >
-                <BotaoAgendar />
-                <a href="#como-funciona" className="px-1 py-2 text-osso/70 underline-offset-4 hover:text-osso hover:underline">
-                  Ver como funciona
-                </a>
+        {/* ───────── Capa ───────── */}
+        <section className="brilho-ouro relative overflow-hidden pt-16">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:pb-24 lg:pt-20">
+            <div className="min-w-0">
+              <div className="animate-surgir">
+                <Pilula>Mentoria individual · vagas limitadas</Pilula>
               </div>
-              <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-osso/40">
-                Reunião individual pelo Google Meet · agenda a partir de amanhã
-              </p>
-            </div>
-
-            {/* Retrato com escala pericial */}
-            <div className="relative min-h-[520px] bg-cinza-foto lg:min-h-0">
-              <Image
-                src={fotoBracos}
-                alt="Dr. Miguel Souza, médico legista, de braços cruzados e sorrindo"
-                fill
-                priority
-                sizes="(min-width: 1024px) 45vw, 100vw"
-                className="object-cover object-[50%_12%]"
-              />
-              <Escala className="absolute bottom-6 left-6 w-40 opacity-90 sm:w-48" />
-              <div className="absolute right-4 top-6 bg-osso/90 px-3 py-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.16em] text-tinta/70 backdrop-blur sm:right-6">
-                Fig. 1 — Dr. Miguel Souza
+              <h1 className="mt-6 animate-surgir text-[2.15rem] font-black uppercase leading-[0.95] tracking-tight [animation-delay:80ms] min-[400px]:text-[2.5rem] sm:text-6xl xl:text-7xl">
+                Mentoria
                 <br />
-                <span className="text-tinta">Médico legista · PE</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Credenciais */}
-          <div className="border-t border-white/[0.08]">
-            <dl className="mx-auto grid max-w-7xl grid-cols-2 lg:grid-cols-4">
-              {CREDENCIAIS.map((c, i) => (
-                <div
-                  key={c.rotulo}
-                  className={`border-white/[0.08] px-4 py-6 sm:px-8 ${i % 2 ? "border-l" : ""} ${
-                    i > 1 ? "border-t lg:border-t-0" : ""
-                  } ${i === 2 ? "lg:border-l" : ""}`}
-                >
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.2em] text-latao">{c.rotulo}</dt>
-                  <dd className="mt-2 font-serif text-lg leading-snug text-osso sm:text-xl">{c.valor}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        {/* ───────────── O diferencial ───────────── */}
-        <section className="px-4 py-24 sm:px-8 sm:py-32">
-          <div className="mx-auto max-w-7xl">
-            <Secao n="01" nome="O diferencial" />
-            <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
-              <h2 className="font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-6xl">
-                No cursinho, você é um entre milhares. Aqui, é <em>o único.</em>
-              </h2>
-              <div className="space-y-5 text-lg leading-relaxed text-tinta/70 lg:pt-3">
-                <p>
-                  Aula gravada não percebe que você travou em asfixiologia. Fórum não nota que seu cronograma
-                  não cabe nos seus plantões. Ninguém avisa que você está estudando muito o que cai pouco.
-                </p>
-                <p>
-                  A mentoria existe para isso: <strong className="font-semibold text-tinta">um médico legista
-                  olhando para a sua preparação — e só para ela</strong>, toda semana, até o dia da prova.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-16 overflow-hidden border border-tinta/10">
-              <div className="grid grid-cols-2 bg-papel font-mono text-[10px] uppercase tracking-[0.18em] sm:text-[11px]">
-                <p className="px-4 py-3 text-tinta/50 sm:px-6">Preparação comum</p>
-                <p className="border-l border-tinta/10 bg-floresta px-4 py-3 text-latao-claro sm:px-6">
-                  Mentoria individualizada
-                </p>
-              </div>
-              {COMPARACAO.map(([antes, depois]) => (
-                <div key={antes} className="grid grid-cols-2 border-t border-tinta/10">
-                  <p className="px-4 py-5 text-[15px] text-tinta/45 line-through decoration-tinta/20 sm:px-6 sm:text-base">
-                    {antes}
-                  </p>
-                  <p className="border-l border-tinta/10 bg-white/50 px-4 py-5 text-[15px] font-medium text-tinta sm:px-6 sm:text-base">
-                    {depois}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ───────────── Como funciona ───────────── */}
-        <section id="como-funciona" className="bg-floresta px-4 py-24 text-osso sm:px-8 sm:py-32">
-          <div className="mx-auto max-w-7xl">
-            <Secao n="02" nome="O método" claro />
-            <h2 className="mt-8 max-w-3xl font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-6xl">
-              Um ciclo semanal, do primeiro encontro <em className="text-latao-claro">ao dia da prova.</em>
-            </h2>
-
-            <ol className="mt-16 grid gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-              {CICLO.map((etapa, i) => (
-                <li key={etapa.titulo} className="relative bg-floresta p-7 pr-10 sm:p-8">
-                  <span className="font-mono text-xs text-latao-claro">0{i + 1}</span>
-                  <h3 className="mt-10 font-serif text-2xl">{etapa.titulo}</h3>
-                  <p className="mt-3 leading-relaxed text-osso/65">{etapa.texto}</p>
-                  <span aria-hidden className="absolute right-6 top-7 font-mono text-osso/30">
-                    {i < CICLO.length - 1 ? "→" : "↺"}
-                  </span>
-                </li>
-              ))}
-            </ol>
-            <div className="regua mt-12 text-osso" />
-            <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.2em] text-osso/50">
-              E recomeça — toda semana, até a aprovação.
-            </p>
-          </div>
-        </section>
-
-        {/* ───────────── O que está incluído ───────────── */}
-        <section className="px-4 py-24 sm:px-8 sm:py-32">
-          <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-            <div className="lg:sticky lg:top-28 lg:self-start">
-              <Secao n="03" nome="O que você recebe" />
-              <h2 className="mt-8 font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-5xl">
-                Tudo o que a sua preparação pede, <em>sob medida.</em>
-              </h2>
-              <p className="mt-6 text-lg leading-relaxed text-tinta/70">
-                Cada item é readequado ao seu foco e à sua necessidade. O ponto de partida é a sua prova, não
-                um pacote pronto.
+                individualizada
+                <br />
+                <span className="text-ouro">em Medicina Legal</span>
+              </h1>
+              <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms]">
+                O professor que já aprovou <strong className="font-extrabold text-osso">mais de 240 médicos legistas</strong>{" "}
+                vai acompanhar só você. Toda semana, ao vivo, até o dia da prova.
               </p>
-              <BotaoAgendar className="mt-10 hidden lg:inline-flex" />
+
+              <div id="agendar" className="mt-8 animate-surgir [animation-delay:240ms]">
+                <Agendamento />
+              </div>
             </div>
 
-            <ol className="border-t border-tinta/15">
-              {ACHADOS.map((a, i) => (
-                <li key={a.titulo} className="grid grid-cols-[3rem_1fr] gap-4 border-b border-tinta/15 py-7 sm:grid-cols-[4.5rem_1fr]">
-                  <span className="pt-1 font-serif text-2xl italic text-latao sm:text-3xl">{ROMANOS[i]}.</span>
+            {/* Retrato */}
+            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+              <div className="absolute -inset-6 rounded-[3rem] bg-ouro/20 blur-3xl" aria-hidden />
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cinza-foto lg:aspect-auto lg:h-full lg:min-h-[640px]">
+                <Image
+                  src={fotoBracos}
+                  alt="Dr. Miguel Souza, médico legista, de braços cruzados e sorrindo"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  className="object-cover object-[50%_10%]"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-preto via-preto/40 to-transparent" />
+                <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4">
                   <div>
-                    <h3 className="font-serif text-2xl leading-snug sm:text-[1.7rem]">{a.titulo}</h3>
-                    <p className="mt-2 max-w-xl leading-relaxed text-tinta/65">{a.texto}</p>
+                    <p className="font-impacto text-7xl leading-none text-ouro sm:text-8xl">+240</p>
+                    <p className="mt-1 text-sm font-extrabold uppercase tracking-wide">alunos aprovados</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-black uppercase leading-tight">Dr. Miguel Souza</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-osso/60">Médico legista</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Faixa corrida */}
+          <div className="overflow-hidden border-y border-ouro/30 bg-ouro py-3 text-preto" aria-hidden>
+            <div className="flex w-max animate-faixa gap-10 whitespace-nowrap font-impacto text-xl uppercase tracking-wide">
+              {[...FAIXA, ...FAIXA].map((t, i) => (
+                <span key={i} className="flex items-center gap-10">
+                  {t}
+                  <span className="size-2 rounded-full bg-preto" />
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Quem acompanha ───────── */}
+        <section className="bg-osso px-4 py-24 text-preto sm:px-8 sm:py-32">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
+            <div className="relative order-2 lg:order-1">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cinza-foto">
+                <Image
+                  src={fotoPerfil}
+                  alt="Dr. Miguel Souza sentado, com as mãos entrelaçadas"
+                  fill
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  className="object-cover object-[50%_25%]"
+                />
+              </div>
+              <div className="absolute -bottom-6 -right-2 rounded-2xl bg-preto px-6 py-5 text-osso shadow-2xl sm:-right-6">
+                <p className="font-impacto text-5xl leading-none text-ouro">1:1</p>
+                <p className="mt-1 text-xs font-extrabold uppercase tracking-wide">Um aluno por vez</p>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <Pilula cor="preto">Quem vai te acompanhar</Pilula>
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+                Não é mais um curso gravado.
+                <span className="mt-3 block">
+                  <span className="bg-ouro px-2 leading-[1.15] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+                    É um médico legista olhando só para você.
+                  </span>
+                </span>
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-preto/70">
+                O Dr. Miguel Souza é perito oficial médico legista, mestre e doutorando em Perícias Forenses e
+                instrutor da Academia de Polícia. Depois de anos preparando turmas inteiras para o concurso, pela
+                primeira vez ele abre acompanhamento individual — sem dividir a atenção com mais ninguém.
+              </p>
+              <dl className="mt-10 grid grid-cols-2 gap-3">
+                {CREDENCIAIS.map(([titulo, sub]) => (
+                  <div key={titulo} className="rounded-2xl border border-preto/10 bg-white p-5">
+                    <dt className="text-lg font-black uppercase leading-tight">{titulo}</dt>
+                    <dd className="mt-1 text-sm text-preto/60">{sub}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Passo a passo ───────── */}
+        <section id="como-funciona" className="brilho-ouro px-4 py-24 sm:px-8 sm:py-32">
+          <div className="mx-auto max-w-5xl">
+            <div className="text-center">
+              <Pilula>Por dentro da mentoria</Pilula>
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+                O passo a passo
+                <br />
+                <span className="text-ouro">que faremos com você</span>
+              </h2>
+            </div>
+
+            <ol className="mt-16 space-y-4">
+              {PASSOS.map((p, i) => (
+                <li
+                  key={p.titulo}
+                  className="group grid grid-cols-[auto_1fr] gap-5 rounded-3xl border border-white/10 bg-carvao p-6 transition hover:border-ouro/40 sm:gap-8 sm:p-8"
+                >
+                  <span className="w-12 font-impacto text-5xl leading-none text-ouro/90 sm:w-20 sm:text-7xl">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h3 className="text-xl font-black uppercase leading-tight sm:text-2xl">{p.titulo}</h3>
+                    <p className="mt-2 leading-relaxed text-osso/65 sm:text-lg">{p.texto}</p>
                   </div>
                 </li>
               ))}
             </ol>
+
+            <div className="mt-14 text-center">
+              <p className="text-xl font-extrabold uppercase sm:text-2xl">
+                Do diagnóstico à prova, <span className="text-ouro">com um legista conferindo cada semana.</span>
+              </p>
+              <BotaoAgendar className="mt-8" />
+            </div>
           </div>
         </section>
 
-        {/* ───────────── Material ───────────── */}
-        <section className="overflow-hidden bg-papel px-4 py-24 sm:px-8 sm:py-32">
+        {/* ───────── Grupo Dose Diária ───────── */}
+        <section id="grupo" className="brilho-verde relative overflow-hidden border-y border-verde/20 bg-verde-escuro px-4 py-24 sm:px-8 sm:py-32">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+              <div>
+                <Pilula cor="verde">Grupo de discussão de casos</Pilula>
+                <h2 className="mt-6 text-5xl font-black uppercase leading-[0.9] tracking-tight sm:text-7xl">
+                  Todo dia,
+                  <br />
+                  <span className="text-verde">uma dose</span>
+                  <br />
+                  de Medicina Legal.
+                </h2>
+              </div>
+              <div>
+                <p className="text-lg leading-relaxed text-osso/75">
+                  No <strong className="text-osso">MedLegal Dose Diária</strong>, o Miguel posta um caso real, provoca a
+                  discussão e fecha com o que a banca cobra — e em qual referência está. Médicos do Brasil inteiro
+                  treinando o olho pericial, todos os dias.
+                </p>
+                <div className="mt-8">
+                  {LINK_GRUPO_CASOS ? (
+                    <a
+                      href={LINK_GRUPO_CASOS}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
+                    >
+                      Quero entrar no Dose Diária
+                      <span aria-hidden className="transition group-hover:translate-x-1">→</span>
+                    </a>
+                  ) : (
+                    <a
+                      href="#agendar"
+                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
+                    >
+                      Quero entrar no Dose Diária
+                      <span aria-hidden className="transition group-hover:translate-x-1">→</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Celulares */}
+            <div className="-mx-4 mt-16 flex snap-x gap-4 overflow-x-auto px-4 pb-6 sm:-mx-8 sm:px-8 lg:mx-0 lg:grid lg:grid-cols-5 lg:items-start lg:overflow-visible lg:px-0">
+              {[
+                { img: conversa2, alt: "Caso do dia no grupo: o Miguel pergunta o que provocou a lesão, imagem borrada", cls: "lg:mt-10" },
+                { img: conversa1, alt: "O Miguel explica a diferença de gabarito entre CESPE e FGV", cls: "" },
+                { img: conversa4, alt: "Alunos caracterizam uma lesão perfurocortante no grupo", cls: "lg:mt-16" },
+                { img: conversa5, alt: "O Miguel comenta o raciocínio de uma aluna sobre distância de disparo", cls: "lg:mt-4" },
+                { img: conversa3, alt: "Resposta que está no e-book de epônimos do Miguel e não está no França nem no Hygino", cls: "lg:mt-12" },
+              ].map((c) => (
+                <Celular key={c.alt} img={c.img} alt={c.alt} className={`w-[62vw] max-w-[260px] shrink-0 snap-center lg:w-auto lg:max-w-none ${c.cls}`} />
+              ))}
+            </div>
+
+            <div className="mt-12 grid gap-3 sm:grid-cols-3">
+              {PROVAS_DO_GRUPO.map(([t, d]) => (
+                <div key={t} className="rounded-2xl border border-verde/20 bg-preto/40 p-6">
+                  <p className="text-lg font-black uppercase text-verde">{t}</p>
+                  <p className="mt-1 text-osso/70">{d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Material ───────── */}
+        <section className="overflow-hidden bg-osso px-4 py-24 text-preto sm:px-8 sm:py-32">
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
-              <Secao n="04" nome="O nível do material" />
-              <h2 className="mt-8 font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-6xl">
-                Até o PDF tem <em>rigor de laudo.</em>
+              <Pilula cor="preto">Material autoral</Pilula>
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+                Até o PDF
+                <br />
+                <span className="bg-ouro px-2 leading-[1.15] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">tem padrão de laudo.</span>
               </h2>
-              <p className="mt-6 text-lg leading-relaxed text-tinta/70">
+              <p className="mt-6 text-lg leading-relaxed text-preto/70">
                 Além dos encontros ao vivo, o Miguel escreve o próprio material. O compêndio{" "}
-                <em className="text-tinta">Epônimos em Traumatologia Forense</em> organiza sinais, leis e
+                <strong className="text-preto">Epônimos em Traumatologia Forense</strong> organiza sinais, leis e
                 síndromes por energia causadora e lesão elementar — do jeito que a banca cobra.
               </p>
               <ul className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -331,15 +376,14 @@ export default function Pagina() {
                   "Ilustrações anatômicas comentadas",
                   "Simulado de fixação no final",
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 border-t border-tinta/15 pt-3 text-[15px]">
-                    <span className="mt-[7px] size-1.5 shrink-0 bg-latao" />
+                  <li key={item} className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 font-bold">
+                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ouro text-xs text-preto">✓</span>
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Páginas em leque */}
             <div className="relative mx-auto aspect-[4/4.2] w-full max-w-[560px]">
               {[
                 { img: paginaEnforcamento, cls: "left-[46%] top-[6%] rotate-[7deg]", alt: "Página sobre lesões internas do pescoço no enforcamento" },
@@ -351,23 +395,23 @@ export default function Pagina() {
                   src={p.img}
                   alt={p.alt}
                   sizes="(min-width: 1024px) 22vw, 45vw"
-                  className={`absolute h-auto w-[52%] shadow-[0_20px_50px_-20px_rgba(11,18,16,0.45)] ${p.cls}`}
+                  className={`absolute h-auto w-[52%] rounded-md shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] ${p.cls}`}
                 />
               ))}
               <Image
                 src={capaEbook}
                 alt="Capa do e-book Epônimos em Traumatologia Forense, do Prof. José Miguel Souza"
                 sizes="(min-width: 1024px) 26vw, 60vw"
-                className="absolute bottom-0 left-0 h-auto w-[60%] -rotate-[4deg] shadow-[0_30px_60px_-20px_rgba(11,18,16,0.6)]"
+                className="absolute bottom-0 left-0 h-auto w-[60%] -rotate-[4deg] rounded-md shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)]"
               />
             </div>
           </div>
         </section>
 
-        {/* ───────────── Academia de Polícia ───────────── */}
-        <section className="relative overflow-hidden bg-tinta text-osso">
-          <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
-            <div className="relative min-h-[480px] lg:order-2 lg:min-h-[680px]">
+        {/* ───────── Academia de Polícia ───────── */}
+        <section className="relative overflow-hidden">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 lg:grid-cols-2">
+            <div className="relative min-h-[460px] lg:order-2 lg:min-h-[680px]">
               <Image
                 src={fotoAcademia}
                 alt="Miguel Souza na Academia de Polícia, de braços cruzados"
@@ -375,195 +419,47 @@ export default function Pagina() {
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover object-[60%_30%]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-tinta via-tinta/10 to-transparent lg:bg-gradient-to-r lg:from-tinta lg:via-tinta/0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-preto via-preto/10 to-transparent lg:bg-gradient-to-r lg:from-preto lg:via-preto/0" />
             </div>
-            <div className="relative z-10 -mt-32 px-4 pb-20 sm:px-8 lg:mt-0 lg:flex lg:flex-col lg:justify-center lg:py-28 lg:pr-16">
-              <Secao n="05" nome="Antes e depois da aprovação" claro />
-              <h2 className="mt-8 font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-[3.4rem]">
-                Ele forma os legistas depois da aprovação. Agora prepara você <em className="text-latao-claro">antes dela.</em>
-              </h2>
-              <p className="mt-7 text-lg leading-relaxed text-osso/70">
-                O Miguel é instrutor titular do Curso de Formação de Médico Legista da Academia de Polícia de
-                Pernambuco, nas turmas de 2021 e 2026 — a etapa em que os aprovados aprendem o ofício antes
-                de assumir o cargo.
-              </p>
-              <p className="mt-4 text-lg leading-relaxed text-osso/70">
-                Ele sabe o que a perícia exige no dia a dia. Por isso sabe o que a banca vai cobrar de você.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ───────────── O mentor ───────────── */}
-        <section className="px-4 py-24 sm:px-8 sm:py-32">
-          <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
-            <figure className="relative">
-              <div className="relative aspect-[4/5] overflow-hidden bg-cinza-foto">
-                <Image
-                  src={fotoPerfil}
-                  alt="Dr. Miguel Souza sentado, com as mãos entrelaçadas"
-                  fill
-                  sizes="(min-width: 1024px) 38vw, 100vw"
-                  className="object-cover object-[50%_25%]"
-                />
-              </div>
-              <figcaption className="mt-3 flex justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-tinta/50">
-                <span>Fig. 2 — O mentor</span>
-                <span>Pernambuco</span>
-              </figcaption>
-            </figure>
-
-            <div>
-              <Secao n="06" nome="Quem vai te acompanhar" />
-              <h2 className="mt-8 font-serif text-5xl leading-none tracking-[-0.02em] sm:text-7xl">
-                Dr. Miguel Souza
-              </h2>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-tinta/70">
-                Médico legista de carreira, pesquisador e professor. Passou anos ensinando Medicina Legal
-                para turmas grandes e viu de perto o que separa quem passa de quem quase passa. Agora, pela
-                primeira vez, coloca essa experiência inteira a serviço de um aluno de cada vez.
-              </p>
-
-              <dl className="mt-12 border-t border-tinta/15">
-                {TRAJETORIA.map(([rotulo, valor]) => (
-                  <div key={rotulo} className="grid gap-1 border-b border-tinta/15 py-4 sm:grid-cols-[11rem_1fr] sm:gap-6">
-                    <dt className="font-mono text-[10px] uppercase tracking-[0.2em] text-latao sm:pt-1">{rotulo}</dt>
-                    <dd className="text-[17px] text-tinta">{valor}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </div>
-        </section>
-
-        {/* ───────────── Grupo de casos ───────────── */}
-        <section className="px-4 pb-24 sm:px-8 sm:pb-32">
-          <div className="grao relative mx-auto max-w-7xl overflow-hidden bg-floresta px-6 py-14 text-osso sm:px-14 sm:py-20">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -right-10 -top-16 select-none font-serif text-[16rem] italic leading-none text-white/[0.04] sm:text-[22rem]"
-            >
-              §
-            </div>
-            <div className="relative grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
+            <div className="relative z-10 -mt-28 px-4 pb-24 sm:px-8 lg:mt-0 lg:flex lg:flex-col lg:justify-center lg:py-28 lg:pr-16">
               <div>
-                <Secao n="07" nome="Comunidade" claro />
-                <h2 className="mt-8 font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-5xl">
-                  Grupo de Discussão de Casos Forenses
-                </h2>
-                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-osso/70">
-                  Um caso de cada vez, comentado pelo Miguel, com médicos que também miram a perícia. Achados,
-                  lesões, nexo causal — e a pergunta que a banca faria sobre cada um deles.
-                </p>
+                <Pilula>Academia de Polícia</Pilula>
               </div>
-              <div className="lg:text-right">
-                {LINK_GRUPO_CASOS ? (
-                  <a
-                    href={LINK_GRUPO_CASOS}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-6 border border-latao-claro/60 px-7 py-4 text-[17px] text-latao-claro transition hover:bg-latao-claro hover:text-tinta"
-                  >
-                    Quero participar do grupo
-                    <span aria-hidden className="transition group-hover:translate-x-1">→</span>
-                  </a>
-                ) : (
-                  <a
-                    href="#agendar"
-                    className="group inline-flex items-center gap-6 border border-latao-claro/60 px-7 py-4 text-[17px] text-latao-claro transition hover:bg-latao-claro hover:text-tinta"
-                  >
-                    Receber o convite
-                    <span aria-hidden className="transition group-hover:translate-x-1">→</span>
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ───────────── Para quem é ───────────── */}
-        <section className="border-y border-tinta/10 bg-white/40 px-4 py-24 sm:px-8 sm:py-28">
-          <div className="mx-auto max-w-7xl">
-            <Secao n="08" nome="Para quem é" />
-            <div className="mt-10 grid gap-px bg-tinta/10 md:grid-cols-3">
-              {[
-                {
-                  t: "Médicos que decidiram ser legistas",
-                  d: "Você já tem o diploma e quer a aprovação com método, sem perder anos tentando sozinho.",
-                },
-                {
-                  t: "Estudantes na reta final",
-                  d: "Você ainda está se formando e quer chegar ao concurso com a base de Medicina Legal pronta.",
-                },
-                {
-                  t: "Quem já tentou e quase passou",
-                  d: "Você conhece o conteúdo, mas falta rota, revisão e alguém apontando onde estão os pontos perdidos.",
-                },
-              ].map((c) => (
-                <div key={c.t} className="bg-osso p-8">
-                  <h3 className="font-serif text-2xl leading-snug">{c.t}</h3>
-                  <p className="mt-3 leading-relaxed text-tinta/65">{c.d}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-8 max-w-2xl text-tinta/60">
-              <span className="font-semibold text-tinta">Não é para quem procura mais um curso gravado.</span> É para
-              quem quer ser acompanhado de perto e está disposto a estudar com constância.
-            </p>
-          </div>
-        </section>
-
-        {/* ───────────── Agendar ───────────── */}
-        <section id="agendar" className="grao bg-tinta px-4 py-24 text-osso sm:px-8 sm:py-32">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-            <div>
-              <Secao n="09" nome="Agendamento" claro />
-              <h2 className="mt-8 font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-6xl">
-                Agende sua reunião <em className="text-latao-claro">com o Miguel.</em>
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+                Ele forma os legistas depois da aprovação.
+                <span className="mt-2 block text-ouro">Agora prepara você antes dela.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
-                Uma conversa individual pelo Google Meet para entender seu momento, sua prova-alvo e sua
-                rotina — e desenhar a rota até a aprovação.
+                O Miguel é instrutor titular do Curso de Formação de Médico Legista da Academia de Polícia de
+                Pernambuco, nas turmas de 2021 e 2026 — a etapa em que os aprovados aprendem o ofício antes de assumir
+                o cargo. Ele sabe o que a perícia exige no dia a dia. Por isso sabe o que a banca vai cobrar.
               </p>
-              <ul className="mt-8 space-y-3 text-osso/80">
-                {[
-                  "Escolha o dia e o horário a partir de amanhã",
-                  "O Miguel confirma com você pelo WhatsApp",
-                  "Primeiro encontro da mentoria em até 7 dias",
-                ].map((t, i) => (
-                  <li key={t} className="flex gap-4">
-                    <span className="font-mono text-xs leading-7 text-latao-claro">0{i + 1}</span>
-                    <span className="leading-7">{t}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-12 hidden items-center gap-5 lg:flex">
-                <div className="relative size-20 overflow-hidden rounded-full bg-cinza-foto">
-                  <Image
-                    src={fotoSorrindo}
-                    alt="Dr. Miguel Souza sorrindo"
-                    fill
-                    sizes="80px"
-                    className="scale-[2.2] object-cover object-[50%_14%]"
-                  />
-                </div>
-                <p className="font-serif text-lg leading-snug text-osso/80">
-                  Atendimento feito pessoalmente pelo Miguel,
-                  <br />
-                  <em className="text-latao-claro">um aluno de cada vez.</em>
-                </p>
-              </div>
             </div>
-            <Agendamento />
           </div>
         </section>
 
-        {/* ───────────── Perguntas ───────────── */}
-        <section className="px-4 py-24 sm:px-8 sm:py-32">
-          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        {/* ───────── Chamada final ───────── */}
+        <section className="bg-ouro px-4 py-20 text-preto sm:px-8 sm:py-24">
+          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
+            <h2 className="max-w-3xl text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+              Sua aprovação precisa de um plano. E de alguém conferindo.
+            </h2>
+            <a
+              href="#agendar"
+              className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-preto px-8 py-5 text-sm font-black uppercase tracking-wide text-ouro transition hover:bg-grafite"
+            >
+              Agendar minha reunião
+              <span aria-hidden className="transition group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+        </section>
+
+        {/* ───────── Perguntas ───────── */}
+        <section className="bg-osso px-4 py-24 text-preto sm:px-8 sm:py-32">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div>
-              <Secao n="10" nome="Perguntas frequentes" />
-              <h2 className="mt-8 font-serif text-4xl leading-[1.05] tracking-[-0.015em] sm:text-5xl">
+              <Pilula cor="preto">Perguntas frequentes</Pilula>
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-5xl">
                 Antes de agendar.
               </h2>
             </div>
@@ -572,12 +468,11 @@ export default function Pagina() {
         </section>
       </main>
 
-      <footer className="bg-tinta px-4 pb-24 pt-12 text-osso/50 sm:px-8 md:pb-12">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 border-t border-white/10 pt-8 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            <span className="font-serif text-base text-osso">Miguel Souza</span>
-            <span className="mx-2 text-osso/30">|</span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em]">Medicina Forensis</span>
+      <footer className="px-4 pb-24 pt-12 text-osso/50 sm:px-8 md:pb-12">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-black uppercase tracking-wide text-osso">
+            Miguel Souza <span className="mx-2 text-osso/30">|</span>
+            <span className="text-xs font-bold tracking-[0.25em] text-osso/50">Medicina Forensis</span>
           </p>
           <p>Mentoria individualizada em Medicina Legal para concursos.</p>
         </div>

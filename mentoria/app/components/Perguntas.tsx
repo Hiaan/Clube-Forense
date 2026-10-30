@@ -11,11 +11,11 @@ const PERGUNTAS = [
   },
   {
     p: "Serve para qualquer concurso de médico legista?",
-    r: "Sim. O acompanhamento é montado em cima da sua prova-alvo: banca, edital e peso de cada tema. Se ainda não há edital, a rota começa pela base que todos cobram.",
+    r: "Sim. O acompanhamento é montado em cima da sua prova-alvo: banca, edital, referência bibliográfica e peso de cada tema. Se ainda não há edital, a rota começa pela base que todos cobram.",
   },
   {
     p: "Como funcionam os encontros?",
-    r: "Encontros individuais de uma hora, ao vivo pelo Google Meet, com horário combinado diretamente com o Miguel. Em cada um: revisão do que você estudou, resolução de questões, discussão de casos e o planejamento da semana seguinte. O primeiro encontro acontece em até 7 dias depois da sua entrada.",
+    r: "Encontros individuais de uma hora, ao vivo pelo Google Meet, com horário combinado diretamente com o Miguel. O primeiro acontece em até 7 dias depois da sua entrada.",
   },
   {
     p: "E entre um encontro e outro?",
@@ -29,19 +29,19 @@ const PERGUNTAS = [
 
 export default function Perguntas() {
   return (
-    <div className="divide-y divide-tinta/10 border-y border-tinta/10">
+    <div className="space-y-3">
       {PERGUNTAS.map(({ p, r }) => (
-        <details key={p} className="group py-1">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 font-serif text-xl text-tinta marker:hidden sm:text-2xl [&::-webkit-details-marker]:hidden">
+        <details key={p} className="group rounded-2xl border border-preto/10 bg-white px-5 open:shadow-[0_20px_50px_-30px_rgba(0,0,0,0.35)] sm:px-7">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-extrabold text-preto marker:hidden sm:text-xl [&::-webkit-details-marker]:hidden">
             {p}
             <span
               aria-hidden
-              className="grid size-8 shrink-0 place-items-center border border-tinta/20 font-mono text-sm transition group-open:rotate-45"
+              className="grid size-8 shrink-0 place-items-center rounded-full bg-preto text-lg font-bold text-ouro transition group-open:rotate-45"
             >
               +
             </span>
           </summary>
-          <p className="max-w-2xl pb-6 text-[17px] leading-relaxed text-tinta/70">{r}</p>
+          <p className="max-w-2xl pb-6 leading-relaxed text-preto/70">{r}</p>
         </details>
       ))}
     </div>

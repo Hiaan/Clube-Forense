@@ -1,26 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans, JetBrains_Mono, Newsreader } from "next/font/google";
+import { Anton, Montserrat } from "next/font/google";
 
 import { SITE } from "../lib/site";
 import "./globals.css";
 
-const serif = Newsreader({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--fonte-serif",
-  display: "swap",
-});
-
-const sans = Instrument_Sans({
+const sans = Montserrat({
   subsets: ["latin"],
   variable: "--fonte-sans",
   display: "swap",
 });
 
-const mono = JetBrains_Mono({
+const impacto = Anton({
   subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--fonte-mono",
+  weight: "400",
+  variable: "--fonte-impacto",
   display: "swap",
 });
 
@@ -43,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1210",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({
@@ -54,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${serif.variable} ${sans.variable} ${mono.variable}`}
+      className={`${sans.variable} ${impacto.variable}`}
     >
       <body className="min-h-screen">{children}</body>
     </html>

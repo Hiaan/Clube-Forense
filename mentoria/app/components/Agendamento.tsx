@@ -1,6 +1,10 @@
 "use client";
 
-// Formulário de agendamento da reunião.
+// Agendamento da reunião em três passos, dentro da capa.
+//
+// Começar por uma pergunta só ("você já é médico?") custa um clique e já
+// compromete a pessoa com o formulário; nome e telefone ficam para o fim,
+// quando ela já escolheu o horário e tem motivo para terminar.
 //
 // Os dias vêm de `lib/agenda.ts`, o mesmo arquivo que a API usa para validar:
 // o que aparece aqui é exatamente o que vai ser aceito lá.
@@ -16,6 +20,8 @@ import {
   partesDaData,
 } from "../../lib/agenda";
 import { LINK_GRUPO_CASOS } from "../../lib/site";
+
+type Passo = 1 | 2 | 3;
 
 type Estado =
   | { fase: "editando"; erro?: string }
@@ -38,45 +44,48 @@ function mascararTelefone(valor: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
-const rotulo = "block font-mono text-[11px] uppercase tracking-[0.18em] text-tinta/60";
-const campo =
-  "mt-2 w-full rounded-none border-0 border-b border-tinta/25 bg-transparent px-0 py-2.5 text-[17px] text-tinta outline-none transition placeholder:text-tinta/35 focus:border-floresta focus:ring-0";
+const SITUACOES = [
+  {
+    valor: "medico",
+    titulo: "Já sou médico(a)",
+    sub: "Formado(a) e mirando o concurso",
+    icone: (
+      <path d="M6 3v6a4 4 0 0 0 8 0V3M10 13v3a5 5 0 0 0 10 0v-2m0 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+    ),
+  },
+  {
+    valor: "formando",
+    titulo: "Estou me formando",
+    sub: "Ainda na graduação",
+    icone: <path d="M2 9l10-5 10 5-10 5L2 9Zm4 2.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5M22 9v6" />,
+  },
+];
 
-function Etapa({ numero, titulo }: { numero: string; titulo: string }) {
-  return (
-    <div className="mb-5 flex items-baseline gap-3">
-      <span className="font-mono text-xs text-latao">{numero}</span>
-      <h3 className="font-serif text-xl text-tinta">{titulo}</h3>
-      <span className="h-px flex-1 translate-y-[-4px] bg-tinta/10" />
-    </div>
-  );
-}
+const PASSOS = ["Momento", "Agenda", "Dados"];
+
+const rotulo = "block text-xs font-bold uppercase tracking-[0.14em] text-osso/55";
+const campo =
+  "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-base text-osso outline-none transition placeholder:text-osso/30 focus:border-ouro focus:bg-white/[0.07]";
+const opcaoBase = "border transition";
+const opcaoAtiva = "border-ouro bg-ouro text-preto";
+const opcaoInativa = "border-white/10 bg-white/[0.03] hover:border-white/30";
 
 export default function Agendamento() {
   const hoje = useHoje();
   const dias = useMemo(() => (hoje ? diasDisponiveis(hoje) : []), [hoje]);
 
-  const [telefone, setTelefone] = useState("");
+  const [passo, setPasso] = useState<Passo>(1);
   const [situacao, setSituacao] = useState("");
   const [data, setData] = useState("");
   const [horario, setHorario] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [estado, setEstado] = useState<Estado>({ fase: "editando" });
 
   async function enviar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-
-    if (!situacao) {
-      setEstado({ fase: "editando", erro: "Conte se você já é médico(a) ou se está se formando." });
-      return;
-    }
-    if (!data || !horario) {
-      setEstado({ fase: "editando", erro: "Escolha o dia e o horário da reunião." });
-      return;
-    }
-
-    setEstado({ fase: "enviando" });
     const nome = String(form.get("nome") ?? "");
+    setEstado({ fase: "enviando" });
 
     try {
       const resposta = await fetch("/api/agendar", {
@@ -106,44 +115,41 @@ export default function Agendamento() {
         primeiroNome: nome.trim().split(" ")[0],
         resumo: `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`,
       });
-      // A confirmação é bem mais curta que o formulário: sem isto, no celular
-      // a pessoa fica olhando para o rodapé sem ver que deu certo.
-      document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
     } catch {
       setEstado({ fase: "editando", erro: "Sem conexão. Confira sua internet e tente de novo." });
     }
   }
 
+  const cartao =
+    "relative min-w-0 rounded-3xl border border-white/10 bg-carvao/90 p-5 shadow-[0_40px_120px_-40px_rgba(231,172,60,0.35)] backdrop-blur sm:p-7";
+
   if (estado.fase === "pronto") {
     return (
-      <div className="min-w-0 animate-surgir bg-osso p-7 text-tinta sm:p-10" role="status">
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-latao">
-          Agendamento recebido
-        </p>
-        <h3 className="mt-4 font-serif text-3xl leading-tight sm:text-4xl">
+      <div className={`${cartao} animate-surgir`} role="status">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-ouro">Reunião agendada</p>
+        <h3 className="mt-3 text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">
           Tudo certo, {estado.primeiroNome}.
         </h3>
-        <p className="mt-4 text-lg leading-relaxed text-tinta/75">
-          Sua reunião ficou para <strong className="font-semibold text-tinta">{estado.resumo}</strong>.
-          O Miguel já foi avisado e vai falar com você pelo WhatsApp para confirmar e enviar o link do
-          Google Meet.
+        <p className="mt-4 leading-relaxed text-osso/75">
+          Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. O Miguel já foi
+          avisado e vai falar com você pelo WhatsApp para confirmar e enviar o link do Google Meet.
         </p>
-        <div className="mt-8 border-t border-tinta/10 pt-6">
-          <p className="font-serif text-xl">Enquanto isso, entre no Grupo de Discussão de Casos.</p>
-          <p className="mt-2 text-tinta/70">
-            Casos forenses comentados pelo Miguel, com médicos que também miram a perícia.
+        <div className="mt-6 rounded-2xl border border-verde/30 bg-verde/10 p-5">
+          <p className="font-extrabold uppercase">Enquanto isso: Dose Diária</p>
+          <p className="mt-1 text-sm text-osso/70">
+            O grupo onde o Miguel discute um caso forense por dia.
           </p>
           {LINK_GRUPO_CASOS ? (
             <a
               href={LINK_GRUPO_CASOS}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 bg-floresta px-6 py-3.5 font-medium text-osso transition hover:bg-floresta-2"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-verde px-5 py-3 text-sm font-extrabold uppercase text-preto transition hover:brightness-110"
             >
               Entrar no grupo <span aria-hidden>→</span>
             </a>
           ) : (
-            <p className="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-tinta/50">
+            <p className="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-verde">
               O convite chega junto com a confirmação.
             </p>
           )}
@@ -156,169 +162,218 @@ export default function Agendamento() {
   const erro = estado.fase === "editando" ? estado.erro : undefined;
 
   return (
-    <form onSubmit={enviar} className="relative min-w-0 bg-osso p-6 text-tinta sm:p-10">
-      {/* Armadilha para robô, fora da tela e fora do Tab. */}
-      <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
-        <label>
-          Site <input name="site" tabIndex={-1} autoComplete="off" />
-        </label>
-      </div>
-
-      <Etapa numero="01" titulo="Seus dados" />
-      <div className="grid gap-6 sm:grid-cols-2">
-        <label className="sm:col-span-2">
-          <span className={rotulo}>Nome completo</span>
-          <input name="nome" required minLength={3} autoComplete="name" className={campo} placeholder="Como você se chama" />
-        </label>
-        <label>
-          <span className={rotulo}>E-mail</span>
-          <input name="email" type="email" required autoComplete="email" className={campo} placeholder="voce@email.com" />
-        </label>
-        <label>
-          <span className={rotulo}>WhatsApp</span>
-          <input
-            name="telefone"
-            type="tel"
-            inputMode="tel"
-            required
-            autoComplete="tel-national"
-            value={telefone}
-            onChange={(e) => setTelefone(mascararTelefone(e.target.value))}
-            pattern="\(\d{2}\) \d{4,5}-\d{4}"
-            title="DDD + número"
-            className={campo}
-            placeholder="(81) 99999-9999"
-          />
-        </label>
-      </div>
-
-      <div className="mt-10">
-        <Etapa numero="02" titulo="Seu momento" />
-        <fieldset>
-          <legend className={rotulo}>Você já é médico(a)?</legend>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {[
-              { valor: "medico", titulo: "Já sou médico(a)", sub: "Formado(a) e de olho no concurso" },
-              { valor: "formando", titulo: "Estou me formando", sub: "Na graduação, preparando o caminho" },
-            ].map((op) => {
-              const ativo = situacao === op.valor;
-              return (
-                <label
-                  key={op.valor}
-                  className={`cursor-pointer border px-4 py-3.5 transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-latao ${
-                    ativo ? "border-floresta bg-floresta text-osso" : "border-tinta/15 hover:border-tinta/40"
+    <div className={cartao}>
+      {/* Passos */}
+      <ol className="mb-6 flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.06em] sm:gap-2 sm:text-xs sm:tracking-[0.1em]">
+        {PASSOS.map((nome, i) => {
+          const n = (i + 1) as Passo;
+          const feito = passo > n;
+          const atual = passo === n;
+          return (
+            <li key={nome} className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={!feito}
+                onClick={() => setPasso(n)}
+                className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition sm:gap-2 sm:px-3 ${
+                  atual ? "bg-ouro text-preto" : feito ? "text-osso/80 hover:text-osso" : "text-osso/35"
+                }`}
+              >
+                <span
+                  className={`grid size-5 place-items-center rounded-full text-[11px] ${
+                    atual ? "bg-preto/15" : "border border-current"
                   }`}
                 >
-                  <input
-                    type="radio"
-                    name="situacao"
-                    value={op.valor}
-                    checked={ativo}
-                    onChange={() => setSituacao(op.valor)}
-                    className="sr-only"
-                  />
-                  <span className="block font-medium">{op.titulo}</span>
-                  <span className={`block text-sm ${ativo ? "text-osso/70" : "text-tinta/55"}`}>{op.sub}</span>
-                </label>
+                  {feito ? "✓" : n}
+                </span>
+                {nome}
+              </button>
+              {i < PASSOS.length - 1 && <span className="hidden h-px w-5 bg-white/15 sm:block" />}
+            </li>
+          );
+        })}
+      </ol>
+
+      {passo === 1 && (
+        <div className="animate-surgir">
+          <h3 className="text-xl font-extrabold sm:text-2xl">Você já é médico(a)?</h3>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {SITUACOES.map((op) => (
+              <button
+                key={op.valor}
+                type="button"
+                onClick={() => {
+                  setSituacao(op.valor);
+                  setPasso(2);
+                }}
+                className={`group flex items-center gap-4 rounded-2xl p-4 text-left ${opcaoBase} ${
+                  situacao === op.valor ? "border-ouro bg-ouro/10" : opcaoInativa
+                }`}
+              >
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-ouro text-preto">
+                  <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    {op.icone}
+                  </svg>
+                </span>
+                <span className="flex-1">
+                  <span className="block font-extrabold">{op.titulo}</span>
+                  <span className="block text-sm text-osso/55">{op.sub}</span>
+                </span>
+                <span aria-hidden className="text-osso/40 transition group-hover:translate-x-1 group-hover:text-ouro">
+                  ›
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {passo === 2 && (
+        <div className="animate-surgir">
+          <h3 className="text-xl font-extrabold sm:text-2xl">Escolha o dia e o horário</h3>
+          <p className={`${rotulo} mt-5`}>Dia</p>
+          <div
+            className="-mx-5 mt-2 flex snap-x scroll-px-5 gap-2 overflow-x-auto px-5 pb-2 sm:-mx-7 sm:scroll-px-7 sm:px-7 [scrollbar-width:thin]"
+            role="radiogroup"
+            aria-label="Dia da reunião"
+          >
+            {dias.length === 0
+              ? Array.from({ length: 7 }, (_, i) => (
+                  <div key={i} className="h-[78px] w-[62px] shrink-0 animate-pulse rounded-xl bg-white/5" />
+                ))
+              : dias.map((d) => {
+                  const p = partesDaData(d.iso);
+                  const ativo = data === d.iso;
+                  return (
+                    <button
+                      key={d.iso}
+                      type="button"
+                      role="radio"
+                      aria-checked={ativo}
+                      aria-label={dataPorExtenso(d.iso)}
+                      onClick={() => setData(d.iso)}
+                      className={`flex h-[78px] w-[62px] shrink-0 snap-start flex-col items-center justify-center rounded-xl ${opcaoBase} ${
+                        ativo ? opcaoAtiva : opcaoInativa
+                      }`}
+                    >
+                      <span className={`text-[10px] font-bold uppercase ${ativo ? "" : "text-osso/50"}`}>{p.semana}</span>
+                      <span className="font-impacto text-[26px] leading-tight">{p.dia}</span>
+                      <span className={`text-[10px] font-bold uppercase ${ativo ? "" : "text-osso/50"}`}>{p.mes}</span>
+                    </button>
+                  );
+                })}
+          </div>
+
+          <p className={`${rotulo} mt-4`}>
+            Horário <span className="font-medium normal-case tracking-normal text-osso/35">(Brasília)</span>
+          </p>
+          <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6" role="radiogroup" aria-label="Horário da reunião">
+            {HORARIOS.map((h) => {
+              const ativo = horario === h;
+              return (
+                <button
+                  key={h}
+                  type="button"
+                  role="radio"
+                  aria-checked={ativo}
+                  onClick={() => setHorario(h)}
+                  className={`rounded-lg py-2.5 text-sm font-bold ${opcaoBase} ${ativo ? opcaoAtiva : opcaoInativa}`}
+                >
+                  {h}
+                </button>
               );
             })}
           </div>
-        </fieldset>
-        <label className="mt-6 block">
-          <span className={rotulo}>
-            Qual concurso você quer prestar? <span className="normal-case tracking-normal text-tinta/40">(opcional)</span>
-          </span>
-          <input name="concurso" className={campo} placeholder="Ex.: Polícia Científica de PE, PC-SP, IGP-RS…" maxLength={120} />
-        </label>
-      </div>
 
-      <div className="mt-10">
-        <Etapa numero="03" titulo="Dia e horário da reunião" />
-        <p className={rotulo}>Escolha o dia</p>
-        <div
-          className="-mx-6 mt-3 flex snap-x scroll-px-6 gap-2 overflow-x-auto px-6 pb-2 sm:-mx-10 sm:scroll-px-10 sm:px-10 [scrollbar-width:thin]"
-          role="radiogroup"
-          aria-label="Dia da reunião"
-        >
-          {dias.length === 0
-            ? Array.from({ length: 7 }, (_, i) => (
-                <div key={i} className="h-[84px] w-[66px] shrink-0 animate-pulse bg-tinta/5" />
-              ))
-            : dias.map((d) => {
-                const p = partesDaData(d.iso);
-                const ativo = data === d.iso;
-                return (
-                  <button
-                    key={d.iso}
-                    type="button"
-                    role="radio"
-                    aria-checked={ativo}
-                    aria-label={dataPorExtenso(d.iso)}
-                    onClick={() => setData(d.iso)}
-                    className={`flex h-[84px] w-[66px] shrink-0 snap-start flex-col items-center justify-center border transition ${
-                      ativo
-                        ? "border-floresta bg-floresta text-osso"
-                        : "border-tinta/15 hover:border-tinta/40"
-                    }`}
-                  >
-                    <span className={`font-mono text-[10px] uppercase tracking-[0.14em] ${ativo ? "text-latao-claro" : "text-tinta/50"}`}>
-                      {p.semana}
-                    </span>
-                    <span className="font-serif text-[28px] leading-none">{p.dia}</span>
-                    <span className={`text-[11px] uppercase ${ativo ? "text-osso/70" : "text-tinta/50"}`}>{p.mes}</span>
-                  </button>
-                );
-              })}
+          <div className="mt-6 flex items-center justify-between gap-3">
+            <button type="button" onClick={() => setPasso(1)} className="px-2 py-3 text-sm font-bold text-osso/50 hover:text-osso">
+              ← Voltar
+            </button>
+            <button
+              type="button"
+              disabled={!data || !horario}
+              onClick={() => setPasso(3)}
+              className="rounded-full bg-ouro px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-ouro-claro disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              Continuar →
+            </button>
+          </div>
         </div>
-
-        <p className={`${rotulo} mt-6`}>Escolha o horário <span className="normal-case tracking-normal text-tinta/40">(horário de Brasília)</span></p>
-        <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6" role="radiogroup" aria-label="Horário da reunião">
-          {HORARIOS.map((h) => {
-            const ativo = horario === h;
-            return (
-              <button
-                key={h}
-                type="button"
-                role="radio"
-                aria-checked={ativo}
-                onClick={() => setHorario(h)}
-                className={`border py-2.5 font-mono text-sm transition ${
-                  ativo ? "border-floresta bg-floresta text-osso" : "border-tinta/15 hover:border-tinta/40"
-                }`}
-              >
-                {h}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {erro && (
-        <p role="alert" className="mt-8 border-l-2 border-red-700 bg-red-50 px-4 py-3 text-sm text-red-900">
-          {erro}
-        </p>
       )}
 
-      <button
-        type="submit"
-        disabled={enviando}
-        className="group mt-8 flex w-full items-center justify-between gap-4 bg-tinta px-6 py-5 text-left text-osso transition hover:bg-floresta disabled:cursor-wait disabled:opacity-70"
-      >
-        <span>
-          <span className="block text-lg font-medium">
-            {enviando ? "Enviando…" : "Agendar minha reunião"}
-          </span>
-          <span className="block text-sm text-osso/60">
-            {data && horario
-              ? `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`
-              : "Individual, pelo Google Meet"}
-          </span>
-        </span>
-        <span aria-hidden className="text-2xl transition group-hover:translate-x-1">→</span>
-      </button>
-      <p className="mt-4 text-center text-xs text-tinta/50">
-        Seus dados vão só para o Miguel, para ele confirmar a reunião com você.
-      </p>
-    </form>
+      {passo === 3 && (
+        <form onSubmit={enviar} className="relative animate-surgir">
+          {/* Armadilha para robô, fora da tela e fora do Tab. */}
+          <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+            <label>
+              Site <input name="site" tabIndex={-1} autoComplete="off" />
+            </label>
+          </div>
+
+          <h3 className="text-xl font-extrabold sm:text-2xl">Para o Miguel confirmar com você</h3>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="sm:col-span-2">
+              <span className={rotulo}>Nome completo</span>
+              <input name="nome" required minLength={3} autoComplete="name" className={campo} placeholder="Como você se chama" />
+            </label>
+            <label>
+              <span className={rotulo}>E-mail</span>
+              <input name="email" type="email" required autoComplete="email" className={campo} placeholder="voce@email.com" />
+            </label>
+            <label>
+              <span className={rotulo}>WhatsApp</span>
+              <input
+                name="telefone"
+                type="tel"
+                inputMode="tel"
+                required
+                autoComplete="tel-national"
+                value={telefone}
+                onChange={(e) => setTelefone(mascararTelefone(e.target.value))}
+                pattern="\(\d{2}\) \d{4,5}-\d{4}"
+                title="DDD + número"
+                className={campo}
+                placeholder="(81) 99999-9999"
+              />
+            </label>
+            <label className="sm:col-span-2">
+              <span className={rotulo}>
+                Concurso que vai prestar{" "}
+                <span className="font-medium normal-case tracking-normal text-osso/35">(opcional)</span>
+              </span>
+              <input name="concurso" className={campo} placeholder="Ex.: Polícia Científica de PE, PC-SP…" maxLength={120} />
+            </label>
+          </div>
+
+          {erro && (
+            <p role="alert" className="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {erro}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={enviando}
+            className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-ouro px-6 py-4 text-left text-preto transition hover:bg-ouro-claro disabled:cursor-wait disabled:opacity-70"
+          >
+            <span>
+              <span className="block text-base font-black uppercase">
+                {enviando ? "Agendando…" : "Agendar minha reunião"}
+              </span>
+              <span className="block text-sm font-semibold text-preto/65">
+                {dataPorExtenso(data)}, às {horarioCurto(horario)}
+              </span>
+            </span>
+            <span aria-hidden className="text-2xl transition group-hover:translate-x-1">→</span>
+          </button>
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-osso/40">
+            <button type="button" onClick={() => setPasso(2)} className="py-2 font-bold hover:text-osso">
+              ← Trocar horário
+            </button>
+            <span>Seus dados vão só para o Miguel.</span>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }

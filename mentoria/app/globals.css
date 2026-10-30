@@ -1,37 +1,41 @@
 @import "tailwindcss";
 
 /*
- * Paleta tirada do próprio material do Miguel: o verde-floresta e o papel
- * creme do e-book de epônimos, o latão do portfólio e o amarelo dos alertas
- * de "pegadinha de prova". Nada da identidade do Clube Forense.
+ * Preto como base, ouro como cor de ação e verde só onde o assunto é o grupo
+ * no WhatsApp. Tipografia pesada: Montserrat 800/900 nos títulos e Anton,
+ * da família do Impact, nos números e nas faixas.
  */
 @theme {
-  --color-tinta: #0b1210;
-  --color-tinta-2: #111b18;
-  --color-floresta: #15362e;
-  --color-floresta-2: #1d4a3f;
-  --color-osso: #f4f0e7;
-  --color-papel: #e9e3d5;
-  --color-linha: #d6cfbd;
-  --color-latao: #b48c4c;
-  --color-latao-claro: #d9bc85;
-  --color-alerta: #f3d77a;
+  --color-preto: #0a0a0a;
+  --color-carvao: #131313;
+  --color-grafite: #1c1c1c;
+  --color-ouro: #e7ac3c;
+  --color-ouro-claro: #f6cb6b;
+  --color-osso: #f3f1ec;
+  --color-verde: #22b46e;
+  --color-verde-escuro: #0b2a1d;
   --color-cinza-foto: #e0e0e1;
 
-  --font-serif: var(--fonte-serif), Georgia, serif;
   --font-sans: var(--fonte-sans), system-ui, sans-serif;
-  --font-mono: var(--fonte-mono), ui-monospace, monospace;
+  --font-impacto: var(--fonte-impacto), Impact, "Arial Narrow", sans-serif;
 
-  --animate-surgir: surgir 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-surgir: surgir 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-faixa: faixa 40s linear infinite;
 
   @keyframes surgir {
     from {
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(16px);
     }
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+
+  @keyframes faixa {
+    to {
+      transform: translateX(-50%);
     }
   }
 }
@@ -42,44 +46,36 @@ html {
 }
 
 body {
-  background: var(--color-osso);
-  color: var(--color-tinta);
+  background: var(--color-preto);
+  color: var(--color-osso);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--color-alerta);
-  color: var(--color-tinta);
+  background: var(--color-ouro);
+  color: var(--color-preto);
 }
 
-/* Âncoras não ficam escondidas atrás do cabeçalho fixo. */
 section[id] {
-  scroll-margin-top: 4.5rem;
+  scroll-margin-top: 5rem;
 }
 
-/*
- * Régua milimetrada, a escala que vai ao lado de toda lesão fotografada num
- * laudo. Serve de divisória entre as seções.
- */
-.regua {
-  height: 14px;
-  background-image:
-    repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px 50px),
-    repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px 10px);
-  background-size:
-    100% 14px,
-    100% 7px;
-  background-repeat: no-repeat;
-  background-position:
-    0 0,
-    0 0;
-  opacity: 0.35;
+/* Brilho dourado atrás de blocos escuros. */
+.brilho-ouro {
+  background-image: radial-gradient(
+    60% 60% at 50% 0%,
+    rgb(231 172 60 / 0.16),
+    transparent 70%
+  );
 }
 
-.grao {
-  background-image: radial-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px);
-  background-size: 3px 3px;
+.brilho-verde {
+  background-image: radial-gradient(
+    55% 55% at 50% 40%,
+    rgb(34 180 110 / 0.18),
+    transparent 70%
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
