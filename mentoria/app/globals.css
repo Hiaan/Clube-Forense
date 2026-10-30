@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/*
+ * Paleta tirada do próprio material do Miguel: o verde-floresta e o papel
+ * creme do e-book de epônimos, o latão do portfólio e o amarelo dos alertas
+ * de "pegadinha de prova". Nada da identidade do Clube Forense.
+ */
+@theme {
+  --color-tinta: #0b1210;
+  --color-tinta-2: #111b18;
+  --color-floresta: #15362e;
+  --color-floresta-2: #1d4a3f;
+  --color-osso: #f4f0e7;
+  --color-papel: #e9e3d5;
+  --color-linha: #d6cfbd;
+  --color-latao: #b48c4c;
+  --color-latao-claro: #d9bc85;
+  --color-alerta: #f3d77a;
+  --color-cinza-foto: #e0e0e1;
+
+  --font-serif: var(--fonte-serif), Georgia, serif;
+  --font-sans: var(--fonte-sans), system-ui, sans-serif;
+  --font-mono: var(--fonte-mono), ui-monospace, monospace;
+
+  --animate-surgir: surgir 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes surgir {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-osso);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-alerta);
+  color: var(--color-tinta);
+}
+
+/* Âncoras não ficam escondidas atrás do cabeçalho fixo. */
+section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+/*
+ * Régua milimetrada, a escala que vai ao lado de toda lesão fotografada num
+ * laudo. Serve de divisória entre as seções.
+ */
+.regua {
+  height: 14px;
+  background-image:
+    repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px 50px),
+    repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px 10px);
+  background-size:
+    100% 14px,
+    100% 7px;
+  background-repeat: no-repeat;
+  background-position:
+    0 0,
+    0 0;
+  opacity: 0.35;
+}
+
+.grao {
+  background-image: radial-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

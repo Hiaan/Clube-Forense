@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // O site da mentoria é outro projeto, com dependências e lint próprios.
+    "mentoria/**",
   ]),
 ]);
 
