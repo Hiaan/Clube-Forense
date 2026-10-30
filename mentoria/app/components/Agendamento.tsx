@@ -115,6 +115,9 @@ export default function Agendamento() {
         primeiroNome: nome.trim().split(" ")[0],
         resumo: `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`,
       });
+      // A confirmação é mais curta que o formulário: sem isto, no celular a
+      // pessoa fica olhando para o que vem depois sem ver que deu certo.
+      document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
     } catch {
       setEstado({ fase: "editando", erro: "Sem conexão. Confira sua internet e tente de novo." });
     }
@@ -358,7 +361,7 @@ export default function Agendamento() {
           >
             <span>
               <span className="block text-base font-black uppercase">
-                {enviando ? "Agendando…" : "Agendar minha reunião"}
+                {enviando ? "Agendando…" : "Confirmar reunião gratuita"}
               </span>
               <span className="block text-sm font-semibold text-preto/65">
                 {dataPorExtenso(data)}, às {horarioCurto(horario)}

@@ -2,6 +2,7 @@ import Image, { type StaticImageData } from "next/image";
 
 import Agendamento from "./components/Agendamento";
 import BarraFixa from "./components/BarraFixa";
+import PassoAPasso from "./components/PassoAPasso";
 import Perguntas from "./components/Perguntas";
 import { LINK_GRUPO_CASOS } from "../lib/site";
 
@@ -33,7 +34,7 @@ function Pilula({ children, cor = "ouro" }: { children: React.ReactNode; cor?: "
   );
 }
 
-function BotaoAgendar({ className = "", texto = "Agendar minha reunião" }: { className?: string; texto?: string }) {
+function BotaoAgendar({ className = "", texto = "Agendar reunião gratuita" }: { className?: string; texto?: string }) {
   return (
     <a
       href="#agendar"
@@ -74,36 +75,43 @@ const CREDENCIAIS = [
 const PASSOS = [
   {
     titulo: "Reunião de diagnóstico",
+    icone: <><path d="M9 4h6v3H9z" /><path d="M9 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3" /><path d="m9 14 2 2 4-4" /></>,
     texto:
       "Tudo começa com uma conversa individual: seu momento, sua prova-alvo, sua rotina e o que você já estudou. Não existe recomeçar do zero — existe ajustar a rota a partir de onde você está.",
   },
   {
     titulo: "Planejamento dos seus horários",
+    icone: <><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 14v3l2 1" /></>,
     texto:
       "O Miguel estrutura a sua semana de estudo em cima da vida real: plantões, família, cansaço. E reestrutura periodicamente, conforme o seu desempenho.",
   },
   {
     titulo: "Encontros individuais toda semana",
+    icone: <><rect x="2" y="6" width="14" height="12" rx="2" /><path d="m16 10 6-3v10l-6-3" /></>,
     texto:
       "Uma hora ao vivo, só vocês dois, pelo Google Meet. Acompanhamento do que foi estudado, direcionamento do que vem a seguir e alinhamento da rota até o dia da prova.",
   },
   {
     titulo: "Aulas individuais e estratégia avançada",
+    icone: <><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3Z" /></>,
     texto:
       "O conteúdo explicado exatamente onde você travou, com técnicas de retenção pensadas para a Medicina Legal: epônimos, classificações, sinais e as pegadinhas que as bancas repetem.",
   },
   {
     titulo: "Questões com leitura de banca",
+    icone: <><path d="m3 6 2 2 3-3M3 13l2 2 3-3M3 20l2 2 3-3" transform="translate(0 -2)" /><path d="M11 6h10M11 13h10M11 20h10" transform="translate(0 -2)" /></>,
     texto:
       "Resolução contínua de questões em cada encontro. CESPE segue o França, FGV pode seguir o Hygino — a mesma pergunta muda de gabarito conforme a banca, e você aprende a reconhecer isso.",
   },
   {
     titulo: "Casos clínicos e aprofundamento forense",
+    icone: <><path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1" /><path d="M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" /><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" /></>,
     texto:
       "Casos reais discutidos com o raciocínio de quem assina laudos. É onde a teoria vira reconhecimento rápido na hora da prova.",
   },
   {
     titulo: "WhatsApp direto com o mentor",
+    icone: <><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /><path d="M8 12h.01M12 12h.01M16 12h.01" /></>,
     texto:
       "Entre um encontro e outro, a dúvida não espera: vai direto para o WhatsApp privado do Miguel, durante toda a mentoria.",
   },
@@ -132,7 +140,7 @@ export default function Pagina() {
             href="#agendar"
             className="hidden rounded-full border border-ouro/50 px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-ouro transition hover:bg-ouro hover:text-preto sm:inline-block"
           >
-            Agendar reunião
+            Reunião gratuita
           </a>
         </div>
       </header>
@@ -140,7 +148,9 @@ export default function Pagina() {
       <main>
         {/* ───────── Capa ───────── */}
         <section className="brilho-ouro relative overflow-hidden pt-16">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:pb-24 lg:pt-20">
+          <div aria-hidden className="textura-capa pointer-events-none absolute inset-0" />
+          <div aria-hidden className="grao pointer-events-none absolute inset-0" />
+          <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:pb-24 lg:pt-20">
             <div className="min-w-0">
               <div className="animate-surgir">
                 <Pilula>Mentoria individual · vagas limitadas</Pilula>
@@ -157,15 +167,26 @@ export default function Pagina() {
                 vai acompanhar só você. Toda semana, ao vivo, até o dia da prova.
               </p>
 
-              <div id="agendar" className="mt-8 animate-surgir [animation-delay:240ms]">
-                <Agendamento />
+              <div id="topo" className="mt-9 flex animate-surgir flex-col gap-4 [animation-delay:240ms] sm:flex-row sm:items-center">
+                <BotaoAgendar />
+                <a href="#como-funciona" className="px-2 py-2 text-center text-sm font-bold uppercase tracking-wide text-osso/60 transition hover:text-osso">
+                  Como funciona ↓
+                </a>
               </div>
+              <ul className="mt-8 flex animate-surgir flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-osso/55 [animation-delay:320ms]">
+                {["Reunião gratuita e individual", "Pelo Google Meet", "Plano de estudo personalizado"].map((t) => (
+                  <li key={t} className="flex items-center gap-2">
+                    <span className="grid size-4 place-items-center rounded-full bg-ouro text-[9px] font-black text-preto">✓</span>
+                    {t}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Retrato */}
             <div className="relative mx-auto w-full max-w-md lg:max-w-none">
               <div className="absolute -inset-6 rounded-[3rem] bg-ouro/20 blur-3xl" aria-hidden />
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cinza-foto lg:aspect-auto lg:h-full lg:min-h-[640px]">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cinza-foto lg:aspect-[4/5]">
                 <Image
                   src={fotoBracos}
                   alt="Dr. Miguel Souza, médico legista, de braços cruzados e sorrindo"
@@ -249,8 +270,9 @@ export default function Pagina() {
         </section>
 
         {/* ───────── Passo a passo ───────── */}
-        <section id="como-funciona" className="brilho-ouro px-4 py-24 sm:px-8 sm:py-32">
-          <div className="mx-auto max-w-5xl">
+        <section id="como-funciona" className="brilho-ouro relative overflow-hidden px-4 py-24 sm:px-8 sm:py-32">
+          <div aria-hidden className="textura-capa pointer-events-none absolute inset-0 opacity-60" />
+          <div className="relative mx-auto max-w-6xl">
             <div className="text-center">
               <Pilula>Por dentro da mentoria</Pilula>
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
@@ -260,22 +282,7 @@ export default function Pagina() {
               </h2>
             </div>
 
-            <ol className="mt-16 space-y-4">
-              {PASSOS.map((p, i) => (
-                <li
-                  key={p.titulo}
-                  className="group grid grid-cols-[auto_1fr] gap-5 rounded-3xl border border-white/10 bg-carvao p-6 transition hover:border-ouro/40 sm:gap-8 sm:p-8"
-                >
-                  <span className="w-12 font-impacto text-5xl leading-none text-ouro/90 sm:w-20 sm:text-7xl">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h3 className="text-xl font-black uppercase leading-tight sm:text-2xl">{p.titulo}</h3>
-                    <p className="mt-2 leading-relaxed text-osso/65 sm:text-lg">{p.texto}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+            <PassoAPasso passos={PASSOS} />
 
             <div className="mt-14 text-center">
               <p className="text-xl font-extrabold uppercase sm:text-2xl">
@@ -438,19 +445,37 @@ export default function Pagina() {
           </div>
         </section>
 
-        {/* ───────── Chamada final ───────── */}
-        <section className="bg-ouro px-4 py-20 text-preto sm:px-8 sm:py-24">
-          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
-            <h2 className="max-w-3xl text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
-              Sua aprovação precisa de um plano. E de alguém conferindo.
-            </h2>
-            <a
-              href="#agendar"
-              className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-preto px-8 py-5 text-sm font-black uppercase tracking-wide text-ouro transition hover:bg-grafite"
-            >
-              Agendar minha reunião
-              <span aria-hidden className="transition group-hover:translate-x-1">→</span>
-            </a>
+        {/* ───────── Agendamento ───────── */}
+        <section id="agendar" className="brilho-ouro relative overflow-clip border-t border-ouro/20 px-4 py-24 sm:px-8 sm:py-32">
+          <div aria-hidden className="textura-capa pointer-events-none absolute inset-0 opacity-70" />
+          <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+            <div className="lg:sticky lg:top-28">
+              <Pilula>Reunião gratuita</Pilula>
+              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+                Agende sua reunião
+                <span className="block text-ouro">com o Miguel.</span>
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-osso/70">
+                Uma conversa individual, pelo Google Meet, para o Miguel entender exatamente onde você está — e
+                desenhar um plano de estudo personalizado até a sua aprovação.
+              </p>
+              <ul className="mt-8 space-y-4">
+                {[
+                  ["Seu ponto de partida", "O que você já estudou, onde trava e quanto tempo sobra na rotina."],
+                  ["Sua prova-alvo", "Banca, edital e referências que vão pesar na sua aprovação."],
+                  ["Seu plano", "Como a mentoria se encaixa no seu caso — e todos os detalhes para começar."],
+                ].map(([t, d], i) => (
+                  <li key={t} className="flex gap-4">
+                    <span className="w-9 shrink-0 font-impacto text-3xl leading-none text-ouro">{String(i + 1).padStart(2, "0")}</span>
+                    <span>
+                      <span className="block font-black uppercase">{t}</span>
+                      <span className="block text-osso/60">{d}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Agendamento />
           </div>
         </section>
 
