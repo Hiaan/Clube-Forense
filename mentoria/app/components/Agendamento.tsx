@@ -63,6 +63,21 @@ const SITUACOES = [
 
 const PASSOS = ["Momento", "Agenda", "Dados"];
 
+/** Estados com concurso em vista, mostrados primeiro. */
+const ESTADOS_DESTAQUE = ["Distrito Federal", "Tocantins", "Maranhão", "Pernambuco"];
+
+const OUTROS_ESTADOS = [
+  "Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará", "Espírito Santo", "Goiás",
+  "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará", "Paraíba", "Paraná", "Piauí",
+  "Rio de Janeiro", "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia", "Roraima",
+  "Santa Catarina", "São Paulo", "Sergipe",
+];
+
+const AINDA_NAO_SEI = "Ainda não sei";
+
+/** As três perguntas do primeiro passo, uma de cada vez. */
+type Pergunta = "situacao" | "estuda" | "concurso";
+
 const rotulo = "block text-xs font-bold uppercase tracking-[0.14em] text-osso/55";
 const campo =
   "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-base text-osso outline-none transition placeholder:text-osso/30 focus:border-ouro focus:bg-white/[0.07]";
@@ -75,7 +90,26 @@ export default function Agendamento() {
   const dias = useMemo(() => (hoje ? diasDisponiveis(hoje) : []), [hoje]);
 
   const [passo, setPasso] = useState<Passo>(1);
+  const [pergunta, setPergunta] = useState<Pergunta>("situacao");
   const [situacao, setSituacao] = useState("");
+  const [estuda, setEstuda] = useState("");
+  const [concursos, setConcursos] = useState<string[]>([]);
+  const [outro, setOutro] = useState("");
+  const [abrirOutro, setAbrirOutro] = useState(false);
+  const [todosEstados, setTodosEstados] = useState(false);
+
+  const concurso = [...concursos, abrirOutro && outro.trim() ? `Outro: ${outro.trim()}` : ""]
+    .filter(Boolean)
+    .join(", ");
+
+  function alternarConcurso(nome: string) {
+    setConcursos((atual) => {
+      if (nome === AINDA_NAO_SEI) return atual.includes(nome) ? [] : [nome];
+      const semDuvida = atual.filter((c) => c !== AINDA_NAO_SEI);
+      return semDuvida.includes(nome) ? semDuvida.filter((c) => c !== nome) : [...semDuvida, nome];
+    });
+    if (nome === AINDA_NAO_SEI) setAbrirOutro(false);
+  }
   const [data, setData] = useState("");
   const [horario, setHorario] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -96,7 +130,8 @@ export default function Agendamento() {
           email: form.get("email"),
           telefone,
           situacao,
-          concurso: form.get("concurso"),
+          estuda,
+          concurso: estuda === "sim" ? concurso : "",
           data,
           horario,
           site: form.get("site"),
@@ -134,13 +169,13 @@ export default function Agendamento() {
           Tudo certo, {estado.primeiroNome}.
         </h3>
         <p className="mt-4 leading-relaxed text-osso/75">
-          Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. O Miguel já foi
-          avisado e vai falar com você pelo WhatsApp para confirmar e enviar o link do Google Meet.
+          Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. Já recebi seu
+          agendamento e vou falar com você pelo WhatsApp para confirmar e enviar o link do Google Meet.
         </p>
         <div className="mt-6 rounded-2xl border border-verde/30 bg-verde/10 p-5">
           <p className="font-extrabold uppercase">Enquanto isso: Dose Diária</p>
           <p className="mt-1 text-sm text-osso/70">
-            O grupo onde o Miguel discute um caso forense por dia.
+            O grupo onde eu discuto um caso forense por dia.
           </p>
           {LINK_GRUPO_CASOS ? (
             <a
@@ -197,7 +232,7 @@ export default function Agendamento() {
         })}
       </ol>
 
-      {passo === 1 && (
+      {passo === 1 && pergunta === "situacao" && (
         <div className="animate-surgir">
           <h3 className="text-xl font-extrabold sm:text-2xl">Você já é médico(a)?</h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -207,7 +242,7 @@ export default function Agendamento() {
                 type="button"
                 onClick={() => {
                   setSituacao(op.valor);
-                  setPasso(2);
+                  setPergunta("estuda");
                 }}
                 className={`group flex items-center gap-4 rounded-2xl p-4 text-left ${opcaoBase} ${
                   situacao === op.valor ? "border-ouro bg-ouro/10" : opcaoInativa
@@ -227,6 +262,119 @@ export default function Agendamento() {
                 </span>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {passo === 1 && pergunta === "estuda" && (
+        <div className="animate-surgir">
+          <h3 className="text-xl font-extrabold sm:text-2xl">Você já estuda para se tornar legista?</h3>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {[
+              { valor: "sim", titulo: "Sim", sub: "Já estou estudando" },
+              { valor: "nao", titulo: "Ainda não", sub: "Quero começar" },
+            ].map((op) => (
+              <button
+                key={op.valor}
+                type="button"
+                onClick={() => {
+                  setEstuda(op.valor);
+                  if (op.valor === "sim") setPergunta("concurso");
+                  else setPasso(2);
+                }}
+                className={`rounded-2xl p-4 text-left ${opcaoBase} ${
+                  estuda === op.valor ? "border-ouro bg-ouro/10" : opcaoInativa
+                }`}
+              >
+                <span className="block text-lg font-black uppercase">{op.titulo}</span>
+                <span className="block text-sm text-osso/55">{op.sub}</span>
+              </button>
+            ))}
+          </div>
+          <button type="button" onClick={() => setPergunta("situacao")} className="mt-5 py-2 text-sm font-bold text-osso/50 hover:text-osso">
+            ← Voltar
+          </button>
+        </div>
+      )}
+
+      {passo === 1 && pergunta === "concurso" && (
+        <div className="animate-surgir">
+          <h3 className="text-xl font-extrabold sm:text-2xl">Em qual concurso você tem interesse?</h3>
+          <p className="mt-1 text-sm text-osso/50">Pode marcar mais de um.</p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[...ESTADOS_DESTAQUE, ...(todosEstados ? OUTROS_ESTADOS : [])].map((nome) => {
+              const ativo = concursos.includes(nome);
+              return (
+                <button
+                  key={nome}
+                  type="button"
+                  aria-pressed={ativo}
+                  onClick={() => alternarConcurso(nome)}
+                  className={`rounded-full px-4 py-2 text-sm font-bold ${opcaoBase} ${ativo ? opcaoAtiva : opcaoInativa}`}
+                >
+                  {nome}
+                </button>
+              );
+            })}
+            {!todosEstados && (
+              <button
+                type="button"
+                onClick={() => setTodosEstados(true)}
+                className="rounded-full border border-dashed border-white/25 px-4 py-2 text-sm font-bold text-osso/70 transition hover:border-ouro hover:text-ouro"
+              >
+                + Outros estados
+              </button>
+            )}
+            <button
+              type="button"
+              aria-pressed={abrirOutro}
+              onClick={() => {
+                setAbrirOutro((v) => !v);
+                setConcursos((atual) => atual.filter((c) => c !== AINDA_NAO_SEI));
+              }}
+              className={`rounded-full px-4 py-2 text-sm font-bold ${opcaoBase} ${abrirOutro ? opcaoAtiva : opcaoInativa}`}
+            >
+              Outro
+            </button>
+            <button
+              type="button"
+              aria-pressed={concursos.includes(AINDA_NAO_SEI)}
+              onClick={() => alternarConcurso(AINDA_NAO_SEI)}
+              className={`rounded-full px-4 py-2 text-sm font-bold ${opcaoBase} ${
+                concursos.includes(AINDA_NAO_SEI) ? opcaoAtiva : opcaoInativa
+              }`}
+            >
+              {AINDA_NAO_SEI}
+            </button>
+          </div>
+
+          {abrirOutro && (
+            <label className="mt-4 block animate-surgir">
+              <span className={rotulo}>Qual?</span>
+              <input
+                value={outro}
+                onChange={(e) => setOutro(e.target.value)}
+                autoFocus
+                maxLength={120}
+                className={campo}
+                placeholder="Ex.: Polícia Federal, IGP-RS…"
+              />
+            </label>
+          )}
+
+          <div className="mt-6 flex items-center justify-between gap-3">
+            <button type="button" onClick={() => setPergunta("estuda")} className="px-2 py-3 text-sm font-bold text-osso/50 hover:text-osso">
+              ← Voltar
+            </button>
+            <button
+              type="button"
+              disabled={!concurso}
+              onClick={() => setPasso(2)}
+              className="rounded-full bg-ouro px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-ouro-claro disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              Continuar →
+            </button>
           </div>
         </div>
       )}
@@ -313,7 +461,7 @@ export default function Agendamento() {
             </label>
           </div>
 
-          <h3 className="text-xl font-extrabold sm:text-2xl">Para o Miguel confirmar com você</h3>
+          <h3 className="text-xl font-extrabold sm:text-2xl">Para eu confirmar com você</h3>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="sm:col-span-2">
               <span className={rotulo}>Nome completo</span>
@@ -338,13 +486,6 @@ export default function Agendamento() {
                 className={campo}
                 placeholder="(81) 99999-9999"
               />
-            </label>
-            <label className="sm:col-span-2">
-              <span className={rotulo}>
-                Concurso que vai prestar{" "}
-                <span className="font-medium normal-case tracking-normal text-osso/35">(opcional)</span>
-              </span>
-              <input name="concurso" className={campo} placeholder="Ex.: Polícia Científica de PE, PC-SP…" maxLength={120} />
             </label>
           </div>
 
@@ -373,7 +514,7 @@ export default function Agendamento() {
             <button type="button" onClick={() => setPasso(2)} className="py-2 font-bold hover:text-osso">
               ← Trocar horário
             </button>
-            <span>Seus dados vão só para o Miguel.</span>
+            <span>Seus dados ficam só comigo.</span>
           </div>
         </form>
       )}

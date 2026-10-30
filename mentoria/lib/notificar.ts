@@ -21,6 +21,7 @@ export interface Agendamento {
   email: string;
   telefone: string;
   situacao: string;
+  estuda: string;
   concurso: string;
   data: string;
   horario: string;
@@ -98,7 +99,8 @@ export function montarMensagem(a: Agendamento): string {
     "",
     `Nome: ${a.nome}`,
     `Situação: ${a.situacao}`,
-    `Concurso: ${a.concurso || "não informou"}`,
+    `Já estuda para legista: ${a.estuda}`,
+    ...(a.concurso ? [`Concurso de interesse: ${a.concurso}`] : []),
     `E-mail: ${a.email}`,
     `WhatsApp: https://wa.me/${telefone}`,
   ].join("\n");

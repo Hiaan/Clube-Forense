@@ -15,11 +15,18 @@ const SITUACOES: Record<string, string> = {
   formando: "Ainda está se formando",
 };
 
+const ESTUDA: Record<string, string> = {
+  sim: "Sim",
+  nao: "Ainda não",
+};
+
 interface Corpo {
   nome?: string;
   email?: string;
   telefone?: string;
   situacao?: string;
+  /** Se já estuda para se tornar legista: "sim" ou "nao". */
+  estuda?: string;
   concurso?: string;
   data?: string;
   horario?: string;
@@ -46,7 +53,8 @@ export async function POST(request: Request) {
   const email = (corpo.email ?? "").trim().toLowerCase().slice(0, 160);
   const telefone = (corpo.telefone ?? "").replace(/\D/g, "");
   const situacao = SITUACOES[corpo.situacao ?? ""];
-  const concurso = (corpo.concurso ?? "").trim().slice(0, 120);
+  const estuda = ESTUDA[corpo.estuda ?? ""];
+  const concurso = (corpo.concurso ?? "").trim().slice(0, 400);
   const data = corpo.data ?? "";
   const horario = corpo.horario ?? "";
 
@@ -56,6 +64,8 @@ export async function POST(request: Request) {
     return erro("Confira o telefone: DDD + número.");
   }
   if (!situacao) return erro("Conte se você já é médico(a) ou se está se formando.");
+  if (!estuda) return erro("Conte se você já estuda para se tornar legista.");
+  if (corpo.estuda === "sim" && !concurso) return erro("Escolha o concurso que te interessa.");
   if (!dataValida(data)) return erro("Escolha um dia a partir de amanhã.");
   if (!horarioValido(horario)) return erro("Escolha um horário.");
 
@@ -64,6 +74,7 @@ export async function POST(request: Request) {
     email,
     telefone,
     situacao,
+    estuda,
     concurso,
     data,
     horario,

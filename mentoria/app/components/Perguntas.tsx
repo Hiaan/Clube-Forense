@@ -3,11 +3,11 @@
 const PERGUNTAS = [
   {
     p: "Como é a reunião?",
-    r: "Uma conversa individual com o Miguel pelo Google Meet. Ele quer entender em que ponto você está, qual prova tem em vista e quanto tempo sobra na sua rotina — e, a partir disso, mostrar como a mentoria se encaixaria na sua preparação.",
+    r: "Uma conversa individual comigo, pelo Google Meet. Quero entender em que ponto você está, qual prova tem em vista e quanto tempo sobra na sua rotina — e, a partir disso, montar com você um plano de estudo personalizado e mostrar como a mentoria se encaixa na sua preparação.",
   },
   {
     p: "Preciso já ser médico(a)?",
-    r: "Não. A mentoria atende quem já é formado e quer ser médico legista, e também quem ainda está na graduação e quer chegar ao concurso com a base pronta. É por isso que perguntamos no formulário: o plano muda conforme o seu momento.",
+    r: "Não. A mentoria atende quem já é formado e quer ser médico legista, e também quem ainda está na graduação e quer chegar ao concurso com a base pronta. É por isso que eu pergunto no formulário: o plano muda conforme o seu momento.",
   },
   {
     p: "Serve para qualquer concurso de médico legista?",
@@ -15,15 +15,15 @@ const PERGUNTAS = [
   },
   {
     p: "Como funcionam os encontros?",
-    r: "Encontros individuais de uma hora, ao vivo pelo Google Meet, com horário combinado diretamente com o Miguel. O primeiro acontece em até 7 dias depois da sua entrada.",
+    r: "Encontros individuais de uma hora, ao vivo pelo Google Meet, com horário combinado diretamente comigo. O primeiro acontece em até 7 dias depois da sua entrada.",
   },
   {
     p: "E entre um encontro e outro?",
-    r: "Você fala direto com o Miguel pelo WhatsApp privado dele. Dúvida de conteúdo, de questão, de cronograma — sem fila de fórum e sem intermediário.",
+    r: "Você fala direto comigo, no meu WhatsApp privado. Dúvida de conteúdo, de questão, de cronograma — sem fila de fórum e sem intermediário.",
   },
   {
     p: "Por que as vagas são limitadas?",
-    r: "Porque o acompanhamento é feito pessoalmente pelo Miguel, um aluno de cada vez. A agenda dele é o limite, e ele prefere atender menos gente a dividir a atenção.",
+    r: "Porque eu faço o acompanhamento pessoalmente, um aluno de cada vez. A minha agenda é o limite, e prefiro atender menos gente a dividir a atenção.",
   },
 ];
 

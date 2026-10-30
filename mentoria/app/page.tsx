@@ -62,7 +62,7 @@ const FAIXA = [
   "Resolução contínua de questões",
   "Planejamento de horários",
   "Estratégias avançadas de estudo",
-  "WhatsApp direto com o mentor",
+  "WhatsApp direto comigo",
 ];
 
 const CREDENCIAIS = [
@@ -83,37 +83,37 @@ const PASSOS = [
     titulo: "Planejamento dos seus horários",
     icone: <><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 14v3l2 1" /></>,
     texto:
-      "O Miguel estrutura a sua semana de estudo em cima da vida real: plantões, família, cansaço. E reestrutura periodicamente, conforme o seu desempenho.",
+      "Eu estruturo a sua semana de estudo em cima da vida real: plantões, família, cansaço. E reestruturo periodicamente, conforme o seu desempenho.",
   },
   {
     titulo: "Encontros individuais toda semana",
     icone: <><rect x="2" y="6" width="14" height="12" rx="2" /><path d="m16 10 6-3v10l-6-3" /></>,
     texto:
-      "Uma hora ao vivo, só vocês dois, pelo Google Meet. Acompanhamento do que foi estudado, direcionamento do que vem a seguir e alinhamento da rota até o dia da prova.",
+      "Uma hora ao vivo, só nós dois, pelo Google Meet. Acompanho o que você estudou, direciono o que vem a seguir e alinho a rota até o dia da prova.",
   },
   {
     titulo: "Aulas individuais e estratégia avançada",
     icone: <><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3Z" /></>,
     texto:
-      "O conteúdo explicado exatamente onde você travou, com técnicas de retenção pensadas para a Medicina Legal: epônimos, classificações, sinais e as pegadinhas que as bancas repetem.",
+      "Explico o conteúdo exatamente onde você travou, com técnicas de retenção pensadas para a Medicina Legal: epônimos, classificações, sinais e as pegadinhas que as bancas repetem.",
   },
   {
     titulo: "Questões com leitura de banca",
     icone: <><path d="m3 6 2 2 3-3M3 13l2 2 3-3M3 20l2 2 3-3" transform="translate(0 -2)" /><path d="M11 6h10M11 13h10M11 20h10" transform="translate(0 -2)" /></>,
     texto:
-      "Resolução contínua de questões em cada encontro. CESPE segue o França, FGV pode seguir o Hygino — a mesma pergunta muda de gabarito conforme a banca, e você aprende a reconhecer isso.",
+      "Resolvemos questões juntos em cada encontro. CESPE segue o França, FGV pode seguir o Hygino — a mesma pergunta muda de gabarito conforme a banca, e eu te ensino a reconhecer isso.",
   },
   {
     titulo: "Casos clínicos e aprofundamento forense",
     icone: <><path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1" /><path d="M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" /><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" /></>,
     texto:
-      "Casos reais discutidos com o raciocínio de quem assina laudos. É onde a teoria vira reconhecimento rápido na hora da prova.",
+      "Discutimos casos reais com o raciocínio que eu uso para assinar laudos. É onde a teoria vira reconhecimento rápido na hora da prova.",
   },
   {
-    titulo: "WhatsApp direto com o mentor",
+    titulo: "WhatsApp direto comigo",
     icone: <><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /><path d="M8 12h.01M12 12h.01M16 12h.01" /></>,
     texto:
-      "Entre um encontro e outro, a dúvida não espera: vai direto para o WhatsApp privado do Miguel, durante toda a mentoria.",
+      "Entre um encontro e outro, a dúvida não espera: você fala direto comigo, no meu WhatsApp privado, durante toda a mentoria.",
   },
 ];
 
@@ -163,8 +163,8 @@ export default function Pagina() {
                 <span className="text-ouro">em Medicina Legal</span>
               </h1>
               <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms]">
-                O professor que já aprovou <strong className="font-extrabold text-osso">mais de 240 médicos legistas</strong>{" "}
-                vai acompanhar só você. Toda semana, ao vivo, até o dia da prova.
+                Já são <strong className="font-extrabold text-osso">mais de 240 alunos aprovados</strong>. Agora, pela
+                primeira vez, vou acompanhar só você — toda semana, ao vivo, até o dia da prova.
               </p>
 
               <div id="topo" className="mt-9 flex animate-surgir flex-col gap-4 [animation-delay:240ms] sm:flex-row sm:items-center">
@@ -243,7 +243,7 @@ export default function Pagina() {
             </div>
 
             <div className="order-1 lg:order-2">
-              <Pilula cor="preto">Quem vai te acompanhar</Pilula>
+              <Pilula cor="preto">Quem vai te acompanhar · Dr. Miguel Souza</Pilula>
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Não é mais um curso gravado.
                 <span className="mt-3 block">
@@ -253,9 +253,9 @@ export default function Pagina() {
                 </span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
-                O Dr. Miguel Souza é perito oficial médico legista, mestre e doutorando em Perícias Forenses e
-                instrutor da Academia de Polícia. Depois de anos preparando turmas inteiras para o concurso, pela
-                primeira vez ele abre acompanhamento individual — sem dividir a atenção com mais ninguém.
+                Sou perito oficial médico legista, mestre e doutorando em Perícias Forenses e instrutor da
+                Academia de Polícia. Depois de anos preparando turmas inteiras para o concurso, pela primeira vez
+                abro acompanhamento individual — sem dividir a atenção com mais ninguém.
               </p>
               <dl className="mt-10 grid grid-cols-2 gap-3">
                 {CREDENCIAIS.map(([titulo, sub]) => (
@@ -286,7 +286,7 @@ export default function Pagina() {
 
             <div className="mt-14 text-center">
               <p className="text-xl font-extrabold uppercase sm:text-2xl">
-                Do diagnóstico à prova, <span className="text-ouro">com um legista conferindo cada semana.</span>
+                Do diagnóstico à prova, <span className="text-ouro">comigo conferindo cada semana.</span>
               </p>
               <BotaoAgendar className="mt-8" />
             </div>
@@ -309,8 +309,8 @@ export default function Pagina() {
               </div>
               <div>
                 <p className="text-lg leading-relaxed text-osso/75">
-                  No <strong className="text-osso">MedLegal Dose Diária</strong>, o Miguel posta um caso real, provoca a
-                  discussão e fecha com o que a banca cobra — e em qual referência está. Médicos do Brasil inteiro
+                  No <strong className="text-osso">MedLegal Dose Diária</strong>, eu posto um caso real, provoco a
+                  discussão e fecho com o que a banca cobra — e em qual referência está. Médicos do Brasil inteiro
                   treinando o olho pericial, todos os dias.
                 </p>
                 <div className="mt-8">
@@ -372,7 +372,7 @@ export default function Pagina() {
                 <span className="bg-ouro px-2 leading-[1.15] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">tem padrão de laudo.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
-                Além dos encontros ao vivo, o Miguel escreve o próprio material. O compêndio{" "}
+                Além dos encontros ao vivo, eu escrevo o meu próprio material. O compêndio{" "}
                 <strong className="text-preto">Epônimos em Traumatologia Forense</strong> organiza sinais, leis e
                 síndromes por energia causadora e lesão elementar — do jeito que a banca cobra.
               </p>
@@ -433,13 +433,13 @@ export default function Pagina() {
                 <Pilula>Academia de Polícia</Pilula>
               </div>
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
-                Ele forma os legistas depois da aprovação.
-                <span className="mt-2 block text-ouro">Agora prepara você antes dela.</span>
+                Eu formo os legistas depois da aprovação.
+                <span className="mt-2 block text-ouro">Agora preparo você antes dela.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
-                O Miguel é instrutor titular do Curso de Formação de Médico Legista da Academia de Polícia de
-                Pernambuco, nas turmas de 2021 e 2026 — a etapa em que os aprovados aprendem o ofício antes de assumir
-                o cargo. Ele sabe o que a perícia exige no dia a dia. Por isso sabe o que a banca vai cobrar.
+                Sou instrutor titular do Curso de Formação de Médico Legista da Academia de Polícia de Pernambuco,
+                nas turmas de 2021 e 2026 — a etapa em que os aprovados aprendem o ofício antes de assumir o cargo.
+                Sei o que a perícia exige no dia a dia. Por isso sei o que a banca vai cobrar.
               </p>
             </div>
           </div>
@@ -453,10 +453,10 @@ export default function Pagina() {
               <Pilula>Reunião gratuita</Pilula>
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Agende sua reunião
-                <span className="block text-ouro">com o Miguel.</span>
+                <span className="block text-ouro">comigo.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
-                Uma conversa individual, pelo Google Meet, para o Miguel entender exatamente onde você está — e
+                Uma conversa individual, pelo Google Meet, para eu entender exatamente onde você está — e
                 desenhar um plano de estudo personalizado até a sua aprovação.
               </p>
               <ul className="mt-8 space-y-4">
