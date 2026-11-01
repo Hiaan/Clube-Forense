@@ -31,7 +31,7 @@ import {
   reaisComCentavos,
 } from "../black/oferta";
 import { PROFESSORES } from "../black/professores";
-import { APROVADOS } from "../monitor/lib/aprovados";
+import { APROVADOS, ordenarMural } from "../monitor/lib/aprovados";
 import { coletar } from "../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { type Nivel } from "../monitor/lib/tipos";
@@ -153,14 +153,14 @@ export default async function PreparatorioPage({
     (s, a) => s + a.total,
     0,
   );
-  const mural = Object.entries(APROVADOS).flatMap(([uf, a]) =>
+  const mural = ordenarMural(Object.entries(APROVADOS).flatMap(([uf, a]) =>
     a.nomes.map((nome) => ({
       nome,
       uf,
       onde: a.orgao ?? ESTADO_POR_UF[uf]?.nome ?? uf,
       destaque: a.destaques[0] ?? null,
     })),
-  );
+  ));
 
   return (
     <div>

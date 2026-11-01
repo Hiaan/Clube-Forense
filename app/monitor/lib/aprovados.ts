@@ -80,3 +80,24 @@ export const TOTAL_APROVADOS = Object.values(APROVADOS).reduce(
   (acc, a) => acc + a.total,
   0,
 );
+
+/**
+ * Os murais de rostos das páginas de venda (/black e /preparatorio) mostram só
+ * os primeiros oito de cara. Quem sai do mural fica de fora; quem é promovido
+ * entra logo depois de Pernambuco, no lugar de quem saiu.
+ */
+const FORA_DO_MURAL = ["Dra. Simone Salgado", "Dr. Pietro Tenório"];
+const NA_FRENTE_DO_MURAL = ["Dra. Laís Nader", "Dra. Lívia Bárbara"];
+
+export function ordenarMural<T extends { nome: string; uf: string }>(
+  mural: T[],
+): T[] {
+  const resto = mural.filter(
+    (a) => !FORA_DO_MURAL.includes(a.nome) && !NA_FRENTE_DO_MURAL.includes(a.nome),
+  );
+  const frente = NA_FRENTE_DO_MURAL.flatMap((n) =>
+    mural.filter((a) => a.nome === n),
+  );
+  const depoisDePE = resto.findLastIndex((a) => a.uf === "PE") + 1;
+  return [...resto.slice(0, depoisDePE), ...frente, ...resto.slice(depoisDePE)];
+}

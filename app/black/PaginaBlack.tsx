@@ -45,7 +45,7 @@ import SecaoPlataforma from "./plataforma/SecaoPlataforma";
 import { PROFESSORES } from "./professores";
 import Ticker from "./Ticker";
 import { EDITAIS_DA_BLACK, PLATAFORMA, QUESTOES, WHATSAPP } from "./oferta";
-import { APROVADOS } from "../monitor/lib/aprovados";
+import { APROVADOS, ordenarMural } from "../monitor/lib/aprovados";
 import { coletar } from "../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { type Nivel } from "../monitor/lib/tipos";
@@ -145,7 +145,7 @@ export default async function PaginaBlack({
   // no Top 5"). Fora disso — Santa Catarina, com três colocações para onze
   // nomes — não há como saber quem foi o quê, e o cartão mostra só o estado:
   // repetir "1º Lugar" em todos seria dizer algo que não é verdade.
-  const mural = Object.entries(APROVADOS).flatMap(([uf, a]) =>
+  const mural = ordenarMural(Object.entries(APROVADOS).flatMap(([uf, a]) =>
     a.nomes.map((nome, i) => ({
       nome,
       uf,
@@ -157,7 +157,7 @@ export default async function PaginaBlack({
             ? a.destaques[0]
             : null,
     })),
-  );
+  ));
 
   return (
     <div>
