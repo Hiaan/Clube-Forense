@@ -370,11 +370,11 @@ export default function Pagina() {
 
             <div className="order-1 lg:order-2">
               <Pilula cor="preto">Quem vai te acompanhar · Dr. Miguel Souza</Pilula>
-              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
-                Não é mais um curso gravado.
+              <h2 className="mt-6 text-3xl font-bold uppercase leading-[1] tracking-tight sm:text-[2.6rem]">
+                Nada de curso gravado.
                 <span className="mt-3 block">
-                  <span className="bg-azul px-2 leading-[1.15] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
-                    É um médico legista olhando só para você.
+                  <span className="bg-azul px-2 leading-[1.2] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+                    Estude com a orientação de um médico legista.
                   </span>
                 </span>
               </h2>
