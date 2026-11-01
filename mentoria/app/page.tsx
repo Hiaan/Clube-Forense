@@ -111,10 +111,10 @@ const PASSOS = [
       "Uma hora ao vivo, só nós dois, pelo Google Meet. Os encontros seguem o seu plano: acompanho o que você estudou, ajusto a rota e reforço o que ainda não firmou.",
   },
   {
-    titulo: "Aulas de todos os assuntos",
+    titulo: "Estudaremos todos os assuntos",
     icone: <><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3Z" /></>,
     texto:
-      "Você tem aula de todo o conteúdo de Medicina Legal — e aulas extras nos temas em que mais tem dificuldade, com técnicas de retenção para epônimos, classificações e as pegadinhas que as bancas repetem.",
+      "Em nossos encontros passaremos por todos os conteúdos de Medicina Legal, trazendo aulas extras sempre que preciso e focando nos assuntos que você mais tem dificuldade. Sempre com auxílio de mnemônicos, e-books, resolução de questões e correção de discursivas.",
   },
   {
     titulo: "Questões com leitura de banca",
@@ -134,6 +134,13 @@ const PASSOS = [
     texto:
       "Entre um encontro e outro, a dúvida não espera: você fala direto comigo, no meu WhatsApp privado, durante toda a mentoria.",
   },
+];
+
+/** Como funciona a correção de discursivas. */
+const DISCURSIVAS = [
+  ["Você escreve", "Responde questões discursivas no formato e no tamanho que a sua banca cobra."],
+  ["Eu corrijo", "Leio cada resposta e comento conteúdo, terminologia médico-legal, estrutura e o que faltou."],
+  ["Você reescreve", "Com a correção em mãos, ajusta a resposta e fixa o raciocínio para a próxima."],
 ];
 
 const PROVAS_DO_GRUPO = [
@@ -416,6 +423,90 @@ export default function Pagina() {
               </p>
               <BotaoAgendar className="mt-8" />
             </div>
+          </div>
+        </section>
+
+        {/* ───────── Correção de discursivas ───────── */}
+        <section id="discursivas" className="overflow-hidden bg-osso px-4 py-24 text-preto sm:px-8 sm:py-32">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-[1fr_1fr] lg:gap-20">
+            <div>
+              <Pilula cor="preto">Correção de discursivas</Pilula>
+              <h2 className="mt-6 text-3xl font-bold uppercase leading-[1] tracking-tight sm:text-[2.6rem]">
+                Não é só marcar a alternativa certa.
+                <span className="mt-3 block">
+                  <span className="bg-azul px-2 leading-[1.2] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+                    É saber escrever como legista.
+                  </span>
+                </span>
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-preto/70">
+                Muitos concursos para médico legista vão além das questões objetivas e cobram respostas escritas — e
+                nelas não basta saber o conteúdo: é preciso explicar com precisão técnica, na ordem certa e com os
+                termos que a banca espera. Por isso a mentoria inclui correção das suas discursivas.
+              </p>
+              <ol className="mt-10 space-y-3">
+                {DISCURSIVAS.map(([t, d], i) => (
+                  <li key={t} className="flex gap-5 rounded-2xl border border-preto/10 bg-white p-5">
+                    <span className="w-9 shrink-0 font-impacto text-3xl leading-none text-azul">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span>
+                      <span className="block font-bold uppercase">{t}</span>
+                      <span className="mt-1 block text-preto/65">{d}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Folha corrigida (ilustração) */}
+            <figure className="relative mx-auto w-full max-w-xl">
+              <div className="absolute -inset-4 -rotate-2 rounded-3xl bg-azul/15" aria-hidden />
+              <div className="relative rotate-1 rounded-3xl bg-white p-6 shadow-[0_40px_80px_-40px_rgba(7,17,28,0.5)] sm:p-8">
+                <div className="flex items-center justify-between gap-4 border-b border-preto/10 pb-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-azul">Questão discursiva</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-preto/40">Exemplo ilustrativo</p>
+                </div>
+                <p className="mt-4 font-bold leading-snug">
+                  Diferencie zona de tatuagem e zona de esfumaçamento quanto à origem e ao comportamento após a
+                  limpeza da pele.
+                </p>
+                <div className="mt-5 space-y-4 text-[15px] leading-relaxed text-preto/80">
+                  <p>
+                    A zona de tatuagem é formada por{" "}
+                    <span className="rounded bg-verde/15 px-1 underline decoration-verde decoration-2 underline-offset-4">
+                      grãos de pólvora incrustados na pele
+                    </span>{" "}
+                    e não sai com a lavagem.
+                  </p>
+                  <p>
+                    A zona de esfumaçamento é o{" "}
+                    <span className="rounded bg-verde/15 px-1 underline decoration-verde decoration-2 underline-offset-4">
+                      depósito de fuligem
+                    </span>
+                    , que{" "}
+                    <span className="underline decoration-red-500 decoration-wavy decoration-2 underline-offset-4">
+                      também fica na pele
+                    </span>
+                    .
+                  </p>
+                </div>
+                <ul className="mt-6 space-y-2.5 border-t border-dashed border-preto/15 pt-5 text-sm">
+                  <li className="flex gap-3">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-verde text-[11px] font-bold text-white">✓</span>
+                    <span>Origem das duas zonas correta.</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-red-500 text-[11px] font-bold text-white">!</span>
+                    <span>O esfumaçamento <strong>sai com a lavagem</strong> — é isso que o diferencia da tatuagem.</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-azul text-[11px] font-bold text-white">+</span>
+                    <span>Faltou concluir: ambas indicam disparo a curta distância.</span>
+                  </li>
+                </ul>
+              </div>
+            </figure>
           </div>
         </section>
 
