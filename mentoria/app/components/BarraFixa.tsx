@@ -39,7 +39,7 @@ export default function BarraFixa() {
       <a
         href="#agendar"
         tabIndex={visivel ? 0 : -1}
-        className="flex items-center justify-between rounded-full bg-destaque px-6 py-3.5 text-sm font-black uppercase text-preto"
+        className="flex items-center justify-between rounded-full bg-destaque px-6 py-3.5 text-sm font-bold uppercase text-preto"
       >
         Agendar reunião gratuita <span aria-hidden>→</span>
       </a>

@@ -18,7 +18,7 @@ const impacto = Anton({
 });
 
 const descricao =
-  "Mentoria individualizada em Medicina Legal com o Dr. Miguel Souza: médico legista de carreira, doutorando em Perícias Forenses, instrutor da Academia de Polícia e professor de mais de 240 aprovados. Encontros semanais, só com você, até o dia da prova.";
+  "Mentoria individualizada e personalizada em Medicina Legal com o Dr. Miguel Souza, médico legista de carreira, doutorando em Perícias Forenses e instrutor da Academia de Polícia. O plano nasce de uma reunião gratuita: perfil, rotina, pontos fortes e fracos.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Mentoria Individualizada em Medicina Legal — Dr. Miguel Souza",
     description:
-      "Pela primeira vez, o professor de mais de 240 médicos legistas aprovados vai acompanhar só você, toda semana, até o dia da prova.",
+      "Não é a mesma mentoria para todo mundo: o seu plano de estudo nasce de uma reunião individual e gratuita.",
     type: "website",
     locale: "pt_BR",
     siteName: SITE.nome,

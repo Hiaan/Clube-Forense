@@ -27,7 +27,7 @@ function Pilula({ children, cor = "destaque" }: { children: React.ReactNode; cor
     preto: "border-preto/15 bg-preto/5 text-preto/70",
   };
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] ${estilos[cor]}`}>
+    <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] ${estilos[cor]}`}>
       <span className="size-1.5 rounded-full bg-current" />
       {children}
     </span>
@@ -38,7 +38,7 @@ function BotaoAgendar({ className = "", texto = "Agendar reunião gratuita" }: {
   return (
     <a
       href="#agendar"
-      className={`group inline-flex items-center justify-center gap-3 rounded-full bg-destaque px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(169,193,220,0.6)] transition hover:bg-destaque-claro ${className}`}
+      className={`group inline-flex items-center justify-center gap-3 rounded-full bg-destaque px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(169,193,220,0.6)] transition hover:bg-destaque-claro ${className}`}
     >
       {texto}
       <span aria-hidden className="transition group-hover:translate-x-1">→</span>
@@ -56,13 +56,31 @@ function Celular({ img, alt, className = "" }: { img: StaticImageData; alt: stri
 }
 
 const FAIXA = [
+  "Plano feito a partir de você",
+  "Reforço nos seus pontos fracos",
   "Encontros individuais semanais",
-  "Aulas individuais",
+  "Aulas de todos os assuntos",
   "Discussão de casos clínicos",
   "Resolução contínua de questões",
-  "Planejamento de horários",
-  "Estratégias avançadas de estudo",
   "WhatsApp direto comigo",
+];
+
+/** O que a primeira reunião mapeia. */
+const DIAGNOSTICO = [
+  ["Seu perfil de estudante", "Como você estuda hoje, o que já viu e como aprende melhor."],
+  ["Sua rotina real", "Plantões, família, cansaço: quanto tempo de estudo cabe de verdade na sua semana."],
+  ["Seus pontos fortes", "O que já está firme e só precisa de manutenção."],
+  ["Seus pontos fracos", "Onde você trava, o que está faltando e o que mais pesa na sua prova."],
+];
+
+/** Ilustração de um plano: toda a matéria, com peso maior onde o aluno precisa. */
+const PLANO_EXEMPLO = [
+  { tema: "Traumatologia Forense", peso: 92, reforco: true },
+  { tema: "Asfixiologia", peso: 80, reforco: true },
+  { tema: "Psicopatologia Forense", peso: 70, reforco: true },
+  { tema: "Tanatologia", peso: 52, reforco: false },
+  { tema: "Sexologia Forense", peso: 46, reforco: false },
+  { tema: "Antropologia Forense", peso: 40, reforco: false },
 ];
 
 const CREDENCIAIS = [
@@ -77,25 +95,25 @@ const PASSOS = [
     titulo: "Reunião de diagnóstico",
     icone: <><path d="M9 4h6v3H9z" /><path d="M9 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3" /><path d="m9 14 2 2 4-4" /></>,
     texto:
-      "Tudo começa com uma conversa individual: seu momento, sua prova-alvo, sua rotina e o que você já estudou. Não existe recomeçar do zero — existe ajustar a rota a partir de onde você está.",
+      "É aqui que a sua mentoria nasce. Entendo seu perfil de estudante, sua rotina, sua prova-alvo, seus pontos fortes e, principalmente, onde estão as suas dificuldades e o que está faltando.",
   },
   {
-    titulo: "Planejamento dos seus horários",
-    icone: <><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 14v3l2 1" /></>,
+    titulo: "Plano de ação sob medida",
+    icone: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></>,
     texto:
-      "Eu estruturo a sua semana de estudo em cima da vida real: plantões, família, cansaço. E reestruturo periodicamente, conforme o seu desempenho.",
+      "Com o diagnóstico em mãos, monto o seu plano: toda a Medicina Legal, com reforço onde você mais precisa, numa rotina de estudo que cabe na sua vida real — e que eu reviso periodicamente.",
   },
   {
     titulo: "Encontros individuais toda semana",
     icone: <><rect x="2" y="6" width="14" height="12" rx="2" /><path d="m16 10 6-3v10l-6-3" /></>,
     texto:
-      "Uma hora ao vivo, só nós dois, pelo Google Meet. Acompanho o que você estudou, direciono o que vem a seguir e alinho a rota até o dia da prova.",
+      "Uma hora ao vivo, só nós dois, pelo Google Meet. Os encontros seguem o seu plano: acompanho o que você estudou, ajusto a rota e reforço o que ainda não firmou.",
   },
   {
-    titulo: "Aulas individuais e estratégia avançada",
+    titulo: "Aulas de todos os assuntos",
     icone: <><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3Z" /></>,
     texto:
-      "Explico o conteúdo exatamente onde você travou, com técnicas de retenção pensadas para a Medicina Legal: epônimos, classificações, sinais e as pegadinhas que as bancas repetem.",
+      "Você tem aula de todo o conteúdo de Medicina Legal — e aulas extras nos temas em que mais tem dificuldade, com técnicas de retenção para epônimos, classificações e as pegadinhas que as bancas repetem.",
   },
   {
     titulo: "Questões com leitura de banca",
@@ -132,13 +150,13 @@ export default function Pagina() {
           <a href="#" className="flex items-center gap-3">
             <span className="grid size-9 place-items-center rounded-lg bg-azul font-impacto text-lg text-osso ring-1 ring-white/15">MS</span>
             <span className="leading-none">
-              <span className="block text-[15px] font-black uppercase tracking-wide">Miguel Souza</span>
+              <span className="block text-[15px] font-bold uppercase tracking-wide">Miguel Souza</span>
               <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.3em] text-osso/45">Medicina Forensis</span>
             </span>
           </a>
           <a
             href="#agendar"
-            className="hidden rounded-full border border-destaque/50 px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-destaque transition hover:bg-destaque hover:text-preto sm:inline-block"
+            className="hidden rounded-full border border-destaque/50 px-5 py-2 text-xs font-bold uppercase tracking-wide text-destaque transition hover:bg-destaque hover:text-preto sm:inline-block"
           >
             Reunião gratuita
           </a>
@@ -153,9 +171,9 @@ export default function Pagina() {
           <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:pb-24 lg:pt-20">
             <div className="min-w-0">
               <div className="animate-surgir">
-                <Pilula>Mentoria individual · vagas limitadas</Pilula>
+                <Pilula>Individual e personalizada · vagas limitadas</Pilula>
               </div>
-              <h1 className="mt-6 animate-surgir text-[2.15rem] font-black uppercase leading-[0.95] tracking-tight [animation-delay:80ms] min-[400px]:text-[2.5rem] sm:text-6xl xl:text-7xl">
+              <h1 className="mt-6 animate-surgir text-[2.15rem] font-bold uppercase leading-[0.95] tracking-tight [animation-delay:80ms] min-[400px]:text-[2.5rem] sm:text-6xl xl:text-7xl">
                 Mentoria
                 <br />
                 individualizada
@@ -163,8 +181,9 @@ export default function Pagina() {
                 <span className="text-destaque">em Medicina Legal</span>
               </h1>
               <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms]">
-                Já são <strong className="font-extrabold text-osso">mais de 240 alunos aprovados</strong>. Agora, pela
-                primeira vez, vou acompanhar só você — toda semana, ao vivo, até o dia da prova.
+                Não é a mesma mentoria para todo mundo. Tudo começa numa reunião comigo: entendo seu perfil, sua
+                rotina, seus pontos fortes e fracos — e, a partir disso, <strong className="font-bold text-osso">monto o
+                plano de ação que vai te levar até a aprovação</strong>.
               </p>
 
               <div id="topo" className="mt-9 flex animate-surgir flex-col gap-4 [animation-delay:240ms] sm:flex-row sm:items-center">
@@ -174,9 +193,9 @@ export default function Pagina() {
                 </a>
               </div>
               <ul className="mt-8 flex animate-surgir flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-osso/55 [animation-delay:320ms]">
-                {["Reunião gratuita e individual", "Pelo Google Meet", "Plano de estudo personalizado"].map((t) => (
+                {["Reunião gratuita e individual", "Plano feito a partir de você", "Reforço nos seus pontos fracos"].map((t) => (
                   <li key={t} className="flex items-center gap-2">
-                    <span className="grid size-4 place-items-center rounded-full bg-destaque text-[9px] font-black text-preto">✓</span>
+                    <span className="grid size-4 place-items-center rounded-full bg-destaque text-[9px] font-bold text-preto">✓</span>
                     {t}
                   </li>
                 ))}
@@ -196,15 +215,11 @@ export default function Pagina() {
                   className="object-cover object-[50%_10%]"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-fundo via-fundo/40 to-transparent" />
-                <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4">
-                  <div>
-                    <p className="font-impacto text-7xl leading-none text-destaque sm:text-8xl">+240</p>
-                    <p className="mt-1 text-sm font-extrabold uppercase tracking-wide">alunos aprovados</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-black uppercase leading-tight">Dr. Miguel Souza</p>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-osso/60">Médico legista</p>
-                  </div>
+                <div className="absolute inset-x-6 bottom-6">
+                  <p className="text-2xl font-bold uppercase leading-tight sm:text-3xl">Dr. Miguel Souza</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-destaque">
+                    Médico legista · Doutorando em Perícias Forenses
+                  </p>
                 </div>
               </div>
             </div>
@@ -219,6 +234,78 @@ export default function Pagina() {
                   <span className="size-2 rounded-full bg-destaque" />
                 </span>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Mentoria sob medida ───────── */}
+        <section className="relative overflow-hidden bg-carvao px-4 py-24 sm:px-8 sm:py-32">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-3xl">
+              <Pilula>Mentoria personalizada</Pilula>
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
+                Não é a mesma mentoria para todo mundo.
+                <span className="block text-destaque">É a sua.</span>
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-osso/70">
+                A mentoria nasce da nossa primeira reunião. Antes de qualquer cronograma, eu preciso entender quem é
+                você como estudante — e só então monto os encontros, as aulas e o plano de estudo.
+              </p>
+            </div>
+
+            <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr] lg:gap-10">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-osso/50">Na reunião, eu mapeio</p>
+                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {DIAGNOSTICO.map(([t, d], i) => (
+                    <li key={t} className="rounded-2xl border border-white/10 bg-fundo/60 p-5">
+                      <span className="font-impacto text-3xl leading-none text-destaque">{String(i + 1).padStart(2, "0")}</span>
+                      <p className="mt-3 font-bold uppercase leading-tight">{t}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-osso/60">{d}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-osso/50">E monto o seu plano de ação</p>
+                <div className="mt-4 rounded-3xl border border-white/10 bg-gradient-to-br from-azul/50 to-fundo p-6 sm:p-7">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="font-bold uppercase">Plano de ação</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-osso/40">Exemplo ilustrativo</p>
+                  </div>
+                  <ul className="mt-5 space-y-3.5">
+                    {PLANO_EXEMPLO.map((t) => (
+                      <li key={t.tema}>
+                        <div className="flex items-center justify-between gap-3 text-sm">
+                          <span className="font-semibold">{t.tema}</span>
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                              t.reforco ? "bg-destaque text-preto" : "bg-white/10 text-osso/60"
+                            }`}
+                          >
+                            {t.reforco ? "Reforço" : "Base"}
+                          </span>
+                        </div>
+                        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
+                          <div
+                            className={`h-full rounded-full ${t.reforco ? "bg-destaque" : "bg-aco/60"}`}
+                            style={{ width: `${t.peso}%` }}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-relaxed text-osso/65">
+                    Toda a Medicina Legal está no plano. O que muda é onde colocamos mais peso — e isso sai da nossa
+                    reunião.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-12">
+              <BotaoAgendar />
             </div>
           </div>
         </section>
@@ -238,13 +325,13 @@ export default function Pagina() {
               </div>
               <div className="absolute -bottom-6 -right-2 rounded-2xl bg-azul px-6 py-5 text-osso shadow-2xl sm:-right-6">
                 <p className="font-impacto text-5xl leading-none text-destaque">1:1</p>
-                <p className="mt-1 text-xs font-extrabold uppercase tracking-wide">Um aluno por vez</p>
+                <p className="mt-1 text-xs font-bold uppercase tracking-wide">Um aluno por vez</p>
               </div>
             </div>
 
             <div className="order-1 lg:order-2">
               <Pilula cor="preto">Quem vai te acompanhar · Dr. Miguel Souza</Pilula>
-              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Não é mais um curso gravado.
                 <span className="mt-3 block">
                   <span className="bg-azul px-2 leading-[1.15] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
@@ -260,7 +347,7 @@ export default function Pagina() {
               <dl className="mt-10 grid grid-cols-2 gap-3">
                 {CREDENCIAIS.map(([titulo, sub]) => (
                   <div key={titulo} className="rounded-2xl border border-preto/10 bg-white p-5">
-                    <dt className="text-lg font-black uppercase leading-tight">{titulo}</dt>
+                    <dt className="text-lg font-bold uppercase leading-tight">{titulo}</dt>
                     <dd className="mt-1 text-sm text-preto/60">{sub}</dd>
                   </div>
                 ))}
@@ -275,7 +362,7 @@ export default function Pagina() {
           <div className="relative mx-auto max-w-6xl">
             <div className="text-center">
               <Pilula>Por dentro da mentoria</Pilula>
-              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 O passo a passo
                 <br />
                 <span className="text-destaque">que faremos com você</span>
@@ -285,7 +372,7 @@ export default function Pagina() {
             <PassoAPasso passos={PASSOS} />
 
             <div className="mt-14 text-center">
-              <p className="text-xl font-extrabold uppercase sm:text-2xl">
+              <p className="text-xl font-bold uppercase sm:text-2xl">
                 Do diagnóstico à prova, <span className="text-destaque">comigo conferindo cada semana.</span>
               </p>
               <BotaoAgendar className="mt-8" />
@@ -299,7 +386,7 @@ export default function Pagina() {
             <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
                 <Pilula cor="verde">Grupo de discussão de casos</Pilula>
-                <h2 className="mt-6 text-5xl font-black uppercase leading-[0.9] tracking-tight sm:text-7xl">
+                <h2 className="mt-6 text-5xl font-bold uppercase leading-[0.9] tracking-tight sm:text-7xl">
                   Todo dia,
                   <br />
                   <span className="text-verde">uma dose</span>
@@ -319,7 +406,7 @@ export default function Pagina() {
                       href={LINK_GRUPO_CASOS}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
+                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
                     >
                       Quero entrar no Dose Diária
                       <span aria-hidden className="transition group-hover:translate-x-1">→</span>
@@ -327,7 +414,7 @@ export default function Pagina() {
                   ) : (
                     <a
                       href="#agendar"
-                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
+                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
                     >
                       Quero entrar no Dose Diária
                       <span aria-hidden className="transition group-hover:translate-x-1">→</span>
@@ -353,7 +440,7 @@ export default function Pagina() {
             <div className="mt-12 grid gap-3 sm:grid-cols-3">
               {PROVAS_DO_GRUPO.map(([t, d]) => (
                 <div key={t} className="rounded-2xl border border-verde/20 bg-preto/40 p-6">
-                  <p className="text-lg font-black uppercase text-verde">{t}</p>
+                  <p className="text-lg font-bold uppercase text-verde">{t}</p>
                   <p className="mt-1 text-osso/70">{d}</p>
                 </div>
               ))}
@@ -366,7 +453,7 @@ export default function Pagina() {
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
               <Pilula cor="preto">Material autoral</Pilula>
-              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Até o PDF
                 <br />
                 <span className="bg-azul px-2 leading-[1.15] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">tem padrão de laudo.</span>
@@ -432,7 +519,7 @@ export default function Pagina() {
               <div>
                 <Pilula>Academia de Polícia</Pilula>
               </div>
-              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Eu formo os legistas depois da aprovação.
                 <span className="mt-2 block text-destaque">Agora preparo você antes dela.</span>
               </h2>
@@ -451,24 +538,24 @@ export default function Pagina() {
           <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
             <div className="lg:sticky lg:top-28">
               <Pilula>Reunião gratuita</Pilula>
-              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Agende sua reunião
                 <span className="block text-destaque">comigo.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
-                Uma conversa individual, pelo Google Meet, para eu entender exatamente onde você está — e
-                desenhar um plano de estudo personalizado até a sua aprovação.
+                É dessa conversa que nasce a sua mentoria. Pelo Google Meet, eu entendo exatamente onde você está
+                para montar o melhor plano de ação até a sua aprovação.
               </p>
               <ul className="mt-8 space-y-4">
                 {[
-                  ["Seu ponto de partida", "O que você já estudou, onde trava e quanto tempo sobra na rotina."],
-                  ["Sua prova-alvo", "Banca, edital e referências que vão pesar na sua aprovação."],
-                  ["Seu plano", "Como a mentoria se encaixa no seu caso — e todos os detalhes para começar."],
+                  ["Seu perfil e sua rotina", "Como você estuda hoje, quanto tempo tem e qual prova tem em vista."],
+                  ["Pontos fortes e pontos fracos", "Onde você vai bem, onde trava e o que está faltando."],
+                  ["Seu plano de ação", "Como a mentoria fica montada para você — e todos os detalhes para começar."],
                 ].map(([t, d], i) => (
                   <li key={t} className="flex gap-4">
                     <span className="w-9 shrink-0 font-impacto text-3xl leading-none text-destaque">{String(i + 1).padStart(2, "0")}</span>
                     <span>
-                      <span className="block font-black uppercase">{t}</span>
+                      <span className="block font-bold uppercase">{t}</span>
                       <span className="block text-osso/60">{d}</span>
                     </span>
                   </li>
@@ -484,7 +571,7 @@ export default function Pagina() {
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div>
               <Pilula cor="preto">Perguntas frequentes</Pilula>
-              <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-5xl">
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-5xl">
                 Antes de agendar.
               </h2>
             </div>
@@ -495,7 +582,7 @@ export default function Pagina() {
 
       <footer className="px-4 pb-24 pt-12 text-osso/50 sm:px-8 md:pb-12">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-black uppercase tracking-wide text-osso">
+          <p className="font-bold uppercase tracking-wide text-osso">
             Miguel Souza <span className="mx-2 text-osso/30">|</span>
             <span className="text-xs font-bold tracking-[0.25em] text-osso/50">Medicina Forensis</span>
           </p>

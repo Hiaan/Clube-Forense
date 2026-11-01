@@ -165,7 +165,7 @@ export default function Agendamento() {
     return (
       <div className={`${cartao} animate-surgir`} role="status">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-destaque">Reunião agendada</p>
-        <h3 className="mt-3 text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">
+        <h3 className="mt-3 text-3xl font-bold uppercase leading-none tracking-tight sm:text-4xl">
           Tudo certo, {estado.primeiroNome}.
         </h3>
         <p className="mt-4 leading-relaxed text-osso/75">
@@ -173,7 +173,7 @@ export default function Agendamento() {
           agendamento e vou falar com você pelo WhatsApp para confirmar e enviar o link do Google Meet.
         </p>
         <div className="mt-6 rounded-2xl border border-verde/30 bg-verde/10 p-5">
-          <p className="font-extrabold uppercase">Enquanto isso: Dose Diária</p>
+          <p className="font-bold uppercase">Enquanto isso: Dose Diária</p>
           <p className="mt-1 text-sm text-osso/70">
             O grupo onde eu discuto um caso forense por dia.
           </p>
@@ -182,7 +182,7 @@ export default function Agendamento() {
               href={LINK_GRUPO_CASOS}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-verde px-5 py-3 text-sm font-extrabold uppercase text-preto transition hover:brightness-110"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-verde px-5 py-3 text-sm font-bold uppercase text-preto transition hover:brightness-110"
             >
               Entrar no grupo <span aria-hidden>→</span>
             </a>
@@ -234,7 +234,7 @@ export default function Agendamento() {
 
       {passo === 1 && pergunta === "situacao" && (
         <div className="animate-surgir">
-          <h3 className="text-xl font-extrabold sm:text-2xl">Você já é médico(a)?</h3>
+          <h3 className="text-xl font-bold sm:text-2xl">Você já é médico(a)?</h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {SITUACOES.map((op) => (
               <button
@@ -254,7 +254,7 @@ export default function Agendamento() {
                   </svg>
                 </span>
                 <span className="flex-1">
-                  <span className="block font-extrabold">{op.titulo}</span>
+                  <span className="block font-bold">{op.titulo}</span>
                   <span className="block text-sm text-osso/55">{op.sub}</span>
                 </span>
                 <span aria-hidden className="text-osso/40 transition group-hover:translate-x-1 group-hover:text-destaque">
@@ -268,7 +268,7 @@ export default function Agendamento() {
 
       {passo === 1 && pergunta === "estuda" && (
         <div className="animate-surgir">
-          <h3 className="text-xl font-extrabold sm:text-2xl">Você já estuda para se tornar legista?</h3>
+          <h3 className="text-xl font-bold sm:text-2xl">Você já estuda para se tornar legista?</h3>
           <div className="mt-4 grid grid-cols-2 gap-3">
             {[
               { valor: "sim", titulo: "Sim", sub: "Já estou estudando" },
@@ -286,7 +286,7 @@ export default function Agendamento() {
                   estuda === op.valor ? "border-destaque bg-destaque/10" : opcaoInativa
                 }`}
               >
-                <span className="block text-lg font-black uppercase">{op.titulo}</span>
+                <span className="block text-lg font-bold uppercase">{op.titulo}</span>
                 <span className="block text-sm text-osso/55">{op.sub}</span>
               </button>
             ))}
@@ -299,7 +299,7 @@ export default function Agendamento() {
 
       {passo === 1 && pergunta === "concurso" && (
         <div className="animate-surgir">
-          <h3 className="text-xl font-extrabold sm:text-2xl">Em qual concurso você tem interesse?</h3>
+          <h3 className="text-xl font-bold sm:text-2xl">Em qual concurso você tem interesse?</h3>
           <p className="mt-1 text-sm text-osso/50">Pode marcar mais de um.</p>
 
           <div className="mt-4 flex flex-wrap gap-2">
@@ -371,7 +371,7 @@ export default function Agendamento() {
               type="button"
               disabled={!concurso}
               onClick={() => setPasso(2)}
-              className="rounded-full bg-destaque px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
+              className="rounded-full bg-destaque px-7 py-3.5 text-sm font-bold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
             >
               Continuar →
             </button>
@@ -381,7 +381,7 @@ export default function Agendamento() {
 
       {passo === 2 && (
         <div className="animate-surgir">
-          <h3 className="text-xl font-extrabold sm:text-2xl">Escolha o dia e o horário</h3>
+          <h3 className="text-xl font-bold sm:text-2xl">Escolha o dia e o horário</h3>
           <p className={`${rotulo} mt-5`}>Dia</p>
           <div
             className="-mx-5 mt-2 flex snap-x scroll-px-5 gap-2 overflow-x-auto px-5 pb-2 sm:-mx-7 sm:scroll-px-7 sm:px-7 [scrollbar-width:thin]"
@@ -444,7 +444,7 @@ export default function Agendamento() {
               type="button"
               disabled={!data || !horario}
               onClick={() => setPasso(3)}
-              className="rounded-full bg-destaque px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
+              className="rounded-full bg-destaque px-7 py-3.5 text-sm font-bold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
             >
               Continuar →
             </button>
@@ -461,7 +461,7 @@ export default function Agendamento() {
             </label>
           </div>
 
-          <h3 className="text-xl font-extrabold sm:text-2xl">Para eu confirmar com você</h3>
+          <h3 className="text-xl font-bold sm:text-2xl">Para eu confirmar com você</h3>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="sm:col-span-2">
               <span className={rotulo}>Nome completo</span>
@@ -501,7 +501,7 @@ export default function Agendamento() {
             className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-destaque px-6 py-4 text-left text-preto transition hover:bg-destaque-claro disabled:cursor-wait disabled:opacity-70"
           >
             <span>
-              <span className="block text-base font-black uppercase">
+              <span className="block text-base font-bold uppercase">
                 {enviando ? "Agendando…" : "Confirmar reunião gratuita"}
               </span>
               <span className="block text-sm font-semibold text-preto/65">

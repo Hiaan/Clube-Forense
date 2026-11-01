@@ -3,7 +3,11 @@
 const PERGUNTAS = [
   {
     p: "Como é a reunião?",
-    r: "Uma conversa individual comigo, pelo Google Meet. Quero entender em que ponto você está, qual prova tem em vista e quanto tempo sobra na sua rotina — e, a partir disso, montar com você um plano de estudo personalizado e mostrar como a mentoria se encaixa na sua preparação.",
+    r: "Uma conversa individual comigo, pelo Google Meet — e é dela que nasce a sua mentoria. Quero entender seu perfil, sua rotina, seus pontos fortes e fracos e qual prova você tem em vista, para montar o plano de ação certo para você.",
+  },
+  {
+    p: "A mentoria é igual para todo mundo?",
+    r: "Não. O conteúdo cobre toda a Medicina Legal, mas o plano, os encontros e o reforço são montados a partir da nossa primeira reunião. Cada aluno tem o seu plano, com mais peso onde ele mais precisa.",
   },
   {
     p: "Preciso já ser médico(a)?",
@@ -32,7 +36,7 @@ export default function Perguntas() {
     <div className="space-y-3">
       {PERGUNTAS.map(({ p, r }) => (
         <details key={p} className="group rounded-2xl border border-preto/10 bg-white px-5 open:shadow-[0_20px_50px_-30px_rgba(0,0,0,0.35)] sm:px-7">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-extrabold text-preto marker:hidden sm:text-xl [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-bold text-preto marker:hidden sm:text-xl [&::-webkit-details-marker]:hidden">
             {p}
             <span
               aria-hidden

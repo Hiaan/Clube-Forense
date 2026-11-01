@@ -109,7 +109,7 @@ export default function PassoAPasso({ passos }: { passos: Passo[] }) {
                   {p.icone}
                 </svg>
               </span>
-              <h3 className="relative mt-5 text-lg font-black uppercase leading-tight sm:text-xl">{p.titulo}</h3>
+              <h3 className="relative mt-5 text-lg font-bold uppercase leading-tight sm:text-xl">{p.titulo}</h3>
               <p className="relative mt-2 leading-relaxed text-osso/65">{p.texto}</p>
             </div>
           </li>
