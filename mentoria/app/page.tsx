@@ -58,11 +58,12 @@ function Celular({ img, alt, className = "" }: { img: StaticImageData; alt: stri
 const FAIXA = [
   "Plano feito a partir de você",
   "Reforço nos seus pontos fracos",
-  "Encontros individuais semanais",
+  "Encontro ao vivo toda semana",
+  "Dúvidas comigo durante a semana",
   "Aulas de todos os assuntos",
   "Discussão de casos clínicos",
   "Resolução contínua de questões",
-  "WhatsApp direto comigo",
+  "Correção de questões discursivas",
 ];
 
 /** O que a primeira reunião mapeia. */
@@ -168,20 +169,17 @@ export default function Pagina() {
         <section className="brilho-azul relative overflow-hidden pt-16">
           <div aria-hidden className="textura-capa pointer-events-none absolute inset-0" />
           <div aria-hidden className="grao pointer-events-none absolute inset-0" />
-          <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:pb-24 lg:pt-20">
+          <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:pb-20 lg:pt-14">
             <div className="min-w-0">
               <div className="animate-surgir">
                 <Pilula>Individual e personalizada · vagas limitadas</Pilula>
               </div>
-              <h1 className="mt-6 animate-surgir text-[2.15rem] font-bold uppercase leading-[0.95] tracking-tight [animation-delay:80ms] min-[400px]:text-[2.5rem] sm:text-6xl xl:text-7xl">
-                Mentoria
-                <br />
-                individualizada
-                <br />
-                <span className="text-destaque">em Medicina Legal</span>
+              <h1 className="mt-6 animate-surgir text-[1.95rem] font-bold leading-[1.08] tracking-tight [animation-delay:80ms] min-[400px]:text-[2.15rem] sm:text-[2.6rem] xl:text-[3.05rem]">
+                Conquiste sua aprovação <span className="text-destaque">como médico legista</span>, sendo acompanhado
+                individualmente por quem já percorreu este mesmo caminho.
               </h1>
               <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms]">
-                Não é a mesma mentoria para todo mundo. Tudo começa numa reunião comigo: entendo seu perfil, sua
+                Não é a mesma mentoria para todo mundo. Tudo começa numa reunião: entendo o seu perfil, sua
                 rotina, seus pontos fortes e fracos — e, a partir disso, <strong className="font-bold text-osso">monto o
                 plano de ação que vai te levar até a aprovação</strong>.
               </p>
@@ -193,7 +191,12 @@ export default function Pagina() {
                 </a>
               </div>
               <ul className="mt-8 flex animate-surgir flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-osso/55 [animation-delay:320ms]">
-                {["Reunião gratuita e individual", "Plano feito a partir de você", "Reforço nos seus pontos fracos"].map((t) => (
+                {[
+                  "Atendimento individualizado",
+                  "Correção de questões discursivas",
+                  "Suporte direto com o professor",
+                  "Reunião de diagnóstico gratuita",
+                ].map((t) => (
                   <li key={t} className="flex items-center gap-2">
                     <span className="grid size-4 place-items-center rounded-full bg-destaque text-[9px] font-bold text-preto">✓</span>
                     {t}
@@ -244,8 +247,8 @@ export default function Pagina() {
             <div className="max-w-3xl">
               <Pilula>Mentoria personalizada</Pilula>
               <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
-                Não é a mesma mentoria para todo mundo.
-                <span className="block text-destaque">É a sua.</span>
+                Plano de estudos individualizado
+                <span className="block text-destaque">por aluno.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
                 A mentoria nasce da nossa primeira reunião. Antes de qualquer cronograma, eu preciso entender quem é
@@ -299,6 +302,42 @@ export default function Pagina() {
                   <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-relaxed text-osso/65">
                     Toda a Medicina Legal está no plano. O que muda é onde colocamos mais peso — e isso sai da nossa
                     reunião.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Ritmo da semana */}
+            <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="flex gap-5 rounded-3xl border border-destaque/25 bg-azul/40 p-6 sm:p-8">
+                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-destaque text-preto">
+                  <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <rect x="2" y="6" width="14" height="12" rx="2" />
+                    <path d="m16 10 6-3v10l-6-3" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-destaque">Toda semana</p>
+                  <p className="mt-1 text-2xl font-bold uppercase leading-tight">Encontro ao vivo</p>
+                  <p className="mt-2 leading-relaxed text-osso/70">
+                    Uma hora, só nós dois, pelo Google Meet: revisamos o que você estudou, resolvemos questões e
+                    ajustamos o plano para a semana seguinte.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-5 rounded-3xl border border-destaque/25 bg-azul/40 p-6 sm:p-8">
+                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-destaque text-preto">
+                  <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                    <path d="M8 12h.01M12 12h.01M16 12h.01" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-destaque">Durante a semana</p>
+                  <p className="mt-1 text-2xl font-bold uppercase leading-tight">Fale comigo quando precisar</p>
+                  <p className="mt-2 leading-relaxed text-osso/70">
+                    Entre um encontro e outro, você me manda as suas dúvidas pelo WhatsApp — de conteúdo, de questão
+                    ou de cronograma — e tira todas elas comigo, sem esperar o próximo encontro.
                   </p>
                 </div>
               </div>

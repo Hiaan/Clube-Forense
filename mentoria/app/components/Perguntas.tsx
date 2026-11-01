@@ -19,11 +19,11 @@ const PERGUNTAS = [
   },
   {
     p: "Como funcionam os encontros?",
-    r: "Encontros individuais de uma hora, ao vivo pelo Google Meet, com horário combinado diretamente comigo. O primeiro acontece em até 7 dias depois da sua entrada.",
+    r: "Toda semana temos um encontro individual de uma hora, ao vivo pelo Google Meet, com horário combinado diretamente comigo. O primeiro acontece em até 7 dias depois da sua entrada.",
   },
   {
     p: "E entre um encontro e outro?",
-    r: "Você fala direto comigo, no meu WhatsApp privado. Dúvida de conteúdo, de questão, de cronograma — sem fila de fórum e sem intermediário.",
+    r: "Durante toda a semana você fala direto comigo, no meu WhatsApp privado, e tira todas as suas dúvidas: de conteúdo, de questão, de cronograma — sem fila de fórum e sem intermediário.",
   },
   {
     p: "Por que as vagas são limitadas?",
