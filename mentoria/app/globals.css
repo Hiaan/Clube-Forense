@@ -1,17 +1,23 @@
 @import "tailwindcss";
 
 /*
- * Preto como base, ouro como cor de ação e verde só onde o assunto é o grupo
- * no WhatsApp. Tipografia pesada: Montserrat 800/900 nos títulos e Anton,
+ * Azul-marinho como base, o azul do Miguel nos blocos de destaque, um
+ * azul-aço claro como cor de ação e verde só onde o assunto é o grupo no
+ * WhatsApp. Tipografia pesada: Montserrat 800/900 nos títulos e Anton,
  * da família do Impact, nos números e nas faixas.
  */
 @theme {
-  --color-preto: #0a0a0a;
-  --color-carvao: #131313;
-  --color-grafite: #1c1c1c;
-  --color-ouro: #e7ac3c;
-  --color-ouro-claro: #f6cb6b;
-  --color-osso: #f3f1ec;
+  /* Paleta do Miguel: azul profundo, azul-aço, branco e preto. */
+  --color-preto: #07111c;
+  --color-fundo: #0a1828;
+  --color-carvao: #0f2236;
+  --color-grafite: #163049;
+  --color-azul: #224d72;
+  --color-azul-claro: #2c6293;
+  --color-aco: #728ba2;
+  --color-destaque: #a9c1dc;
+  --color-destaque-claro: #cbdbec;
+  --color-osso: #eef2f6;
   --color-verde: #22b46e;
   --color-verde-escuro: #0b2a1d;
   --color-cinza-foto: #e0e0e1;
@@ -46,14 +52,14 @@ html {
 }
 
 body {
-  background: var(--color-preto);
+  background: var(--color-fundo);
   color: var(--color-osso);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--color-ouro);
+  background: var(--color-destaque);
   color: var(--color-preto);
 }
 
@@ -61,11 +67,11 @@ section[id] {
   scroll-margin-top: 5rem;
 }
 
-/* Brilho dourado atrás de blocos escuros. */
-.brilho-ouro {
+/* Brilho azul atrás de blocos escuros. */
+.brilho-azul {
   background-image: radial-gradient(
     60% 60% at 50% 0%,
-    rgb(231 172 60 / 0.16),
+    rgb(44 98 147 / 0.45),
     transparent 70%
   );
 }
@@ -111,8 +117,8 @@ section[id] {
 }
 .passo.oculto .marcador {
   border-color: rgb(255 255 255 / 0.15);
-  color: rgb(243 241 236 / 0.3);
-  box-shadow: 0 0 0 6px #0a0a0a;
+  color: rgb(238 242 246 / 0.3);
+  box-shadow: 0 0 0 6px var(--color-fundo);
 }
 
 @media (prefers-reduced-motion: reduce) {

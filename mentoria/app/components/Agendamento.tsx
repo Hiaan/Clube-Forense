@@ -80,9 +80,9 @@ type Pergunta = "situacao" | "estuda" | "concurso";
 
 const rotulo = "block text-xs font-bold uppercase tracking-[0.14em] text-osso/55";
 const campo =
-  "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-base text-osso outline-none transition placeholder:text-osso/30 focus:border-ouro focus:bg-white/[0.07]";
+  "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-base text-osso outline-none transition placeholder:text-osso/30 focus:border-destaque focus:bg-white/[0.07]";
 const opcaoBase = "border transition";
-const opcaoAtiva = "border-ouro bg-ouro text-preto";
+const opcaoAtiva = "border-destaque bg-destaque text-preto";
 const opcaoInativa = "border-white/10 bg-white/[0.03] hover:border-white/30";
 
 export default function Agendamento() {
@@ -159,12 +159,12 @@ export default function Agendamento() {
   }
 
   const cartao =
-    "relative min-w-0 rounded-3xl border border-white/10 bg-carvao/90 p-5 shadow-[0_40px_120px_-40px_rgba(231,172,60,0.35)] backdrop-blur sm:p-7";
+    "relative min-w-0 rounded-3xl border border-white/10 bg-carvao/90 p-5 shadow-[0_40px_120px_-40px_rgba(169,193,220,0.35)] backdrop-blur sm:p-7";
 
   if (estado.fase === "pronto") {
     return (
       <div className={`${cartao} animate-surgir`} role="status">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-ouro">Reunião agendada</p>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-destaque">Reunião agendada</p>
         <h3 className="mt-3 text-3xl font-black uppercase leading-none tracking-tight sm:text-4xl">
           Tudo certo, {estado.primeiroNome}.
         </h3>
@@ -214,7 +214,7 @@ export default function Agendamento() {
                 disabled={!feito}
                 onClick={() => setPasso(n)}
                 className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition sm:gap-2 sm:px-3 ${
-                  atual ? "bg-ouro text-preto" : feito ? "text-osso/80 hover:text-osso" : "text-osso/35"
+                  atual ? "bg-destaque text-preto" : feito ? "text-osso/80 hover:text-osso" : "text-osso/35"
                 }`}
               >
                 <span
@@ -245,10 +245,10 @@ export default function Agendamento() {
                   setPergunta("estuda");
                 }}
                 className={`group flex items-center gap-4 rounded-2xl p-4 text-left ${opcaoBase} ${
-                  situacao === op.valor ? "border-ouro bg-ouro/10" : opcaoInativa
+                  situacao === op.valor ? "border-destaque bg-destaque/10" : opcaoInativa
                 }`}
               >
-                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-ouro text-preto">
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-azul text-osso ring-1 ring-white/10">
                   <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     {op.icone}
                   </svg>
@@ -257,7 +257,7 @@ export default function Agendamento() {
                   <span className="block font-extrabold">{op.titulo}</span>
                   <span className="block text-sm text-osso/55">{op.sub}</span>
                 </span>
-                <span aria-hidden className="text-osso/40 transition group-hover:translate-x-1 group-hover:text-ouro">
+                <span aria-hidden className="text-osso/40 transition group-hover:translate-x-1 group-hover:text-destaque">
                   ›
                 </span>
               </button>
@@ -283,7 +283,7 @@ export default function Agendamento() {
                   else setPasso(2);
                 }}
                 className={`rounded-2xl p-4 text-left ${opcaoBase} ${
-                  estuda === op.valor ? "border-ouro bg-ouro/10" : opcaoInativa
+                  estuda === op.valor ? "border-destaque bg-destaque/10" : opcaoInativa
                 }`}
               >
                 <span className="block text-lg font-black uppercase">{op.titulo}</span>
@@ -321,7 +321,7 @@ export default function Agendamento() {
               <button
                 type="button"
                 onClick={() => setTodosEstados(true)}
-                className="rounded-full border border-dashed border-white/25 px-4 py-2 text-sm font-bold text-osso/70 transition hover:border-ouro hover:text-ouro"
+                className="rounded-full border border-dashed border-white/25 px-4 py-2 text-sm font-bold text-osso/70 transition hover:border-destaque hover:text-destaque"
               >
                 + Outros estados
               </button>
@@ -371,7 +371,7 @@ export default function Agendamento() {
               type="button"
               disabled={!concurso}
               onClick={() => setPasso(2)}
-              className="rounded-full bg-ouro px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-ouro-claro disabled:cursor-not-allowed disabled:opacity-30"
+              className="rounded-full bg-destaque px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
             >
               Continuar →
             </button>
@@ -444,7 +444,7 @@ export default function Agendamento() {
               type="button"
               disabled={!data || !horario}
               onClick={() => setPasso(3)}
-              className="rounded-full bg-ouro px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-ouro-claro disabled:cursor-not-allowed disabled:opacity-30"
+              className="rounded-full bg-destaque px-7 py-3.5 text-sm font-extrabold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
             >
               Continuar →
             </button>
@@ -498,7 +498,7 @@ export default function Agendamento() {
           <button
             type="submit"
             disabled={enviando}
-            className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-ouro px-6 py-4 text-left text-preto transition hover:bg-ouro-claro disabled:cursor-wait disabled:opacity-70"
+            className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-destaque px-6 py-4 text-left text-preto transition hover:bg-destaque-claro disabled:cursor-wait disabled:opacity-70"
           >
             <span>
               <span className="block text-base font-black uppercase">

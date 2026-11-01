@@ -20,9 +20,9 @@ import conversa4 from "../public/grupo/conversa-4.jpg";
 import conversa5 from "../public/grupo/conversa-5.jpg";
 
 /** Etiqueta em pílula acima dos títulos. */
-function Pilula({ children, cor = "ouro" }: { children: React.ReactNode; cor?: "ouro" | "verde" | "preto" }) {
+function Pilula({ children, cor = "destaque" }: { children: React.ReactNode; cor?: "destaque" | "verde" | "preto" }) {
   const estilos = {
-    ouro: "border-ouro/40 bg-ouro/10 text-ouro",
+    destaque: "border-destaque/40 bg-destaque/10 text-destaque",
     verde: "border-verde/40 bg-verde/10 text-verde",
     preto: "border-preto/15 bg-preto/5 text-preto/70",
   };
@@ -38,7 +38,7 @@ function BotaoAgendar({ className = "", texto = "Agendar reunião gratuita" }: {
   return (
     <a
       href="#agendar"
-      className={`group inline-flex items-center justify-center gap-3 rounded-full bg-ouro px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(231,172,60,0.6)] transition hover:bg-ouro-claro ${className}`}
+      className={`group inline-flex items-center justify-center gap-3 rounded-full bg-destaque px-8 py-4 text-sm font-black uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(169,193,220,0.6)] transition hover:bg-destaque-claro ${className}`}
     >
       {texto}
       <span aria-hidden className="transition group-hover:translate-x-1">→</span>
@@ -130,7 +130,7 @@ export default function Pagina() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-preto/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-8">
           <a href="#" className="flex items-center gap-3">
-            <span className="grid size-9 place-items-center rounded-lg bg-ouro font-impacto text-lg text-preto">MS</span>
+            <span className="grid size-9 place-items-center rounded-lg bg-azul font-impacto text-lg text-osso ring-1 ring-white/15">MS</span>
             <span className="leading-none">
               <span className="block text-[15px] font-black uppercase tracking-wide">Miguel Souza</span>
               <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.3em] text-osso/45">Medicina Forensis</span>
@@ -138,7 +138,7 @@ export default function Pagina() {
           </a>
           <a
             href="#agendar"
-            className="hidden rounded-full border border-ouro/50 px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-ouro transition hover:bg-ouro hover:text-preto sm:inline-block"
+            className="hidden rounded-full border border-destaque/50 px-5 py-2 text-xs font-extrabold uppercase tracking-wide text-destaque transition hover:bg-destaque hover:text-preto sm:inline-block"
           >
             Reunião gratuita
           </a>
@@ -147,7 +147,7 @@ export default function Pagina() {
 
       <main>
         {/* ───────── Capa ───────── */}
-        <section className="brilho-ouro relative overflow-hidden pt-16">
+        <section className="brilho-azul relative overflow-hidden pt-16">
           <div aria-hidden className="textura-capa pointer-events-none absolute inset-0" />
           <div aria-hidden className="grao pointer-events-none absolute inset-0" />
           <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:pb-24 lg:pt-20">
@@ -160,7 +160,7 @@ export default function Pagina() {
                 <br />
                 individualizada
                 <br />
-                <span className="text-ouro">em Medicina Legal</span>
+                <span className="text-destaque">em Medicina Legal</span>
               </h1>
               <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms]">
                 Já são <strong className="font-extrabold text-osso">mais de 240 alunos aprovados</strong>. Agora, pela
@@ -176,7 +176,7 @@ export default function Pagina() {
               <ul className="mt-8 flex animate-surgir flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-osso/55 [animation-delay:320ms]">
                 {["Reunião gratuita e individual", "Pelo Google Meet", "Plano de estudo personalizado"].map((t) => (
                   <li key={t} className="flex items-center gap-2">
-                    <span className="grid size-4 place-items-center rounded-full bg-ouro text-[9px] font-black text-preto">✓</span>
+                    <span className="grid size-4 place-items-center rounded-full bg-destaque text-[9px] font-black text-preto">✓</span>
                     {t}
                   </li>
                 ))}
@@ -185,7 +185,7 @@ export default function Pagina() {
 
             {/* Retrato */}
             <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div className="absolute -inset-6 rounded-[3rem] bg-ouro/20 blur-3xl" aria-hidden />
+              <div className="absolute -inset-6 rounded-[3rem] bg-azul-claro/40 blur-3xl" aria-hidden />
               <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cinza-foto lg:aspect-[4/5]">
                 <Image
                   src={fotoBracos}
@@ -195,10 +195,10 @@ export default function Pagina() {
                   sizes="(min-width: 1024px) 40vw, 100vw"
                   className="object-cover object-[50%_10%]"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-preto via-preto/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-fundo via-fundo/40 to-transparent" />
                 <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4">
                   <div>
-                    <p className="font-impacto text-7xl leading-none text-ouro sm:text-8xl">+240</p>
+                    <p className="font-impacto text-7xl leading-none text-destaque sm:text-8xl">+240</p>
                     <p className="mt-1 text-sm font-extrabold uppercase tracking-wide">alunos aprovados</p>
                   </div>
                   <div className="text-right">
@@ -211,12 +211,12 @@ export default function Pagina() {
           </div>
 
           {/* Faixa corrida */}
-          <div className="overflow-hidden border-y border-ouro/30 bg-ouro py-3 text-preto" aria-hidden>
+          <div className="overflow-hidden border-y border-white/10 bg-azul py-3 text-osso" aria-hidden>
             <div className="flex w-max animate-faixa gap-10 whitespace-nowrap font-impacto text-xl uppercase tracking-wide">
               {[...FAIXA, ...FAIXA].map((t, i) => (
                 <span key={i} className="flex items-center gap-10">
                   {t}
-                  <span className="size-2 rounded-full bg-preto" />
+                  <span className="size-2 rounded-full bg-destaque" />
                 </span>
               ))}
             </div>
@@ -236,8 +236,8 @@ export default function Pagina() {
                   className="object-cover object-[50%_25%]"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-2 rounded-2xl bg-preto px-6 py-5 text-osso shadow-2xl sm:-right-6">
-                <p className="font-impacto text-5xl leading-none text-ouro">1:1</p>
+              <div className="absolute -bottom-6 -right-2 rounded-2xl bg-azul px-6 py-5 text-osso shadow-2xl sm:-right-6">
+                <p className="font-impacto text-5xl leading-none text-destaque">1:1</p>
                 <p className="mt-1 text-xs font-extrabold uppercase tracking-wide">Um aluno por vez</p>
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function Pagina() {
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Não é mais um curso gravado.
                 <span className="mt-3 block">
-                  <span className="bg-ouro px-2 leading-[1.15] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+                  <span className="bg-azul px-2 leading-[1.15] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
                     É um médico legista olhando só para você.
                   </span>
                 </span>
@@ -270,7 +270,7 @@ export default function Pagina() {
         </section>
 
         {/* ───────── Passo a passo ───────── */}
-        <section id="como-funciona" className="brilho-ouro relative overflow-hidden px-4 py-24 sm:px-8 sm:py-32">
+        <section id="como-funciona" className="brilho-azul relative overflow-hidden px-4 py-24 sm:px-8 sm:py-32">
           <div aria-hidden className="textura-capa pointer-events-none absolute inset-0 opacity-60" />
           <div className="relative mx-auto max-w-6xl">
             <div className="text-center">
@@ -278,7 +278,7 @@ export default function Pagina() {
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 O passo a passo
                 <br />
-                <span className="text-ouro">que faremos com você</span>
+                <span className="text-destaque">que faremos com você</span>
               </h2>
             </div>
 
@@ -286,7 +286,7 @@ export default function Pagina() {
 
             <div className="mt-14 text-center">
               <p className="text-xl font-extrabold uppercase sm:text-2xl">
-                Do diagnóstico à prova, <span className="text-ouro">comigo conferindo cada semana.</span>
+                Do diagnóstico à prova, <span className="text-destaque">comigo conferindo cada semana.</span>
               </p>
               <BotaoAgendar className="mt-8" />
             </div>
@@ -369,7 +369,7 @@ export default function Pagina() {
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Até o PDF
                 <br />
-                <span className="bg-ouro px-2 leading-[1.15] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">tem padrão de laudo.</span>
+                <span className="bg-azul px-2 leading-[1.15] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">tem padrão de laudo.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
                 Além dos encontros ao vivo, eu escrevo o meu próprio material. O compêndio{" "}
@@ -384,7 +384,7 @@ export default function Pagina() {
                   "Simulado de fixação no final",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 font-bold">
-                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ouro text-xs text-preto">✓</span>
+                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-azul text-xs text-osso">✓</span>
                     {item}
                   </li>
                 ))}
@@ -426,7 +426,7 @@ export default function Pagina() {
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover object-[60%_30%]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-preto via-preto/10 to-transparent lg:bg-gradient-to-r lg:from-preto lg:via-preto/0" />
+              <div className="absolute inset-0 bg-gradient-to-t from-fundo via-fundo/10 to-transparent lg:bg-gradient-to-r lg:from-fundo lg:via-fundo/0" />
             </div>
             <div className="relative z-10 -mt-28 px-4 pb-24 sm:px-8 lg:mt-0 lg:flex lg:flex-col lg:justify-center lg:py-28 lg:pr-16">
               <div>
@@ -434,7 +434,7 @@ export default function Pagina() {
               </div>
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Eu formo os legistas depois da aprovação.
-                <span className="mt-2 block text-ouro">Agora preparo você antes dela.</span>
+                <span className="mt-2 block text-destaque">Agora preparo você antes dela.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
                 Sou instrutor titular do Curso de Formação de Médico Legista da Academia de Polícia de Pernambuco,
@@ -446,14 +446,14 @@ export default function Pagina() {
         </section>
 
         {/* ───────── Agendamento ───────── */}
-        <section id="agendar" className="brilho-ouro relative overflow-clip border-t border-ouro/20 px-4 py-24 sm:px-8 sm:py-32">
+        <section id="agendar" className="brilho-azul relative overflow-clip border-t border-destaque/20 px-4 py-24 sm:px-8 sm:py-32">
           <div aria-hidden className="textura-capa pointer-events-none absolute inset-0 opacity-70" />
           <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
             <div className="lg:sticky lg:top-28">
               <Pilula>Reunião gratuita</Pilula>
               <h2 className="mt-6 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl">
                 Agende sua reunião
-                <span className="block text-ouro">comigo.</span>
+                <span className="block text-destaque">comigo.</span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
                 Uma conversa individual, pelo Google Meet, para eu entender exatamente onde você está — e
@@ -466,7 +466,7 @@ export default function Pagina() {
                   ["Seu plano", "Como a mentoria se encaixa no seu caso — e todos os detalhes para começar."],
                 ].map(([t, d], i) => (
                   <li key={t} className="flex gap-4">
-                    <span className="w-9 shrink-0 font-impacto text-3xl leading-none text-ouro">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="w-9 shrink-0 font-impacto text-3xl leading-none text-destaque">{String(i + 1).padStart(2, "0")}</span>
                     <span>
                       <span className="block font-black uppercase">{t}</span>
                       <span className="block text-osso/60">{d}</span>

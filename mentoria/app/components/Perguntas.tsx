@@ -36,7 +36,7 @@ export default function Perguntas() {
             {p}
             <span
               aria-hidden
-              className="grid size-8 shrink-0 place-items-center rounded-full bg-preto text-lg font-bold text-ouro transition group-open:rotate-45"
+              className="grid size-8 shrink-0 place-items-center rounded-full bg-azul text-lg font-bold text-osso transition group-open:rotate-45"
             >
               +
             </span>
