@@ -174,9 +174,9 @@ export default function Pagina() {
               <div className="animate-surgir">
                 <Pilula>Individual e personalizada · vagas limitadas</Pilula>
               </div>
-              <h1 className="mt-6 animate-surgir text-[1.95rem] font-bold leading-[1.08] tracking-tight [animation-delay:80ms] min-[400px]:text-[2.15rem] sm:text-[2.6rem] xl:text-[3.05rem]">
-                Conquiste sua aprovação <span className="text-destaque">como médico legista</span>, sendo acompanhado
-                individualmente por quem já percorreu este mesmo caminho.
+              <h1 className="mt-6 animate-surgir text-[2.1rem] font-bold uppercase leading-[0.98] tracking-tight [animation-delay:80ms] min-[400px]:text-[2.4rem] sm:text-6xl xl:text-[4.1rem]">
+                Mentoria individualizada
+                <span className="block text-destaque">para futuros médicos-legistas</span>
               </h1>
               <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms]">
                 Não é a mesma mentoria para todo mundo. Tudo começa numa reunião: entendo o seu perfil, sua
