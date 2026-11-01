@@ -179,9 +179,9 @@ export default function Pagina() {
                 <span className="block text-destaque">para futuros médicos-legistas</span>
               </h1>
               <p className="mt-6 max-w-xl animate-surgir text-lg leading-relaxed text-osso/70 [animation-delay:160ms]">
-                Não é a mesma mentoria para todo mundo. Tudo começa numa reunião: entendo o seu perfil, sua
-                rotina, seus pontos fortes e fracos — e, a partir disso, <strong className="font-bold text-osso">monto o
-                plano de ação que vai te levar até a aprovação</strong>.
+                Tudo começa numa reunião: entendo o seu perfil, sua rotina, seus pontos fortes e fracos — e, a partir
+                disso, <strong className="font-bold text-osso">monto o plano de ação que vai te levar até a
+                aprovação</strong> com o meu ensino e acompanhamento durante cada etapa.
               </p>
 
               <div id="topo" className="mt-9 flex animate-surgir flex-col gap-4 [animation-delay:240ms] sm:flex-row sm:items-center">
