@@ -5,9 +5,9 @@ import Image from "next/image";
 
 import fotoRecorte from "../../public/fotos/miguel-recorte.webp";
 
-/** Registros profissionais; trocar pelos números reais. */
-const CRM = "CRM-PE 00000";
-const RQE = "RQE 0000";
+/** Registros profissionais do Miguel. */
+const CRM = "CRM-PE 21.839";
+const RQE = "RQE 4.156";
 
 export default function RetratoPericial() {
   return (
