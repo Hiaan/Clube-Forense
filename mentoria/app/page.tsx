@@ -55,7 +55,7 @@ function Celular({ img, alt, className = "" }: { img: StaticImageData; alt: stri
 }
 
 const FAIXA = [
-  "Plano feito a partir de você",
+  "Plano de estudos personalizado",
   "Reforço nos seus pontos fracos",
   "Encontro ao vivo toda semana",
   "Dúvidas comigo durante a semana",
