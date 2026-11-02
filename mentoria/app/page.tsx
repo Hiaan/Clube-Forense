@@ -3,10 +3,10 @@ import Image, { type StaticImageData } from "next/image";
 import Agendamento from "./components/Agendamento";
 import BarraFixa from "./components/BarraFixa";
 import PassoAPasso from "./components/PassoAPasso";
+import RetratoPericial from "./components/RetratoPericial";
 import Perguntas from "./components/Perguntas";
 import { LINK_GRUPO_CASOS } from "../lib/site";
 
-import fotoBracos from "../public/fotos/miguel-bracos-cruzados.jpg";
 import fotoPerfil from "../public/fotos/miguel-cadeira-perfil.jpg";
 import capaEbook from "../public/material/eponimos-capa.webp";
 import paginaFilhos from "../public/material/eponimos-filhos-langer.webp";
@@ -211,27 +211,7 @@ export default function Pagina() {
               </ul>
             </div>
 
-            {/* Retrato */}
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div className="absolute -inset-6 rounded-[3rem] bg-azul-claro/40 blur-3xl" aria-hidden />
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cinza-foto lg:aspect-[4/5]">
-                <Image
-                  src={fotoBracos}
-                  alt="Dr. Miguel Souza, médico legista, de braços cruzados e sorrindo"
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 40vw, 100vw"
-                  className="object-cover object-[50%_10%]"
-                />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-fundo via-fundo/40 to-transparent" />
-                <div className="absolute inset-x-6 bottom-6">
-                  <p className="text-2xl font-bold uppercase leading-tight sm:text-3xl">Dr. Miguel Souza</p>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-destaque">
-                    Médico legista · Doutorando em Perícias Forenses
-                  </p>
-                </div>
-              </div>
-            </div>
+            <RetratoPericial />
           </div>
 
           {/* Faixa corrida */}
