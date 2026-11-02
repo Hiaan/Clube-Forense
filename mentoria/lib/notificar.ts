@@ -1,4 +1,5 @@
-// Avisa o Miguel, no WhatsApp dele, que alguém agendou uma reunião.
+// Avisa o Miguel, no WhatsApp dele, de cada contato novo e de cada reunião
+// agendada.
 //
 // Há três canais, e cada um liga sozinho quando suas variáveis existem:
 //
@@ -12,14 +13,24 @@
 // - Webhook genérico: recebe o agendamento em JSON, para quem quiser guardar
 //   numa planilha ou CRM (Make, Zapier, n8n). Variável: AGENDAMENTO_WEBHOOK_URL.
 //
+// O formulário avisa duas vezes: quando a pessoa deixa nome, e-mail e
+// WhatsApp (o contato já fica guardado mesmo que ela desista no meio) e
+// quando termina de agendar. As duas mensagens levam o mesmo `id`, para o
+// webhook juntar uma com a outra.
+//
 // O agendamento só é dado como recebido se ao menos um canal entregou. Sem
 // banco de dados, a mensagem é o único registro do contato; dizer "agendado"
 // quando nada chegou seria perder o lead em silêncio.
 
-export interface Agendamento {
+export interface Contato {
+  /** Gerado no navegador; o mesmo nas duas mensagens da mesma pessoa. */
+  id: string;
   nome: string;
   email: string;
   telefone: string;
+}
+
+export interface Agendamento extends Contato {
   situacao: string;
   estuda: string;
   concurso: string;
@@ -37,7 +48,7 @@ async function exigirOk(resposta: Response, canal: string) {
   }
 }
 
-function canais(texto: string, agendamento: Agendamento): Canal[] {
+function canais(texto: string, dados: object): Canal[] {
   const lista: Canal[] = [];
   const env = process.env;
 
@@ -79,7 +90,7 @@ function canais(texto: string, agendamento: Agendamento): Canal[] {
         const resposta = await fetch(env.AGENDAMENTO_WEBHOOK_URL!, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...agendamento, recebidoEm: new Date().toISOString() }),
+          body: JSON.stringify({ ...dados, recebidoEm: new Date().toISOString() }),
           cache: "no-store",
         });
         await exigirOk(resposta, "Webhook");
@@ -90,8 +101,22 @@ function canais(texto: string, agendamento: Agendamento): Canal[] {
   return lista;
 }
 
+function linkWhatsApp(telefone: string): string {
+  return `https://wa.me/${telefone.startsWith("55") ? telefone : `55${telefone}`}`;
+}
+
+export function mensagemContato(c: Contato): string {
+  return [
+    "*Novo contato — Mentoria*",
+    "_Preencheu os dados; ainda não terminou de agendar._",
+    "",
+    `Nome: ${c.nome}`,
+    `E-mail: ${c.email}`,
+    `WhatsApp: ${linkWhatsApp(c.telefone)}`,
+  ].join("\n");
+}
+
 export function montarMensagem(a: Agendamento): string {
-  const telefone = a.telefone.startsWith("55") ? a.telefone : `55${a.telefone}`;
   return [
     "*Nova reunião agendada — Mentoria*",
     "",
@@ -102,7 +127,7 @@ export function montarMensagem(a: Agendamento): string {
     `Já estuda para legista: ${a.estuda}`,
     ...(a.concurso ? [`Concurso de interesse: ${a.concurso}`] : []),
     `E-mail: ${a.email}`,
-    `WhatsApp: https://wa.me/${telefone}`,
+    `WhatsApp: ${linkWhatsApp(a.telefone)}`,
   ].join("\n");
 }
 
@@ -113,24 +138,31 @@ export function montarMensagem(a: Agendamento): string {
  * desenvolvimento a mensagem vai para o terminal e conta como entregue, para o
  * formulário poder ser testado sem credenciais.
  */
-export async function notificarMiguel(agendamento: Agendamento): Promise<boolean> {
-  const texto = montarMensagem(agendamento);
-  const lista = canais(texto, agendamento);
+async function enviar(texto: string, dados: object): Promise<boolean> {
+  const lista = canais(texto, dados);
 
   if (lista.length === 0) {
     if (process.env.NODE_ENV !== "production") {
-      console.info(`[agendamento] nenhum canal configurado; mensagem:\n${texto}`);
+      console.info(`[mentoria] nenhum canal configurado; mensagem:\n${texto}`);
       return true;
     }
-    console.error("[agendamento] nenhum canal de WhatsApp configurado");
+    console.error("[mentoria] nenhum canal de WhatsApp configurado");
     return false;
   }
 
   const resultados = await Promise.allSettled(lista.map((c) => c.enviar()));
   resultados.forEach((r, i) => {
     if (r.status === "rejected") {
-      console.error(`[agendamento] ${lista[i].nome} falhou:`, r.reason);
+      console.error(`[mentoria] ${lista[i].nome} falhou:`, r.reason);
     }
   });
   return resultados.some((r) => r.status === "fulfilled");
+}
+
+export function notificarContato(contato: Contato): Promise<boolean> {
+  return enviar(mensagemContato(contato), { tipo: "contato", ...contato });
+}
+
+export function notificarMiguel(agendamento: Agendamento): Promise<boolean> {
+  return enviar(montarMensagem(agendamento), { tipo: "agendamento", ...agendamento });
 }

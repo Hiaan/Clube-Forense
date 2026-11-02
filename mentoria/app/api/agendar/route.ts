@@ -6,6 +6,7 @@ import {
   horarioCurto,
   horarioValido,
 } from "../../../lib/agenda";
+import { lerContato } from "../../../lib/contato";
 import { notificarMiguel } from "../../../lib/notificar";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ const ESTUDA: Record<string, string> = {
 };
 
 interface Corpo {
+  id?: string;
   nome?: string;
   email?: string;
   telefone?: string;
@@ -49,20 +51,14 @@ export async function POST(request: Request) {
   // Robô recebe "ok" e segue a vida; avisar que foi pego só ensina a desviar.
   if (corpo.site) return Response.json({ ok: true });
 
-  const nome = (corpo.nome ?? "").trim().replace(/\s+/g, " ").slice(0, 120);
-  const email = (corpo.email ?? "").trim().toLowerCase().slice(0, 160);
-  const telefone = (corpo.telefone ?? "").replace(/\D/g, "");
+  const contato = lerContato(corpo);
   const situacao = SITUACOES[corpo.situacao ?? ""];
   const estuda = ESTUDA[corpo.estuda ?? ""];
   const concurso = (corpo.concurso ?? "").trim().slice(0, 400);
   const data = corpo.data ?? "";
   const horario = corpo.horario ?? "";
 
-  if (nome.length < 3) return erro("Informe seu nome completo.");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return erro("Confira o seu e-mail.");
-  if (telefone.length < 10 || telefone.length > 13) {
-    return erro("Confira o telefone: DDD + número.");
-  }
+  if (typeof contato === "string") return erro(contato);
   if (!situacao) return erro("Conte se você já é médico(a) ou se está se formando.");
   if (!estuda) return erro("Conte se você já estuda para se tornar legista.");
   if (corpo.estuda === "sim" && !concurso) return erro("Escolha o concurso que te interessa.");
@@ -70,9 +66,7 @@ export async function POST(request: Request) {
   if (!horarioValido(horario)) return erro("Escolha um horário.");
 
   const entregue = await notificarMiguel({
-    nome,
-    email,
-    telefone,
+    ...contato,
     situacao,
     estuda,
     concurso,

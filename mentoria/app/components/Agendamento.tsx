@@ -1,15 +1,15 @@
 "use client";
 
-// Agendamento da reunião em três passos, dentro da capa.
+// Agendamento da reunião em três passos.
 //
-// Começar por uma pergunta só ("você já é médico?") custa um clique e já
-// compromete a pessoa com o formulário; nome e telefone ficam para o fim,
-// quando ela já escolheu o horário e tem motivo para terminar.
+// Nome, e-mail e WhatsApp vêm primeiro e são enviados assim que a pessoa
+// avança (`/api/contato`): o contato fica guardado mesmo que ela desista nas
+// perguntas ou na agenda. O resto vai junto com o agendamento, no fim.
 //
 // Os dias vêm de `lib/agenda.ts`, o mesmo arquivo que a API usa para validar:
 // o que aparece aqui é exatamente o que vai ser aceito lá.
 
-import { useMemo, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 
 import {
   HORARIOS,
@@ -61,7 +61,7 @@ const SITUACOES = [
   },
 ];
 
-const PASSOS = ["Momento", "Agenda", "Dados"];
+const PASSOS = ["Seus dados", "Momento", "Agenda"];
 
 /** Estados com concurso em vista, mostrados primeiro. */
 const ESTADOS_DESTAQUE = ["Distrito Federal", "Tocantins", "Maranhão", "Pernambuco"];
@@ -112,50 +112,71 @@ export default function Agendamento() {
   }
   const [data, setData] = useState("");
   const [horario, setHorario] = useState("");
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [estado, setEstado] = useState<Estado>({ fase: "editando" });
 
-  async function enviar(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const nome = String(form.get("nome") ?? "");
-    setEstado({ fase: "enviando" });
+  // Liga o contato do primeiro passo ao agendamento do último.
+  const id = useRef("");
+  const robo = useRef("");
 
+  async function postar(rota: string, corpo: object): Promise<string | null> {
     try {
-      const resposta = await fetch("/api/agendar", {
+      const resposta = await fetch(rota, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome,
-          email: form.get("email"),
-          telefone,
-          situacao,
-          estuda,
-          concurso: estuda === "sim" ? concurso : "",
-          data,
-          horario,
-          site: form.get("site"),
-        }),
+        body: JSON.stringify(corpo),
       });
       const json = (await resposta.json().catch(() => ({}))) as { ok?: boolean; mensagem?: string };
-      if (!resposta.ok || !json.ok) {
-        setEstado({
-          fase: "editando",
-          erro: json.mensagem ?? "Algo deu errado. Tente de novo em instantes.",
-        });
-        return;
-      }
-      setEstado({
-        fase: "pronto",
-        primeiroNome: nome.trim().split(" ")[0],
-        resumo: `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`,
-      });
-      // A confirmação é mais curta que o formulário: sem isto, no celular a
-      // pessoa fica olhando para o que vem depois sem ver que deu certo.
-      document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
+      if (!resposta.ok || !json.ok) return json.mensagem ?? "Algo deu errado. Tente de novo em instantes.";
+      return null;
     } catch {
-      setEstado({ fase: "editando", erro: "Sem conexão. Confira sua internet e tente de novo." });
+      return "Sem conexão. Confira sua internet e tente de novo.";
     }
+  }
+
+  async function salvarContato(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    robo.current = String(new FormData(e.currentTarget).get("site") ?? "");
+    if (!id.current) id.current = crypto.randomUUID();
+    setEstado({ fase: "enviando" });
+    const erro = await postar("/api/contato", { id: id.current, nome, email, telefone, site: robo.current });
+    if (erro) {
+      setEstado({ fase: "editando", erro });
+      return;
+    }
+    setEstado({ fase: "editando" });
+    setPasso(2);
+  }
+
+  async function confirmar() {
+    setEstado({ fase: "enviando" });
+
+    const erro = await postar("/api/agendar", {
+      id: id.current,
+      nome,
+      email,
+      telefone,
+      situacao,
+      estuda,
+      concurso: estuda === "sim" ? concurso : "",
+      data,
+      horario,
+      site: robo.current,
+    });
+    if (erro) {
+      setEstado({ fase: "editando", erro });
+      return;
+    }
+    setEstado({
+      fase: "pronto",
+      primeiroNome: nome.trim().split(" ")[0],
+      resumo: `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`,
+    });
+    // A confirmação é mais curta que o formulário: sem isto, no celular a
+    // pessoa fica olhando para o que vem depois sem ver que deu certo.
+    document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
   }
 
   const cartao =
@@ -213,7 +234,7 @@ export default function Agendamento() {
                 type="button"
                 disabled={!feito}
                 onClick={() => setPasso(n)}
-                className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition sm:gap-2 sm:px-3 ${
+                className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 transition sm:gap-2 sm:px-3 ${
                   atual ? "bg-destaque text-preto" : feito ? "text-osso/80 hover:text-osso" : "text-osso/35"
                 }`}
               >
@@ -224,7 +245,7 @@ export default function Agendamento() {
                 >
                   {feito ? "✓" : n}
                 </span>
-                {nome}
+                <span className={atual ? "" : "hidden sm:inline"}>{nome}</span>
               </button>
               {i < PASSOS.length - 1 && <span className="hidden h-px w-5 bg-white/15 sm:block" />}
             </li>
@@ -232,7 +253,7 @@ export default function Agendamento() {
         })}
       </ol>
 
-      {passo === 1 && pergunta === "situacao" && (
+      {passo === 2 && pergunta === "situacao" && (
         <div className="animate-surgir">
           <h3 className="text-xl font-bold sm:text-2xl">Você já é médico(a)?</h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -266,7 +287,7 @@ export default function Agendamento() {
         </div>
       )}
 
-      {passo === 1 && pergunta === "estuda" && (
+      {passo === 2 && pergunta === "estuda" && (
         <div className="animate-surgir">
           <h3 className="text-xl font-bold sm:text-2xl">Você já estuda para se tornar legista?</h3>
           <div className="mt-4 grid grid-cols-2 gap-3">
@@ -280,7 +301,7 @@ export default function Agendamento() {
                 onClick={() => {
                   setEstuda(op.valor);
                   if (op.valor === "sim") setPergunta("concurso");
-                  else setPasso(2);
+                  else setPasso(3);
                 }}
                 className={`rounded-2xl p-4 text-left ${opcaoBase} ${
                   estuda === op.valor ? "border-destaque bg-destaque/10" : opcaoInativa
@@ -297,7 +318,7 @@ export default function Agendamento() {
         </div>
       )}
 
-      {passo === 1 && pergunta === "concurso" && (
+      {passo === 2 && pergunta === "concurso" && (
         <div className="animate-surgir">
           <h3 className="text-xl font-bold sm:text-2xl">Em qual concurso você tem interesse?</h3>
           <p className="mt-1 text-sm text-osso/50">Pode marcar mais de um.</p>
@@ -370,7 +391,7 @@ export default function Agendamento() {
             <button
               type="button"
               disabled={!concurso}
-              onClick={() => setPasso(2)}
+              onClick={() => setPasso(3)}
               className="rounded-full bg-destaque px-7 py-3.5 text-sm font-bold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
             >
               Continuar →
@@ -379,7 +400,7 @@ export default function Agendamento() {
         </div>
       )}
 
-      {passo === 2 && (
+      {passo === 3 && (
         <div className="animate-surgir">
           <h3 className="text-xl font-bold sm:text-2xl">Escolha o dia e o horário</h3>
           <p className={`${rotulo} mt-5`}>Dia</p>
@@ -436,24 +457,40 @@ export default function Agendamento() {
             })}
           </div>
 
-          <div className="mt-6 flex items-center justify-between gap-3">
-            <button type="button" onClick={() => setPasso(1)} className="px-2 py-3 text-sm font-bold text-osso/50 hover:text-osso">
-              ← Voltar
-            </button>
-            <button
-              type="button"
-              disabled={!data || !horario}
-              onClick={() => setPasso(3)}
-              className="rounded-full bg-destaque px-7 py-3.5 text-sm font-bold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
-            >
-              Continuar →
-            </button>
-          </div>
+          {erro && (
+            <p role="alert" className="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {erro}
+            </p>
+          )}
+
+          <button
+            type="button"
+            disabled={!data || !horario || enviando}
+            onClick={confirmar}
+            className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-destaque px-6 py-4 text-left text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <span>
+              <span className="block text-base font-bold uppercase">
+                {enviando ? "Agendando…" : "Confirmar reunião gratuita"}
+              </span>
+              <span className="block text-sm font-semibold text-preto/65">
+                {data && horario ? `${dataPorExtenso(data)}, às ${horarioCurto(horario)}` : "Escolha o dia e o horário"}
+              </span>
+            </span>
+            <span aria-hidden className="text-2xl transition group-hover:translate-x-1">→</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPasso(2)}
+            className="mt-3 py-2 text-xs font-bold text-osso/40 hover:text-osso"
+          >
+            ← Voltar
+          </button>
         </div>
       )}
 
-      {passo === 3 && (
-        <form onSubmit={enviar} className="relative animate-surgir">
+      {passo === 1 && (
+        <form onSubmit={salvarContato} className="relative animate-surgir">
           {/* Armadilha para robô, fora da tela e fora do Tab. */}
           <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
             <label>
@@ -461,15 +498,34 @@ export default function Agendamento() {
             </label>
           </div>
 
-          <h3 className="text-xl font-bold sm:text-2xl">Para eu confirmar com você</h3>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="sm:col-span-2">
+          <h3 className="text-xl font-bold sm:text-2xl">Preencha seus dados</h3>
+          <p className="mt-1 text-sm text-osso/55">Para eu entrar em contato e confirmar a sua reunião.</p>
+          <div className="mt-5 grid gap-4">
+            <label>
               <span className={rotulo}>Nome completo</span>
-              <input name="nome" required minLength={3} autoComplete="name" className={campo} placeholder="Como você se chama" />
+              <input
+                name="nome"
+                required
+                minLength={3}
+                autoComplete="name"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                className={campo}
+                placeholder="Seu nome completo"
+              />
             </label>
             <label>
               <span className={rotulo}>E-mail</span>
-              <input name="email" type="email" required autoComplete="email" className={campo} placeholder="voce@email.com" />
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={campo}
+                placeholder="voce@email.com"
+              />
             </label>
             <label>
               <span className={rotulo}>WhatsApp</span>
@@ -498,24 +554,12 @@ export default function Agendamento() {
           <button
             type="submit"
             disabled={enviando}
-            className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-destaque px-6 py-4 text-left text-preto transition hover:bg-destaque-claro disabled:cursor-wait disabled:opacity-70"
+            className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-destaque px-6 py-4 text-left text-base font-bold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-wait disabled:opacity-70"
           >
-            <span>
-              <span className="block text-base font-bold uppercase">
-                {enviando ? "Agendando…" : "Confirmar reunião gratuita"}
-              </span>
-              <span className="block text-sm font-semibold text-preto/65">
-                {dataPorExtenso(data)}, às {horarioCurto(horario)}
-              </span>
-            </span>
+            {enviando ? "Enviando…" : "Continuar"}
             <span aria-hidden className="text-2xl transition group-hover:translate-x-1">→</span>
           </button>
-          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-osso/40">
-            <button type="button" onClick={() => setPasso(2)} className="py-2 font-bold hover:text-osso">
-              ← Trocar horário
-            </button>
-            <span>Seus dados ficam só comigo.</span>
-          </div>
+          <p className="mt-3 text-center text-xs text-osso/40">Seus dados ficam só comigo.</p>
         </form>
       )}
     </div>
