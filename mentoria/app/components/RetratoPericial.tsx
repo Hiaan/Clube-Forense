@@ -17,19 +17,19 @@ export default function RetratoPericial() {
         aria-hidden
         className="absolute left-1/2 top-[6%] h-[70%] w-[90%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(110,150,195,.45),transparent)]"
       />
-      <div className="relative w-[78%] max-w-[400px]">
+      <div className="relative aspect-[900/1180] w-[78%] max-w-[400px] overflow-hidden">
         <Image
           src={fotoRecorte}
           alt="Dr. Miguel Souza, perito médico legista, de braços cruzados e sorrindo"
           priority
           sizes="(min-width: 1024px) 30vw, 75vw"
-          className="h-auto w-full drop-shadow-[0_20px_40px_rgba(0,0,0,.45)]"
+          className="h-auto w-full"
         />
         {/* Esfuma a parte de baixo da foto no fundo da capa */}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-fundo via-fundo/70 to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/5 bg-gradient-to-t from-fundo via-fundo/80 to-transparent" />
       </div>
 
-      <div className="relative -mt-16 text-center">
+      <div className="relative -mt-10 text-center">
         <p className="text-3xl font-bold uppercase leading-none tracking-tight sm:text-4xl">Dr. Miguel Souza</p>
         <p className="mt-3 text-xs font-semibold uppercase tracking-[0.24em] text-destaque sm:text-sm">
           Perito médico legista
