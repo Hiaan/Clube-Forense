@@ -582,11 +582,13 @@ export default function Pagina() {
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
               <Pilula cor="preto">Material autoral</Pilula>
-              <h2 className="mt-6 text-3xl font-bold uppercase leading-[1] tracking-tight sm:text-[2.6rem]">
-                PDFs e materiais de apoio
+              <h2 className="mt-6 text-[1.7rem] font-bold uppercase leading-[1.05] tracking-tight sm:text-[2.1rem] lg:text-[1.55rem] xl:text-[2rem]">
+                <span className="whitespace-nowrap">PDFs e materiais</span>{" "}
+                <span className="whitespace-nowrap">de apoio</span>
                 <span className="mt-3 block">
                   <span className="bg-azul px-2 leading-[1.2] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
-                    para auxiliar no seu estudo.
+                    <span className="whitespace-nowrap">para auxiliar</span>{" "}
+                    <span className="whitespace-nowrap">no seu estudo.</span>
                   </span>
                 </span>
               </h2>
