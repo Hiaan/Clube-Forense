@@ -86,7 +86,7 @@ const PLANO_EXEMPLO = [
 const CREDENCIAIS = [
   ["Médico legista", "de carreira em Pernambuco"],
   ["Doutorando", "em Perícias Forenses (UPE)"],
-  ["Pós-graduado", "em Medicina Legal e Perícia Médica"],
+  ["Instrutor titular", "da Academia de Polícia"],
   ["Professor", "de preparatório para legista"],
 ];
 
@@ -385,7 +385,8 @@ export default function Pagina() {
                 </span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
-                Sou perito oficial médico legista, mestre e doutorando em Perícias Forenses. Depois de anos preparando turmas inteiras para o concurso, pela primeira vez
+                Sou perito oficial médico legista, mestre e doutorando em Perícias Forenses e instrutor da
+                Academia de Polícia. Depois de anos preparando turmas inteiras para o concurso, pela primeira vez
                 abro acompanhamento individual — sem dividir a atenção com mais ninguém.
               </p>
               <dl className="mt-10 grid grid-cols-2 gap-3">
