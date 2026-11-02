@@ -8,7 +8,6 @@ import { LINK_GRUPO_CASOS } from "../lib/site";
 
 import fotoBracos from "../public/fotos/miguel-bracos-cruzados.jpg";
 import fotoPerfil from "../public/fotos/miguel-cadeira-perfil.jpg";
-import fotoAcademia from "../public/fotos/miguel-academia.jpg";
 import capaEbook from "../public/material/eponimos-capa.webp";
 import paginaFilhos from "../public/material/eponimos-filhos-langer.webp";
 import paginaArma from "../public/material/eponimos-arma-de-fogo.webp";
@@ -87,7 +86,7 @@ const PLANO_EXEMPLO = [
 const CREDENCIAIS = [
   ["Médico legista", "de carreira em Pernambuco"],
   ["Doutorando", "em Perícias Forenses (UPE)"],
-  ["Instrutor titular", "da Academia de Polícia"],
+  ["Pós-graduado", "em Medicina Legal e Perícia Médica"],
   ["Professor", "de preparatório para legista"],
 ];
 
@@ -386,8 +385,7 @@ export default function Pagina() {
                 </span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
-                Sou perito oficial médico legista, mestre e doutorando em Perícias Forenses e instrutor da
-                Academia de Polícia. Depois de anos preparando turmas inteiras para o concurso, pela primeira vez
+                Sou perito oficial médico legista, mestre e doutorando em Perícias Forenses. Depois de anos preparando turmas inteiras para o concurso, pela primeira vez
                 abro acompanhamento individual — sem dividir a atenção com mais ninguém.
               </p>
               <dl className="mt-10 grid grid-cols-2 gap-3">
@@ -528,7 +526,7 @@ export default function Pagina() {
                 <p className="text-lg leading-relaxed text-osso/75">
                   No <strong className="text-osso">MedLegal Dose Diária</strong>, eu posto um caso real, provoco a
                   discussão e fecho com o que a banca cobra — e em qual referência está. Médicos do Brasil inteiro
-                  treinando o olho pericial, todos os dias.
+                  treinando o olhar pericial, todos os dias.
                 </p>
                 <div className="mt-8">
                   {LINK_GRUPO_CASOS ? (
@@ -583,13 +581,17 @@ export default function Pagina() {
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2">
             <div>
               <Pilula cor="preto">Material autoral</Pilula>
-              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
-                Até o PDF
-                <br />
-                <span className="bg-azul px-2 leading-[1.15] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">tem padrão de laudo.</span>
+              <h2 className="mt-6 text-3xl font-bold uppercase leading-[1] tracking-tight sm:text-[2.6rem]">
+                PDFs e materiais de apoio
+                <span className="mt-3 block">
+                  <span className="bg-azul px-2 leading-[1.2] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
+                    para auxiliar no seu estudo.
+                  </span>
+                </span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
-                Além dos encontros ao vivo, eu escrevo o meu próprio material. O compêndio{" "}
+                Além dos encontros ao vivo, tenha acesso ao meu próprio material, feito com base nas principais literaturas.
+                O compêndio{" "}
                 <strong className="text-preto">Epônimos em Traumatologia Forense</strong> organiza sinais, leis e
                 síndromes por energia causadora e lesão elementar — do jeito que a banca cobra.
               </p>
@@ -628,36 +630,6 @@ export default function Pagina() {
                 sizes="(min-width: 1024px) 26vw, 60vw"
                 className="absolute bottom-0 left-0 h-auto w-[60%] -rotate-[4deg] rounded-md shadow-[0_30px_60px_-20px_rgba(0,0,0,0.7)]"
               />
-            </div>
-          </div>
-        </section>
-
-        {/* ───────── Academia de Polícia ───────── */}
-        <section className="relative overflow-hidden">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 lg:grid-cols-2">
-            <div className="relative min-h-[460px] lg:order-2 lg:min-h-[680px]">
-              <Image
-                src={fotoAcademia}
-                alt="Miguel Souza na Academia de Polícia, de braços cruzados"
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover object-[60%_30%]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-fundo via-fundo/10 to-transparent lg:bg-gradient-to-r lg:from-fundo lg:via-fundo/0" />
-            </div>
-            <div className="relative z-10 -mt-28 px-4 pb-24 sm:px-8 lg:mt-0 lg:flex lg:flex-col lg:justify-center lg:py-28 lg:pr-16">
-              <div>
-                <Pilula>Academia de Polícia</Pilula>
-              </div>
-              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-6xl">
-                Eu formo os legistas depois da aprovação.
-                <span className="mt-2 block text-destaque">Agora preparo você antes dela.</span>
-              </h2>
-              <p className="mt-6 text-lg leading-relaxed text-osso/70">
-                Sou instrutor titular do Curso de Formação de Médico Legista da Academia de Polícia de Pernambuco,
-                nas turmas de 2021 e 2026 — a etapa em que os aprovados aprendem o ofício antes de assumir o cargo.
-                Sei o que a perícia exige no dia a dia. Por isso sei o que a banca vai cobrar.
-              </p>
             </div>
           </div>
         </section>
