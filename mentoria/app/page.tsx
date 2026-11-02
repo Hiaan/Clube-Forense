@@ -59,7 +59,7 @@ const FAIXA = [
   "Reforço nos seus pontos fracos",
   "Encontro ao vivo toda semana",
   "Dúvidas comigo durante a semana",
-  "Aulas de todos os assuntos",
+  "Todos os assuntos de Med. Legal",
   "Discussão de casos clínicos",
   "Resolução contínua de questões",
   "Correção de questões discursivas",
