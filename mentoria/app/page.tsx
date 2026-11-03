@@ -414,7 +414,7 @@ export default function Pagina() {
                 Além de marcar a alternativa certa.
                 <span className="mt-3 block">
                   <span className="bg-azul px-2 leading-[1.2] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
-                    É saber escrever como legista.
+                    É importante escrever como legista.
                   </span>
                 </span>
               </h2>
