@@ -84,7 +84,7 @@ const PLANO_EXEMPLO = [
 ];
 
 const CREDENCIAIS = [
-  ["Médico legista", "de carreira em Pernambuco"],
+  ["Médico legista", "de carreira desde 2018"],
   ["Doutorando", "em Perícias Forenses (UPE)"],
   ["Instrutor titular", "de Academia de Polícia"],
   ["Professor", "de preparatório para legista"],
@@ -95,7 +95,7 @@ const PASSOS = [
     titulo: "Reunião de diagnóstico",
     icone: <><path d="M9 4h6v3H9z" /><path d="M9 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3" /><path d="m9 14 2 2 4-4" /></>,
     texto:
-      "É aqui que a sua mentoria nasce. Entendo seu perfil de estudante, sua rotina, sua prova-alvo, seus pontos fortes e, principalmente, onde estão as suas dificuldades e o que está faltando.",
+      "É aqui que a sua mentoria nasce. Entendo seu perfil de concurseiro, sua rotina, sua prova-alvo, seus pontos fortes e, principalmente, onde estão as suas dificuldades e o que está faltando.",
   },
   {
     titulo: "Plano de ação sob medida",
@@ -119,7 +119,7 @@ const PASSOS = [
     titulo: "Questões com leitura de banca",
     icone: <><path d="m3 6 2 2 3-3M3 13l2 2 3-3M3 20l2 2 3-3" transform="translate(0 -2)" /><path d="M11 6h10M11 13h10M11 20h10" transform="translate(0 -2)" /></>,
     texto:
-      "Resolvemos questões juntos em cada encontro. CESPE segue o França, FGV pode seguir o Hygino — a mesma pergunta muda de gabarito conforme a banca, e eu te ensino a reconhecer isso.",
+      "Resolvemos questões juntos em cada encontro. A CESPE tende a seguir a bibliografia do França e do Delton Croce, já a FGV tende a adotar o Hygino como principal referência — a mesma pergunta muda de gabarito conforme a banca, e eu te ensino a reconhecer isso.",
   },
   {
     titulo: "Casos clínicos e aprofundamento forense",
@@ -411,7 +411,7 @@ export default function Pagina() {
             <div>
               <Pilula cor="preto">Correção de discursivas</Pilula>
               <h2 className="mt-6 text-3xl font-bold uppercase leading-[1] tracking-tight sm:text-[2.6rem]">
-                Não é só marcar a alternativa certa.
+                Além de marcar a alternativa certa.
                 <span className="mt-3 block">
                   <span className="bg-azul px-2 leading-[1.2] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
                     É saber escrever como legista.
