@@ -7,6 +7,7 @@ import RetratoPericial from "./components/RetratoPericial";
 import Perguntas from "./components/Perguntas";
 import { LINK_GRUPO_CASOS } from "../lib/site";
 
+import logo from "../public/logo-miguel-souza.png";
 import fotoBracos from "../public/fotos/miguel-bracos-cruzados.jpg";
 import capaEbook from "../public/material/eponimos-capa.webp";
 import paginaFilhos from "../public/material/eponimos-filhos-langer.webp";
@@ -154,12 +155,8 @@ export default function Pagina() {
       {/* ───────── Cabeçalho ───────── */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-preto/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-8">
-          <a href="#" className="flex items-center gap-3">
-            <span className="grid size-9 place-items-center rounded-lg bg-azul font-impacto text-lg text-osso ring-1 ring-white/15">MS</span>
-            <span className="leading-none">
-              <span className="block text-[15px] font-bold uppercase tracking-wide">Miguel Souza</span>
-              <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.3em] text-osso/45">Medicina Forensis</span>
-            </span>
+          <a href="#" className="flex items-center">
+            <Image src={logo} alt="Miguel Souza · Medicina Forensis" priority className="h-10 w-auto sm:h-12" />
           </a>
           <a
             href="#agendar"
@@ -666,10 +663,7 @@ export default function Pagina() {
 
       <footer className="px-4 pb-24 pt-12 text-osso/50 sm:px-8 md:pb-12">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-bold uppercase tracking-wide text-osso">
-            Miguel Souza <span className="mx-2 text-osso/30">|</span>
-            <span className="text-xs font-bold tracking-[0.25em] text-osso/50">Medicina Forensis</span>
-          </p>
+          <Image src={logo} alt="Miguel Souza · Medicina Forensis" className="h-11 w-auto" />
           <p>Mentoria individualizada em Medicina Legal para concursos.</p>
         </div>
       </footer>
