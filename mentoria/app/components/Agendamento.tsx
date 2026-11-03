@@ -180,7 +180,7 @@ export default function Agendamento() {
   }
 
   const cartao =
-    "relative min-w-0 rounded-3xl border border-white/10 bg-carvao/90 p-5 shadow-[0_40px_120px_-40px_rgba(169,193,220,0.35)] backdrop-blur sm:p-7";
+    "relative min-w-0 rounded-3xl border border-white/10 bg-carvao/90 p-5 shadow-[0_40px_120px_-40px_rgba(95,211,154,0.35)] backdrop-blur sm:p-7";
 
   if (estado.fase === "pronto") {
     return (

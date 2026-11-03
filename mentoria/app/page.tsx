@@ -37,7 +37,7 @@ function BotaoAgendar({ className = "", texto = "Agendar reunião gratuita" }: {
   return (
     <a
       href="#agendar"
-      className={`group inline-flex items-center justify-center gap-3 rounded-full bg-destaque px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(169,193,220,0.6)] transition hover:bg-destaque-claro ${className}`}
+      className={`group inline-flex items-center justify-center gap-3 rounded-full bg-destaque px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(95,211,154,0.6)] transition hover:bg-destaque-claro ${className}`}
     >
       {texto}
       <span aria-hidden className="transition group-hover:translate-x-1">→</span>
@@ -441,7 +441,7 @@ export default function Pagina() {
             {/* Folha corrigida (ilustração) */}
             <figure className="relative mx-auto w-full max-w-xl">
               <div className="absolute -inset-4 -rotate-2 rounded-3xl bg-azul/15" aria-hidden />
-              <div className="relative rotate-1 rounded-3xl bg-white p-6 shadow-[0_40px_80px_-40px_rgba(7,17,28,0.5)] sm:p-8">
+              <div className="relative rotate-1 rounded-3xl bg-white p-6 shadow-[0_40px_80px_-40px_rgba(4,17,11,0.5)] sm:p-8">
                 <div className="flex items-center justify-between gap-4 border-b border-preto/10 pb-4">
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-azul">Questão discursiva</p>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-preto/40">Exemplo ilustrativo</p>

@@ -72,7 +72,7 @@ export default function PassoAPasso({ passos }: { passos: Passo[] }) {
       <div aria-hidden className="absolute bottom-0 left-5 top-0 w-px bg-white/10 lg:left-1/2">
         <div
           ref={preenchimento}
-          className="absolute inset-0 origin-top bg-gradient-to-b from-destaque via-destaque to-destaque/40 shadow-[0_0_12px_rgba(169,193,220,0.8)]"
+          className="absolute inset-0 origin-top bg-gradient-to-b from-destaque via-destaque to-destaque/40 shadow-[0_0_12px_rgba(95,211,154,0.8)]"
           style={{ transform: "scaleY(0)" }}
         />
       </div>
@@ -90,7 +90,7 @@ export default function PassoAPasso({ passos }: { passos: Passo[] }) {
           >
             {/* Marcador */}
             <div className="relative z-10 flex justify-center lg:col-start-2 lg:row-start-1">
-              <span className="marcador grid size-10 place-items-center rounded-full border border-destaque/60 bg-fundo font-impacto text-base text-destaque shadow-[0_0_0_6px_#0a1828,0_0_24px_rgba(169,193,220,0.45)]">
+              <span className="marcador grid size-10 place-items-center rounded-full border border-destaque/60 bg-fundo font-impacto text-base text-destaque shadow-[0_0_0_6px_#0b2a1d,0_0_24px_rgba(95,211,154,0.45)]">
                 {numero}
               </span>
             </div>
@@ -104,7 +104,7 @@ export default function PassoAPasso({ passos }: { passos: Passo[] }) {
               <span aria-hidden className="pointer-events-none absolute -bottom-6 right-3 select-none font-impacto text-[7rem] leading-none text-white/[0.04]">
                 {numero}
               </span>
-              <span className="grid size-12 place-items-center rounded-2xl bg-azul text-osso shadow-[0_10px_30px_-8px_rgba(44,98,147,0.9)] ring-1 ring-white/10">
+              <span className="grid size-12 place-items-center rounded-2xl bg-azul text-osso shadow-[0_10px_30px_-8px_rgba(31,138,87,0.9)] ring-1 ring-white/10">
                 <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   {p.icone}
                 </svg>

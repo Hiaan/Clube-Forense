@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 /*
- * Azul-marinho como base, o azul do Miguel nos blocos de destaque, um
- * azul-aço claro como cor de ação e verde só onde o assunto é o grupo no
- * WhatsApp. Tipografia pesada: Montserrat 800/900 nos títulos e Anton,
- * da família do Impact, nos números e nas faixas.
+ * Verde-floresta como base (o mesmo da seção do grupo), um verde médio nos
+ * blocos de destaque e um verde-menta claro como cor de ação. Tipografia
+ * pesada: Montserrat nos títulos e Anton, da família do Impact, nos números
+ * e nas faixas.
  */
 @theme {
-  /* Paleta do Miguel: azul profundo, azul-aço, branco e preto. */
-  --color-preto: #07111c;
-  --color-fundo: #0a1828;
-  --color-carvao: #0f2236;
-  --color-grafite: #163049;
-  --color-azul: #224d72;
-  --color-azul-claro: #2c6293;
-  --color-aco: #728ba2;
-  --color-destaque: #a9c1dc;
-  --color-destaque-claro: #cbdbec;
-  --color-osso: #eef2f6;
+  /* Verde-floresta da seção do grupo, estendido ao site inteiro. */
+  --color-preto: #04110b;
+  --color-fundo: #0b2a1d;
+  --color-carvao: #0e3323;
+  --color-grafite: #14402c;
+  --color-azul: #17603f;
+  --color-azul-claro: #1f8a57;
+  --color-aco: #6f9a85;
+  --color-destaque: #5fd39a;
+  --color-destaque-claro: #93e4bb;
+  --color-osso: #eef5f0;
   --color-verde: #22b46e;
-  --color-verde-escuro: #0b2a1d;
+  --color-verde-escuro: #08221a;
   --color-cinza-foto: #e0e0e1;
 
   --font-sans: var(--fonte-sans), system-ui, sans-serif;
@@ -67,11 +67,11 @@ section[id] {
   scroll-margin-top: 5rem;
 }
 
-/* Brilho azul atrás de blocos escuros. */
+/* Brilho verde atrás de blocos escuros. */
 .brilho-azul {
   background-image: radial-gradient(
     60% 60% at 50% 0%,
-    rgb(44 98 147 / 0.45),
+    rgb(31 138 87 / 0.35),
     transparent 70%
   );
 }
@@ -117,7 +117,7 @@ section[id] {
 }
 .passo.oculto .marcador {
   border-color: rgb(255 255 255 / 0.15);
-  color: rgb(238 242 246 / 0.3);
+  color: rgb(238 245 240 / 0.3);
   box-shadow: 0 0 0 6px var(--color-fundo);
 }
 
