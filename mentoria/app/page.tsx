@@ -62,12 +62,12 @@ const FAIXA = [
   "Todos os assuntos de Med. Legal",
   "Discussão de casos clínicos",
   "Resolução contínua de questões",
-  "Correção de questões discursivas",
+  "Treinamento de questões discursivas",
 ];
 
 /** O que a primeira reunião mapeia. */
 const DIAGNOSTICO = [
-  ["Seu perfil de estudante", "Como você estuda hoje, o que já viu e como aprende melhor."],
+  ["Seu perfil de concurseiro", "Como você estuda hoje, o que já viu e como aprende melhor."],
   ["Sua rotina real", "Plantões, família, cansaço: quanto tempo de estudo cabe de verdade na sua semana."],
   ["Seus pontos fortes", "O que já está firme e só precisa de manutenção."],
   ["Seus pontos fracos", "Onde você trava, o que está faltando e o que mais pesa na sua prova."],
@@ -86,7 +86,7 @@ const PLANO_EXEMPLO = [
 const CREDENCIAIS = [
   ["Médico legista", "de carreira em Pernambuco"],
   ["Doutorando", "em Perícias Forenses (UPE)"],
-  ["Instrutor titular", "da Academia de Polícia"],
+  ["Instrutor titular", "de Academia de Polícia"],
   ["Professor", "de preparatório para legista"],
 ];
 
@@ -199,7 +199,7 @@ export default function Pagina() {
               <ul className="mt-8 flex animate-surgir flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-osso/55 [animation-delay:320ms]">
                 {[
                   "Atendimento individualizado",
-                  "Correção de questões discursivas",
+                  "Treinamento de questões discursivas",
                   "Suporte direto com o professor",
                   "Reunião de diagnóstico gratuita",
                 ].map((t) => (
@@ -238,7 +238,7 @@ export default function Pagina() {
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-osso/70">
                 A mentoria nasce da nossa primeira reunião. Antes de qualquer cronograma, eu preciso entender quem é
-                você como estudante — e só então monto os encontros, as aulas e o plano de estudo.
+                você como concurseiro — e só então monto os encontros, as aulas e o plano de estudo.
               </p>
             </div>
 
@@ -365,8 +365,8 @@ export default function Pagina() {
                 </span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
-                Sou perito oficial médico legista, mestre e doutorando em Perícias Forenses e instrutor da
-                Academia de Polícia. Depois de anos preparando turmas inteiras para o concurso, pela primeira vez
+                Sou perito oficial médico legista, mestre e doutorando em Perícias Forenses e instrutor de
+                Academia de Polícia. Depois de anos preparando turmas inteiras para concurso, pela primeira vez
                 abro acompanhamento individual — sem dividir a atenção com mais ninguém.
               </p>
               <dl className="mt-10 grid grid-cols-2 gap-3">

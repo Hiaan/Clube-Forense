@@ -18,7 +18,7 @@ const impacto = Anton({
 });
 
 const descricao =
-  "Mentoria individualizada e personalizada em Medicina Legal com o Dr. Miguel Souza, médico legista de carreira, doutorando em Perícias Forenses e instrutor da Academia de Polícia. O plano nasce de uma reunião gratuita: perfil, rotina, pontos fortes e fracos.";
+  "Mentoria individualizada e personalizada em Medicina Legal com o Dr. Miguel Souza, médico legista de carreira, doutorando em Perícias Forenses e instrutor de Academia de Polícia. O plano nasce de uma reunião gratuita: perfil, rotina, pontos fortes e fracos.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
