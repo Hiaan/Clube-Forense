@@ -7,7 +7,7 @@ const PERGUNTAS = [
   },
   {
     p: "A mentoria é igual para todo mundo?",
-    r: "Não. O conteúdo cobre toda a Medicina Legal, mas o plano, os encontros e o reforço são montados a partir da nossa primeira reunião. Cada aluno tem o seu plano, com mais peso onde ele mais precisa.",
+    r: "Não. O conteúdo cobre toda a Medicina Legal, mas o plano, os encontros e a estratégia são montados a partir da nossa primeira reunião. Cada aluno tem o seu plano, com mais peso onde ele mais precisa.",
   },
   {
     p: "Preciso já ser médico(a)?",

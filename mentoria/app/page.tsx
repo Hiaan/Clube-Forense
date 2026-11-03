@@ -7,7 +7,7 @@ import RetratoPericial from "./components/RetratoPericial";
 import Perguntas from "./components/Perguntas";
 import { LINK_GRUPO_CASOS } from "../lib/site";
 
-import fotoPerfil from "../public/fotos/miguel-cadeira-perfil.jpg";
+import fotoBracos from "../public/fotos/miguel-bracos-cruzados.jpg";
 import capaEbook from "../public/material/eponimos-capa.webp";
 import paginaFilhos from "../public/material/eponimos-filhos-langer.webp";
 import paginaArma from "../public/material/eponimos-arma-de-fogo.webp";
@@ -145,7 +145,7 @@ const DISCURSIVAS = [
 const PROVAS_DO_GRUPO = [
   ["Um caso por dia", "Foto, achado e a pergunta: o que provocou essa lesão?"],
   ["Gabarito por banca", "O que vale para CESPE, o que vale para FGV — e em qual autor está."],
-  ["Além dos livros", "Respostas que não estão nem no França nem no Hygino."],
+  ["Além dos livros", "Respostas que não estão nas principais referências bibliográficas das bancas."],
 ];
 
 export default function Pagina() {
@@ -341,11 +341,11 @@ export default function Pagina() {
             <div className="relative order-2 lg:order-1">
               <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cinza-foto">
                 <Image
-                  src={fotoPerfil}
-                  alt="Dr. Miguel Souza sentado, com as mãos entrelaçadas"
+                  src={fotoBracos}
+                  alt="Dr. Miguel Souza de braços cruzados e sorrindo"
                   fill
                   sizes="(min-width: 1024px) 40vw, 100vw"
-                  className="object-cover object-[50%_25%]"
+                  className="object-cover object-[50%_10%]"
                 />
               </div>
               <div className="absolute -bottom-6 -right-2 rounded-2xl bg-azul px-6 py-5 text-osso shadow-2xl sm:-right-6">
@@ -563,7 +563,7 @@ export default function Pagina() {
             <div>
               <Pilula cor="preto">Material autoral</Pilula>
               <h2 className="mt-6 text-[1.7rem] font-bold uppercase leading-[1.05] tracking-tight sm:text-[2.1rem] lg:text-[1.55rem] xl:text-[2rem]">
-                <span className="whitespace-nowrap">PDFs e materiais</span>{" "}
+                <span className="whitespace-nowrap">PDF<span className="normal-case">s</span> e materiais</span>{" "}
                 <span className="whitespace-nowrap">de apoio</span>
                 <span className="mt-3 block">
                   <span className="bg-azul px-2 leading-[1.2] text-osso [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">
@@ -573,17 +573,16 @@ export default function Pagina() {
                 </span>
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-preto/70">
-                Além dos encontros ao vivo, tenha acesso ao meu próprio material, feito com base nas principais literaturas.
-                O compêndio{" "}
-                <strong className="text-preto">Epônimos em Traumatologia Forense</strong> organiza sinais, leis e
-                síndromes por energia causadora e lesão elementar — do jeito que a banca cobra.
+                Quantas vezes você já travou numa questão por não lembrar a diferença entre as Manchas de Tardieu e
+                de Paltauf? Além dos encontros ao vivo, você tem acesso ao meu e-book{" "}
+                <strong className="text-preto">Epônimos em Traumatologia Forense</strong>: todos os epônimos da
+                Traumatologia Forense, compilados das maiores referências bibliográficas dos concursos.
               </p>
-              <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+              <ul className="mt-8 grid gap-3">
                 {[
-                  "Quadros sinópticos por energia",
-                  "Pegadinhas de prova sinalizadas",
-                  "Ilustrações anatômicas comentadas",
-                  "Simulado de fixação no final",
+                  "Definições e mecanismos direto ao ponto",
+                  "Foco no que as bancas realmente cobram",
+                  "Organizado para revisões rápidas antes da prova",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 font-bold">
                     <span className="grid size-6 shrink-0 place-items-center rounded-full bg-azul text-xs text-osso">✓</span>
