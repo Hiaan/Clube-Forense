@@ -59,6 +59,12 @@ export type Empresa = {
   /** Token da API de Conversões gerado pelo cliente (se vazio, usa o token da T9). Nunca é exibido. */
   meta_dataset_token: string | null;
   meta_dataset_erro: string | null;
+  /** Primeira mensagem automática para o lead, pelo WhatsApp do próprio cliente (QR no painel). */
+  wa_cliente_ativo: boolean;
+  wa_cliente_ativado_em: string | null;
+  wa_cliente_mensagem: string | null;
+  /** Último número conectado pelo cliente (só para exibir). */
+  wa_cliente_numero: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";

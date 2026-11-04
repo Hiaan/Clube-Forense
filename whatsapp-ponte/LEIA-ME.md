@@ -1,7 +1,14 @@
 # Ponte do WhatsApp da T9
 
-Conecta o número da T9 ao WhatsApp (como "aparelho conectado", igual ao WhatsApp Web) e envia
-as mensagens que o painel pede. Hoje, só o aviso de lead novo no WhatsApp do cliente.
+Conecta números ao WhatsApp (como "aparelho conectado", igual ao WhatsApp Web) e envia as
+mensagens que o painel pede:
+
+- pelo **número da T9**: o aviso de lead novo no WhatsApp do cliente;
+- pelo **WhatsApp do próprio cliente**, conectado por ele na aba WhatsApp do painel: a primeira
+  mensagem para cada lead novo, com o texto que o cliente escolheu.
+
+Cada número tem a própria sessão no mesmo volume (`/app/.data/sessao` para a T9 e
+`/app/.data/clientes/c<id do cliente>` para cada cliente).
 
 Veio da ponte da central Clarear, com tudo o que não é envio retirado: não guarda conversas,
 não baixa histórico, não tem assistente. As mensagens que chegam no número continuam aparecendo
@@ -70,6 +77,10 @@ Todas pedem o cabeçalho `Authorization: Bearer <PONTE_SEGREDO>`. Sem ele, a res
 | `POST /enviar` | `{ "numero": "5583999999999", "texto": "..." }`: manda a mensagem |
 | `POST /reconectar` | Volta a tentar depois de três quedas seguidas |
 | `POST /sair` | Desconecta o número (sai um QR novo) |
+| `GET /clientes/c<id>/estado` | O mesmo de `/estado`, para o WhatsApp do cliente |
+| `POST /clientes/c<id>/conectar` | Liga a sessão do cliente e gera o QR (desiste depois de 3 minutos sem leitura) |
+| `POST /clientes/c<id>/enviar` | `{ "numero": "+5583999999999", "texto": "..." }` pelo WhatsApp do cliente |
+| `POST /clientes/c<id>/sair` | Desconecta o cliente e apaga a sessão dele |
 
 ## Cuidados
 
@@ -78,5 +89,7 @@ Todas pedem o cabeçalho `Authorization: Bearer <PONTE_SEGREDO>`. Sem ele, a res
 - **A sessão fica no volume `sessao`.** Apague o volume (`docker compose down -v`) e o número
   precisa ler o QR de novo.
 - **Três quedas seguidas e a ponte para.** O painel mostra "Tentar de novo".
+- **Até 20 WhatsApps de clientes ligados** ao mesmo tempo (`PONTE_MAX_CLIENTES`): cada um ocupa
+  memória do servidor. Ao reiniciar, a ponte reabre sozinha os que já tinham lido o QR.
 - **Não troque a identidade da sessão.** A ponte usa sempre `Browsers.ubuntu("Chrome")`; outra
   identidade faz o WhatsApp derrubar a conexão antes do QR.

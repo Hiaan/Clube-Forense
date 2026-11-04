@@ -46,7 +46,7 @@ export async function enderecoDaPonte() {
   return (salvo?.valor || process.env.WHATSAPP_PONTE_URL || "").replace(/\/$/, "");
 }
 
-async function chamarPonte<T>(caminho: string, corpo?: unknown, espera = 30_000): Promise<T> {
+export async function chamarPonte<T>(caminho: string, corpo?: unknown, espera = 30_000): Promise<T> {
   const base = await enderecoDaPonte();
   if (!base) throw new Error("a ponte ainda não informou o endereço (ela está ligada?)");
   const r = await fetch(`${base}${caminho}`, {

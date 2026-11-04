@@ -31,6 +31,7 @@ export default async function LayoutEmpresa({ children, params }: { children: Re
             { href: `${base}/campanhas`, rotulo: t.menu.campanhas },
             { href: `${base}/criativos`, rotulo: t.menu2.criativos },
             { href: `${base}/leads`, rotulo: t.menu.leads },
+            { href: `${base}/whatsapp`, rotulo: t.menu2.whatsapp },
             { href: `${base}/plano`, rotulo: t.menu.plano },
             { href: `${base}/reunioes`, rotulo: t.menu2.reunioes },
             { href: `${base}/relatorios`, rotulo: t.menu2.relatorios },

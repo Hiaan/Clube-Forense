@@ -317,6 +317,15 @@ const ESQUEMA = [
     erro text,
     unique (empresa_id, evento_id)
   )`,
+  // WhatsApp do próprio cliente (QR Code no painel): a primeira mensagem para cada lead novo sai
+  // do celular dele. Desligado até o cliente ligar; ao ligar, só leads que chegarem dali em diante.
+  `alter table empresas add column if not exists wa_cliente_ativo boolean not null default false`,
+  `alter table empresas add column if not exists wa_cliente_ativado_em timestamptz`,
+  `alter table empresas add column if not exists wa_cliente_mensagem text`,
+  `alter table empresas add column if not exists wa_cliente_numero text`,
+  `alter table leads add column if not exists contato_auto_em timestamptz`,
+  `alter table leads add column if not exists contato_auto_erro text`,
+  `create index if not exists leads_contato_auto on leads (empresa_id, recebido_em) where contato_auto_em is null`,
   `create index if not exists crm_eventos_pendentes on crm_eventos (empresa_id, criado_em) where enviado_em is null`,
 ];
 

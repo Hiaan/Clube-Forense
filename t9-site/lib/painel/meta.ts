@@ -6,6 +6,7 @@ import type { Empresa } from "./auth";
 import { vendasPorAnuncio } from "./eduzz";
 import { distancia, emParalelo, hashVisual } from "./semelhanca";
 import { avisarLeadsNovos } from "./whatsapp";
+import { chamarLeadsNovos } from "./whatsappCliente";
 
 // Integração com a Marketing API da Meta (Gerenciador de Anúncios).
 // Usa o token de um "usuário do sistema" do Business Manager da T9 (META_ACCESS_TOKEN),
@@ -197,6 +198,7 @@ export async function sincronizarEmpresa(empresa: EmpresaMeta, dias = 30) {
     const { criativos, insights } = await sincronizarAnuncios(empresa, periodo, inicio, fim);
     const leadsFormulario = await importarLeadsDeFormulario(empresa, insights, inicio);
     await avisarLeadsNovos(empresa.id).catch(() => undefined);
+    await chamarLeadsNovos(empresa.id).catch(() => undefined);
     await consulta("update empresas set meta_sincronizado_em = now(), meta_erro = null where id = $1", [empresa.id]);
     return { linhas: dados.length, anuncios: criativos, leadsFormulario, inicio, fim };
   } catch (erro) {
@@ -744,7 +746,7 @@ export async function ativarTempoReal(callback: string) {
 export async function verificarLeadsNovos(horas = 3, empresaId?: number) {
   const empresas = await consulta<{ id: number; nome: string; meta_conta: string }>(
     `select id, nome, meta_conta from empresas
-      where meta_conta is not null and whatsapp_leads is not null and ($1::int is null or id = $1)`,
+      where meta_conta is not null and (whatsapp_leads is not null or wa_cliente_ativo) and ($1::int is null or id = $1)`,
     [empresaId ?? null],
   );
   const desde = Math.floor(Date.now() / 1000) - horas * 3600;
@@ -764,6 +766,8 @@ export async function verificarLeadsNovos(horas = 3, empresaId?: number) {
       }
       if (leads.length) await salvarLeadsMeta(e.id, leads);
       const { enviados } = await avisarLeadsNovos(e.id);
+      // A primeira mensagem do próprio cliente para o lead (se ele conectou o WhatsApp no painel).
+      await chamarLeadsNovos(e.id).catch(() => undefined);
       resultado.push({ empresa: e.nome, leads: leads.length, enviados });
     } catch (erro) {
       resultado.push({ empresa: e.nome, leads: 0, enviados: 0, erro: erro instanceof Error ? erro.message : String(erro) });

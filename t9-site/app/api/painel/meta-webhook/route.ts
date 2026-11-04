@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { assinaturaMetaValida, receberLeadDoWebhook, tokenDoWebhook } from "@/lib/painel/meta";
 import { avisarLeadsNovos } from "@/lib/painel/whatsapp";
+import { chamarLeadsNovos } from "@/lib/painel/whatsappCliente";
 
 // Webhook da Meta para leads de formulário em tempo real (campo "leadgen" das Páginas).
 // Cada lead novo entra na aba Leads e vai na hora para o WhatsApp do cliente.
@@ -41,7 +42,10 @@ export async function POST(request: Request) {
         console.error("[meta-webhook] lead", n.lead, erro instanceof Error ? erro.message : erro);
       }
     }
-    for (const id of empresas) await avisarLeadsNovos(id).catch((erro) => console.error("[meta-webhook] whatsapp", id, erro));
+    for (const id of empresas) {
+      await avisarLeadsNovos(id).catch((erro) => console.error("[meta-webhook] whatsapp", id, erro));
+      await chamarLeadsNovos(id).catch((erro) => console.error("[meta-webhook] whatsapp do cliente", id, erro));
+    }
   });
   return Response.json({ ok: true, recebidos: novos.length });
 }
