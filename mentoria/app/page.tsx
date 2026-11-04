@@ -1,11 +1,11 @@
 import Image, { type StaticImageData } from "next/image";
+import Link from "next/link";
 
 import Agendamento from "./components/Agendamento";
 import BarraFixa from "./components/BarraFixa";
 import PassoAPasso from "./components/PassoAPasso";
 import RetratoPericial from "./components/RetratoPericial";
 import Perguntas from "./components/Perguntas";
-import { LINK_GRUPO_CASOS } from "../lib/site";
 
 import logo from "../public/logo-miguel-souza.png";
 import fotoBracos from "../public/fotos/miguel-bracos-cruzados.jpg";
@@ -507,25 +507,13 @@ export default function Pagina() {
                   treinando o olhar pericial, todos os dias.
                 </p>
                 <div className="mt-8">
-                  {LINK_GRUPO_CASOS ? (
-                    <a
-                      href={LINK_GRUPO_CASOS}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
-                    >
-                      Quero entrar no Dose Diária
-                      <span aria-hidden className="transition group-hover:translate-x-1">→</span>
-                    </a>
-                  ) : (
-                    <a
-                      href="#agendar"
-                      className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
-                    >
-                      Quero entrar no Dose Diária
-                      <span aria-hidden className="transition group-hover:translate-x-1">→</span>
-                    </a>
-                  )}
+                  <Link
+                    href="/dose-diaria"
+                    className="group inline-flex items-center gap-3 rounded-full bg-verde px-8 py-4 text-sm font-bold uppercase tracking-wide text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110"
+                  >
+                    Quero entrar no Dose Diária
+                    <span aria-hidden className="transition group-hover:translate-x-1">→</span>
+                  </Link>
                 </div>
               </div>
             </div>

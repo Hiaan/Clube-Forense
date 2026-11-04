@@ -159,6 +159,20 @@ async function enviar(texto: string, dados: object): Promise<boolean> {
   return resultados.some((r) => r.status === "fulfilled");
 }
 
+export function mensagemGrupo(c: Contato): string {
+  return [
+    "*Nova inscrição — Grupo Dose Diária*",
+    "",
+    `Nome: ${c.nome}`,
+    `E-mail: ${c.email}`,
+    `WhatsApp: ${linkWhatsApp(c.telefone)}`,
+  ].join("\n");
+}
+
+export function notificarInscricaoGrupo(contato: Contato): Promise<boolean> {
+  return enviar(mensagemGrupo(contato), { tipo: "grupo", ...contato });
+}
+
 export function notificarContato(contato: Contato): Promise<boolean> {
   return enviar(mensagemContato(contato), { tipo: "contato", ...contato });
 }

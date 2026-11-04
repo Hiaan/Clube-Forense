@@ -49,3 +49,13 @@ e até 21 dias à frente. O formulário e a API usam o mesmo arquivo.
 2. **Momento**: se é médico, se já estuda, concurso de interesse.
 3. **Agenda**: dia e horário. Ao confirmar, chega a mensagem completa
    (`/api/agendar`).
+
+## Página do grupo (`/dose-diaria`)
+
+Página de captura do grupo MedLegal Dose Diária: nome, e-mail e WhatsApp
+(`/api/grupo`). Cada inscrição chega no WhatsApp do Miguel como "Nova
+inscrição — Grupo Dose Diária" (e no webhook com `tipo: "grupo"`).
+
+Com `NEXT_PUBLIC_LINK_GRUPO_CASOS` configurado, a pessoa é levada direto
+para o grupo depois de se inscrever. Sem ele, a página avisa que o convite
+chega pelo WhatsApp.
