@@ -158,6 +158,19 @@ export async function mudarStatusCriativo(f: FormData) {
   atualizar();
 }
 
+/** Liga o criativo a uma oferta (imóvel, produto): os leads dele recebem a saudação dessa oferta. */
+export async function marcarOfertaCriativo(f: FormData) {
+  const c = await criativoDaEquipe(f);
+  if (!c) return;
+  const ofertaId = id(f, "oferta");
+  // A oferta precisa ser do mesmo cliente do criativo.
+  const oferta = ofertaId ? await umaLinha<{ nome: string }>("select nome from ofertas where id = $1 and empresa_id = $2", [ofertaId, c.criativo.empresa_id]) : null;
+  if (ofertaId && !oferta) return;
+  await consulta("update criativos set oferta_id = $2 where id = $1", [c.criativo.id, oferta ? ofertaId : null]);
+  await registrar(c.usuario.id, c.criativo.empresa_id, "criativo.oferta", `${c.criativo.titulo} → ${oferta?.nome ?? "nenhuma"}`);
+  atualizar();
+}
+
 export async function salvarNotaCriativo(f: FormData) {
   const c = await criativoDaEquipe(f);
   if (!c) return;

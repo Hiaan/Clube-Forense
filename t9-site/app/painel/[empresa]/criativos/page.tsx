@@ -3,7 +3,8 @@ import { listarCriativos, miniaturaDe, type Criativo } from "@/lib/painel/dados"
 import { dataLonga, dinheiro, numero, porcentagem, razao } from "@/lib/painel/formato";
 import { FORMATOS_CRIATIVO, STATUS_CRIATIVO } from "@/lib/painel/textos";
 import { fmt } from "@/lib/i18n";
-import { excluirCriativo, mudarStatusCriativo, salvarCriativo } from "../../acoes-conteudo";
+import { excluirCriativo, marcarOfertaCriativo, mudarStatusCriativo, salvarCriativo } from "../../acoes-conteudo";
+import { listarOfertas, type Oferta } from "@/lib/painel/whatsappCliente";
 import { BotaoEnviar, SelectAutoEnvio } from "../../_ui/Botoes";
 import FormComEstado from "../../_ui/FormComEstado";
 import Miniatura from "../../_ui/Miniatura";
@@ -17,7 +18,7 @@ const COR = {
 
 export default async function Criativos({ params }: { params: Promise<{ empresa: string }> }) {
   const { usuario, empresa, idioma, t } = await contextoEmpresa(params);
-  const criativos = await listarCriativos(empresa.id);
+  const [criativos, ofertas] = await Promise.all([listarCriativos(empresa.id), listarOfertas(empresa.id)]);
   const editavel = await mostrarEdicao(usuario);
   const rotuloResultado = empresa.tipo === "ecommerce" ? t.kpi.conversoes : t.kpi.leads;
 
@@ -117,7 +118,7 @@ export default async function Criativos({ params }: { params: Promise<{ empresa:
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {grupo.map((c) => (
-                <Cartao key={c.id} c={c} editavel={editavel} contexto={{ empresa, idioma, t, rotuloResultado }} />
+                <Cartao key={c.id} c={c} editavel={editavel} ofertas={ofertas} contexto={{ empresa, idioma, t, rotuloResultado }} />
               ))}
             </div>
           </section>
@@ -130,10 +131,12 @@ export default async function Criativos({ params }: { params: Promise<{ empresa:
 function Cartao({
   c,
   editavel,
+  ofertas,
   contexto: { empresa, idioma, t, rotuloResultado },
 }: {
   c: Criativo;
   editavel: boolean;
+  ofertas: Oferta[];
   contexto: Pick<Awaited<ReturnType<typeof contextoEmpresa>>, "empresa" | "idioma" | "t"> & { rotuloResultado: string };
 }) {
   const imagem = miniaturaDe(c);
@@ -199,6 +202,26 @@ function Cartao({
             </p>
           </details>
         )}
+        {ofertas.length > 0 &&
+          (editavel ? (
+            <form action={marcarOfertaCriativo} className="mt-3">
+              <input type="hidden" name="criativo" value={c.id} />
+              <span className="mb-1 block text-[11px] font-medium text-white/50">{t.waCliente.criativoOferta}</span>
+              <SelectAutoEnvio
+                name="oferta"
+                valor={String(c.oferta_id ?? "")}
+                rotulo={`${t.waCliente.criativoOferta}: ${c.titulo}`}
+                className={`!w-full ${c.oferta_id ? "" : "!border-amber-400/40"}`}
+                opcoes={[{ valor: "", rotulo: t.waCliente.criativoSemOferta }, ...ofertas.map((o) => ({ valor: String(o.id), rotulo: o.nome }))]}
+              />
+            </form>
+          ) : (
+            c.oferta_id && (
+              <p className="mt-3 text-xs text-white/60">
+                {t.waCliente.criativoOferta}: <span className="text-white">{ofertas.find((o) => o.id === c.oferta_id)?.nome}</span>
+              </p>
+            )
+          ))}
         {c.nota && (
           <p className="mt-3 rounded-xl bg-white/[0.04] p-3 text-xs leading-relaxed text-white/70">
             <span className="mb-1 block font-medium text-white/50">{t.criativos.aprendizado}</span>

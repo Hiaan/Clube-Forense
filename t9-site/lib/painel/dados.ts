@@ -261,11 +261,13 @@ export type Criativo = {
   meta_campanhas: { nome: string; gasto: number; resultados: number; ativa: boolean }[] | null;
   meta_anuncios: number | null;
   meta_duracao: number | null;
+  /** Oferta (imóvel, produto) marcada no criativo: os leads dele recebem a saudação dela. */
+  oferta_id: number | null;
 };
 
 export async function listarCriativos(empresaId: number) {
   return consulta<Criativo>(
-    `select id, titulo, status, formato, plataforma, link, imagem, gasto, resultados, ctr, nota, inicio, meta_campanhas, meta_anuncios, meta_duracao
+    `select id, titulo, status, formato, plataforma, link, imagem, gasto, resultados, ctr, nota, inicio, meta_campanhas, meta_anuncios, meta_duracao, oferta_id
        from criativos where empresa_id = $1 order by gasto desc nulls last, atualizado_em desc, id desc`,
     [empresaId],
   );

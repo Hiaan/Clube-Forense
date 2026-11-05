@@ -91,12 +91,13 @@ export const MODELOS: Record<Idioma, { id: string; titulo: string; texto: string
 export const mensagemPadrao = (idioma: Idioma) => MODELOS[idioma][0].texto;
 
 /** "Maria da Silva" → "Maria". Sem nome, a saudação fica sem ele ("Oi! Tudo bem?"). */
-export function montarMensagem(modelo: string, lead: { nome: string | null }, empresa: string) {
+export function montarMensagem(modelo: string, lead: { nome: string | null }, empresa: string, oferta = "") {
   const primeiro = (lead.nome ?? "").trim().split(/\s+/)[0] ?? "";
   const nome = primeiro ? primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase() : "";
   return modelo
     .replace(/,?\s*\{nome\}/g, (trecho) => (nome ? trecho.replace("{nome}", nome) : ""))
     .replace(/\{empresa\}/g, empresa)
+    .replace(/\{(oferta|imovel|imóvel)\}/gi, oferta)
     .trim();
 }
 
@@ -115,6 +116,46 @@ export function numeroDoLead(bruto: string | null, pais: string) {
   }
   if (d.length === 10 || d.length === 11) return `+55${d}`;
   return d.length >= 12 && d.length <= 15 ? `+${d}` : null;
+}
+
+// ---------- Ofertas em divulgação ----------
+// Imóvel, produto ou serviço que está nos anúncios, cada um com a própria saudação. Marcando a
+// oferta num criativo (aba Criativos), os leads daquele anúncio, ou da campanha dele, recebem a
+// saudação da oferta. Sem oferta marcada, vale a saudação geral do cliente.
+
+export type Oferta = { id: number; nome: string; mensagem: string; criativos: number };
+
+export function listarOfertas(empresaId: number) {
+  return consulta<Oferta>(
+    `select o.id, o.nome, o.mensagem, (select count(*)::int from criativos c where c.oferta_id = o.id) as criativos
+       from ofertas o where o.empresa_id = $1 order by o.nome`,
+    [empresaId],
+  );
+}
+
+/** Saudação pronta para uma oferta nova (o cliente edita como quiser). */
+export const SAUDACAO_OFERTA: Record<Idioma, string> = {
+  pt: "Olá, {nome}, tudo bem? Aqui é da {empresa}. Estou entrando em contato porque vi que você se cadastrou para saber mais sobre {oferta}. Posso te mandar mais informações por aqui?",
+  en: "Hi {nome}! This is {empresa}. I'm reaching out because you signed up to learn more about {oferta}. Can I send you more details here?",
+  es: "Hola, {nome}, ¿cómo estás? Te escribo de {empresa}. Vi que te registraste para saber más sobre {oferta}. ¿Te puedo enviar más información por aquí?",
+};
+
+/**
+ * A oferta do lead: a do criativo que contém o anúncio dele ou, sem isso, a de um criativo da
+ * mesma campanha (cada campanha costuma ser de uma oferta só). Null se nada estiver marcado.
+ */
+export async function ofertaDoLead(empresaId: number, lead: { campanha: string | null; anuncio_id: string | null }) {
+  if (!lead.campanha && !lead.anuncio_id) return null;
+  return umaLinha<{ nome: string; mensagem: string }>(
+    `select o.nome, o.mensagem
+       from criativos c join ofertas o on o.id = c.oferta_id
+      where c.empresa_id = $1
+        and (($2::text is not null and coalesce(c.meta_anuncio_ids, '[]'::jsonb) ? $2)
+          or ($3::text is not null and exists (select 1 from jsonb_array_elements(coalesce(c.meta_campanhas, '[]'::jsonb)) x where x->>'nome' = $3)))
+      order by ($2::text is not null and coalesce(c.meta_anuncio_ids, '[]'::jsonb) ? $2) desc, c.gasto desc nulls last
+      limit 1`,
+    [empresaId, lead.anuncio_id, lead.campanha],
+  );
 }
 
 // ---------- Chamada automática ----------
@@ -137,7 +178,7 @@ export async function chamarLeadsNovos(empresaId: number) {
   if (estado.fase !== "conectado") return { enviados: 0, erro: "o WhatsApp do cliente não está conectado" };
 
   // Reserva antes de enviar (o webhook e a rotina podem rodar juntos): cada lead sai uma vez só.
-  const leads = await consulta<{ id: number; nome: string | null; whatsapp: string | null }>(
+  const leads = await consulta<{ id: number; nome: string | null; whatsapp: string | null; campanha: string | null; anuncio_id: string | null }>(
     `update leads set contato_auto_em = now(), contato_auto_erro = null
       where id in (
         select l.id from leads l join empresas e on e.id = l.empresa_id
@@ -145,7 +186,7 @@ export async function chamarLeadsNovos(empresaId: number) {
            and l.recebido_em > greatest(now() - interval '48 hours', e.wa_cliente_ativado_em)
          order by l.recebido_em limit 15
          for update of l skip locked)
-      returning id, nome, whatsapp`,
+      returning id, nome, whatsapp, campanha, dados->>'anuncio_id' as anuncio_id`,
     [empresaId],
   );
   const modelo = empresa.wa_cliente_mensagem || mensagemPadrao(empresa.idioma);
@@ -158,7 +199,9 @@ export async function chamarLeadsNovos(empresaId: number) {
       continue;
     }
     try {
-      await enviarPeloCliente(empresaId, numero, montarMensagem(modelo, lead, empresa.nome));
+      const oferta = await ofertaDoLead(empresaId, lead);
+      await enviarPeloCliente(empresaId, numero, montarMensagem(oferta?.mensagem ?? modelo, lead, empresa.nome, oferta?.nome));
+      if (oferta) await consulta("update leads set contato_auto_oferta = $2 where id = $1", [lead.id, oferta.nome.slice(0, 120)]);
       enviados++;
     } catch (erro) {
       const mensagem = erro instanceof Error ? erro.message : String(erro);
@@ -184,12 +227,20 @@ export async function chamarTodos() {
   return resultado;
 }
 
-export type ContatoAuto = { id: number; nome: string | null; whatsapp: string | null; recebido_em: string; contato_auto_em: string | null; contato_auto_erro: string | null };
+export type ContatoAuto = {
+  id: number;
+  nome: string | null;
+  whatsapp: string | null;
+  recebido_em: string;
+  contato_auto_em: string | null;
+  contato_auto_erro: string | null;
+  contato_auto_oferta: string | null;
+};
 
 /** Últimos leads e como foi a primeira mensagem de cada um (para o cliente acompanhar). */
 export function ultimosContatos(empresaId: number, limite = 10) {
   return consulta<ContatoAuto>(
-    `select l.id, l.nome, l.whatsapp, l.recebido_em, l.contato_auto_em, l.contato_auto_erro
+    `select l.id, l.nome, l.whatsapp, l.recebido_em, l.contato_auto_em, l.contato_auto_erro, l.contato_auto_oferta
        from leads l join empresas e on e.id = l.empresa_id
       where l.empresa_id = $1 and e.wa_cliente_ativado_em is not null and l.recebido_em > e.wa_cliente_ativado_em
       order by l.recebido_em desc limit $2`,

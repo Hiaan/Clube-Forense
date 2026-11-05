@@ -374,18 +374,18 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
 
     await q(
       `insert into criativos (empresa_id, meta_chave, titulo, status, nota, formato, plataforma, imagem, gasto, resultados, ctr, inicio,
-                              meta_campanhas, meta_anuncios, meta_duracao)
-       select $1, ch, t, st, n, f, $2, im, g, r, c, ini, camp, na, du
+                              meta_campanhas, meta_anuncios, meta_duracao, meta_anuncio_ids)
+       select $1, ch, t, st, n, f, $2, im, g, r, c, ini, camp, na, du, ids
          from unnest($3::text[], $4::text[], $5::text[], $6::text[], $7::text[], $8::text[], $9::numeric[], $10::int[], $11::numeric[],
-                     $12::date[], $13::jsonb[], $14::int[], $15::numeric[])
-              as x(ch, t, st, n, f, im, g, r, c, ini, camp, na, du)
+                     $12::date[], $13::jsonb[], $14::int[], $15::numeric[], $16::jsonb[])
+              as x(ch, t, st, n, f, im, g, r, c, ini, camp, na, du, ids)
        on conflict (empresa_id, meta_chave) where meta_chave is not null do update set
          titulo = excluded.titulo, formato = excluded.formato, imagem = coalesce(excluded.imagem, criativos.imagem),
          gasto = excluded.gasto, resultados = excluded.resultados, ctr = excluded.ctr,
          status = excluded.status, nota = excluded.nota,
          inicio = coalesce(least(criativos.inicio, excluded.inicio), criativos.inicio, excluded.inicio),
          meta_campanhas = excluded.meta_campanhas, meta_anuncios = excluded.meta_anuncios, meta_duracao = excluded.meta_duracao,
-         atualizado_em = now()`,
+         meta_anuncio_ids = excluded.meta_anuncio_ids, atualizado_em = now()`,
       [
         empresa.id,
         PLATAFORMA_META,
@@ -402,6 +402,7 @@ async function sincronizarAnuncios(empresa: EmpresaMeta, periodo: string, inicio
         linhas.map((l) => JSON.stringify([...l.campanhas.values()].sort((a, b) => b.gasto - a.gasto))),
         linhas.map((l) => l.anuncios.size),
         linhas.map((l) => l.duracao),
+        linhas.map((l) => JSON.stringify([...l.anuncios])),
       ],
     );
   });
@@ -506,7 +507,13 @@ export function contatoDoLead(campos: CampoLead[] = []) {
 async function salvarLeadsMeta(empresaId: number, leads: LeadMeta[]) {
   const linhas = leads.map((l) => {
     const c = contatoDoLead(l.field_data);
-    return { ...c, id: l.id, quando: l.created_time, campanha: l.campaign_name ?? null, dados: { formulario: l.form_id, anuncio: l.ad_name, respostas: c.campos } };
+    return {
+      ...c,
+      id: l.id,
+      quando: l.created_time,
+      campanha: l.campaign_name ?? null,
+      dados: { formulario: l.form_id, anuncio: l.ad_name, anuncio_id: l.ad_id ?? null, respostas: c.campos },
+    };
   });
   if (linhas.length) {
     await consulta(
@@ -785,7 +792,7 @@ export async function verificarLeadsNovos(horas = 3, empresaId?: number) {
 
 /** Leads de um anúncio, com o token da Página dele quando houver (senão, o do usuário do sistema). */
 async function leadsDoAnuncio(anuncio: string, desde: number, tokenDaPagina?: string) {
-  return todasPaginas<LeadMeta>(
+  const leads = await todasPaginas<LeadMeta>(
     `${anuncio}/leads`,
     {
       fields: "id,created_time,field_data,campaign_name,ad_name,form_id",
@@ -795,6 +802,8 @@ async function leadsDoAnuncio(anuncio: string, desde: number, tokenDaPagina?: st
     50,
     tokenDaPagina,
   );
+  // O id do anúncio vai junto: é por ele (ou pela campanha) que o lead acha a oferta do criativo.
+  return leads.map((l) => ({ ...l, ad_id: l.ad_id ?? anuncio }));
 }
 
 async function tokensDePaginas() {

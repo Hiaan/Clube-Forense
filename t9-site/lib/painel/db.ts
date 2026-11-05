@@ -325,6 +325,19 @@ const ESQUEMA = [
   `alter table empresas add column if not exists wa_cliente_numero text`,
   `alter table leads add column if not exists contato_auto_em timestamptz`,
   `alter table leads add column if not exists contato_auto_erro text`,
+  // Ofertas em divulgação (imóvel, produto ou serviço), cada uma com a própria saudação. O criativo
+  // marcado com a oferta faz os leads da campanha dele receberem essa saudação.
+  `create table if not exists ofertas (
+    id serial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    nome text not null,
+    mensagem text not null,
+    criado_em timestamptz not null default now()
+  )`,
+  `create index if not exists ofertas_empresa on ofertas (empresa_id)`,
+  `alter table criativos add column if not exists oferta_id integer references ofertas on delete set null`,
+  `alter table criativos add column if not exists meta_anuncio_ids jsonb`,
+  `alter table leads add column if not exists contato_auto_oferta text`,
   `create index if not exists leads_contato_auto on leads (empresa_id, recebido_em) where contato_auto_em is null`,
   `create index if not exists crm_eventos_pendentes on crm_eventos (empresa_id, criado_em) where enviado_em is null`,
 ];
