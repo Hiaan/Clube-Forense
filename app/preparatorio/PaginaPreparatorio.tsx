@@ -203,10 +203,27 @@ export default async function PaginaPreparatorio({
             "Aulas, questões, eBooks e mapas mentais de medicina legal",
           ]}
           rodape={
-            <p className="text-[13px] font-semibold text-white/45">
-              Faltam <Contador compacto ate={EDITAL_AC.inicioProva} /> para a
-              prova
-            </p>
+            <>
+              {black && (
+                <p className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-xl border border-[#ffcd07]/30 bg-[#ffcd07]/10 px-4 py-2 text-sm font-semibold text-white/75">
+                  <span className="rounded-md bg-[#ffcd07] px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-gray-900">
+                    Black Friday
+                  </span>
+                  <span>
+                    de{" "}
+                    <span className="line-through">{reais(PRECO_CHEIO)}</span>{" "}
+                    por{" "}
+                    <span className="font-black text-[#ffcd07]">
+                      {reais(PRECO_BLACK)}
+                    </span>
+                  </span>
+                </p>
+              )}
+              <p className="text-[13px] font-semibold text-white/45">
+                Faltam <Contador compacto ate={EDITAL_AC.inicioProva} /> para a
+                prova
+              </p>
+            </>
           }
           aprovados={totalAprovados}
         />
@@ -532,7 +549,7 @@ export default async function PaginaPreparatorio({
             nota={acre ? "preparatório PC-AC · perito médico-legista" : "Aprova Legista · preparatório"}
           >
             {black
-              ? "Preço de Black, por tempo limitado"
+              ? "Preço de Black Friday, por tempo limitado"
               : "Garanta a sua vaga"}
           </Titulo>
           <p className="mx-auto mt-4 max-w-xl text-center text-base text-white/55">
@@ -571,7 +588,7 @@ export default async function PaginaPreparatorio({
               {black ? (
                 <>
                   <span className="inline-block rounded-full bg-[#ffcd07] px-3 py-1 text-[11px] font-black uppercase tracking-[0.15em] text-gray-900">
-                    Promoção de Black
+                    Black Friday
                   </span>
                   <p className="mt-4 text-base font-semibold text-white/45">
                     de{" "}
