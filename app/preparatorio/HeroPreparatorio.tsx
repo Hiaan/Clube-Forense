@@ -56,7 +56,13 @@ export default function HeroPreparatorio({
               {subtitulo}
             </p>
 
-            <ul className="mx-auto mt-7 flex max-w-xl flex-col gap-2.5 text-left lg:mx-0">
+            {/* Lista longa vai em duas colunas: numa só, ela empurrava o botão
+                e o preço para fora da primeira dobra. */}
+            <ul
+              className={`mx-auto mt-7 grid max-w-xl gap-2.5 text-left lg:mx-0 ${
+                itens.length > 4 ? "sm:grid-cols-2 sm:gap-x-5" : ""
+              }`}
+            >
               {itens.map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">

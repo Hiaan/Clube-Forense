@@ -184,23 +184,32 @@ export default async function PaginaPreparatorio({
           selo={`Edital ${EDITAL_AC.sigla} publicado`}
           titulo={
             <>
-              Preparatório para{" "}
-              <span className="text-[#ffcd07]">perito médico-legista</span> da
+              Conquiste sua aprovação como{" "}
+              <span className="text-[#ffcd07]">
+                Perito{" "}
+                <span className="whitespace-nowrap">Médico-Legista</span>
+              </span>{" "}
+              da
               Polícia Civil do Acre
             </>
           }
           subtitulo={
             <>
-              Salário inicial de {reaisComCentavos(EDITAL_AC.salario)} e prova
-              em{" "}
-              {EDITAL_AC.dataProva}. Estude para o edital da PC-AC com
-              professores que já são médicos legistas.
+              Estude com professores que já{" "}
+              <strong className="font-bold text-white">
+                são médicos legistas
+              </strong>{" "}
+              e impulsione seus estudos com o nosso preparatório.
             </>
           }
           itens={[
-            "Atualização pós-edital para o concurso da PC-AC",
-            "Professores médicos-legistas e +240 alunos aprovados",
-            "Aulas, questões, eBooks e mapas mentais de medicina legal",
+            "Aulas gravadas de todos os assuntos do edital",
+            "eBooks das matérias",
+            "Mapas mentais exclusivos (resumos ilustrados)",
+            "Banco de questões de concursos anteriores",
+            "Suporte dedicado ao aluno",
+            "Grupo com professores e alunos para tirar dúvidas e compartilhar conhecimento",
+            "…e muito mais!",
           ]}
           rodape={
             <>
@@ -561,10 +570,12 @@ export default async function PaginaPreparatorio({
           <div className="mx-auto mt-10 max-w-xl overflow-hidden rounded-3xl border border-[#ffcd07]/30 bg-white/[0.03]">
             <ul className="grid gap-2.5 p-6 sm:p-8">
               {[
-                "Acesso ao nosso material pré-edital",
                 acre
-                  ? "Atualização gratuita pós-edital para o concurso da PC-AC"
-                  : "Atualização gratuita pós-edital do concurso da sua escolha",
+                  ? "Aulas gravadas de todos os assuntos do edital"
+                  : "Acesso ao nosso material pré-edital",
+                ...(acre
+                  ? []
+                  : ["Atualização gratuita pós-edital do concurso da sua escolha"]),
                 "Acesso ao grupo de alunos e professores (médicos legistas)",
                 "Banco de questões exclusivo, com mais de 25 mil questões",
                 "9 eBooks de Medicina Legal com tudo o que você precisa saber para a prova",
