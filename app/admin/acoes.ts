@@ -905,7 +905,13 @@ export async function reescreverReferenciaAcao(
     const r = reescrever({ texto, uf, ficha, etapaAtual });
 
     const fatos = extrairFatos(texto);
+    const t0 = Date.now();
     const ia = await reescreverComIA({ texto, uf, ficha, etapaAtual, fatos });
+    // Registro de quanto a reescrita levou e como acabou: sem ele, uma
+    // reescrita que "não volta" não deixa rastro nenhum nos logs da Vercel.
+    console.info(
+      `reescrita ${uf}: ${texto.length} caracteres, IA ${ia.post ? "ok" : `falhou (${ia.erro})`} em ${Date.now() - t0} ms`,
+    );
 
     if (ia.post) {
       const avisos = [...r.avisos];

@@ -19,7 +19,7 @@
 // uma caixa de texto gigante no topo empurraria o título para fora da tela
 // todas as vezes.
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import { reescreverReferenciaAcao, type ResultadoReescrita } from "../../../acoes";
 
@@ -58,6 +58,18 @@ function Relogio() {
   );
 }
 
+/** Onde o texto colado espera o recarregamento — por post, para não vazar de um para outro. */
+const CHAVE_RASCUNHO = "cf_referencia_colada";
+
+async function commitNoAr(): Promise<string | null> {
+  try {
+    const r = await fetch("/api/versao", { cache: "no-store" });
+    return ((await r.json()) as { commit?: string | null }).commit ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function ColarReferencia({
   uf,
   aoReescrever,
@@ -69,6 +81,34 @@ export default function ColarReferencia({
 }) {
   const [aberto, setAberto] = useState(false);
 
+  // O SITE ATUALIZADO COM A PÁGINA ABERTA. Cada publicação troca o endereço
+  // interno das ações do servidor; o editor aberto antes dela chama um
+  // endereço que não existe mais, e a reescrita "não volta". Aconteceu em
+  // 06/11, minutos depois de um deploy. A página guarda o commit com que
+  // abriu; se a reescrita morrer e o commit no ar for outro, ela guarda o
+  // texto colado, recarrega e devolve o texto na caixa — sem colar de novo.
+  const commitDaPagina = useRef<string | null>(null);
+  useEffect(() => {
+    commitNoAr().then((c) => {
+      commitDaPagina.current = c;
+    });
+  }, []);
+
+  const [rascunho, setRascunho] = useState<string | null>(null);
+  useEffect(() => {
+    let salvo: string | null = null;
+    try {
+      salvo = sessionStorage.getItem(CHAVE_RASCUNHO);
+      if (salvo) sessionStorage.removeItem(CHAVE_RASCUNHO);
+    } catch {}
+    if (!salvo) return;
+    // Fora do corpo do efeito: o estado muda no retorno da promessa.
+    Promise.resolve().then(() => {
+      setRascunho(salvo);
+      setAberto(true);
+    });
+  }, []);
+
   const [resultado, reescrever, pendente] = useActionState<
     ResultadoReescrita | null,
     FormData
@@ -79,6 +119,17 @@ export default function ColarReferencia({
       if (r.ok && r.post) aoReescrever(r);
       return r;
     } catch {
+      const agora = await commitNoAr();
+      if (agora && commitDaPagina.current && agora !== commitDaPagina.current) {
+        try {
+          sessionStorage.setItem(CHAVE_RASCUNHO, String(dados.get("referencia") ?? ""));
+        } catch {}
+        window.location.reload();
+        return {
+          ok: false,
+          mensagem: "O site foi atualizado enquanto esta página estava aberta. Recarregando — o texto colado volta sozinho; é só clicar em reescrever de novo.",
+        };
+      }
       // SILÊNCIO É O PIOR DEFEITO QUE ESTA TELA PODE TER, e já teve. A ação
       // trata os próprios erros e devolve mensagem; o que ela não tem como
       // tratar é morrer inteira — função desligada no meio por tempo, rede
@@ -133,6 +184,7 @@ export default function ColarReferencia({
         name="referencia"
         id="referencia"
         rows={8}
+        defaultValue={rascunho ?? undefined}
         placeholder="Cole aqui o texto da matéria, do Diário Oficial ou do comunicado…"
         className="w-full rounded-xl border border-gray-300 px-3 py-2 font-mono text-[13px] leading-relaxed outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
       />
