@@ -12,7 +12,8 @@
 // no corpo, o que aqui é vantagem.
 //
 // O QUE ENTENDE: ## e ### para títulos, parágrafo, **negrito**, *itálico*,
-// [texto](link), lista com - ou 1., citação com > e --- como separador. O que
+// [texto](link), lista com - ou 1., citação com > e --- como separador, e
+// imagem em linha própria com ![legenda](endereço) — o print do edital. O que
 // não entende fica como texto comum, que é o jeito certo de errar: nada some.
 
 import Link from "next/link";
@@ -127,6 +128,7 @@ type Bloco =
   | { tipo: "citacao"; texto: string }
   | { tipo: "lista"; ordenada: boolean; itens: string[] }
   | { tipo: "tabela"; cabecalho: string[]; linhas: string[][] }
+  | { tipo: "imagem"; legenda: string; src: string }
   | { tipo: "separador" };
 
 /** Quebra "| a | b |" nas células, sem as barras das pontas. */
@@ -174,6 +176,16 @@ function emBlocos(corpo: string): Bloco[] {
     if (titulo) {
       fecharParagrafo();
       blocos.push({ tipo: "titulo", nivel: titulo[1].length as 2 | 3, texto: titulo[2] });
+      continue;
+    }
+    // Imagem só em linha própria: no meio de um parágrafo ela quebraria o
+    // texto ao meio. O endereço passa pela mesma peneira dos links.
+    const imagem = linha.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/);
+    if (imagem) {
+      fecharParagrafo();
+      const src = linkSeguro(imagem[2]);
+      if (src) blocos.push({ tipo: "imagem", legenda: imagem[1], src });
+      else paragrafo.push(imagem[1]);
       continue;
     }
     if (linha.startsWith("> ")) {
@@ -249,6 +261,29 @@ export default function Markdown({ corpo }: { corpo: string }) {
             >
               <Linha texto={b.texto} />
             </blockquote>
+          );
+        }
+        if (b.tipo === "imagem") {
+          return (
+            // <img> e não next/image: o tamanho de cada print é desconhecido
+            // aqui, e o clique abre o original para quem quer ler a letra
+            // miúda do edital.
+            <figure key={i} className="space-y-2">
+              <a href={b.src} target="_blank" rel="noopener noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={b.src}
+                  alt={b.legenda}
+                  loading="lazy"
+                  className="w-full rounded-xl border border-gray-200 bg-white"
+                />
+              </a>
+              {b.legenda && (
+                <figcaption className="text-sm leading-snug text-gray-500">
+                  {b.legenda}
+                </figcaption>
+              )}
+            </figure>
           );
         }
         if (b.tipo === "tabela") {
