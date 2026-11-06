@@ -182,6 +182,7 @@ export default async function PaginaPreparatorio({
       {acre ? (
         <HeroPreparatorio
           selo={`Edital ${EDITAL_AC.sigla} publicado`}
+          capasAoFundo={false}
           titulo={
             <>
               Conquiste sua aprovação como{" "}

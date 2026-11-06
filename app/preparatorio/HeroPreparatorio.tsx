@@ -18,6 +18,7 @@ export default function HeroPreparatorio({
   itens,
   rodape,
   aprovados,
+  capasAoFundo = true,
 }: {
   selo: string;
   titulo: React.ReactNode;
@@ -26,10 +27,16 @@ export default function HeroPreparatorio({
   /** Embaixo do botão: preço da Black, contagem regressiva da prova… */
   rodape?: React.ReactNode;
   aprovados: number;
+  /**
+   * As capas dos concursos de todos os estados correndo ao fundo. A página do
+   * Acre desliga: ela vende um concurso só, e a parede de outros estados
+   * dizia o contrário.
+   */
+  capasAoFundo?: boolean;
 }) {
   return (
     <div id="capa" className="relative overflow-hidden bg-[#0b0b0d]">
-      <FundoCapas veu="capa" />
+      {capasAoFundo && <FundoCapas veu="capa" />}
       <div className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#ffcd07]/10 blur-[130px]" />
 
       <section className="relative mx-auto w-full max-w-5xl px-4 pb-20 pt-8 sm:pt-10">
