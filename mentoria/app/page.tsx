@@ -13,6 +13,7 @@ import capaEbook from "../public/material/eponimos-capa.webp";
 import paginaFilhos from "../public/material/eponimos-filhos-langer.webp";
 import paginaArma from "../public/material/eponimos-arma-de-fogo.webp";
 import paginaEnforcamento from "../public/material/eponimos-enforcamento.webp";
+import relatorio from "../public/material/relatorio-desempenho.webp";
 import conversa1 from "../public/grupo/conversa-1.jpg";
 import conversa2 from "../public/grupo/conversa-2.jpg";
 import conversa3 from "../public/grupo/conversa-3.jpg";
@@ -482,6 +483,50 @@ export default function Pagina() {
                   </li>
                 </ul>
               </div>
+            </figure>
+          </div>
+        </section>
+
+        {/* ───────── Relatório de desempenho ───────── */}
+        <section id="relatorio" className="relative overflow-hidden bg-carvao px-4 py-24 sm:px-8 sm:py-32">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
+            <div>
+              <Pilula>Acompanhamento em números</Pilula>
+              <h2 className="mt-6 text-4xl font-bold uppercase leading-[0.95] tracking-tight sm:text-5xl">
+                Sua evolução,
+                <span className="block text-destaque">medida a cada encontro.</span>
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-osso/70">
+                A cada encontro, você recebe um relatório com o seu desempenho nos simulados: total de questões,
+                acertos, aproveitamento por sessão e a evolução ao longo das semanas. Assim a gente enxerga, com
+                dados, onde o plano está funcionando e onde precisa de reforço.
+              </p>
+              <dl className="mt-10 grid grid-cols-3 gap-3">
+                {[
+                  ["439", "questões resolvidas"],
+                  ["87,2%", "de acerto geral"],
+                  ["96%", "no melhor simulado"],
+                ].map(([n, t]) => (
+                  <div key={t} className="rounded-2xl border border-white/10 bg-fundo/60 p-4 sm:p-5">
+                    <dt className="font-impacto text-3xl leading-none text-destaque sm:text-4xl">{n}</dt>
+                    <dd className="mt-2 text-xs font-semibold uppercase leading-snug tracking-wide text-osso/60 sm:text-sm">{t}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-4 text-sm text-osso/45">
+                Relatório real de uma mentoranda em Antropologia Forense, em duas semanas de mentoria. O nome foi
+                ocultado.
+              </p>
+            </div>
+
+            <figure className="relative mx-auto w-full max-w-xl">
+              <div className="absolute -inset-4 rotate-2 rounded-3xl bg-destaque/10" aria-hidden />
+              <Image
+                src={relatorio}
+                alt="Relatório de desempenho em simulados de uma mentoranda: 439 questões, 383 acertos, 87,2% de aproveitamento e pico de 96%"
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                className="relative h-auto w-full -rotate-1 rounded-2xl shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]"
+              />
             </figure>
           </div>
         </section>
