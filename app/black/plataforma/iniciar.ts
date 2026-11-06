@@ -25,8 +25,9 @@ import { MATERIAS, type Materia } from "./aulas";
 
 const BASE = "/black/plataforma/";
 
-/** Caminho público de um arquivo da seção. */
-const A = (n: string) => BASE + (n.startsWith("capas/") ? n : `img/${n}`);
+/** Caminho público de um arquivo da seção. Caminho absoluto passa direto. */
+const A = (n: string) =>
+  n.startsWith("/") ? n : BASE + (n.startsWith("capas/") ? n : `img/${n}`);
 
 const esc = (t: string) =>
   String(t).replace(
@@ -206,8 +207,14 @@ const ABAS: Aba[] = [
 
 /**
  * Liga a seção dentro de `raiz` e devolve a função que desliga tudo.
+ *
+ * `materias` troca a fileira de capas da aba de aulas — a página do Acre usa
+ * as capas do curso da PC-AC. Matéria sem módulos aparece só com a capa.
  */
-export function iniciarPlataforma(raiz: HTMLElement): () => void {
+export function iniciarPlataforma(
+  raiz: HTMLElement,
+  materias: Materia[] = MATERIAS,
+): () => void {
   const controle = new AbortController();
   const { signal } = controle;
   const $ = <T extends Element = HTMLElement>(sel: string) =>
@@ -561,7 +568,7 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
         ${a.chips ? `<div class="chips">${a.chips.map(([t, n], k) => `<button class="chip${k ? "" : " on"}" type="button" data-n="${n}">${t}</button>`).join("")}</div>` : ""}
         ${
           a.extra === "capas"
-            ? `<div class="capas-wrap"><div class="capas" id="cf-pl-capas">${MATERIAS.map((m, k) => `<button class="capa" type="button" data-k="${k}"><img src="${A(m.capa)}" alt="${esc(m.nome)}"><span>ver lista</span></button>`).join("")}</div>
+            ? `<div class="capas-wrap"><div class="capas" id="cf-pl-capas">${materias.map((m, k) => (m.modulos.length ? `<button class="capa" type="button" data-k="${k}"><img src="${A(m.capa)}" alt="${esc(m.nome)}"><span>ver lista</span></button>` : `<div class="capa"><img src="${A(m.capa)}" alt="${esc(m.nome)}"></div>`)).join("")}</div>
           <div class="setas"><button class="seta" type="button" data-d="-1" aria-label="Anteriores">←</button><button class="seta" type="button" data-d="1" aria-label="Próximas">→</button></div></div>`
             : ""
         }
@@ -604,7 +611,7 @@ export function iniciarPlataforma(raiz: HTMLElement): () => void {
     if (capas) {
       capas.addEventListener("click", (e) => {
         const b = (e.target as HTMLElement).closest<HTMLElement>(".capa");
-        if (b) lista(MATERIAS[Number(b.dataset.k)]);
+        if (b?.dataset.k) lista(materias[Number(b.dataset.k)]);
       });
       painel
         .querySelectorAll<HTMLElement>(".seta")

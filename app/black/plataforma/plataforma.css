@@ -352,6 +352,13 @@
 .cf-pl .capa:hover img {
   transform: translateY(-3px);
 }
+/* Capa sem lista de aulas: não é botão. */
+.cf-pl div.capa {
+  cursor: default;
+}
+.cf-pl div.capa:hover img {
+  transform: none;
+}
 .cf-pl .capa:focus-visible img {
   outline: 2px solid var(--ouro-esc);
   outline-offset: 2px;

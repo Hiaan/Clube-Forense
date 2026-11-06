@@ -2,7 +2,7 @@
 //
 // O preparatório geral vende "qualquer concurso"; esta página vende um só, e a
 // pergunta de quem chega aqui é outra: "como é esse concurso?". Então o lugar
-// onde o geral lista os editais vira a ficha do edital do Acre — vagas,
+// onde o geral lista os editais vira a ficha do edital do Acre — áreas,
 // salário, datas, como a prova pesa e o que cai —, com tudo tirado do edital
 // (ver edital.ts). O argumento de venda está nos números: 75% da objetiva é
 // conhecimento específico, e é exatamente isso que o curso ensina.
@@ -13,7 +13,7 @@ import { reais, reaisComCentavos } from "../black/oferta";
 import { EDITAL_AC } from "./edital";
 
 const NUMEROS = [
-  { valor: String(EDITAL_AC.vagas), rotulo: "vagas para perito médico-legista" },
+  { valor: "13h às 18h", rotulo: "horário da prova (Acre)" },
   { valor: reaisComCentavos(EDITAL_AC.salario), rotulo: "remuneração inicial" },
   { valor: EDITAL_AC.dataProva, rotulo: "provas objetiva e discursiva" },
   { valor: EDITAL_AC.inscricoes, rotulo: "inscrições pelo site do Idecan" },
@@ -62,32 +62,26 @@ export default function SecaoEditalAC() {
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="card-white p-6">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b38f00]">
-            onde estão as vagas
+            as áreas do cargo
           </p>
           <ul className="mt-4 divide-y divide-gray-100">
-            {EDITAL_AC.vagasPorArea.map((v) => (
-              <li
-                key={`${v.area}-${v.regional}`}
-                className="flex items-center justify-between gap-4 py-3"
-              >
+            {EDITAL_AC.areas.map((v) => (
+              <li key={v.area} className="flex items-start gap-3 py-3">
+                <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#ffcd07]" />
                 <span>
                   <span className="block text-sm font-bold text-gray-900">
                     {v.area}
                   </span>
-                  <span className="block text-xs text-gray-500">
-                    {v.regional}
+                  <span className="block text-xs leading-relaxed text-gray-500">
+                    {v.onde}
                   </span>
-                </span>
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gray-900 text-sm font-black text-[#ffcd07]">
-                  {v.vagas}
                 </span>
               </li>
             ))}
           </ul>
           <p className="mt-3 text-xs leading-relaxed text-gray-500">
-            Requisitos: medicina, CRM ativo e CNH AB. A vaga de psiquiatria
-            exige residência ou título de especialista; se não for preenchida,
-            passa para a Medicina Legal Geral.
+            Requisitos: graduação em medicina, CRM ativo e CNH AB. Regime de
+            dedicação exclusiva, com até 40 horas semanais.
           </p>
         </div>
 

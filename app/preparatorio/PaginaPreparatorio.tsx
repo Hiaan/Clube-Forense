@@ -43,6 +43,7 @@ import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { type Nivel } from "../monitor/lib/tipos";
 import EventosDeVenda from "../components/EventosDeVenda";
 import { EDITAL_AC } from "../preparatorio-ac/edital";
+import { MATERIAS_AC } from "../preparatorio-ac/materias";
 import SecaoEditalAC from "../preparatorio-ac/SecaoEditalAC";
 import BarraCompra from "./BarraCompra";
 import HeroPreparatorio from "./HeroPreparatorio";
@@ -144,7 +145,7 @@ export default async function PaginaPreparatorio({
   const preco = black ? PRECO_BLACK : PRECO_CHEIO;
   const parcela = PARCELA[versao];
   const campanha = acre
-    ? `Edital PC-AC publicado · ${EDITAL_AC.vagas} vagas para perito médico-legista · prova em ${EDITAL_AC.dataProva}`
+    ? `Edital PC-AC publicado · perito médico-legista · prova em ${EDITAL_AC.dataProva}`
     : `Black Forense · preparatório de ${reais(PRECO_CHEIO)} por ${reais(PRECO_BLACK)}`;
   const comFaixa = black || acre;
 
@@ -190,8 +191,8 @@ export default async function PaginaPreparatorio({
           }
           subtitulo={
             <>
-              {EDITAL_AC.vagas} vagas, salário de{" "}
-              {reaisComCentavos(EDITAL_AC.salario)} e prova em{" "}
+              Salário inicial de {reaisComCentavos(EDITAL_AC.salario)} e prova
+              em{" "}
               {EDITAL_AC.dataProva}. Estude para o edital da PC-AC com
               professores que já são médicos legistas.
             </>
@@ -457,7 +458,7 @@ export default async function PaginaPreparatorio({
 
       {/* ----------------------------------------------- plataforma (claro) */}
       <div className="border-t border-gray-100">
-        <SecaoPlataforma />
+        <SecaoPlataforma materias={acre ? MATERIAS_AC : undefined} />
       </div>
 
       <div className="bg-[#f8f9fb]">
@@ -602,7 +603,7 @@ export default async function PaginaPreparatorio({
                 </p>
               )}
               <a
-                href={CHECKOUT[versao]}
+                href={acre ? EDITAL_AC.checkout : CHECKOUT[versao]}
                 data-valor={preco}
                 target="_blank"
                 rel="noopener noreferrer"

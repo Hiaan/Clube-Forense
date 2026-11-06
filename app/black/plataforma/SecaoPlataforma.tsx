@@ -14,16 +14,22 @@
 
 import { useEffect, useRef } from "react";
 
+import type { Materia } from "./aulas";
 import { iniciarPlataforma } from "./iniciar";
 import "./plataforma.css";
 
-export default function SecaoPlataforma() {
+export default function SecaoPlataforma({
+  materias,
+}: {
+  /** Outra fileira de capas na aba de aulas (a página do Acre). */
+  materias?: Materia[];
+} = {}) {
   const raiz = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!raiz.current) return;
-    return iniciarPlataforma(raiz.current);
-  }, []);
+    return iniciarPlataforma(raiz.current, materias);
+  }, [materias]);
 
   return (
     <section ref={raiz} className="cf-pl" id="plataforma">
