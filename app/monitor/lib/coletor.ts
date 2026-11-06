@@ -16,7 +16,7 @@
 
 import { obterCuradoria } from "./baseline";
 import {
-  avaliarMencao,
+  avaliarMencaoNaUf,
   classificarNivel,
   ehSelecaoTemporaria,
   mencaoConclusiva,
@@ -214,10 +214,10 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
   function registrarItem(item: ItemRSS) {
     if (!dentroDaJanela(item.data)) return;
     const texto = `${item.titulo} ${item.resumo}`;
-    const avaliacao = avaliarMencao(texto);
-    if (!avaliacao.manter) return;
     const uf = inferirUf(texto);
     if (!uf || !ESTADO_POR_UF[uf]) return;
+    const avaliacao = avaliarMencaoNaUf(texto, uf);
+    if (!avaliacao.manter) return;
     registrar({
       uf,
       titulo: item.titulo,
@@ -246,7 +246,7 @@ export async function coletar({ semCache = false }: OpcoesColeta = {}): Promise<
   for (const pub of doVigia) {
     if (!ESTADO_POR_UF[pub.uf] || !dentroDaJanela(pub.data)) continue;
     const texto = `${pub.titulo} ${pub.resumo}`;
-    const avaliacao = avaliarMencao(texto);
+    const avaliacao = avaliarMencaoNaUf(texto, pub.uf);
     if (!avaliacao.manter) continue;
     registrar({
       uf: pub.uf,

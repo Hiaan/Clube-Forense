@@ -18,6 +18,7 @@
 
 import {
   CARGO_DE_APOIO,
+  NOMES_CARGO_POR_UF,
   normalizarCargo,
   SINAL_MEDICINA,
   TERMOS_CARGO_DIRETO,
@@ -159,6 +160,41 @@ export function avaliarMencao(texto: string): AvaliacaoMencao {
   //    explicitamente sobre outro cargo ou restrito a nível médio/fundamental.
   if (TERMOS_OUTROS_CARGOS.some((termo) => t.includes(termo))) return FORA;
   if (/nivel (medio|fundamental)/.test(t) && !t.includes("superior")) return FORA;
+
+  return { manter: true, cargoDireto: false, tipo: "carreira" };
+}
+
+/**
+ * A mesma avaliação, sabendo de que estado a menção fala.
+ *
+ * ONDE O LEGISTA É DA POLÍCIA CIVIL, "POLÍCIA CIVIL" É GUARDA-CHUVA. No Acre,
+ * no DF, em MG, no RJ e em outros estados o médico-legista é cargo da própria
+ * Polícia Civil, e o edital sai como "Polícia Civil do Acre abre concurso com
+ * 139 vagas" — sem escrever "legista" em lugar nenhum. A avaliação sem UF
+ * jogava fora todas essas manchetes, e foi assim que o edital da PC-AC de
+ * novembro/2026 passou pelo monitor sem deixar rastro. Aqui ela entra como
+ * contexto (carreira): não define estágio sozinha, mas chega ao mapa e à fila
+ * do blog, onde a triagem decide se o cargo está no certame.
+ */
+export function avaliarMencaoNaUf(texto: string, uf: string | null): AvaliacaoMencao {
+  const avaliacao = avaliarMencao(texto);
+  if (avaliacao.manter || !uf) return avaliacao;
+  if (!NOMES_CARGO_POR_UF[uf]?.orgao.startsWith("Polícia Civil")) return avaliacao;
+
+  const t = normalizarCargo(texto);
+  if (!TERMOS_CONCURSO.some((termo) => t.includes(termo))) return avaliacao;
+  const sigla = uf.toLowerCase();
+  const daPoliciaCivil =
+    t.includes("policia civil") ||
+    new RegExp(`\\bpc[ -]?${sigla}\\b`).test(t) ||
+    (uf === "DF" && t.includes("pcdf")) ||
+    (uf === "RJ" && t.includes("pcerj"));
+  if (!daPoliciaCivil) return avaliacao;
+
+  // Manchete de outro cargo da casa ("Concurso Delegado AC") continua fora.
+  if (TERMOS_OUTROS_CARGOS.some((termo) => t.includes(termo))) return avaliacao;
+  if (/nivel (medio|fundamental)/.test(t) && !t.includes("superior")) return avaliacao;
+  if (TERMOS_PERICIA_PREVIDENCIARIA.some((termo) => t.includes(termo))) return avaliacao;
 
   return { manter: true, cargoDireto: false, tipo: "carreira" };
 }

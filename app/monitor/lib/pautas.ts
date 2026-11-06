@@ -38,6 +38,7 @@ import {
 } from "../../lib/postsRepo";
 import { aSlug, estadoComArtigo, orgaoDaUf } from "../../blog/lib/taxonomia";
 import { ESTADO_POR_UF } from "./estados";
+import { NOMES_CARGO_POR_UF } from "./nomenclaturas";
 import { triarNoticias } from "./triagem";
 import {
   NIVEL_LABEL,
@@ -554,6 +555,31 @@ export interface Motivos {
  * problema. O que falhar fica de fora e a próxima passada tenta de novo — o
  * índice único em `fonte_url` é o que garante que tentar de novo não duplica.
  */
+/**
+ * O que a triagem precisa saber e a manchete não diz.
+ *
+ * Onde o legista é cargo da Polícia Civil, o edital sai como "Polícia Civil
+ * do Acre abre concurso com 139 vagas", e a triagem, lendo só isso, responde
+ * "não dá para saber" — que é a resposta certa para quem não sabe que o cargo
+ * mora ali. A nossa base sabe: o nome do cargo no estado e, quando a ficha
+ * tem, quantas vagas de legista o concurso atual abriu.
+ */
+function contextoDaTriagem(uf: string, ficha: Ficha | null): string | undefined {
+  const cargo = NOMES_CARGO_POR_UF[uf];
+  const partes: string[] = [];
+  if (cargo?.orgao.startsWith("Polícia Civil")) {
+    partes.push(
+      `neste estado o médico-legista é cargo da própria ${cargo.orgao} ("${cargo.oficial}"), então concurso amplo da Polícia Civil pode incluí-lo`,
+    );
+  }
+  if (ficha?.vagasImediatas) {
+    partes.push(
+      `nossa ficha confirma ${ficha.vagasImediatas} vaga(s) de médico-legista no concurso atual do estado`,
+    );
+  }
+  return partes.length ? partes.join("; ") + "." : undefined;
+}
+
 export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas> {
   const candidatas: { m: Mencao; etapa: Nivel; ficha: Ficha | null }[] = [];
   const motivos: Motivos = {
@@ -623,12 +649,13 @@ export async function abrirPautas(relatorio: Relatorio): Promise<ResultadoPautas
   // A TRIAGEM, ANTES DO SEGUNDO LAÇO E SÓ UMA VEZ. Vai em lote para o modelo
   // responder tudo numa chamada; o que já tem veredito guardado nem sai daqui.
   const triagem = await triarNoticias(
-    candidatas.map(({ m }) => ({
+    candidatas.map(({ m, ficha }) => ({
       link: m.link,
       titulo: m.titulo,
       resumo: m.resumo,
       fonte: m.fonte,
       uf: m.uf,
+      contexto: contextoDaTriagem(m.uf, ficha),
     })),
   );
   motivos.triadas = triagem.perguntadas;

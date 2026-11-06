@@ -65,6 +65,8 @@ export interface Candidata {
   resumo: string;
   fonte: string;
   uf: string;
+  /** O que a nossa base sabe do cargo no estado, para a manchete que não o nomeia. */
+  contexto?: string;
 }
 
 export interface ResultadoTriagem {
@@ -104,6 +106,7 @@ export async function triarNoticias(candidatas: Candidata[]): Promise<ResultadoT
         `   TÍTULO: ${c.titulo}`,
         c.resumo.trim() ? `   RESUMO: ${c.resumo.trim().slice(0, 600)}` : null,
         `   FONTE: ${c.fonte}`,
+        c.contexto ? `   O QUE A NOSSA BASE SABE: ${c.contexto}` : null,
       ]
         .filter(Boolean)
         .join("\n");

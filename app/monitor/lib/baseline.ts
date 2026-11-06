@@ -81,15 +81,13 @@ const CURADORIA: EntradaCuradoria[] = [
   },
   {
     uf: "AC",
-    // "Definição da banca" é, pela nossa própria régua, Comissão Formada: a
-    // banca está sendo escolhida, e o contrato é o passo seguinte. Não dá para
-    // o robô chegar aqui sozinho — a manchete fala em "edital previsto", que é
-    // o degrau mais baixo, e o que muda o estágio está no corpo do texto, que o
-    // RSS não entrega.
-    estagio: "comissao",
-    titulo: "PC-AC: concurso anunciado com 4 vagas para perito médico-legista",
+    // Edital nº 001/2026 publicado em 05–06/11/2026 (Idecan). As manchetes
+    // dizem só "Polícia Civil do Acre"; as 4 vagas de perito médico-legista
+    // estão na tabela do edital.
+    estagio: "edital",
+    titulo: "PC-AC: edital publicado com 4 vagas para perito médico-legista",
     resumo:
-      "São 139 vagas no total, 4 delas para perito médico-legista. A banca está em definição — a assinatura do contrato é a próxima etapa —, e o edital é previsto até dezembro de 2026. A remuneração ainda não foi divulgada.",
+      "Edital publicado com 139 vagas, 4 delas para perito médico-legista (3 de medicina legal geral e 1 de psiquiatria), com remuneração inicial de R$ 14.629,25. Banca Idecan; inscrições de 11/11 a 14/12/2026, e prova objetiva e discursiva em 24/01/2027.",
   },
 ];
 
