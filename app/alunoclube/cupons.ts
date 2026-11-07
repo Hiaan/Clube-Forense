@@ -144,7 +144,38 @@ export const FAIXA_UNICA: string | null = "EXLUSIV0ALUNO";
 export const FIM_LOTE1_ALUNO = "2026-10-29T00:00:00-03:00";
 
 /** O que aparece no selo do card de preço enquanto vale a faixa única. */
-export const LOTE_ALUNO = "2º lote · o 1º lote já encerrou";
+export const LOTE_ALUNO = "2º lote · encerra 10/11 às 23h59";
+
+/**
+ * A próxima virada de lote dos alunos, anunciada na página com cronômetro.
+ *
+ * 2º → 3º LOTE (anunciada em 07/11/2026): o 2º lote vale até 10/11 às 23h59;
+ * à meia-noite do dia 11 entra o 3º lote, com um valor novo que a página NÃO
+ * revela — só avisa que vai mudar. A troca do valor continua manual (novo
+ * cupom em REGRAS_CUPOM e FAIXA_UNICA), quando o Clube passar o 3º lote.
+ * Passado o prazo, os avisos somem sozinhos.
+ */
+export const VIRADA_ALUNO = {
+  ate: "2026-11-10T23:59:00-03:00",
+  sai: "2º lote",
+  entra: "3º lote",
+  quando: "10/11, às 23h59",
+};
+
+/** True enquanto a virada anunciada ainda não chegou. */
+export function viradaPendente(agora: number = Date.now()): boolean {
+  return agora < new Date(VIRADA_ALUNO.ate).getTime();
+}
+
+/**
+ * Para quem quer só um edital: o atendimento do Clube no WhatsApp (Lucas)
+ * fecha a Black de edital único, que não tem checkout próprio na página.
+ */
+export const WHATSAPP_EDITAL_UNICO =
+  "https://wa.me/558594160607?text=" +
+  encodeURIComponent(
+    "Oi, Lucas! Sou aluno do Clube Forense e quero garantir apenas um edital na Black.",
+  );
 
 export function linkComCupom(cupom: string): string {
   return `${CHECKOUT_ALUNO}?cupom=${encodeURIComponent(cupom)}`;

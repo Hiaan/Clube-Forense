@@ -35,7 +35,11 @@ import CaixaDePreco, { type OfertaAluno } from "./CaixaDePreco";
 import AvisoAluno from "../alunoclube/AvisoAluno";
 import SairAluno from "../alunoclube/SairAluno";
 import AvisoLote from "../alunoclube/AvisoLote";
-import { FAIXA_UNICA, FIM_LOTE1_ALUNO } from "../alunoclube/cupons";
+import BotaoEditalUnico from "../alunoclube/BotaoEditalUnico";
+import {
+  VIRADA_ALUNO,
+  viradaPendente,
+} from "../alunoclube/cupons";
 import Contador from "./Contador";
 import FundoCapas from "./FundoCapas";
 import Depoimentos from "./Depoimentos";
@@ -115,6 +119,8 @@ export default async function PaginaBlack({
   ofertaAluno?: OfertaAluno;
 }) {
   const aluno = modo === "aluno";
+  // Se a virada anunciada ainda não chegou: troca as faixas e a barra.
+  const virada = aluno && viradaPendente();
   const relatorio = await coletar();
 
   // QUEM ENTRA É A OFERTA QUE DIZ; EM QUE PÉ ESTÁ, É O MONITOR. A lista vem
@@ -160,7 +166,9 @@ export default async function PaginaBlack({
   ));
 
   return (
-    <div>
+    // overflow-x-clip: a faixa de editais sangra 16px para os lados (-mx-4),
+    // e sem isto a página inteira rolava de lado no celular.
+    <div className="overflow-x-clip">
       {/* ----------------------------------------------------------- topo */}
       {/* NÃO HÁ CABEÇALHO, E ISSO É A REGRA DA PÁGINA. Menu no topo de página
           de venda é porta de saída: cada link leva para outro lugar que não é
@@ -171,9 +179,9 @@ export default async function PaginaBlack({
       <Ticker
         texto={
           aluno
-            ? FAIXA_UNICA
-              ? "Exclusivo para alunos do Clube · Black Vitalícia"
-              : "O 1º lote vira à meia-noite · o valor será alterado"
+            ? virada
+              ? `O ${VIRADA_ALUNO.sai} encerra ${VIRADA_ALUNO.quando} · depois, ${VIRADA_ALUNO.entra} com novo valor`
+              : "Exclusivo para alunos do Clube · Black Vitalícia"
             : "Black Forense · todos os editais autorizados · um preço só"
         }
       />
@@ -257,9 +265,8 @@ export default async function PaginaBlack({
                 >
                   Quero garantir minha vaga
                 </a>
-                {aluno && !FAIXA_UNICA && (
-                  <AvisoLote ate={FIM_LOTE1_ALUNO} compacto />
-                )}
+                {aluno && <AvisoLote compacto />}
+                {aluno && <BotaoEditalUnico />}
                 <p className="text-[13px] font-semibold text-white/45">
                   {aluno ? (
                     <>
@@ -303,9 +310,9 @@ export default async function PaginaBlack({
       <Ticker
         texto={
           aluno
-            ? FAIXA_UNICA
-              ? "Exclusivo para alunos do Clube · Black Vitalícia"
-              : "O 1º lote vira à meia-noite · o valor será alterado"
+            ? virada
+              ? `O ${VIRADA_ALUNO.sai} encerra ${VIRADA_ALUNO.quando} · depois, ${VIRADA_ALUNO.entra} com novo valor`
+              : "Exclusivo para alunos do Clube · Black Vitalícia"
             : "Black Forense · todos os editais autorizados · um preço só"
         }
       />
@@ -594,9 +601,9 @@ export default async function PaginaBlack({
       <Ticker
         texto={
           aluno
-            ? FAIXA_UNICA
-              ? "oferta exclusiva para alunos · garantia de 7 dias"
-              : "o 1º lote vira à meia-noite · garanta o valor de agora"
+            ? virada
+              ? `o ${VIRADA_ALUNO.sai} encerra ${VIRADA_ALUNO.quando} · garanta o valor de agora`
+              : "oferta exclusiva para alunos · garantia de 7 dias"
             : "o preço sobe a cada lote · garantia de 7 dias"
         }
       />
@@ -624,8 +631,8 @@ export default async function PaginaBlack({
                 que liberamos uma oferta vitalícia e pode ser a última, garanta
                 a sua vaga.
               </p>
-              {aluno && !FAIXA_UNICA ? (
-                <AvisoLote ate={FIM_LOTE1_ALUNO} />
+              {aluno ? (
+                <AvisoLote />
               ) : (
                 <div className="mt-6 flex justify-center">
                   {!aluno && <Contador />}
@@ -638,6 +645,11 @@ export default async function PaginaBlack({
                 editaisInclusos={inclusos.length}
                 aluno={aluno ? ofertaAluno : undefined}
               />
+              {aluno && (
+                <div className="mt-6 flex justify-center">
+                  <BotaoEditalUnico />
+                </div>
+              )}
               {aluno && (
                 <div className="mt-6">
                   <AvisoAluno />
@@ -838,7 +850,8 @@ export default async function PaginaBlack({
 
       <BarraFixa
         aluno={aluno}
-        prazoAluno={FAIXA_UNICA ? undefined : FIM_LOTE1_ALUNO}
+        prazoAluno={virada ? VIRADA_ALUNO.ate : undefined}
+        loteAluno={VIRADA_ALUNO.sai}
       />
     </div>
   );

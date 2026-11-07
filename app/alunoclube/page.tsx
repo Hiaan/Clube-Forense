@@ -12,6 +12,8 @@ import {
   COOKIE_ALUNO,
   FAIXA_UNICA,
   LOTE_ALUNO,
+  VIRADA_ALUNO,
+  viradaPendente,
   linkComCupom,
   regraDoCupom,
 } from "./cupons";
@@ -36,9 +38,9 @@ export default async function AlunoClubePage() {
           preco: regra.preco,
           link: linkComCupom(regra.cupom),
           lote: FAIXA_UNICA ? LOTE_ALUNO : undefined,
-          avisoLote: FAIXA_UNICA
-            ? undefined
-            : "Valor do 1º lote · muda à meia-noite",
+          avisoLote: viradaPendente()
+            ? `Valor do ${VIRADA_ALUNO.sai} · muda ${VIRADA_ALUNO.quando}`
+            : undefined,
         }}
       />
       <EventosAluno valor={regra.preco} />
