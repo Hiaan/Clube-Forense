@@ -4,9 +4,14 @@ import Abas from "../_ui/Abas";
 
 export default async function LayoutAdmin({ children }: { children: React.ReactNode }) {
   const usuario = await exigirEquipe();
-  const abas = [{ href: "/painel/admin", rotulo: "Carteira" }];
+  const abas = [
+    { href: "/painel/admin", rotulo: "Carteira" },
+    { href: "/painel/admin/pesquisa", rotulo: "Pesquisa" },
+  ];
   if (usuario.perfil === "admin") {
     abas.push(
+      { href: "/painel/admin/propostas", rotulo: "Propostas" },
+      { href: "/painel/admin/contratos", rotulo: "Contratos" },
       { href: "/painel/admin/financeiro", rotulo: "Financeiro" },
       { href: "/painel/admin/whatsapp", rotulo: "WhatsApp" },
       { href: "/painel/admin/nova", rotulo: "Novo cliente" },

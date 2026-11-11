@@ -1,14 +1,20 @@
 import { get } from "@vercel/blob";
-import { empresaPermitidaPorId, usuarioAtual } from "@/lib/painel/auth";
+import { ehEquipe, empresaPermitidaPorId, usuarioAtual } from "@/lib/painel/auth";
 
 // Imagens dos criativos ficam no Blob privado. Esta rota só entrega o arquivo
 // para quem tem acesso à empresa dona dele (caminho: criativos/<empresa>/<arquivo>).
+// Os prints do mural de pesquisa (pesquisa/<arquivo>) são só da equipe T9.
 export async function GET(_: Request, { params }: { params: Promise<{ caminho: string[] }> }) {
   const caminho = (await params).caminho;
   const usuario = await usuarioAtual();
   if (!usuario) return new Response("Não autorizado", { status: 401 });
-  if (caminho[0] !== "criativos" || caminho.length !== 3) return new Response("Não encontrado", { status: 404 });
-  if (!(await empresaPermitidaPorId(usuario, Number(caminho[1])))) return new Response("Não encontrado", { status: 404 });
+  const pesquisa = caminho[0] === "pesquisa" && caminho.length === 2;
+  if (pesquisa) {
+    if (!ehEquipe(usuario)) return new Response("Não encontrado", { status: 404 });
+  } else {
+    if (caminho[0] !== "criativos" || caminho.length !== 3) return new Response("Não encontrado", { status: 404 });
+    if (!(await empresaPermitidaPorId(usuario, Number(caminho[1])))) return new Response("Não encontrado", { status: 404 });
+  }
 
   const arquivo = await get(caminho.join("/"), { access: "private" }).catch(() => null);
   if (!arquivo || arquivo.statusCode !== 200) return new Response("Não encontrado", { status: 404 });

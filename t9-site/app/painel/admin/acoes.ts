@@ -26,7 +26,7 @@ import { IDIOMAS, fmt, type Idioma } from "@/lib/i18n";
 export type Estado = { ok?: boolean; mensagem?: string; link?: string; vez?: number };
 
 const VALIDADE_CONVITE_MIN = 72 * 60;
-const RESERVADOS = new Set(["admin", "entrar", "conta", "api", "nova", "equipe", "modelo-csv"]);
+const RESERVADOS = new Set(["admin", "entrar", "conta", "api", "nova", "equipe", "modelo-csv", "midia", "proposta", "contrato", "propostas", "contratos", "pesquisa", "financeiro", "whatsapp"]);
 
 const txt = (f: FormData, campo: string, max = 200) => String(f.get(campo) ?? "").trim().slice(0, max);
 const num = (f: FormData, campo: string) => {
