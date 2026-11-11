@@ -97,7 +97,9 @@ export const REGRAS_CUPOM: RegraCupom[] = [
   },
   {
     rotulo: "aluno do Clube",
-    preco: 3947,
+    // 3º lote (11/11/2026): o mesmo cupom, que na Eduzz passou a dar R$ 4.947.
+    // No 2º lote ele dava R$ 3.947.
+    preco: 4947,
     cupom: "EXLUSIV0ALUNO",
     // Produtos abaixo de R$ 500: 7 eBooks, Toxicologia Forense, Curso de
     // Criminalística e o Resumo de Traumatologia + Tanatologia.
@@ -129,6 +131,9 @@ export function regraDoCupom(cupom: string): RegraCupom | null {
 }
 
 /**
+ * 3º LOTE DOS ALUNOS (11/11/2026): mesma faixa única e mesmo cupom, agora a
+ * R$ 4.947.
+ *
  * 2º LOTE DOS ALUNOS (28/10/2026): o 1º lote, com as três faixas de cashback,
  * acabou. Todo aluno validado, de qualquer faixa, fica com o cupom abaixo — o
  * de maior valor. A conferência do CPF continua: a página segue exclusiva
@@ -144,7 +149,7 @@ export const FAIXA_UNICA: string | null = "EXLUSIV0ALUNO";
 export const FIM_LOTE1_ALUNO = "2026-10-29T00:00:00-03:00";
 
 /** O que aparece no selo do card de preço enquanto vale a faixa única. */
-export const LOTE_ALUNO = "2º lote · encerra 10/11 às 23h59";
+export const LOTE_ALUNO = "3º lote · o 2º lote encerrou em 10/11";
 
 /**
  * A próxima virada de lote dos alunos, anunciada na página com cronômetro.
