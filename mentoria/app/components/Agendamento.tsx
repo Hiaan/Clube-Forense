@@ -20,6 +20,7 @@ import {
   partesDaData,
 } from "../../lib/agenda";
 import { LINK_GRUPO_CASOS } from "../../lib/site";
+import { eventoPixel } from "./PixelMeta";
 
 type Passo = 1 | 2 | 3;
 
@@ -147,6 +148,7 @@ export default function Agendamento() {
       return;
     }
     setEstado({ fase: "editando" });
+    eventoPixel("Lead", { content_name: "Mentoria — dados de contato" });
     setPasso(2);
   }
 
@@ -169,6 +171,7 @@ export default function Agendamento() {
       setEstado({ fase: "editando", erro });
       return;
     }
+    eventoPixel("Schedule", { content_name: "Mentoria — reunião gratuita" });
     setEstado({
       fase: "pronto",
       primeiroNome: nome.trim().split(" ")[0],

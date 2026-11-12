@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, Montserrat } from "next/font/google";
 
+import PixelMeta from "./components/PixelMeta";
 import { SITE } from "../lib/site";
 import "./globals.css";
 
@@ -49,7 +50,10 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${sans.variable} ${impacto.variable}`}
     >
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen">
+        {children}
+        <PixelMeta />
+      </body>
     </html>
   );
 }
