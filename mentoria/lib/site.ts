@@ -18,3 +18,10 @@ export const SITE = {
  * da reunião: melhor que um botão que não leva a lugar nenhum.
  */
 export const LINK_GRUPO_CASOS = process.env.NEXT_PUBLIC_LINK_GRUPO_CASOS ?? "";
+
+/**
+ * WhatsApp do Miguel (55 + DDD + número). Quem agenda a reunião é levado a
+ * este número com uma mensagem pronta, com os dados do agendamento: assim a
+ * conversa já começa com tudo o que ele precisa para confirmar.
+ */
+export const WHATSAPP_MIGUEL = process.env.NEXT_PUBLIC_WHATSAPP_MIGUEL ?? "";

@@ -19,7 +19,7 @@ import {
   horarioCurto,
   partesDaData,
 } from "../../lib/agenda";
-import { LINK_GRUPO_CASOS } from "../../lib/site";
+import { LINK_GRUPO_CASOS, WHATSAPP_MIGUEL } from "../../lib/site";
 import { eventoPixel } from "./PixelMeta";
 
 type Passo = 1 | 2 | 3;
@@ -27,7 +27,7 @@ type Passo = 1 | 2 | 3;
 type Estado =
   | { fase: "editando"; erro?: string }
   | { fase: "enviando" }
-  | { fase: "pronto"; resumo: string; primeiroNome: string };
+  | { fase: "pronto"; resumo: string; primeiroNome: string; whatsapp: string };
 
 // "Hoje" só existe no navegador. No HTML gerado no build a data seria a do
 // dia da publicação, então o servidor entrega a agenda vazia e o navegador a
@@ -172,11 +172,21 @@ export default function Agendamento() {
       return;
     }
     eventoPixel("Schedule", { content_name: "Mentoria — reunião gratuita" });
-    setEstado({
-      fase: "pronto",
-      primeiroNome: nome.trim().split(" ")[0],
-      resumo: `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`,
-    });
+    const resumo = `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`;
+    const mensagem = [
+      `Olá, Dr. Miguel! Sou ${nome.trim()} e acabei de agendar a reunião gratuita da mentoria.`,
+      "",
+      `*Dia e horário:* ${resumo}`,
+      `*Situação:* ${SITUACOES.find((s) => s.valor === situacao)?.titulo ?? ""}`,
+      `*Já estuda para legista:* ${estuda === "sim" ? "Sim" : "Ainda não"}`,
+      ...(estuda === "sim" && concurso ? [`*Concurso de interesse:* ${concurso}`] : []),
+      `*E-mail:* ${email.trim()}`,
+    ].join("\n");
+    const whatsapp = WHATSAPP_MIGUEL
+      ? `https://wa.me/${WHATSAPP_MIGUEL}?text=${encodeURIComponent(mensagem)}`
+      : "";
+    setEstado({ fase: "pronto", primeiroNome: nome.trim().split(" ")[0], resumo, whatsapp });
+    if (whatsapp) setTimeout(() => window.location.assign(whatsapp), 1800);
     // A confirmação é mais curta que o formulário: sem isto, no celular a
     // pessoa fica olhando para o que vem depois sem ver que deu certo.
     document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
@@ -192,10 +202,25 @@ export default function Agendamento() {
         <h3 className="mt-3 text-3xl font-bold uppercase leading-none tracking-tight sm:text-4xl">
           Tudo certo, {estado.primeiroNome}.
         </h3>
-        <p className="mt-4 leading-relaxed text-osso/75">
-          Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. Já recebi seu
-          agendamento e vou falar com você pelo WhatsApp para confirmar e enviar o link do Google Meet.
-        </p>
+        {estado.whatsapp ? (
+          <>
+            <p className="mt-4 leading-relaxed text-osso/75">
+              Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. Agora é só enviar a
+              mensagem que preparei no meu WhatsApp, para eu confirmar e te mandar o link do Google Meet.
+            </p>
+            <a
+              href={estado.whatsapp}
+              className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-verde px-6 py-4 text-base font-bold uppercase text-preto transition hover:brightness-110"
+            >
+              Confirmar pelo WhatsApp <span aria-hidden className="text-2xl">→</span>
+            </a>
+          </>
+        ) : (
+          <p className="mt-4 leading-relaxed text-osso/75">
+            Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. Já recebi seu
+            agendamento e vou falar com você pelo WhatsApp para confirmar e enviar o link do Google Meet.
+          </p>
+        )}
         <div className="mt-6 rounded-2xl border border-verde/30 bg-verde/10 p-5">
           <p className="font-bold uppercase">Enquanto isso: Dose Diária</p>
           <p className="mt-1 text-sm text-osso/70">

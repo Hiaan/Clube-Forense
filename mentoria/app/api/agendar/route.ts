@@ -8,6 +8,7 @@ import {
 } from "../../../lib/agenda";
 import { lerContato } from "../../../lib/contato";
 import { notificarMiguel } from "../../../lib/notificar";
+import { WHATSAPP_MIGUEL } from "../../../lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,10 @@ export async function POST(request: Request) {
     dataLegivel: `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`,
   });
 
-  if (!entregue) {
+  // Com o WhatsApp do Miguel configurado, a própria pessoa manda os dados para
+  // ele ao confirmar; o aviso automático passa a ser um extra, não o único
+  // registro do agendamento.
+  if (!entregue && !WHATSAPP_MIGUEL) {
     return erro(
       "Não conseguimos registrar seu agendamento agora. Tente de novo em instantes.",
       502,
