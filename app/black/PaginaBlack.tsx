@@ -274,7 +274,7 @@ export default async function PaginaBlack({
                     </>
                   ) : (
                     <>
-                      1º lote termina em <Contador compacto />
+                      A oferta termina em <Contador compacto />
                     </>
                   )}
                 </p>
@@ -604,7 +604,7 @@ export default async function PaginaBlack({
             ? virada
               ? `o ${VIRADA_ALUNO.sai} encerra ${VIRADA_ALUNO.quando} · garanta o valor de agora`
               : "oferta exclusiva para alunos · garantia de 7 dias"
-            : "o preço sobe a cada lote · garantia de 7 dias"
+            : "preço de Black por tempo limitado · garantia de 7 dias"
         }
       />
 

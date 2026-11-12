@@ -121,7 +121,7 @@ export default function CaixaDePreco({
           <p className="mx-auto mt-6 inline-block rounded-full border border-[#ffcd07]/40 bg-[#ffcd07]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#ffcd07]">
             {aluno.lote ?? `Oferta de ${aluno.rotulo}`}
           </p>
-        ) : (
+        ) : LOTES.length < 2 ? null : (
           <>
             {/* Os lotes como escada: onde a pessoa está e o que acontece se ela
             voltar amanhã. */}

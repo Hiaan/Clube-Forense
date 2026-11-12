@@ -25,6 +25,17 @@ export interface Lote {
 }
 
 /**
+ * SEM VIRADA DE LOTE PARA QUEM NÃO É ALUNO (12/11/2026). A página pública
+ * tinha três lotes por data (R$ 6.947 até 10/11, R$ 7.447 até 20/11, R$ 7.947
+ * até 30/11) e virou sozinha para R$ 7.447 em 10/11 — o Clube não quer virada
+ * para não alunos: o preço fica R$ 6.947 até o fim da Black. As viradas de
+ * lote são só da página dos alunos (alunoclube/cupons.ts). Com um lote só, a
+ * escada de lotes some do card.
+ *
+ * O FIM DA OFERTA (30/11) é o fim da campanha que estava previsto; conferir.
+ *
+ * Notas da primeira versão, de quando havia três lotes:
+ *
  * ATENÇÃO — CONFERIR ANTES DE DIVULGAR:
  *
  *   1. Os preços do 2º e do 3º lote são proposta minha, não valor que o Clube
@@ -37,26 +48,10 @@ export interface Lote {
  */
 export const LOTES: Lote[] = [
   {
-    nome: "1º lote",
+    nome: "Oferta de Black",
     avista: 6947,
     parcelas: 12,
     valorParcela: 718.5,
-    fecha: "2026-11-10T23:59:59-03:00",
-    checkout: "https://chk.eduzz.com/G96RYB5QW1?cupom=BLACK",
-  },
-  {
-    nome: "2º lote",
-    avista: 7447,
-    parcelas: 12,
-    valorParcela: 770.21,
-    fecha: "2026-11-20T23:59:59-03:00",
-    checkout: "https://chk.eduzz.com/G96RYB5QW1?cupom=BLACK",
-  },
-  {
-    nome: "3º lote",
-    avista: 7947,
-    parcelas: 12,
-    valorParcela: 821.93,
     fecha: "2026-11-30T23:59:59-03:00",
     checkout: "https://chk.eduzz.com/G96RYB5QW1?cupom=BLACK",
   },
