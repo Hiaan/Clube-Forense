@@ -85,6 +85,53 @@ export async function listarContasDeAnuncio(): Promise<ContaAnuncio[]> {
   return contas;
 }
 
+// ---------- Situação da conta (pagamento, saldo, limite) ----------
+
+export type SituacaoConta = {
+  status: number;
+  moeda: string;
+  /** Saldo pré-pago (PIX/boleto), quando a Meta informa. */
+  saldo: number | null;
+  /** Quanto falta para o limite de gastos da conta (null se não há limite). */
+  limiteRestante: number | null;
+};
+
+/** "Saldo disponível (R$1.234,56 BRL)" / "Available balance (R$1,234.56 BRL)" → 1234.56. */
+export function valorDoTexto(texto: string | undefined) {
+  // Só o valor entre parênteses: "Visa *1234" (cartão) não é saldo.
+  const m = (texto ?? "").match(/\(([^)]*\d[^)]*)\)/)?.[1];
+  if (!m) return null;
+  const bruto = m.replace(/[^\d.,-]/g, "");
+  if (!/\d/.test(bruto)) return null;
+  // O último separador seguido de 2 dígitos no fim é o decimal; os outros são de milhar.
+  const decimal = bruto.match(/[.,](\d{2})$/);
+  const inteiro = (decimal ? bruto.slice(0, -3) : bruto).replace(/[.,]/g, "");
+  const n = Number(`${inteiro}${decimal ? `.${decimal[1]}` : ""}`);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Os valores da conta (gasto, limite) vêm em centavos. O saldo pré-pago sai de outra leitura:
+ * se o token não puder ver a forma de pagamento, o status e o limite continuam valendo.
+ */
+export async function situacaoDaConta(conta: string): Promise<SituacaoConta> {
+  const c = await graph<{ account_status: number; currency: string; amount_spent?: string; spend_cap?: string; is_prepay_account?: boolean }>(conta, {
+    fields: "account_status,currency,amount_spent,spend_cap,is_prepay_account",
+  });
+  let saldo: number | null = null;
+  if (c.is_prepay_account) {
+    const f = await graph<{ funding_source_details?: { display_string?: string } }>(conta, { fields: "funding_source_details" }).catch(() => null);
+    saldo = valorDoTexto(f?.funding_source_details?.display_string);
+  }
+  const limite = Number(c.spend_cap ?? 0);
+  return {
+    status: c.account_status,
+    moeda: c.currency,
+    saldo,
+    limiteRestante: limite > 0 ? Math.max(0, (limite - Number(c.amount_spent ?? 0)) / 100) : null,
+  };
+}
+
 // ---------- Conversão das ações da Meta ----------
 
 type Acao = { action_type: string; value: string };

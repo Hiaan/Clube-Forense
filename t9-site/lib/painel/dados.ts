@@ -235,6 +235,7 @@ export function alertasDe(e: LinhaCarteira): Alerta[] {
     }
   }
   if (e.meta_erro) alertas.push({ nivel: "alto", texto: "Falha ao puxar dados da Meta" });
+  if (e.meta_conta_alerta) alertas.push({ nivel: "alto", texto: e.meta_conta_alerta });
   if (e.atraso_desde) {
     const dias = Math.round((Date.parse(`${ref}T12:00:00Z`) - Date.parse(`${e.atraso_desde}T12:00:00Z`)) / 86_400_000);
     alertas.push({ nivel: "alto", texto: dias >= 7 ? `Pagamento ${dias} dias em atraso: suspender campanhas` : `Pagamento ${dias} dia(s) em atraso` });

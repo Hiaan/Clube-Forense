@@ -405,6 +405,31 @@ const ESQUEMA = [
     usuario_id integer references usuarios on delete set null,
     criado_em timestamptz not null default now()
   )`,
+  // Relatório agendado no WhatsApp do cliente (enviado pelo número da T9) e alertas da conta de anúncios.
+  `alter table empresas add column if not exists rel_ativo boolean not null default false`,
+  `alter table empresas add column if not exists rel_frequencia text not null default 'semanal'`,
+  `alter table empresas add column if not exists rel_dia_semana integer not null default 1`,
+  `alter table empresas add column if not exists rel_dia_mes integer not null default 1`,
+  `alter table empresas add column if not exists rel_hora integer not null default 9`,
+  `alter table empresas add column if not exists rel_fuso text not null default 'America/Sao_Paulo'`,
+  `alter table empresas add column if not exists rel_numeros text`,
+  `alter table empresas add column if not exists rel_ia boolean not null default true`,
+  `alter table empresas add column if not exists rel_ultimo_em timestamptz`,
+  `alter table empresas add column if not exists alertas_cliente boolean not null default false`,
+  `alter table empresas add column if not exists meta_conta_checada_em timestamptz`,
+  `alter table empresas add column if not exists meta_conta_alerta text`,
+  `create table if not exists envios_automaticos (
+    id serial primary key,
+    empresa_id integer not null references empresas on delete cascade,
+    tipo text not null,
+    chave text not null,
+    destino text not null default 'cliente',
+    texto text not null,
+    ok boolean,
+    erro text,
+    criado_em timestamptz not null default now(),
+    unique (empresa_id, chave)
+  )`,
   `create index if not exists leads_contato_auto on leads (empresa_id, recebido_em) where contato_auto_em is null`,
   `create index if not exists crm_eventos_pendentes on crm_eventos (empresa_id, criado_em) where enviado_em is null`,
 ];

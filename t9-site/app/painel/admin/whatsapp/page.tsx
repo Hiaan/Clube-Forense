@@ -6,6 +6,9 @@ import { enderecoBase } from "@/lib/painel/links";
 import { metaConfigurado, situacaoTempoReal } from "@/lib/painel/meta";
 import { enviosRecentes, estadoDaPonte, numeroLegivel, numerosDe, type EstadoDaPonte } from "@/lib/painel/whatsapp";
 import { ativarLeadsTempoReal, desconectarWhatsapp, reconectarWhatsapp } from "../../acoes-whatsapp";
+import { salvarAlertasEquipe } from "../../acoes-relatorio";
+import { numerosDaEquipe } from "@/lib/painel/alertasConta";
+import { DIAS_SEMANA, enviosAutomaticos } from "@/lib/painel/relatorioWhatsapp";
 import AtualizarSozinho from "../../_ui/AtualizarSozinho";
 import SecaoPaginasToken from "../SecaoPaginasToken";
 import FormComEstado from "../../_ui/FormComEstado";
@@ -24,11 +27,16 @@ const SELO: Record<EstadoDaPonte["fase"], { texto: string; cor: string }> = {
 export default async function WhatsappAdmin() {
   await exigirAdmin();
   const callback = `${await enderecoBase()}/api/painel/meta-webhook`;
-  const [estado, tempoReal, envios, clientes] = await Promise.all([
+  const [estado, tempoReal, envios, clientes, equipe, automaticos, comRelatorio] = await Promise.all([
     estadoDaPonte(),
     metaConfigurado() ? situacaoTempoReal(callback) : null,
     enviosRecentes(20),
     consulta<{ nome: string; slug: string; whatsapp_leads: string }>("select nome, slug, whatsapp_leads from empresas where whatsapp_leads is not null order by nome"),
+    numerosDaEquipe(),
+    enviosAutomaticos(undefined, 15),
+    consulta<{ nome: string; slug: string; rel_frequencia: string; rel_dia_semana: number; rel_dia_mes: number; rel_hora: number; alertas_cliente: boolean }>(
+      "select nome, slug, rel_frequencia, rel_dia_semana, rel_dia_mes, rel_hora, alertas_cliente from empresas where rel_ativo order by nome",
+    ),
   ]);
   const selo = SELO[estado.fase];
   const paginasAtivas = tempoReal?.paginas.filter((p) => p.ativa).length ?? 0;
@@ -134,6 +142,77 @@ export default async function WhatsappAdmin() {
           </FormComEstado>
         ) : (
           <p className="mt-3 text-sm text-white/55">Configure a conexão com a Meta primeiro.</p>
+        )}
+      </section>
+
+      <section className="painel-cartao p-6">
+        <h2 className="font-display text-lg font-extrabold">Relatórios automáticos e alertas</h2>
+        <p className="mt-2 text-sm leading-relaxed text-white/55">
+          A cada 30 minutos o painel confere cada conta de anúncios: pagamento recusado, conta bloqueada, saldo ou limite acabando. Uma vez por dia
+          confere também queda de desempenho (custo por lead subindo ou leads parando). Cada alerta sai uma vez por dia.
+        </p>
+        <FormComEstado acao={salvarAlertasEquipe} className="mt-4">
+          <label className="block max-w-xl">
+            <span className="painel-rotulo">WhatsApp da equipe que recebe os alertas</span>
+            <span className="mb-1.5 block text-xs text-white/45">Sem número, os alertas vão por e-mail para os administradores.</span>
+            <input
+              name="numeros"
+              defaultValue={numerosDe(equipe).map(numeroLegivel).join(", ")}
+              placeholder="(83) 99999-9999 ou +1 407 555-1234"
+              inputMode="tel"
+              autoComplete="off"
+              className="painel-campo"
+            />
+          </label>
+          <BotaoEnviar enviando="Salvando..." className="botao-painel mt-4">
+            Salvar
+          </BotaoEnviar>
+        </FormComEstado>
+
+        <p className="painel-rotulo mt-6">Clientes com relatório ligado</p>
+        {comRelatorio.length ? (
+          <ul className="divide-y divide-white/6 text-sm">
+            {comRelatorio.map((c) => (
+              <li key={c.slug} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <Link href={`/painel/admin/${c.slug}`} className="font-medium hover:text-[#ff8a90]">
+                  {c.nome}
+                </Link>
+                <span className="text-white/55">
+                  {c.rel_frequencia === "diario"
+                    ? "Todo dia"
+                    : c.rel_frequencia === "semanal"
+                      ? `Toda ${DIAS_SEMANA[c.rel_dia_semana].toLowerCase()}`
+                      : `Todo dia ${c.rel_dia_mes}`}{" "}
+                  às {c.rel_hora}h{c.alertas_cliente ? " · alertas para o cliente" : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-white/55">Nenhum ainda. Ligue na página de cada cliente, em &ldquo;Relatório automático no WhatsApp&rdquo;.</p>
+        )}
+
+        {automaticos.length > 0 && (
+          <>
+            <p className="painel-rotulo mt-6">Últimos relatórios e alertas</p>
+            <ul className="divide-y divide-white/6 text-sm">
+              {automaticos.map((a) => (
+                <li key={a.id} className="py-2">
+                  <details>
+                    <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2">
+                      <span>
+                        <span className={a.ok === false ? "text-red-300" : a.ok ? "text-emerald-300" : "text-white/45"}>{a.ok === false ? "✕" : a.ok ? "✓" : "…"}</span>{" "}
+                        {a.empresa} · {a.tipo === "relatorio" ? "Relatório" : "Alerta"} para {a.destino === "equipe" ? "a equipe" : "o cliente"}
+                        {a.erro ? <span className="text-white/45"> ({a.erro})</span> : null}
+                      </span>
+                      <span className="text-white/45">{dataHora(a.criado_em, "pt")}</span>
+                    </summary>
+                    <pre className="mt-2 max-w-xl rounded-xl bg-[#0b141a] p-3 font-sans text-xs leading-relaxed whitespace-pre-wrap text-[#e9edef]">{a.texto}</pre>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </section>
 

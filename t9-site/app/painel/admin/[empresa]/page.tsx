@@ -24,6 +24,7 @@ import SecaoMeta from "../SecaoMeta";
 import SecaoCrmMeta from "../SecaoCrmMeta";
 import SecaoEduzz from "../SecaoEduzz";
 import SecaoWhatsapp from "../SecaoWhatsapp";
+import SecaoRelatorio from "../SecaoRelatorio";
 import FormComEstado from "../../_ui/FormComEstado";
 import { BotaoEnviar } from "../../_ui/Botoes";
 import { mudarStatusPlano } from "../../acoes";
@@ -86,6 +87,7 @@ export default async function GestaoCliente({ params }: { params: Promise<{ empr
       <SecaoCrmMeta empresa={empresa} />
       <SecaoEduzz empresa={empresa} />
       <SecaoWhatsapp empresa={empresa} />
+      <SecaoRelatorio empresa={empresa} />
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* Lançamento manual */}

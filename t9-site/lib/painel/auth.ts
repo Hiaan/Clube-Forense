@@ -65,6 +65,23 @@ export type Empresa = {
   wa_cliente_mensagem: string | null;
   /** Último número conectado pelo cliente (só para exibir). */
   wa_cliente_numero: string | null;
+  /** Relatório automático no WhatsApp do cliente, pelo número da T9. */
+  rel_ativo: boolean;
+  rel_frequencia: "diario" | "semanal" | "mensal";
+  /** 0 = domingo ... 6 = sábado. */
+  rel_dia_semana: number;
+  rel_dia_mes: number;
+  rel_hora: number;
+  rel_fuso: string;
+  /** Números do relatório; vazio = os mesmos que recebem os leads. */
+  rel_numeros: string | null;
+  rel_ia: boolean;
+  rel_ultimo_em: string | null;
+  /** Manda também ao cliente os alertas da conta de anúncios (saldo, pagamento). */
+  alertas_cliente: boolean;
+  meta_conta_checada_em: string | null;
+  /** Problema atual da conta de anúncios (pagamento, saldo, bloqueio); null se está tudo certo. */
+  meta_conta_alerta: string | null;
 };
 
 export const COOKIE_SESSAO = "t9_sessao";
