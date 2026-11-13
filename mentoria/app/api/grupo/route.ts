@@ -6,8 +6,14 @@ import { LINK_GRUPO_CASOS } from "../../../lib/site";
 
 export const dynamic = "force-dynamic";
 
+/** Por ora o grupo aceita só médicos e estudantes de Medicina. */
+const PERFIS: Record<string, string> = {
+  medico: "Médico(a)",
+  estudante: "Estudante de Medicina",
+};
+
 export async function POST(request: Request) {
-  let corpo: CorpoContato & { site?: string };
+  let corpo: CorpoContato & { site?: string; perfil?: string };
   try {
     corpo = await request.json();
   } catch {
@@ -21,12 +27,19 @@ export async function POST(request: Request) {
   if (typeof contato === "string") {
     return Response.json({ ok: false, mensagem: contato }, { status: 400 });
   }
+  const perfil = PERFIS[corpo.perfil ?? ""];
+  if (!perfil) {
+    return Response.json(
+      { ok: false, mensagem: "Por enquanto, o Dose Diária é exclusivo para médicos e estudantes de Medicina." },
+      { status: 403 },
+    );
+  }
 
   // Com o link do grupo configurado, a pessoa entra mesmo se o aviso falhar:
   // perder alguém na porta do grupo é pior que perder a notificação. Sem o
   // link, o aviso é o único jeito de o Miguel mandar o convite depois, então
   // falhar aqui precisa aparecer para a pessoa.
-  const guardado = await notificarInscricaoGrupo(contato);
+  const guardado = await notificarInscricaoGrupo({ ...contato, perfil });
   if (!guardado && !LINK_GRUPO_CASOS) {
     return Response.json(
       { ok: false, mensagem: "Não conseguimos registrar sua inscrição agora. Tente de novo em instantes." },

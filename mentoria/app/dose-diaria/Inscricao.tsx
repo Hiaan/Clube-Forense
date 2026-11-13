@@ -1,6 +1,8 @@
 "use client";
 
-// Formulário de inscrição no grupo Dose Diária: nome, e-mail e WhatsApp.
+// Formulário de inscrição no grupo Dose Diária: nome, e-mail, WhatsApp e
+// perfil. Por ora o grupo é só para médicos e estudantes de Medicina: quem
+// marca outra área recebe uma mensagem e não chega a enviar nada.
 //
 // Com o link do grupo configurado, a pessoa é levada direto para o WhatsApp
 // depois de se inscrever; sem ele, fica o aviso de que o convite chega por
@@ -23,6 +25,12 @@ function mascararTelefone(valor: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
+const PERFIS = [
+  { valor: "medico", titulo: "Médico(a)" },
+  { valor: "estudante", titulo: "Estudante de Medicina" },
+  { valor: "outro", titulo: "Outra área" },
+];
+
 const rotulo = "block text-xs font-bold uppercase tracking-[0.14em] text-osso/55";
 const campo =
   "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3.5 text-base text-osso outline-none transition placeholder:text-osso/30 focus:border-verde focus:bg-white/[0.08]";
@@ -31,17 +39,23 @@ export default function Inscricao({ id }: { id?: string }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [perfil, setPerfil] = useState("");
   const [estado, setEstado] = useState<Estado>({ fase: "editando" });
 
   async function enviar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const site = String(new FormData(e.currentTarget).get("site") ?? "");
+    if (!perfil) {
+      setEstado({ fase: "editando", erro: "Conte se você é médico(a) ou estudante de Medicina." });
+      return;
+    }
+    if (perfil === "outro") return;
     setEstado({ fase: "enviando" });
     try {
       const resposta = await fetch("/api/grupo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: crypto.randomUUID(), nome, email, telefone, site }),
+        body: JSON.stringify({ id: crypto.randomUUID(), nome, email, telefone, perfil, site }),
       });
       const json = (await resposta.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -147,7 +161,37 @@ export default function Inscricao({ id }: { id?: string }) {
             placeholder="(81) 99999-9999"
           />
         </label>
+        <fieldset>
+          <legend className={rotulo}>Você é</legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {PERFIS.map((p) => {
+              const ativo = perfil === p.valor;
+              return (
+                <button
+                  key={p.valor}
+                  type="button"
+                  aria-pressed={ativo}
+                  onClick={() => {
+                    setPerfil(p.valor);
+                    setEstado({ fase: "editando" });
+                  }}
+                  className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+                    ativo ? "border-verde bg-verde text-preto" : "border-white/10 bg-white/[0.04] hover:border-white/30"
+                  }`}
+                >
+                  {p.titulo}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
       </div>
+
+      {perfil === "outro" && (
+        <p role="status" className="mt-5 rounded-xl border border-white/15 bg-white/[0.05] px-4 py-3 text-sm leading-relaxed text-osso/80">
+          Por enquanto, o Dose Diária é exclusivo para médicos e estudantes de Medicina. Obrigado pelo interesse!
+        </p>
+      )}
 
       {erro && (
         <p role="alert" className="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
@@ -157,8 +201,8 @@ export default function Inscricao({ id }: { id?: string }) {
 
       <button
         type="submit"
-        disabled={enviando}
-        className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-verde px-6 py-4 text-left text-base font-bold uppercase text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110 disabled:cursor-wait disabled:opacity-70"
+        disabled={enviando || perfil === "outro"}
+        className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-verde px-6 py-4 text-left text-base font-bold uppercase text-preto shadow-[0_15px_40px_-12px_rgba(34,180,110,0.6)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {enviando ? "Enviando…" : "Quero entrar no grupo"}
         <span aria-hidden className="text-2xl transition group-hover:translate-x-1">→</span>

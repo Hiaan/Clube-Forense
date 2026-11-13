@@ -99,7 +99,6 @@ const GANHOS = [
 const PARA_QUEM = [
   "Médicos que querem ser médicos legistas",
   "Estudantes de Medicina mirando a perícia",
-  "Concurseiros de perito criminal, odontolegista e delegado",
 ];
 
 const PERGUNTAS = [
@@ -108,8 +107,8 @@ const PERGUNTAS = [
     r: "Preencha nome, e-mail e WhatsApp no formulário. Assim que você se inscreve, o acesso ao grupo é liberado.",
   },
   {
-    p: "O grupo é só para médicos?",
-    r: "Não. Ele é pensado para quem estuda Medicina Legal para concurso — médicos, estudantes e candidatos a carreiras periciais e policiais.",
+    p: "Quem pode entrar no grupo?",
+    r: "Por enquanto, o grupo é exclusivo para médicos e estudantes de Medicina que se preparam para a carreira de médico legista.",
   },
   {
     p: "Vou receber muita mensagem?",
