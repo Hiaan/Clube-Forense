@@ -42,7 +42,10 @@ export async function linkDeLogin(agenciaId: number) {
   u.searchParams.set("client_id", await appId());
   u.searchParams.set("redirect_uri", urlDeRetorno());
   u.searchParams.set("state", estadoDoLogin(agenciaId));
-  u.searchParams.set("scope", PERMISSOES);
+  // "Login do Facebook para Empresas" usa uma configuração criada no app (META_LOGIN_CONFIG_ID);
+  // sem ela, vale o login comum com a lista de permissões.
+  if (process.env.META_LOGIN_CONFIG_ID) u.searchParams.set("config_id", process.env.META_LOGIN_CONFIG_ID);
+  else u.searchParams.set("scope", PERMISSOES);
   u.searchParams.set("response_type", "code");
   return u.toString();
 }
