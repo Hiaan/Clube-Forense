@@ -28,7 +28,7 @@ export function normalizarConta(valor: string) {
 
 type ErroGraph = { error?: { message?: string; code?: number; error_subcode?: number } };
 
-async function graph<T>(
+export async function graph<T>(
   caminho: string,
   parametros: Record<string, string | number> = {},
   opcoes: { metodo?: "GET" | "POST"; token?: string; semProva?: boolean } = {},
@@ -54,7 +54,7 @@ async function graph<T>(
 }
 
 /** Percorre a paginação ("paging.next") até o fim. */
-async function todasPaginas<T>(caminho: string, parametros: Record<string, string | number>, limite = 50, token?: string) {
+export async function todasPaginas<T>(caminho: string, parametros: Record<string, string | number>, limite = 50, token?: string) {
   const itens: T[] = [];
   let pagina = await graph<{ data: T[]; paging?: { next?: string } }>(caminho, parametros, { token });
   itens.push(...pagina.data);
@@ -114,13 +114,13 @@ export function valorDoTexto(texto: string | undefined) {
  * Os valores da conta (gasto, limite) vêm em centavos. O saldo pré-pago sai de outra leitura:
  * se o token não puder ver a forma de pagamento, o status e o limite continuam valendo.
  */
-export async function situacaoDaConta(conta: string): Promise<SituacaoConta> {
+export async function situacaoDaConta(conta: string, token?: string): Promise<SituacaoConta> {
   const c = await graph<{ account_status: number; currency: string; amount_spent?: string; spend_cap?: string; is_prepay_account?: boolean }>(conta, {
     fields: "account_status,currency,amount_spent,spend_cap,is_prepay_account",
-  });
+  }, { token });
   let saldo: number | null = null;
   if (c.is_prepay_account) {
-    const f = await graph<{ funding_source_details?: { display_string?: string } }>(conta, { fields: "funding_source_details" }).catch(() => null);
+    const f = await graph<{ funding_source_details?: { display_string?: string } }>(conta, { fields: "funding_source_details" }, { token }).catch(() => null);
     saldo = valorDoTexto(f?.funding_source_details?.display_string);
   }
   const limite = Number(c.spend_cap ?? 0);
@@ -135,7 +135,7 @@ export async function situacaoDaConta(conta: string): Promise<SituacaoConta> {
 // ---------- Conversão das ações da Meta ----------
 
 type Acao = { action_type: string; value: string };
-type LinhaInsight = {
+export type LinhaInsight = {
   date_start: string;
   campaign_name?: string;
   ad_id?: string;
@@ -176,7 +176,7 @@ export const receitaDe = (valores: Acao[] | undefined) => primeiro(valores, TIPO
 
 // ---------- Sincronização ----------
 
-const CAMPOS = "spend,impressions,clicks,inline_link_clicks,actions,action_values";
+export const CAMPOS = "spend,impressions,clicks,inline_link_clicks,actions,action_values";
 
 /** Puxa as métricas por dia e campanha e os anúncios com investimento no período. */
 type EmpresaMeta = Pick<Empresa, "id" | "tipo" | "meta_conta" | "vendas_fonte">;

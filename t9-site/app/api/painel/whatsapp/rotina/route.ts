@@ -5,6 +5,7 @@ import { enviarPendentes } from "@/lib/painel/crm";
 import { chamarTodos } from "@/lib/painel/whatsappCliente";
 import { enviarRelatoriosDevidos } from "@/lib/painel/relatorioWhatsapp";
 import { verificarAlertas } from "@/lib/painel/alertasConta";
+import { rotinaDoPlacar } from "@/lib/placar/relatorio";
 
 // A ponte do WhatsApp (sempre ligada no PC da T9) chama esta rota de tempos em tempos:
 // o painel busca os leads de formulário novos e manda o aviso, sem ninguém clicar em nada.
@@ -33,6 +34,9 @@ export async function POST(request: Request) {
   if (relatorios.length) console.log("[relatorio] envios", JSON.stringify(relatorios));
   const alertas = await verificarAlertas(30_000).catch((e) => [{ empresa: "-", alertas: [], erro: e instanceof Error ? e.message : String(e) }]);
   if (alertas.some((a) => a.alertas.length || a.erro)) console.log("[alertas]", JSON.stringify(alertas));
+  // Placar (o produto à parte): números, relatórios e alertas das agências assinantes.
+  const placar = await rotinaDoPlacar().catch((e) => ({ erro: e instanceof Error ? e.message : String(e) }));
+  if ("erro" in placar || placar.relatorios || placar.alertas) console.log("[placar]", JSON.stringify(placar));
   const novos = resultado.reduce((s, r) => s + r.enviados, 0);
   if (novos || resultado.some((r) => r.erro) || horas > 3) console.log("[whatsapp] rotina", horas, "h", JSON.stringify(resultado));
   return Response.json({ ok: true, horas, resultado, chamadas, relatorios: relatorios.length, alertas: alertas.length });

@@ -29,7 +29,7 @@ export async function salvarNumerosDaEquipe(texto: string) {
   );
 }
 
-type Problema = {
+export type Problema = {
   tipo: string;
   nivel: "alto" | "medio";
   /** Texto para a equipe. */
@@ -79,9 +79,9 @@ export function problemasDaConta(
       nivel: "alto",
       equipe: "Conta de anúncios desativada pela Meta. Verificar o motivo e pedir revisão.",
       cliente: {
-        pt: "A Meta desativou a conta de anúncios. A T9 já está verificando o motivo e cuidando da revisão.",
-        en: "Meta disabled the ad account. T9 is already checking the reason and requesting a review.",
-        es: "Meta desactivó la cuenta publicitaria. T9 ya está revisando el motivo y solicitando la revisión.",
+        pt: "A Meta desativou a conta de anúncios. Já estamos verificando o motivo e cuidando da revisão.",
+        en: "Meta disabled the ad account. We are already checking the reason and requesting a review.",
+        es: "Meta desactivó la cuenta publicitaria. Ya estamos revisando el motivo y solicitando la revisión.",
       },
     });
   if (s.status === 7)
@@ -129,6 +129,13 @@ export async function quedaDeDesempenho(e: Pick<Empresa, "id" | "tipo" | "moeda"
       [e.id, inicio, ate],
     );
   const [r3, r14] = await Promise.all([soma(somarDias(fim, -2), fim), soma(somarDias(fim, -16), somarDias(fim, -3))]);
+  return avaliarQueda(e, r3, r14);
+}
+
+export type SomaPeriodo = { gasto: number; leads: number; conversoes: number; receita: number };
+
+/** A regra da queda (sem banco): `r3` = últimos 3 dias completos, `r14` = os 14 dias antes deles. */
+export function avaliarQueda(e: Pick<Empresa, "tipo" | "moeda" | "idioma">, r3: SomaPeriodo | null, r14: SomaPeriodo | null): Problema | null {
   if (!r3 || !r14 || r3.gasto <= 0 || r14.gasto <= 0) return null;
   const din = (v: number) => dinheiro(v, e.moeda, e.idioma);
 

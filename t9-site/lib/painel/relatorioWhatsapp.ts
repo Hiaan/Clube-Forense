@@ -58,6 +58,33 @@ export type EmpresaRelatorio = Pick<
   | "rel_link"
 >;
 
+/** O que as partes puras do relatório usam: serve para a T9 e para o Placar (clientes de agências). */
+export type BaseRelatorio = Pick<
+  EmpresaRelatorio,
+  | "nome"
+  | "slug"
+  | "tipo"
+  | "idioma"
+  | "moeda"
+  | "meta_cpl"
+  | "meta_leads"
+  | "meta_investimento"
+  | "rel_ativo"
+  | "rel_frequencia"
+  | "rel_dia_semana"
+  | "rel_dia_mes"
+  | "rel_hora"
+  | "rel_fuso"
+  | "rel_ia"
+  | "rel_ultimo_em"
+  | "rel_metricas"
+  | "rel_abertura"
+  | "rel_fechamento"
+  | "rel_instrucao"
+  | "rel_destaque"
+  | "rel_link"
+>;
+
 // ---------- Métricas que podem ir no relatório ----------
 
 export const METRICAS = [
@@ -117,7 +144,7 @@ export function agoraNoFuso(fuso: string, quando = new Date()) {
 }
 
 /** Está na hora do relatório deste cliente (e ele ainda não saiu hoje)? */
-export function relatorioDevido(e: EmpresaRelatorio, quando = new Date()) {
+export function relatorioDevido(e: BaseRelatorio, quando = new Date()) {
   if (!e.rel_ativo) return false;
   const agora = agoraNoFuso(e.rel_fuso, quando);
   if (agora.hora < e.rel_hora) return false;
@@ -246,7 +273,7 @@ const REGRAS = {
     retorno: (r: string) => `Cada 1 investido voltou ${r} em vendas.`,
     retornoComparado: (melhorou: boolean, de: string, para: string) =>
       `O retorno ${melhorou ? "melhorou" : "caiu"} em relação ao período anterior (de ${de} para ${para}).`,
-    semLeads: "O investimento rodou, mas não chegaram contatos no período. A T9 está revisando os anúncios.",
+    semLeads: "O investimento rodou, mas não chegaram contatos no período. Estamos revisando os anúncios.",
     leads: (n: number) => `Chegaram ${n} contatos neste período.`,
     igual: "O resultado ficou igual ao do período anterior.",
     comparado: (mais: boolean, maisBarato: boolean) =>
@@ -257,7 +284,7 @@ const REGRAS = {
     retorno: (r: string) => `Each 1 spent returned ${r} in sales.`,
     retornoComparado: (melhorou: boolean, de: string, para: string) =>
       `Return ${melhorou ? "improved" : "dropped"} versus the previous period (from ${de} to ${para}).`,
-    semLeads: "Ads ran but no leads came in this period. T9 is reviewing the ads.",
+    semLeads: "Ads ran but no leads came in this period. We are reviewing the ads.",
     leads: (n: number) => `${n} leads came in this period.`,
     igual: "Results were the same as the previous period.",
     comparado: (mais: boolean, maisBarato: boolean) =>
@@ -268,7 +295,7 @@ const REGRAS = {
     retorno: (r: string) => `Cada 1 invertido volvió ${r} en ventas.`,
     retornoComparado: (melhorou: boolean, de: string, para: string) =>
       `El retorno ${melhorou ? "mejoró" : "bajó"} frente al período anterior (de ${de} a ${para}).`,
-    semLeads: "La inversión se ejecutó, pero no llegaron contactos en el período. T9 está revisando los anuncios.",
+    semLeads: "La inversión se ejecutó, pero no llegaron contactos en el período. Estamos revisando los anuncios.",
     leads: (n: number) => `Llegaron ${n} contactos en este período.`,
     igual: "El resultado fue igual al del período anterior.",
     comparado: (mais: boolean, maisBarato: boolean) =>
@@ -300,12 +327,12 @@ export function comentarioPorRegras(e: Pick<Empresa, "tipo" | "idioma">, d: Dado
 const MODELO = "claude-haiku-5-5";
 export const iaDoRelatorioConfigurada = () => Boolean(process.env.ANTHROPIC_API_KEY);
 
-const SISTEMA = `Você escreve o comentário do relatório de anúncios que uma agência de marketing (T9) manda pelo WhatsApp para o dono de uma empresa.
+const SISTEMA = `Você escreve o comentário do relatório de anúncios que uma agência de marketing manda pelo WhatsApp para o dono de uma empresa.
 Escreva de 2 a 3 frases curtas, no idioma pedido, em linguagem simples de conversa (o leitor não é do marketing: diga "contatos" e "custo de cada contato", não "CPL" ou "CTR").
 - Use só os números recebidos. Não invente números, causas que os dados não mostram, nem promessas de resultado.
 - Comece pelo mais importante: os resultados subiram ou caíram, e o custo melhorou ou piorou, em relação ao período anterior.
 - Se houver meta, diga se está perto dela. Se uma campanha se destacou, cite-a pelo nome.
-- Se algo piorou, diga com tranquilidade o que a T9 vai olhar ou ajustar, sem alarmar.
+- Se algo piorou, diga com tranquilidade o que a agência vai olhar ou ajustar, sem alarmar.
 - Texto puro: sem título, sem listas, sem markdown, sem emojis, sem saudação e sem assinatura.
 - Prefira comentar as métricas que o cliente escolheu receber ("metricasEscolhidas").
 - Se vier "instrucaoDaAgencia", siga-a no tom e no foco, sem quebrar as regras acima.`;
@@ -313,7 +340,7 @@ Escreva de 2 a 3 frases curtas, no idioma pedido, em linguagem simples de conver
 let cliente: Anthropic | null = null;
 
 /** Comentário da IA. Sem chave, com erro ou recusa: devolve null e o relatório usa o comentário por regras. */
-export async function comentarioDaIa(e: EmpresaRelatorio, d: DadosRelatorio, frequencia: Frequencia) {
+export async function comentarioDaIa(e: BaseRelatorio, d: DadosRelatorio, frequencia: Frequencia) {
   if (!iaDoRelatorioConfigurada()) return null;
   cliente ??= new Anthropic({ timeout: 20_000, maxRetries: 1 });
   const idioma = { pt: "português do Brasil", en: "inglês", es: "espanhol" }[e.idioma];
@@ -472,14 +499,21 @@ function valorDaMetrica(id: IdMetrica, x: Totais): number | null {
 }
 
 /** Troca {empresa} e {periodo} no texto livre da equipe. */
-const preencher = (texto: string, e: EmpresaRelatorio, periodo: string) =>
+const preencher = (texto: string, e: BaseRelatorio, periodo: string) =>
   texto
     .replace(/\{empresa\}/g, e.nome)
     .replace(/\{periodo\}/g, periodo)
     .trim();
 
 /** Monta a mensagem do relatório com as métricas escolhidas. `comentario`: o da IA ou o por regras. */
-export function textoDoRelatorio(e: EmpresaRelatorio, frequencia: Frequencia, d: DadosRelatorio, comentario: string) {
+/** `link`: endereço do painel do cliente (padrão: o do painel T9); `rodape`: a assinatura da última linha. */
+export function textoDoRelatorio(
+  e: BaseRelatorio,
+  frequencia: Frequencia,
+  d: DadosRelatorio,
+  comentario: string,
+  opcoes: { link?: string; rodape?: string } = {},
+) {
   const t = T[e.idioma];
   const r = ROTULOS[e.idioma];
   const { atual: a, anterior: p } = d;
@@ -542,8 +576,8 @@ export function textoDoRelatorio(e: EmpresaRelatorio, frequencia: Frequencia, d:
 
   if (comentario) linhas.push("", `💬 *${t.analise}:* ${comentario}`);
   if (e.rel_fechamento?.trim()) linhas.push("", preencher(e.rel_fechamento, e, periodo));
-  if (e.rel_link) linhas.push("", `${t.painel}: ${endereco()}/painel/${e.slug}`);
-  linhas.push("", `_${t.rodape}_`);
+  if (e.rel_link) linhas.push("", `${t.painel}: ${opcoes.link ?? `${endereco()}/painel/${e.slug}`}`);
+  linhas.push("", `_${opcoes.rodape ?? t.rodape}_`);
   return linhas.join("\n");
 }
 
