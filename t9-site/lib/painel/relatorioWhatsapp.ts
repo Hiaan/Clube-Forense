@@ -19,7 +19,11 @@ export const FUSOS = [
   { valor: "Europe/Lisbon", rotulo: "Lisboa" },
 ];
 export const DIAS_SEMANA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-export const FREQUENCIAS = { diario: "Todo dia (resultado de ontem)", semanal: "Toda semana (últimos 7 dias)", mensal: "Todo mês (mês anterior)" } as const;
+export const FREQUENCIAS = {
+  diario: "Todo dia (resultado de ontem)",
+  semanal: "Toda semana (últimos 7 dias)",
+  mensal: "Todo mês (mês anterior)",
+} as const;
 
 export type Frequencia = keyof typeof FREQUENCIAS;
 export type EmpresaRelatorio = Pick<
@@ -46,16 +50,63 @@ export type EmpresaRelatorio = Pick<
   | "rel_numeros"
   | "rel_ia"
   | "rel_ultimo_em"
+  | "rel_metricas"
+  | "rel_abertura"
+  | "rel_fechamento"
+  | "rel_instrucao"
+  | "rel_destaque"
+  | "rel_link"
 >;
 
-export const numerosDoRelatorio = (e: Pick<Empresa, "rel_numeros" | "whatsapp_leads">) => numerosDe(e.rel_numeros?.trim() ? e.rel_numeros : e.whatsapp_leads);
+// ---------- Métricas que podem ir no relatório ----------
+
+export const METRICAS = [
+  { id: "investimento", rotulo: "Investimento" },
+  { id: "leads", rotulo: "Leads (contatos)" },
+  { id: "cpl", rotulo: "Custo por lead" },
+  { id: "vendas", rotulo: "Vendas" },
+  { id: "receita", rotulo: "Faturamento" },
+  { id: "roas", rotulo: "Retorno (ROAS)" },
+  { id: "ticket", rotulo: "Ticket médio" },
+  { id: "cliques", rotulo: "Cliques" },
+  { id: "impressoes", rotulo: "Impressões" },
+  { id: "ctr", rotulo: "Taxa de cliques (CTR)" },
+  { id: "cpc", rotulo: "Custo por clique (CPC)" },
+  { id: "cpm", rotulo: "Custo por mil impressões (CPM)" },
+  { id: "taxa_conversao", rotulo: "Taxa de conversão (leads ÷ cliques)" },
+  { id: "meta_mes", rotulo: "Progresso da meta do mês" },
+] as const;
+export type IdMetrica = (typeof METRICAS)[number]["id"];
+
+export const METRICAS_PADRAO: Record<Empresa["tipo"], IdMetrica[]> = {
+  leads: ["investimento", "leads", "cpl", "cliques", "impressoes"],
+  ecommerce: ["investimento", "vendas", "receita", "roas", "cliques", "impressoes"],
+};
+
+/** As escolhidas para o cliente, na ordem do catálogo; sem escolha, as padrão do tipo. */
+export function metricasDe(e: Pick<Empresa, "tipo" | "rel_metricas">): IdMetrica[] {
+  const escolhidas = new Set(e.rel_metricas ?? []);
+  const lista = METRICAS.map((m) => m.id).filter((id) => escolhidas.has(id));
+  return lista.length ? lista : METRICAS_PADRAO[e.tipo];
+}
+
+export const numerosDoRelatorio = (e: Pick<Empresa, "rel_numeros" | "whatsapp_leads">) =>
+  numerosDe(e.rel_numeros?.trim() ? e.rel_numeros : e.whatsapp_leads);
 
 // ---------- Datas no fuso do cliente ----------
 
 /** Data, hora e dia da semana agora no fuso indicado. */
 export function agoraNoFuso(fuso: string, quando = new Date()) {
   const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23", weekday: "short" })
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: fuso,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      hourCycle: "h23",
+      weekday: "short",
+    })
       .formatToParts(quando)
       .map((x) => [x.type, x.value]),
   );
@@ -79,7 +130,8 @@ export function relatorioDevido(e: EmpresaRelatorio, quando = new Date()) {
 export function periodoDoRelatorio(frequencia: Frequencia, hojeLocal: string) {
   const ontem = somarDias(hojeLocal, -1);
   if (frequencia === "diario") return { inicio: ontem, fim: ontem, antInicio: somarDias(ontem, -1), antFim: somarDias(ontem, -1) };
-  if (frequencia === "semanal") return { inicio: somarDias(hojeLocal, -7), fim: ontem, antInicio: somarDias(hojeLocal, -14), antFim: somarDias(hojeLocal, -8) };
+  if (frequencia === "semanal")
+    return { inicio: somarDias(hojeLocal, -7), fim: ontem, antInicio: somarDias(hojeLocal, -14), antFim: somarDias(hojeLocal, -8) };
   const fim = somarDias(`${hojeLocal.slice(0, 7)}-01`, -1);
   const inicio = `${fim.slice(0, 7)}-01`;
   const antFim = somarDias(inicio, -1);
@@ -151,7 +203,8 @@ const T = {
 const LOCALE: Record<Idioma, string> = { pt: "pt-BR", en: "en-US", es: "es" };
 
 function rotuloPeriodo(inicio: string, fim: string, idioma: Idioma) {
-  const f = (iso: string, opcoes: Intl.DateTimeFormatOptions) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(LOCALE[idioma], { timeZone: "UTC", ...opcoes });
+  const f = (iso: string, opcoes: Intl.DateTimeFormatOptions) =>
+    new Date(`${iso}T12:00:00Z`).toLocaleDateString(LOCALE[idioma], { timeZone: "UTC", ...opcoes });
   if (inicio === fim) return f(inicio, { weekday: "long", day: "numeric", month: "long" });
   if (inicio.endsWith("-01") && somarDias(fim, 1).endsWith("-01")) return f(inicio, { month: "long", year: "numeric" });
   return `${f(inicio, { day: "numeric", month: "short" })} – ${f(fim, { day: "numeric", month: "short" })}`;
@@ -172,23 +225,27 @@ export type DadosRelatorio = {
   atual: Totais;
   anterior: Totais;
   campanhas: { campanha: string; gasto: number; leads: number; conversoes: number; receita: number }[];
+  /** Do 1º dia do mês até o fim do período (para o progresso da meta). */
+  mes: Totais;
 };
 
 export async function dadosDoRelatorio(e: EmpresaRelatorio, frequencia: Frequencia, hojeLocal: string): Promise<DadosRelatorio> {
   const periodo = periodoDoRelatorio(frequencia, hojeLocal);
-  const [atual, anterior, lista] = await Promise.all([
+  const [atual, anterior, lista, mes] = await Promise.all([
     totais(e.id, periodo.inicio, periodo.fim),
     totais(e.id, periodo.antInicio, periodo.antFim),
     campanhas(e.id, periodo.inicio, periodo.fim),
+    totais(e.id, `${periodo.fim.slice(0, 7)}-01`, periodo.fim),
   ]);
-  return { periodo, atual, anterior, campanhas: lista.filter((c) => c.gasto > 0).slice(0, 8) };
+  return { periodo, atual, anterior, campanhas: lista.filter((c) => c.gasto > 0).slice(0, 8), mes };
 }
 
 const REGRAS = {
   pt: {
     parado: "As campanhas não rodaram neste período.",
     retorno: (r: string) => `Cada 1 investido voltou ${r} em vendas.`,
-    retornoComparado: (melhorou: boolean, de: string, para: string) => `O retorno ${melhorou ? "melhorou" : "caiu"} em relação ao período anterior (de ${de} para ${para}).`,
+    retornoComparado: (melhorou: boolean, de: string, para: string) =>
+      `O retorno ${melhorou ? "melhorou" : "caiu"} em relação ao período anterior (de ${de} para ${para}).`,
     semLeads: "O investimento rodou, mas não chegaram contatos no período. A T9 está revisando os anúncios.",
     leads: (n: number) => `Chegaram ${n} contatos neste período.`,
     igual: "O resultado ficou igual ao do período anterior.",
@@ -198,16 +255,19 @@ const REGRAS = {
   en: {
     parado: "Campaigns did not run in this period.",
     retorno: (r: string) => `Each 1 spent returned ${r} in sales.`,
-    retornoComparado: (melhorou: boolean, de: string, para: string) => `Return ${melhorou ? "improved" : "dropped"} versus the previous period (from ${de} to ${para}).`,
+    retornoComparado: (melhorou: boolean, de: string, para: string) =>
+      `Return ${melhorou ? "improved" : "dropped"} versus the previous period (from ${de} to ${para}).`,
     semLeads: "Ads ran but no leads came in this period. T9 is reviewing the ads.",
     leads: (n: number) => `${n} leads came in this period.`,
     igual: "Results were the same as the previous period.",
-    comparado: (mais: boolean, maisBarato: boolean) => `${mais ? "More" : "Fewer"} leads than the previous period, and each one cost ${maisBarato ? "less" : "more"}.`,
+    comparado: (mais: boolean, maisBarato: boolean) =>
+      `${mais ? "More" : "Fewer"} leads than the previous period, and each one cost ${maisBarato ? "less" : "more"}.`,
   },
   es: {
     parado: "Las campañas no se ejecutaron en este período.",
     retorno: (r: string) => `Cada 1 invertido volvió ${r} en ventas.`,
-    retornoComparado: (melhorou: boolean, de: string, para: string) => `El retorno ${melhorou ? "mejoró" : "bajó"} frente al período anterior (de ${de} a ${para}).`,
+    retornoComparado: (melhorou: boolean, de: string, para: string) =>
+      `El retorno ${melhorou ? "mejoró" : "bajó"} frente al período anterior (de ${de} a ${para}).`,
     semLeads: "La inversión se ejecutó, pero no llegaron contactos en el período. T9 está revisando los anuncios.",
     leads: (n: number) => `Llegaron ${n} contactos en este período.`,
     igual: "El resultado fue igual al del período anterior.",
@@ -246,7 +306,9 @@ Escreva de 2 a 3 frases curtas, no idioma pedido, em linguagem simples de conver
 - Comece pelo mais importante: os resultados subiram ou caíram, e o custo melhorou ou piorou, em relação ao período anterior.
 - Se houver meta, diga se está perto dela. Se uma campanha se destacou, cite-a pelo nome.
 - Se algo piorou, diga com tranquilidade o que a T9 vai olhar ou ajustar, sem alarmar.
-- Texto puro: sem título, sem listas, sem markdown, sem emojis, sem saudação e sem assinatura.`;
+- Texto puro: sem título, sem listas, sem markdown, sem emojis, sem saudação e sem assinatura.
+- Prefira comentar as métricas que o cliente escolheu receber ("metricasEscolhidas").
+- Se vier "instrucaoDaAgencia", siga-a no tom e no foco, sem quebrar as regras acima.`;
 
 let cliente: Anthropic | null = null;
 
@@ -275,6 +337,8 @@ export async function comentarioDaIa(e: EmpresaRelatorio, d: DadosRelatorio, fre
             periodoAnterior: d.anterior,
             metasDoMes: { custoPorContato: e.meta_cpl, contatos: e.meta_leads, investimento: e.meta_investimento },
             campanhas: d.campanhas,
+            metricasEscolhidas: metricasDe(e).map((id) => METRICAS.find((m) => m.id === id)?.rotulo),
+            ...(e.rel_instrucao?.trim() ? { instrucaoDaAgencia: e.rel_instrucao.trim().slice(0, 500) } : {}),
           }),
         },
       ],
@@ -295,34 +359,179 @@ export async function comentarioDaIa(e: EmpresaRelatorio, d: DadosRelatorio, fre
 
 const endereco = () => (process.env.PAINEL_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://t9company.com.br").replace(/\/$/, "");
 
-/** Monta a mensagem do relatório. `comentario`: o da IA ou o por regras. */
+const ROTULOS: Record<Idioma, Record<IdMetrica, string> & { metaLeads: string; metaInvest: string; de: string }> = {
+  pt: {
+    investimento: "Investimento",
+    leads: "Contatos (leads)",
+    cpl: "Custo por contato",
+    vendas: "Vendas",
+    receita: "Faturamento",
+    roas: "Retorno (ROAS)",
+    ticket: "Ticket médio",
+    cliques: "Cliques",
+    impressoes: "Impressões",
+    ctr: "Taxa de cliques",
+    cpc: "Custo por clique",
+    cpm: "Custo por mil impressões",
+    taxa_conversao: "Taxa de conversão",
+    meta_mes: "Meta do mês",
+    metaLeads: "Meta do mês",
+    metaInvest: "Investido no mês",
+    de: "de",
+  },
+  en: {
+    investimento: "Ad spend",
+    leads: "Leads",
+    cpl: "Cost per lead",
+    vendas: "Sales",
+    receita: "Revenue",
+    roas: "ROAS",
+    ticket: "Average order",
+    cliques: "Clicks",
+    impressoes: "Impressions",
+    ctr: "Click-through rate",
+    cpc: "Cost per click",
+    cpm: "Cost per 1,000 impressions",
+    taxa_conversao: "Conversion rate",
+    meta_mes: "Monthly goal",
+    metaLeads: "Monthly goal",
+    metaInvest: "Spent this month",
+    de: "of",
+  },
+  es: {
+    investimento: "Inversión",
+    leads: "Contactos (leads)",
+    cpl: "Costo por contacto",
+    vendas: "Ventas",
+    receita: "Facturación",
+    roas: "Retorno (ROAS)",
+    ticket: "Ticket promedio",
+    cliques: "Clics",
+    impressoes: "Impresiones",
+    ctr: "Tasa de clics",
+    cpc: "Costo por clic",
+    cpm: "Costo por mil impresiones",
+    taxa_conversao: "Tasa de conversión",
+    meta_mes: "Meta del mes",
+    metaLeads: "Meta del mes",
+    metaInvest: "Invertido en el mes",
+    de: "de",
+  },
+};
+
+const EMOJI: Record<IdMetrica, string> = {
+  investimento: "💰",
+  leads: "👥",
+  cpl: "🎯",
+  vendas: "🛒",
+  receita: "💵",
+  roas: "📈",
+  ticket: "🧾",
+  cliques: "👆",
+  impressoes: "👀",
+  ctr: "🖱️",
+  cpc: "🪙",
+  cpm: "📣",
+  taxa_conversao: "🔁",
+  meta_mes: "🏁",
+};
+
+/** Valor de cada métrica (null quando não dá para calcular, por exemplo custo por lead sem leads). */
+function valorDaMetrica(id: IdMetrica, x: Totais): number | null {
+  const div = (a: number, b: number) => (b > 0 ? a / b : null);
+  switch (id) {
+    case "investimento":
+      return x.gasto;
+    case "leads":
+      return x.leads;
+    case "cpl":
+      return div(x.gasto, x.leads);
+    case "vendas":
+      return x.conversoes;
+    case "receita":
+      return x.receita;
+    case "roas":
+      return x.receita > 0 ? div(x.receita, x.gasto) : null;
+    case "ticket":
+      return div(x.receita, x.conversoes);
+    case "cliques":
+      return x.cliques;
+    case "impressoes":
+      return x.impressoes;
+    case "ctr":
+      return div(x.cliques * 100, x.impressoes);
+    case "cpc":
+      return div(x.gasto, x.cliques);
+    case "cpm":
+      return div(x.gasto * 1000, x.impressoes);
+    case "taxa_conversao":
+      return div(x.leads * 100, x.cliques);
+    default:
+      return null;
+  }
+}
+
+/** Troca {empresa} e {periodo} no texto livre da equipe. */
+const preencher = (texto: string, e: EmpresaRelatorio, periodo: string) =>
+  texto
+    .replace(/\{empresa\}/g, e.nome)
+    .replace(/\{periodo\}/g, periodo)
+    .trim();
+
+/** Monta a mensagem do relatório com as métricas escolhidas. `comentario`: o da IA ou o por regras. */
 export function textoDoRelatorio(e: EmpresaRelatorio, frequencia: Frequencia, d: DadosRelatorio, comentario: string) {
   const t = T[e.idioma];
+  const r = ROTULOS[e.idioma];
   const { atual: a, anterior: p } = d;
+  const local = LOCALE[e.idioma];
   const din = (v: number) => dinheiro(v, e.moeda, e.idioma);
   const num = (v: number) => numero(v, e.idioma);
-  const linhas = [`📊 *${t.titulo[frequencia]}* — ${e.nome}`, `_${rotuloPeriodo(d.periodo.inicio, d.periodo.fim, e.idioma)}_`, ""];
+  const pct = (v: number, casas: number) => `${v.toLocaleString(local, { minimumFractionDigits: casas, maximumFractionDigits: casas })}%`;
+  const formato = (id: IdMetrica, v: number) =>
+    ["investimento", "receita", "cpl", "ticket", "cpc", "cpm"].includes(id)
+      ? din(v)
+      : id === "roas"
+        ? v.toLocaleString(local, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : id === "ctr"
+          ? pct(v, 2)
+          : id === "taxa_conversao"
+            ? pct(v, 1)
+            : num(v);
+
+  const periodo = rotuloPeriodo(d.periodo.inicio, d.periodo.fim, e.idioma);
+  const linhas = [`📊 *${t.titulo[frequencia]}* — ${e.nome}`, `_${periodo}_`, ""];
+  if (e.rel_abertura?.trim()) linhas.push(preencher(e.rel_abertura, e, periodo), "");
 
   if (a.gasto <= 0) {
     linhas.push(t.semDados);
   } else {
-    linhas.push(`💰 ${t.investimento}: *${din(a.gasto)}*${variacao(a.gasto, p.gasto)}`);
-    if (e.tipo === "ecommerce") {
-      linhas.push(`🛒 ${t.vendas}: *${num(a.conversoes)}*${variacao(a.conversoes, p.conversoes)}`);
-      linhas.push(`💵 ${t.receita}: *${din(a.receita)}*${variacao(a.receita, p.receita)}`);
-      if (a.receita > 0) linhas.push(`📈 ${t.roas}: *${(a.receita / a.gasto).toFixed(2)}*${variacao(a.receita / a.gasto, p.gasto ? p.receita / p.gasto : 0)}`);
-    } else {
-      linhas.push(`👥 ${t.leads}: *${num(a.leads)}*${variacao(a.leads, p.leads)}`);
-      if (a.leads > 0) linhas.push(`🎯 ${t.cpl}: *${din(a.gasto / a.leads)}*${variacao(a.gasto / a.leads, p.leads ? p.gasto / p.leads : 0)}`);
+    let comparou = false;
+    for (const id of metricasDe(e)) {
+      if (id === "meta_mes") {
+        if (e.meta_leads && e.tipo === "leads")
+          linhas.push(
+            `${EMOJI.meta_mes} ${r.metaLeads}: *${num(d.mes.leads)}* ${r.de} ${num(e.meta_leads)} ${r.leads.split(" ")[0].toLowerCase()} (${pct((d.mes.leads / e.meta_leads) * 100, 0)})`,
+          );
+        if (e.meta_investimento)
+          linhas.push(
+            `${EMOJI.meta_mes} ${r.metaInvest}: *${din(d.mes.gasto)}* ${r.de} ${din(e.meta_investimento)} (${pct((d.mes.gasto / e.meta_investimento) * 100, 0)})`,
+          );
+        continue;
+      }
+      const v = valorDaMetrica(id, a);
+      if (v === null) continue;
+      const antes = valorDaMetrica(id, p);
+      const mudanca = antes !== null ? variacao(v, antes) : "";
+      if (mudanca) comparou = true;
+      linhas.push(`${EMOJI[id]} ${r[id]}: *${formato(id, v)}*${mudanca}`);
     }
-    linhas.push(`👆 ${t.cliques}: ${num(a.cliques)} · ${t.impressoes}: ${num(a.impressoes)}`);
-    if (p.gasto > 0) linhas.push(`_(${t.vs})_`);
+    if (comparou) linhas.push(`_(${t.vs})_`);
 
     const destaque =
       e.tipo === "ecommerce"
         ? [...d.campanhas].filter((c) => c.receita > 0).sort((x, y) => y.receita / y.gasto - x.receita / x.gasto)[0]
         : [...d.campanhas].filter((c) => c.leads > 0).sort((x, y) => y.leads - x.leads)[0];
-    if (destaque && d.campanhas.length > 1) {
+    if (e.rel_destaque && destaque && d.campanhas.length > 1) {
       const detalhe =
         e.tipo === "ecommerce"
           ? `${num(destaque.conversoes)} ${t.vendas.toLowerCase()}, ${din(destaque.receita)}`
@@ -332,7 +541,9 @@ export function textoDoRelatorio(e: EmpresaRelatorio, frequencia: Frequencia, d:
   }
 
   if (comentario) linhas.push("", `💬 *${t.analise}:* ${comentario}`);
-  linhas.push("", `${t.painel}: ${endereco()}/painel/${e.slug}`, "", `_${t.rodape}_`);
+  if (e.rel_fechamento?.trim()) linhas.push("", preencher(e.rel_fechamento, e, periodo));
+  if (e.rel_link) linhas.push("", `${t.painel}: ${endereco()}/painel/${e.slug}`);
+  linhas.push("", `_${t.rodape}_`);
   return linhas.join("\n");
 }
 
@@ -340,7 +551,9 @@ export function textoDoRelatorio(e: EmpresaRelatorio, frequencia: Frequencia, d:
 export async function montarRelatorio(e: EmpresaRelatorio, opcoes: { comIa?: boolean; atualizar?: boolean; frequencia?: Frequencia } = {}) {
   const frequencia = opcoes.frequencia ?? e.rel_frequencia;
   if (opcoes.atualizar && e.meta_conta && metaConfigurado()) {
-    await sincronizarEmpresa(e, 3).catch((erro) => console.error("[relatorio] não deu para atualizar a Meta:", erro instanceof Error ? erro.message : erro));
+    await sincronizarEmpresa(e, 3).catch((erro) =>
+      console.error("[relatorio] não deu para atualizar a Meta:", erro instanceof Error ? erro.message : erro),
+    );
   }
   const hojeLocal = agoraNoFuso(e.rel_fuso).data;
   const d = await dadosDoRelatorio(e, frequencia, hojeLocal);
@@ -364,7 +577,8 @@ export async function enviarParaNumeros(numeros: string[], texto: string) {
 }
 
 const COLUNAS_RELATORIO = `id, slug, nome, tipo, idioma, moeda, pais, meta_cpl, meta_leads, meta_investimento, meta_conta, vendas_fonte, whatsapp_leads,
-  rel_ativo, rel_frequencia, rel_dia_semana, rel_dia_mes, rel_hora, rel_fuso, rel_numeros, rel_ia, rel_ultimo_em`;
+  rel_ativo, rel_frequencia, rel_dia_semana, rel_dia_mes, rel_hora, rel_fuso, rel_numeros, rel_ia, rel_ultimo_em,
+  rel_metricas, rel_abertura, rel_fechamento, rel_instrucao, rel_destaque, rel_link`;
 
 export const empresaDoRelatorio = (id: number) => umaLinha<EmpresaRelatorio>(`select ${COLUNAS_RELATORIO} from empresas where id = $1`, [id]);
 
@@ -417,7 +631,16 @@ export async function enviarRelatoriosDevidos(prazoMs = 60_000) {
   return resultado;
 }
 
-export type EnvioAutomatico = { id: number; empresa: string; tipo: string; destino: string; texto: string; ok: boolean | null; erro: string | null; criado_em: string };
+export type EnvioAutomatico = {
+  id: number;
+  empresa: string;
+  tipo: string;
+  destino: string;
+  texto: string;
+  ok: boolean | null;
+  erro: string | null;
+  criado_em: string;
+};
 
 export function enviosAutomaticos(empresaId?: number, limite = 15) {
   return consulta<EnvioAutomatico>(

@@ -416,6 +416,12 @@ const ESQUEMA = [
   `alter table empresas add column if not exists rel_ia boolean not null default true`,
   `alter table empresas add column if not exists rel_ultimo_em timestamptz`,
   `alter table empresas add column if not exists alertas_cliente boolean not null default false`,
+  `alter table empresas add column if not exists rel_metricas text[]`,
+  `alter table empresas add column if not exists rel_abertura text`,
+  `alter table empresas add column if not exists rel_fechamento text`,
+  `alter table empresas add column if not exists rel_instrucao text`,
+  `alter table empresas add column if not exists rel_destaque boolean not null default true`,
+  `alter table empresas add column if not exists rel_link boolean not null default true`,
   `alter table empresas add column if not exists meta_conta_checada_em timestamptz`,
   `alter table empresas add column if not exists meta_conta_alerta text`,
   `create table if not exists envios_automaticos (

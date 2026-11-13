@@ -77,6 +77,15 @@ export type Empresa = {
   rel_numeros: string | null;
   rel_ia: boolean;
   rel_ultimo_em: string | null;
+  /** Métricas escolhidas para o relatório; vazio = as padrão do tipo de operação. */
+  rel_metricas: string[] | null;
+  /** Texto antes e depois dos números ({empresa} e {periodo} são trocados). */
+  rel_abertura: string | null;
+  rel_fechamento: string | null;
+  /** Instrução da equipe para a análise da IA (tom, foco). */
+  rel_instrucao: string | null;
+  rel_destaque: boolean;
+  rel_link: boolean;
   /** Manda também ao cliente os alertas da conta de anúncios (saldo, pagamento). */
   alertas_cliente: boolean;
   meta_conta_checada_em: string | null;

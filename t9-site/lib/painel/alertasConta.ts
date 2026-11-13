@@ -84,14 +84,20 @@ export function problemasDaConta(
         es: "Meta desactivó la cuenta publicitaria. T9 ya está revisando el motivo y solicitando la revisión.",
       },
     });
-  if (s.status === 7) lista.push({ tipo: "analise", nivel: "alto", equipe: "Conta de anúncios em análise de risco pela Meta: os anúncios podem não rodar." });
-  if (s.status === 100 || s.status === 101) lista.push({ tipo: "encerrada", nivel: "alto", equipe: "Conta de anúncios encerrada (ou em encerramento) na Meta." });
+  if (s.status === 7)
+    lista.push({ tipo: "analise", nivel: "alto", equipe: "Conta de anúncios em análise de risco pela Meta: os anúncios podem não rodar." });
+  if (s.status === 100 || s.status === 101)
+    lista.push({ tipo: "encerrada", nivel: "alto", equipe: "Conta de anúncios encerrada (ou em encerramento) na Meta." });
 
   const dias = (valor: number) => (mediaDiaria > 0 ? valor / mediaDiaria : Infinity);
   const din = (v: number) => dinheiro(v, s.moeda, idioma);
   if (s.saldo !== null && mediaDiaria > 0 && dias(s.saldo) < 3) {
     const d = Math.max(0, Math.floor(dias(s.saldo)));
-    const quanto = { pt: d < 1 ? "não dá para um dia" : `dá para cerca de ${d} dia(s)`, en: d < 1 ? "won't last a day" : `lasts about ${d} day(s)`, es: d < 1 ? "no alcanza para un día" : `alcanza para unos ${d} día(s)` };
+    const quanto = {
+      pt: d < 1 ? "não dá para um dia" : `dá para cerca de ${d} dia(s)`,
+      en: d < 1 ? "won't last a day" : `lasts about ${d} day(s)`,
+      es: d < 1 ? "no alcanza para un día" : `alcanza para unos ${d} día(s)`,
+    };
     lista.push({
       tipo: "saldo",
       nivel: d < 1 ? "alto" : "medio",
@@ -131,13 +137,21 @@ export async function quedaDeDesempenho(e: Pick<Empresa, "id" | "tipo" | "moeda"
     const roas3 = r3.receita / r3.gasto;
     const roas14 = r14.receita / r14.gasto;
     if (roas3 >= roas14 * 0.6) return null;
-    return { tipo: "queda", nivel: "medio", equipe: `Retorno dos últimos 3 dias em ${roas3.toFixed(2)}, contra ${roas14.toFixed(2)} nas 2 semanas anteriores.` };
+    return {
+      tipo: "queda",
+      nivel: "medio",
+      equipe: `Retorno dos últimos 3 dias em ${roas3.toFixed(2)}, contra ${roas14.toFixed(2)} nas 2 semanas anteriores.`,
+    };
   }
   if (r14.leads < 5) return null;
   const cpl14 = r14.gasto / r14.leads;
   if (r3.leads === 0) {
     if (r3.gasto < cpl14 * 2) return null;
-    return { tipo: "queda", nivel: "alto", equipe: `Nenhum lead nos últimos 3 dias, com ${din(r3.gasto)} investidos (antes, ${din(cpl14)} por lead).` };
+    return {
+      tipo: "queda",
+      nivel: "alto",
+      equipe: `Nenhum lead nos últimos 3 dias, com ${din(r3.gasto)} investidos (antes, ${din(cpl14)} por lead).`,
+    };
   }
   const cpl3 = r3.gasto / r3.leads;
   if (cpl3 <= cpl14 * 1.5) return null;
@@ -156,7 +170,10 @@ const AVISO_CLIENTE: Record<Idioma, { titulo: string; rodape: string }> = {
   es: { titulo: "Aviso de T9", rodape: "Mensaje automático de T9" },
 };
 
-type EmpresaAlerta = Pick<Empresa, "id" | "slug" | "nome" | "tipo" | "moeda" | "idioma" | "meta_conta" | "rel_numeros" | "whatsapp_leads" | "alertas_cliente">;
+type EmpresaAlerta = Pick<
+  Empresa,
+  "id" | "slug" | "nome" | "tipo" | "moeda" | "idioma" | "meta_conta" | "rel_numeros" | "whatsapp_leads" | "alertas_cliente"
+>;
 
 /** Registra e manda um alerta (uma vez por dia por tipo). */
 async function dispararAlerta(e: EmpresaAlerta, p: Problema, dia: string) {
@@ -181,11 +198,21 @@ async function dispararAlerta(e: EmpresaAlerta, p: Problema, dia: string) {
         para: a.email,
         assunto: `Alerta: ${e.nome}`,
         texto: `${p.equipe}\n\n${endereco()}/painel/admin/${e.slug}`,
-        html: emailComBotao({ titulo: `Alerta: ${e.nome}`, texto: p.equipe, botao: "Abrir no painel", link: `${endereco()}/painel/admin/${e.slug}`, rodape: "Alerta automático do painel T9." }),
+        html: emailComBotao({
+          titulo: `Alerta: ${e.nome}`,
+          texto: p.equipe,
+          botao: "Abrir no painel",
+          link: `${endereco()}/painel/admin/${e.slug}`,
+          rodape: "Alerta automático do painel T9.",
+        }),
       }).catch((x) => erros.push(String(x)));
     }
   }
-  await consulta("update envios_automaticos set ok = $2, erro = $3 where id = $1", [novo.id, erros.length === 0, erros.join("; ").slice(0, 500) || null]);
+  await consulta("update envios_automaticos set ok = $2, erro = $3 where id = $1", [
+    novo.id,
+    erros.length === 0,
+    erros.join("; ").slice(0, 500) || null,
+  ]);
   enviados.push("equipe");
 
   const numerosCliente = numerosDoRelatorio(e);
@@ -199,7 +226,11 @@ async function dispararAlerta(e: EmpresaAlerta, p: Problema, dia: string) {
     );
     if (linha) {
       const errosCliente = await enviarParaNumeros(numerosCliente, texto);
-      await consulta("update envios_automaticos set ok = $2, erro = $3 where id = $1", [linha.id, errosCliente.length < numerosCliente.length, errosCliente.join("; ").slice(0, 500) || null]);
+      await consulta("update envios_automaticos set ok = $2, erro = $3 where id = $1", [
+        linha.id,
+        errosCliente.length < numerosCliente.length,
+        errosCliente.join("; ").slice(0, 500) || null,
+      ]);
       enviados.push("cliente");
     }
   }
@@ -208,11 +239,10 @@ async function dispararAlerta(e: EmpresaAlerta, p: Problema, dia: string) {
 
 /** Média de investimento por dia nos últimos 7 dias completos. */
 async function mediaDiaria(empresaId: number, ref: string) {
-  const r = await umaLinha<{ gasto: number }>("select coalesce(sum(gasto), 0) as gasto from metricas where empresa_id = $1 and data between $2 and $3", [
-    empresaId,
-    somarDias(ref, -7),
-    somarDias(ref, -1),
-  ]);
+  const r = await umaLinha<{ gasto: number }>(
+    "select coalesce(sum(gasto), 0) as gasto from metricas where empresa_id = $1 and data between $2 and $3",
+    [empresaId, somarDias(ref, -7), somarDias(ref, -1)],
+  );
   return (r?.gasto ?? 0) / 7;
 }
 
@@ -252,7 +282,9 @@ export async function verificarAlertas(prazoMs = 40_000) {
   }
 
   // Queda de desempenho: uma vez por dia, a partir das 10h de Brasília (depois da sincronização da madrugada).
-  const horaBrasilia = Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/Sao_Paulo", hour: "2-digit", hourCycle: "h23" }).format(new Date()));
+  const horaBrasilia = Number(
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/Sao_Paulo", hour: "2-digit", hourCycle: "h23" }).format(new Date()),
+  );
   const feito = await umaLinha<{ valor: string }>("select valor from ajustes where chave = 'alertas_desempenho_dia'");
   if (horaBrasilia >= 10 && feito?.valor !== dia) {
     await consulta(
@@ -260,9 +292,10 @@ export async function verificarAlertas(prazoMs = 40_000) {
        on conflict (chave) do update set valor = excluded.valor, atualizado_em = now()`,
       [dia],
     );
-    const empresas = await consulta<EmpresaAlerta>(`select ${COLUNAS} from empresas where exists (select 1 from metricas m where m.empresa_id = empresas.id and m.data >= $1)`, [
-      somarDias(dia, -3),
-    ]);
+    const empresas = await consulta<EmpresaAlerta>(
+      `select ${COLUNAS} from empresas where exists (select 1 from metricas m where m.empresa_id = empresas.id and m.data >= $1)`,
+      [somarDias(dia, -3)],
+    );
     for (const e of empresas) {
       const p = await quedaDeDesempenho(e, dia).catch(() => null);
       if (p && (await dispararAlerta(e, p, dia)).length) resultado.push({ empresa: e.nome, alertas: [p.tipo] });

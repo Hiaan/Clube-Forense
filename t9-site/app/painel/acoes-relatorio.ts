@@ -9,6 +9,7 @@ import {
   DIAS_SEMANA,
   FREQUENCIAS,
   FUSOS,
+  METRICAS,
   empresaDoRelatorio,
   enviarParaNumeros,
   montarRelatorio,
@@ -41,8 +42,11 @@ export async function salvarRelatorio(_: Estado, f: FormData): Promise<Estado> {
   if (!r) return falha("Cliente não encontrado.");
   const bruto = String(f.get("numeros") ?? "").slice(0, 500);
   const numeros = numerosDe(bruto);
-  if (bruto.trim() && !numeros.length) return falha("Não reconheci nenhum número. Use DDD + número, por exemplo (83) 99999-9999, ou + e o código do país.");
-  const frequencia = (Object.keys(FREQUENCIAS) as Frequencia[]).includes(String(f.get("frequencia")) as Frequencia) ? (String(f.get("frequencia")) as Frequencia) : "semanal";
+  if (bruto.trim() && !numeros.length)
+    return falha("Não reconheci nenhum número. Use DDD + número, por exemplo (83) 99999-9999, ou + e o código do país.");
+  const frequencia = (Object.keys(FREQUENCIAS) as Frequencia[]).includes(String(f.get("frequencia")) as Frequencia)
+    ? (String(f.get("frequencia")) as Frequencia)
+    : "semanal";
   const fuso = FUSOS.some((x) => x.valor === f.get("fuso")) ? String(f.get("fuso")) : "America/Sao_Paulo";
   const ativo = Boolean(f.get("ativo"));
   const config = {
@@ -55,14 +59,48 @@ export async function salvarRelatorio(_: Estado, f: FormData): Promise<Estado> {
     numeros: numeros.map((n) => `+${n}`).join(",") || null,
     ia: Boolean(f.get("ia")),
     alertas: Boolean(f.get("alertas_cliente")),
+    metricas: METRICAS.map((m) => m.id).filter((id) => f.getAll("metricas").includes(id)),
+    abertura:
+      String(f.get("abertura") ?? "")
+        .trim()
+        .slice(0, 600) || null,
+    fechamento:
+      String(f.get("fechamento") ?? "")
+        .trim()
+        .slice(0, 600) || null,
+    instrucao:
+      String(f.get("instrucao") ?? "")
+        .trim()
+        .slice(0, 500) || null,
+    destaque: Boolean(f.get("destaque")),
+    link: Boolean(f.get("link")),
   };
+  if (!config.metricas.length) return falha("Escolha pelo menos uma métrica para o relatório.");
   const destino = numerosDe(config.numeros ?? r.empresa.whatsapp_leads);
   if (ativo && !destino.length) return falha("Informe o WhatsApp que recebe o relatório (ou cadastre o número dos leads).");
 
   await consulta(
     `update empresas set rel_ativo = $2, rel_frequencia = $3, rel_dia_semana = $4, rel_dia_mes = $5, rel_hora = $6, rel_fuso = $7,
-            rel_numeros = $8, rel_ia = $9, alertas_cliente = $10 where id = $1`,
-    [r.empresa.id, config.ativo, config.frequencia, config.semana, config.mes, config.hora, config.fuso, config.numeros, config.ia, config.alertas],
+            rel_numeros = $8, rel_ia = $9, alertas_cliente = $10, rel_metricas = $11, rel_abertura = $12, rel_fechamento = $13,
+            rel_instrucao = $14, rel_destaque = $15, rel_link = $16 where id = $1`,
+    [
+      r.empresa.id,
+      config.ativo,
+      config.frequencia,
+      config.semana,
+      config.mes,
+      config.hora,
+      config.fuso,
+      config.numeros,
+      config.ia,
+      config.alertas,
+      config.metricas,
+      config.abertura,
+      config.fechamento,
+      config.instrucao,
+      config.destaque,
+      config.link,
+    ],
   );
   // Ligado depois do horário de hoje: o primeiro relatório sai no próximo dia marcado, não agora de surpresa.
   if (ativo && !r.empresa.rel_ativo) {
@@ -97,10 +135,14 @@ export async function enviarRelatorioAgora(_: Estado, f: FormData): Promise<Esta
   const { texto, comIa } = await montarRelatorio(e, { comIa: true, atualizar: true });
   const destino = somenteEquipe ? meu : numeros;
   const erros = await enviarParaNumeros(destino, texto);
-  await consulta(
-    `insert into envios_automaticos (empresa_id, tipo, chave, destino, texto, ok, erro) values ($1, 'relatorio', $2, $3, $4, $5, $6)`,
-    [e.id, `manual:${Date.now()}`, somenteEquipe ? "equipe" : "cliente", texto, erros.length < destino.length, erros.join("; ").slice(0, 500) || null],
-  );
+  await consulta(`insert into envios_automaticos (empresa_id, tipo, chave, destino, texto, ok, erro) values ($1, 'relatorio', $2, $3, $4, $5, $6)`, [
+    e.id,
+    `manual:${Date.now()}`,
+    somenteEquipe ? "equipe" : "cliente",
+    texto,
+    erros.length < destino.length,
+    erros.join("; ").slice(0, 500) || null,
+  ]);
   await registrar(r.u.id, r.empresa.id, "relatorio.enviar-agora", somenteEquipe ? "prévia" : "cliente");
   revalidatePath("/painel", "layout");
   if (erros.length === destino.length) return falha(`Não enviei: ${erros.join("; ")}`);
@@ -117,5 +159,9 @@ export async function salvarAlertasEquipe(_: Estado, f: FormData): Promise<Estad
   await salvarNumerosDaEquipe(numeros.map((n) => `+${n}`).join(","));
   await registrar(u.id, null, "alertas.equipe");
   revalidatePath("/painel/admin/whatsapp");
-  return sucesso(numeros.length ? `Os alertas vão para ${numeros.map(numeroLegivel).join(", ")}.` : "Sem número: os alertas vão por e-mail para os administradores.");
+  return sucesso(
+    numeros.length
+      ? `Os alertas vão para ${numeros.map(numeroLegivel).join(", ")}.`
+      : "Sem número: os alertas vão por e-mail para os administradores.",
+  );
 }

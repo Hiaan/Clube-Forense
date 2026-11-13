@@ -6,8 +6,10 @@ import {
   DIAS_SEMANA,
   FREQUENCIAS,
   FUSOS,
+  METRICAS,
   enviosAutomaticos,
   iaDoRelatorioConfigurada,
+  metricasDe,
   montarRelatorio,
   numerosDoRelatorio,
   type EmpresaRelatorio,
@@ -25,12 +27,16 @@ export default async function SecaoRelatorio({ empresa }: { empresa: Empresa }) 
     enviosAutomaticos(empresa.id, 6),
   ]);
   const ia = iaDoRelatorioConfigurada();
+  const escolhidas = new Set(metricasDe(empresa));
+  const semMeta = !empresa.meta_leads && !empresa.meta_investimento;
 
   return (
     <section className="painel-cartao mt-4 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-lg font-extrabold">Relatório automático no WhatsApp</h2>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${empresa.rel_ativo ? "bg-emerald-400/15 text-emerald-300" : "bg-white/8 text-white/55"}`}>
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${empresa.rel_ativo ? "bg-emerald-400/15 text-emerald-300" : "bg-white/8 text-white/55"}`}
+        >
           {empresa.rel_ativo ? "Ligado" : "Desligado"}
         </span>
       </div>
@@ -40,7 +46,11 @@ export default async function SecaoRelatorio({ empresa }: { empresa: Empresa }) 
       </p>
       {!ponteConfigurada() && (
         <p className="mt-3 rounded-lg bg-amber-400/10 px-3 py-2 text-sm text-amber-200">
-          O WhatsApp da T9 ainda não está configurado. Veja em <Link href="/painel/admin/whatsapp" className="underline">WhatsApp</Link>.
+          O WhatsApp da T9 ainda não está configurado. Veja em{" "}
+          <Link href="/painel/admin/whatsapp" className="underline">
+            WhatsApp
+          </Link>
+          .
         </p>
       )}
       {empresa.meta_conta_alerta && (
@@ -105,19 +115,95 @@ export default async function SecaoRelatorio({ empresa }: { empresa: Empresa }) 
             <input
               name="numeros"
               defaultValue={numerosDe(empresa.rel_numeros).map(numeroLegivel).join(", ")}
-              placeholder={numerosDe(empresa.whatsapp_leads).length ? `Vazio = ${numerosDe(empresa.whatsapp_leads).map(numeroLegivel).join(", ")} (o dos leads)` : "(83) 99999-9999 ou +1 407 555-1234"}
+              placeholder={
+                numerosDe(empresa.whatsapp_leads).length
+                  ? `Vazio = ${numerosDe(empresa.whatsapp_leads).map(numeroLegivel).join(", ")} (o dos leads)`
+                  : "(83) 99999-9999 ou +1 407 555-1234"
+              }
               inputMode="tel"
               autoComplete="off"
               className="painel-campo"
             />
           </label>
         </div>
-        <div className="mt-4 space-y-2 text-sm text-white/75">
+        <fieldset className="mt-6">
+          <legend className="painel-rotulo">Métricas que vão no relatório</legend>
+          <div className="grid gap-x-4 gap-y-2 text-sm text-white/80 sm:grid-cols-2 lg:grid-cols-3">
+            {METRICAS.map((m) => (
+              <label key={m.id} className="flex items-start gap-2.5">
+                <input
+                  type="checkbox"
+                  name="metricas"
+                  value={m.id}
+                  defaultChecked={escolhidas.has(m.id)}
+                  className="mt-0.5 h-4 w-4 accent-[#ff2d38]"
+                />
+                <span>
+                  {m.rotulo}
+                  {m.id === "meta_mes" && semMeta && <span className="block text-xs text-white/40">Cadastre a meta em Dados e metas</span>}
+                </span>
+              </label>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-white/45">
+            Métrica que não dá para calcular no período (custo por lead sem leads, por exemplo) fica de fora sozinha.
+          </p>
+        </fieldset>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <label>
+            <span className="painel-rotulo">Texto de abertura (opcional)</span>
+            <textarea
+              name="abertura"
+              rows={3}
+              defaultValue={empresa.rel_abertura ?? ""}
+              className="painel-campo"
+              placeholder="Bom dia! Segue o resumo da {empresa} de {periodo}:"
+            />
+          </label>
+          <label>
+            <span className="painel-rotulo">Texto de fechamento (opcional)</span>
+            <textarea
+              name="fechamento"
+              rows={3}
+              defaultValue={empresa.rel_fechamento ?? ""}
+              className="painel-campo"
+              placeholder="Qualquer dúvida, é só me chamar aqui."
+            />
+          </label>
+          <p className="-mt-2 text-xs text-white/45 sm:col-span-2">
+            <code className="text-white/70">{"{empresa}"}</code> vira o nome do cliente e <code className="text-white/70">{"{periodo}"}</code> as
+            datas do relatório.
+          </p>
+          <label className="sm:col-span-2">
+            <span className="painel-rotulo">Instrução para a análise da IA (opcional)</span>
+            <input
+              name="instrucao"
+              defaultValue={empresa.rel_instrucao ?? ""}
+              className="painel-campo"
+              placeholder="Ex.: foque no custo por contato e use um tom animado; o cliente vende imóveis de alto padrão."
+            />
+          </label>
+        </div>
+
+        <div className="mt-5 space-y-2 text-sm text-white/75">
+          <label className="flex items-start gap-3">
+            <input type="checkbox" name="destaque" defaultChecked={empresa.rel_destaque} className="mt-0.5 h-4 w-4 accent-[#ff2d38]" />
+            Mostrar a campanha destaque
+          </label>
+          <label className="flex items-start gap-3">
+            <input type="checkbox" name="link" defaultChecked={empresa.rel_link} className="mt-0.5 h-4 w-4 accent-[#ff2d38]" />
+            Mostrar o link do painel
+          </label>
           <label className="flex items-start gap-3">
             <input type="checkbox" name="ia" defaultChecked={empresa.rel_ia} className="mt-0.5 h-4 w-4 accent-[#ff2d38]" />
             <span>
               Incluir a análise da IA
-              {!ia && <span className="block text-xs text-amber-200">A chave da Anthropic ainda não está na Vercel: até lá, vai um comentário automático simples.</span>}
+              {!ia && (
+                <span className="block text-xs text-amber-200">
+                  A chave da Anthropic ainda não está na Vercel: até lá, vai um comentário automático simples.
+                </span>
+              )}
             </span>
           </label>
           <label className="flex items-start gap-3">
@@ -136,7 +222,9 @@ export default async function SecaoRelatorio({ empresa }: { empresa: Empresa }) 
       {previa && (
         <details className="mt-5 border-t border-white/6 pt-4">
           <summary className="cursor-pointer text-sm font-semibold text-white/80">Ver como fica a mensagem</summary>
-          <pre className="mt-3 max-w-xl rounded-xl bg-[#0b141a] p-4 font-sans text-sm leading-relaxed whitespace-pre-wrap text-[#e9edef]">{previa.texto}</pre>
+          <pre className="mt-3 max-w-xl rounded-xl bg-[#0b141a] p-4 font-sans text-sm leading-relaxed whitespace-pre-wrap text-[#e9edef]">
+            {previa.texto}
+          </pre>
           <p className="mt-2 text-xs text-white/45">Na prévia vai o comentário automático; no envio, a análise é escrita pela IA.</p>
         </details>
       )}
@@ -147,7 +235,13 @@ export default async function SecaoRelatorio({ empresa }: { empresa: Empresa }) 
           <input type="hidden" name="destino" value="eu" />
           <span className="painel-rotulo">Testar no seu WhatsApp</span>
           <div className="flex flex-wrap gap-2">
-            <input name="meu_numero" placeholder="Seu número" inputMode="tel" autoComplete="tel" className="painel-campo !min-h-[42px] min-w-0 flex-1" />
+            <input
+              name="meu_numero"
+              placeholder="Seu número"
+              inputMode="tel"
+              autoComplete="tel"
+              className="painel-campo !min-h-[42px] min-w-0 flex-1"
+            />
             <BotaoEnviar enviando="Enviando..." className="botao-painel botao-painel-sec">
               Mandar prévia
             </BotaoEnviar>
@@ -175,7 +269,9 @@ export default async function SecaoRelatorio({ empresa }: { empresa: Empresa }) 
           <ul className="space-y-1.5 text-sm">
             {envios.map((v) => (
               <li key={v.id} className="flex flex-wrap gap-x-2 text-white/65">
-                <span className={v.ok === false ? "text-[#ffb3b7]" : v.ok ? "text-emerald-300" : "text-white/45"}>{v.ok === false ? "✕" : v.ok ? "✓" : "…"}</span>
+                <span className={v.ok === false ? "text-[#ffb3b7]" : v.ok ? "text-emerald-300" : "text-white/45"}>
+                  {v.ok === false ? "✕" : v.ok ? "✓" : "…"}
+                </span>
                 <span>{dataHora(v.criado_em, "pt")}</span>
                 <span className="text-white/45">
                   {v.tipo === "relatorio" ? "Relatório" : "Alerta"} para {v.destino === "equipe" ? "a equipe" : "o cliente"}
