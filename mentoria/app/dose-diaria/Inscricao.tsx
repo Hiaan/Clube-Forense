@@ -52,7 +52,7 @@ export default function Inscricao({ id }: { id?: string }) {
         setEstado({ fase: "editando", erro: json.mensagem ?? "Algo deu errado. Tente de novo em instantes." });
         return;
       }
-      eventoPixel("CompleteRegistration", { content_name: "Grupo Dose Diária" });
+      eventoPixel("Lead", { content_name: "Grupo Dose Diária" });
       setEstado({ fase: "pronto", primeiroNome: nome.trim().split(" ")[0], link: json.link ?? null });
       if (json.link) setTimeout(() => window.location.assign(json.link!), 1800);
     } catch {

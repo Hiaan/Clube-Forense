@@ -57,8 +57,8 @@ function instalar() {
 
 /**
  * Dispara um evento padrão da Meta. Usado nos formulários:
- * `Lead` (deixou nome, e-mail e WhatsApp), `Schedule` (confirmou a reunião) e
- * `CompleteRegistration` (entrou no grupo).
+ * `Lead` (entrou no grupo Dose Diária), `Contact` (deixou os dados na mentoria)
+ * e `Schedule` (confirmou a reunião da mentoria).
  */
 export function eventoPixel(nome: string, dados?: Record<string, unknown>) {
   try {

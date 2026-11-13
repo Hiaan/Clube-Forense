@@ -148,7 +148,7 @@ export default function Agendamento() {
       return;
     }
     setEstado({ fase: "editando" });
-    eventoPixel("Lead", { content_name: "Mentoria — dados de contato" });
+    eventoPixel("Contact", { content_name: "Mentoria — dados de contato" });
     setPasso(2);
   }
 
