@@ -46,9 +46,18 @@ import Depoimentos from "./Depoimentos";
 import DrBonet from "./DrBonet";
 import MuralAprovados from "./MuralAprovados";
 import SecaoPlataforma from "./plataforma/SecaoPlataforma";
+import { perguntasDaBlack } from "./faq";
 import { PROFESSORES } from "./professores";
 import Ticker from "./Ticker";
-import { EDITAIS_DA_BLACK, PLATAFORMA, QUESTOES, WHATSAPP } from "./oferta";
+import {
+  EDITAIS_DA_BLACK,
+  LOTES,
+  PLATAFORMA,
+  QUESTOES,
+  WHATSAPP,
+} from "./oferta";
+import DadosEstruturados from "../components/DadosEstruturados";
+import { curso, grafo, perguntas, professores } from "../lib/schema";
 import { APROVADOS, ordenarMural } from "../monitor/lib/aprovados";
 import { coletar } from "../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
@@ -143,6 +152,13 @@ export default async function PaginaBlack({
   );
   const concursosComAprovado = Object.keys(APROVADOS).length;
 
+  // As perguntas frequentes: a lista da página e a do FAQPage são a mesma.
+  const faq = perguntasDaBlack({
+    editais: EDITAIS_DA_BLACK.map((e) => e.sigla),
+    totalAprovados,
+    concursosComAprovado,
+  });
+
   // Cada aprovado divulgado, com o estado dele — para o mural de rostos.
   //
   // A COLOCAÇÃO DE CADA UM. Quando o estado lista uma colocação por nome
@@ -169,6 +185,25 @@ export default async function PaginaBlack({
     // overflow-x-clip: a faixa de editais sangra 16px para os lados (-mx-4),
     // e sem isto a página inteira rolava de lado no celular.
     <div className="overflow-x-clip">
+      {/* O que a página é, para buscadores e IAs (lib/schema.ts). Só na
+          versão pública: a dos alunos não é indexada. */}
+      {!aluno && (
+        <DadosEstruturados
+          json={grafo(
+            curso({
+              url: "https://mapa.clubeforense.com.br/black",
+              nome: "Black Vitalícia do Clube Forense — preparatório de médico legista",
+              descricao: `Oferta de Black Friday do Clube Forense: acesso vitalício ao material pré-edital e à atualização pós-edital de todos os concursos para médico legista autorizados até agora (${EDITAIS_DA_BLACK.map((e) => e.sigla).join(", ")}). Aulas de Medicina Legal com professores que são médicos legistas, mais de 25 mil questões, eBooks, mapas mentais e flashcards. ${totalAprovados} alunos aprovados em ${concursosComAprovado} concursos.`,
+              preco: LOTES[0].avista,
+              checkout: LOTES[0].checkout,
+              validoAte: LOTES[0].fecha,
+            }),
+            perguntas(faq),
+            ...professores(),
+          )}
+        />
+      )}
+
       {/* ----------------------------------------------------------- topo */}
       {/* NÃO HÁ CABEÇALHO, E ISSO É A REGRA DA PÁGINA. Menu no topo de página
           de venda é porta de saída: cada link leva para outro lugar que não é
@@ -736,32 +771,7 @@ export default async function PaginaBlack({
             O que costumam perguntar
           </Titulo>
           <div className="mx-auto mt-10 max-w-3xl divide-y divide-gray-200 overflow-hidden rounded-2xl border border-gray-200">
-            {[
-              {
-                p: "Quais editais exatamente estão inclusos?",
-                r: `Os ${inclusos.length} concursos listados acima: todos os concursos de médico legista autorizados até agora. O preparatório de cada um aparece na sua área de aluno, sem você precisar comprar um por um.`,
-              },
-              {
-                p: "E se o concurso do meu estado não estiver na lista?",
-                r: "Você estuda pelos que estão na lista. A base de medicina legal é a mesma em todo o país, e o nosso conteúdo pré-edital existe exatamente para isso: quem chega preparado presta o concurso do estado vizinho, que é o que a maioria dos nossos aprovados fez.",
-              },
-              {
-                p: "Já sou aluno do preparatório. Como fica?",
-                r: "Fale com a equipe pelo WhatsApp antes de comprar: existe condição para quem já estuda com a gente, e ela não aparece no checkout.",
-              },
-              {
-                p: "Por quanto tempo eu tenho acesso?",
-                r: "O acesso é vitalício: o material pré e pós-edital de cada concurso incluso fica com você, do pré-edital ao edital.",
-              },
-              {
-                p: "Funciona no celular?",
-                r: "Funciona. A plataforma roda no navegador do computador e do celular, e as aulas podem ser assistidas também fora de casa.",
-              },
-              {
-                p: "E se eu não gostar?",
-                r: "Sete dias de garantia incondicional. Pediu reembolso dentro do prazo, devolvemos tudo.",
-              },
-            ]
+            {faq
               .filter((f) => !(aluno && f.p.startsWith("Já sou aluno")))
               .map((f) => (
                 <details

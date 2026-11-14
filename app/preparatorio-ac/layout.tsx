@@ -14,6 +14,7 @@ export const metadata: Metadata = {
       "Salário de R$ 14.629,25 e prova em 24/01/2027. Prepare-se para o edital da Polícia Civil do Acre com professores médicos legistas.",
     type: "website",
   },
+  alternates: { canonical: "/preparatorio-ac" },
   robots: { index: true, follow: true },
 };
 

@@ -5,6 +5,7 @@
 // de publicar, e o primeiro reflexo de quem publica é abrir o site para
 // conferir.
 
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import CartaoPost from "./CartaoPost";
@@ -14,6 +15,10 @@ import { categoriaPorSlug, nomeEstado, orgaoPorSlug } from "./lib/taxonomia";
 import ContarVisita from "../components/ContarVisita";
 
 export const dynamic = "force-dynamic";
+
+// Os filtros (?categoria, ?uf…) são a mesma lista reordenada: a canônica
+// aponta todos para a página do blog.
+export const metadata: Metadata = { alternates: { canonical: "/blog" } };
 
 const POR_PAGINA = 12;
 

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
       "Estude com professores que já são médicos legistas. Material pré-edital, atualização pós-edital, questões, mapas mentais e muito mais.",
     type: "website",
   },
+  alternates: { canonical: "/preparatorio" },
   robots: { index: true, follow: true },
 };
 

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 
+import DadosEstruturados from "./components/DadosEstruturados";
 import PixelMeta from "./components/PixelMeta";
+import { TOTAL_APROVADOS } from "./monitor/lib/aprovados";
+import { grafo, organizacao, site } from "./lib/schema";
 import { baseDoSite } from "./lib/site";
 import "./globals.css";
 
@@ -33,6 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={geist.variable}>
       <body className="min-h-screen bg-white text-gray-900">
+        {/* Quem é o Clube, em todas as páginas (lib/schema.ts). */}
+        <DadosEstruturados json={grafo(organizacao(TOTAL_APROVADOS), site())} />
         {children}
         {/* Depois do conteúdo: medição nunca na frente do que a pessoa veio ler. */}
         <PixelMeta />

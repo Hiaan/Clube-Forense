@@ -47,6 +47,8 @@ import { MATERIAS_AC } from "../preparatorio-ac/materias";
 import SecaoEditalAC from "../preparatorio-ac/SecaoEditalAC";
 import BarraCompra from "./BarraCompra";
 import HeroPreparatorio from "./HeroPreparatorio";
+import DadosEstruturados from "../components/DadosEstruturados";
+import { curso, grafo, professores } from "../lib/schema";
 import {
   CHECKOUT,
   PARCELA,
@@ -176,6 +178,30 @@ export default async function PaginaPreparatorio({
     // fora de uma seção com respiro, e a página inteira ganhava rolagem
     // lateral no celular.
     <div className="overflow-x-clip">
+      <DadosEstruturados
+        json={grafo(
+          curso({
+            url: `https://mapa.clubeforense.com.br/${acre ? "preparatorio-ac" : "preparatorio"}`,
+            nome: acre
+              ? "Preparatório para Perito Médico-Legista da Polícia Civil do Acre (PC-AC) — Clube Forense"
+              : "Preparatório Aprova Legista — concursos de médico legista — Clube Forense",
+            descricao: acre
+              ? `Preparatório para o concurso de perito médico-legista da PC-AC (edital de 2026, banca ${EDITAL_AC.banca}, prova em ${EDITAL_AC.dataProva}), com aulas de todos os assuntos do edital, Medicina Legal com professores que são médicos legistas, eBooks, mapas mentais e banco de questões.`
+              : "Preparatório para qualquer concurso de médico legista do Brasil, com professores que são médicos legistas: aulas, material pré-edital e atualização pós-edital, mais de 25 mil questões, eBooks e mapas mentais de Medicina Legal.",
+            preco,
+            checkout: acre ? EDITAL_AC.checkout : CHECKOUT[versao],
+            assuntos: acre
+              ? [
+                  "Medicina Legal",
+                  "Concurso PC-AC",
+                  "Perito médico-legista",
+                  "Toxicologia forense",
+                ]
+              : undefined,
+          }),
+          ...professores(),
+        )}
+      />
       {comFaixa && <Ticker texto={campanha} />}
 
       {/* ----------------------------------------------------------- capa */}

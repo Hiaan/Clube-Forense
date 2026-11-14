@@ -22,6 +22,7 @@ export const metadata: Metadata = {
       "Um preço só e acesso vitalício a todos os editais de médico-legista autorizados até agora.",
     type: "website",
   },
+  alternates: { canonical: "/black" },
   robots: { index: true, follow: true },
 };
 

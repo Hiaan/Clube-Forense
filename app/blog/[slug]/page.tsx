@@ -19,6 +19,8 @@ import { lerPublicado, lerRelacionados } from "../../lib/postsRepo";
 import { nomeCategoria, nomeEstado, orgaoPorSlug } from "../lib/taxonomia";
 import ContarVisita from "../../components/ContarVisita";
 import ContarSaida from "../../components/ContarSaida";
+import DadosEstruturados from "../../components/DadosEstruturados";
+import { grafo, materia } from "../../lib/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +63,19 @@ export default async function PaginaPost({ params }: { params: Promise<{ slug: s
     <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
       {/* Conta a leitura. Não desenha nada — ver ContarVisita.tsx. */}
       <ContarVisita tipo="post" slug={post.slug} />
+      <DadosEstruturados
+        json={grafo(
+          materia({
+            url: urlDoPost(post.slug),
+            titulo: post.titulo,
+            resumo: post.resumo,
+            publicadoEm: post.publicadoEm,
+            atualizadoEm: post.atualizadoEm,
+            imagem: post.capaUrl,
+            estado,
+          }),
+        )}
+      />
       <nav className="mb-6 text-xs font-semibold text-gray-500">
         <Link href="/blog" className="hover:text-gray-900">
           Blog

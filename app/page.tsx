@@ -27,6 +27,7 @@ export const metadata: Metadata = {
   title: "Monitor de Concursos — Médico-Legista | Clube Forense",
   description:
     "Radar dos concursos para perito médico-legista nas 27 unidades federativas: estágio do edital (estudo, autorização, comissão, banca, edital), curadoria verificada e notícias atualizadas.",
+  alternates: { canonical: "/" },
 };
 
 function formatarHora(iso: string): string {

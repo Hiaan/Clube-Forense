@@ -86,7 +86,7 @@ export const TOTAL_APROVADOS = Object.values(APROVADOS).reduce(
  * os primeiros oito de cara. Quem sai do mural fica de fora; quem é promovido
  * entra logo depois de Pernambuco, no lugar de quem saiu.
  */
-const FORA_DO_MURAL = ["Dra. Simone Salgado", "Dr. Pietro Tenório"];
+export const FORA_DO_MURAL = ["Dra. Simone Salgado", "Dr. Pietro Tenório"];
 const NA_FRENTE_DO_MURAL = ["Dra. Laís Nader", "Dra. Lívia Bárbara"];
 
 export function ordenarMural<T extends { nome: string; uf: string }>(
