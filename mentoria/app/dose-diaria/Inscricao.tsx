@@ -1,9 +1,8 @@
 "use client";
 
 // Formulário de inscrição no grupo Dose Diária: nome, e-mail, WhatsApp e
-// perfil. Por ora o grupo é só para médicos e estudantes de Medicina: quem
-// marca outra área recebe uma mensagem e não chega a enviar nada. Médico
-// informa CRM e UF; estudante, a faculdade; os dois declaram que é verdade.
+// uma pergunta: é médico(a) ou estudante de Medicina? Quem responde que não
+// vê uma mensagem e não chega a enviar nada (nem conta como Lead no pixel).
 //
 // Com o link do grupo configurado, a pessoa é levada direto para o WhatsApp
 // depois de se inscrever; sem ele, fica o aviso de que o convite chega por
@@ -27,12 +26,9 @@ function mascararTelefone(valor: string): string {
 }
 
 const PERFIS = [
-  { valor: "medico", titulo: "Médico(a)" },
-  { valor: "estudante", titulo: "Estudante de Medicina" },
-  { valor: "outro", titulo: "Outra área" },
+  { valor: "medico", titulo: "Sou médico(a) ou estudante de Medicina" },
+  { valor: "outro", titulo: "Não sou médico(a)" },
 ];
-
-const UFS = "AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO".split(" ");
 
 const rotulo = "block text-xs font-bold uppercase tracking-[0.14em] text-osso/55";
 const campo =
@@ -43,10 +39,6 @@ export default function Inscricao({ id }: { id?: string }) {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [perfil, setPerfil] = useState("");
-  const [crm, setCrm] = useState("");
-  const [uf, setUf] = useState("");
-  const [faculdade, setFaculdade] = useState("");
-  const [declaro, setDeclaro] = useState(false);
   const [estado, setEstado] = useState<Estado>({ fase: "editando" });
 
   async function enviar(e: FormEvent<HTMLFormElement>) {
@@ -57,35 +49,12 @@ export default function Inscricao({ id }: { id?: string }) {
       return;
     }
     if (perfil === "outro") return;
-    if (perfil === "medico" && (crm.length < 3 || !uf)) {
-      setEstado({ fase: "editando", erro: "Informe o número do seu CRM e o estado." });
-      return;
-    }
-    if (perfil === "estudante" && faculdade.trim().length < 3) {
-      setEstado({ fase: "editando", erro: "Informe a sua faculdade de Medicina." });
-      return;
-    }
-    if (!declaro) {
-      setEstado({ fase: "editando", erro: "Confirme a declaração para entrar no grupo." });
-      return;
-    }
     setEstado({ fase: "enviando" });
     try {
       const resposta = await fetch("/api/grupo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: crypto.randomUUID(),
-          nome,
-          email,
-          telefone,
-          perfil,
-          crm: perfil === "medico" ? crm : undefined,
-          uf: perfil === "medico" ? uf : undefined,
-          faculdade: perfil === "estudante" ? faculdade.trim() : undefined,
-          declaro,
-          site,
-        }),
+        body: JSON.stringify({ id: crypto.randomUUID(), nome, email, telefone, perfil, site }),
       });
       const json = (await resposta.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -192,8 +161,8 @@ export default function Inscricao({ id }: { id?: string }) {
           />
         </label>
         <fieldset>
-          <legend className={rotulo}>Você é</legend>
-          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+          <legend className={rotulo}>Você é médico(a)?</legend>
+          <div className="mt-2 grid gap-2">
             {PERFIS.map((p) => {
               const ativo = perfil === p.valor;
               return (
@@ -215,65 +184,11 @@ export default function Inscricao({ id }: { id?: string }) {
             })}
           </div>
         </fieldset>
-
-        {perfil === "medico" && (
-          <div className="grid animate-surgir grid-cols-[1fr_6rem] gap-3">
-            <label>
-              <span className={rotulo}>Número do CRM</span>
-              <input
-                inputMode="numeric"
-                value={crm}
-                onChange={(e) => setCrm(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                className={campo}
-                placeholder="Ex.: 21839"
-              />
-            </label>
-            <label>
-              <span className={rotulo}>UF</span>
-              <select value={uf} onChange={(e) => setUf(e.target.value)} className={`${campo} appearance-none`}>
-                <option value="" className="text-preto">—</option>
-                {UFS.map((u) => (
-                  <option key={u} value={u} className="text-preto">
-                    {u}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        )}
-
-        {perfil === "estudante" && (
-          <label className="block animate-surgir">
-            <span className={rotulo}>Faculdade de Medicina</span>
-            <input
-              value={faculdade}
-              onChange={(e) => setFaculdade(e.target.value)}
-              maxLength={120}
-              className={campo}
-              placeholder="Ex.: UFPE"
-            />
-          </label>
-        )}
-
-        {(perfil === "medico" || perfil === "estudante") && (
-          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-osso/75">
-            <input
-              type="checkbox"
-              checked={declaro}
-              onChange={(e) => setDeclaro(e.target.checked)}
-              className="mt-1 size-4 shrink-0 accent-verde"
-            />
-            <span>
-              Declaro que sou {perfil === "medico" ? "médico(a) com CRM ativo" : "estudante de Medicina"} e que as
-              informações acima são verdadeiras.
-            </span>
-          </label>
-        )}
       </div>
 
       {perfil === "outro" && (
         <p role="status" className="mt-5 rounded-xl border border-white/15 bg-white/[0.05] px-4 py-3 text-sm leading-relaxed text-osso/80">
-          Por enquanto, o Dose Diária é exclusivo para médicos e estudantes de Medicina. Obrigado pelo interesse!
+          Infelizmente, este grupo está aberto apenas para médicos no momento.
         </p>
       )}
 
