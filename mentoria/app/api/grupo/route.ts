@@ -13,7 +13,14 @@ const PERFIS: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
-  let corpo: CorpoContato & { site?: string; perfil?: string };
+  let corpo: CorpoContato & {
+    site?: string;
+    perfil?: string;
+    crm?: string;
+    uf?: string;
+    faculdade?: string;
+    declaro?: boolean;
+  };
   try {
     corpo = await request.json();
   } catch {
@@ -39,7 +46,29 @@ export async function POST(request: Request) {
   // perder alguém na porta do grupo é pior que perder a notificação. Sem o
   // link, o aviso é o único jeito de o Miguel mandar o convite depois, então
   // falhar aqui precisa aparecer para a pessoa.
-  const guardado = await notificarInscricaoGrupo({ ...contato, perfil });
+  // Médico confirma com CRM e UF; estudante, com a faculdade. Os dois
+  // declaram que é verdade. O CRM não é consultado no CFM: fica registrado
+  // para o Miguel conferir quando quiser.
+  let registro: string;
+  if (corpo.perfil === "medico") {
+    const crm = String(corpo.crm ?? "").replace(/\D/g, "").slice(0, 8);
+    const uf = String(corpo.uf ?? "").toUpperCase();
+    if (crm.length < 3 || !/^[A-Z]{2}$/.test(uf)) {
+      return Response.json({ ok: false, mensagem: "Informe o número do seu CRM e o estado." }, { status: 400 });
+    }
+    registro = `CRM-${uf} ${crm}`;
+  } else {
+    const faculdade = String(corpo.faculdade ?? "").trim().slice(0, 120);
+    if (faculdade.length < 3) {
+      return Response.json({ ok: false, mensagem: "Informe a sua faculdade de Medicina." }, { status: 400 });
+    }
+    registro = faculdade;
+  }
+  if (corpo.declaro !== true) {
+    return Response.json({ ok: false, mensagem: "Confirme a declaração para entrar no grupo." }, { status: 400 });
+  }
+
+  const guardado = await notificarInscricaoGrupo({ ...contato, perfil, registro });
   if (!guardado && !LINK_GRUPO_CASOS) {
     return Response.json(
       { ok: false, mensagem: "Não conseguimos registrar sua inscrição agora. Tente de novo em instantes." },

@@ -162,18 +162,21 @@ async function enviar(texto: string, dados: object): Promise<boolean> {
   return resultados.some((r) => r.status === "fulfilled");
 }
 
-export function mensagemGrupo(c: Contato & { perfil: string }): string {
+export function mensagemGrupo(c: Contato & { perfil: string; registro: string }): string {
   return [
     "*Nova inscrição — Grupo Dose Diária*",
     "",
     `Nome: ${c.nome}`,
     `Perfil: ${c.perfil}`,
+    `${c.perfil.startsWith("Médico") ? "CRM" : "Faculdade"}: ${c.registro}`,
     `E-mail: ${c.email}`,
     `WhatsApp: ${linkWhatsApp(c.telefone)}`,
   ].join("\n");
 }
 
-export function notificarInscricaoGrupo(contato: Contato & { perfil: string }): Promise<boolean> {
+export function notificarInscricaoGrupo(
+  contato: Contato & { perfil: string; registro: string },
+): Promise<boolean> {
   return enviar(mensagemGrupo(contato), { tipo: "grupo", ...contato });
 }
 
