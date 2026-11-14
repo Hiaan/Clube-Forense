@@ -139,6 +139,9 @@ export function montarMensagem(a: Agendamento): string {
  * formulário poder ser testado sem credenciais.
  */
 async function enviar(texto: string, dados: object): Promise<boolean> {
+  // Registro provisório de cada envio no log da Vercel, até a planilha estar
+  // ligada: sem ele, um contato que nenhum canal entregou se perde.
+  console.info(`[inscricao] ${JSON.stringify({ ...dados, recebidoEm: new Date().toISOString() })}`);
   const lista = canais(texto, dados);
 
   if (lista.length === 0) {
