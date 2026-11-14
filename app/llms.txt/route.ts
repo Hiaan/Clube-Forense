@@ -34,9 +34,10 @@ import { NIVEL_LABEL } from "../monitor/lib/tipos";
 import { EDITAL_AC } from "../preparatorio-ac/edital";
 import { PRECO_BLACK, PRECO_CHEIO } from "../preparatorio/oferta";
 
-// Uma hora de cache: o texto muda quando o preço, o monitor ou o blog mudam,
-// e nenhum deles muda de minuto em minuto.
-export const revalidate = 3600;
+// Montado a cada pedido, e não no build: no build não há banco, e o texto
+// saía sem as matérias do blog. O cache fica na borda (Cache-Control abaixo),
+// uma hora — preço, monitor e blog não mudam de minuto em minuto.
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const SITE = baseDoSite();
@@ -137,6 +138,9 @@ export async function GET() {
   );
 
   return new Response(l.join("\n"), {
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+    },
   });
 }
