@@ -12,6 +12,12 @@ import type { Pergunta } from "../black/faq";
 import type { Materia } from "../black/plataforma/aulas";
 
 export interface ConcursoPreparatorio {
+  /** Nome do estado ("Acre"), para a mensagem do WhatsApp. */
+  estado: string;
+  /** "do Tocantins", "da Bahia", "de Minas Gerais". */
+  doEstado?: string;
+  /** Distintivo do órgão, ao fundo da capa, quando há imagem dele. */
+  brasao?: string;
   /** Caminho da página, sem barra ("preparatorio-ac"). */
   slug: string;
   /** "PC-AC". */

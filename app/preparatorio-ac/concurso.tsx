@@ -1,11 +1,15 @@
 // O preparatório da PC-AC, como dado para a PaginaPreparatorio.
 
 import type { ConcursoPreparatorio } from "../preparatorio/concurso";
+import { brasaoDoEstado } from "../preparatorio/estados";
 import { EDITAL_AC } from "./edital";
 import { MATERIAS_AC } from "./materias";
 import SecaoEditalAC from "./SecaoEditalAC";
 
 export const CONCURSO_AC: ConcursoPreparatorio = {
+  estado: "Acre",
+  doEstado: "do Acre",
+  brasao: brasaoDoEstado("AC"),
   slug: "preparatorio-ac",
   sigla: EDITAL_AC.sigla,
   orgao: EDITAL_AC.orgao,
@@ -19,7 +23,7 @@ export const CONCURSO_AC: ConcursoPreparatorio = {
     "Mapas mentais exclusivos (resumos ilustrados)",
     "Banco de questões de concursos anteriores",
     "Suporte dedicado ao aluno",
-    "Grupo com professores e alunos para tirar dúvidas e compartilhar conhecimento",
+    "Grupo com professores e alunos para tirar dúvidas",
     "…e muito mais!",
   ],
   prova: { inicio: EDITAL_AC.inicioProva },

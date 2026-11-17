@@ -21,7 +21,11 @@ import type { PostResumido } from "../lib/postsRepo";
 import { APROVADOS } from "../monitor/lib/aprovados";
 import { NIVEL_LABEL, type EstadoStatus, type Nivel } from "../monitor/lib/tipos";
 import type { ConcursoPreparatorio } from "./concurso";
-import { caminhoPreparatorio, type EstadoPreparatorio } from "./estados";
+import {
+  brasaoDoEstado,
+  caminhoPreparatorio,
+  type EstadoPreparatorio,
+} from "./estados";
 
 const ANDANDO: Nivel[] = ["banca", "comissao", "autorizado", "solicitado", "estudo"];
 
@@ -288,6 +292,9 @@ export function concursoDoEstado(
           };
 
   return {
+    estado: nomeUf,
+    doEstado: deEstado,
+    brasao: brasaoDoEstado(e.uf),
     slug: caminhoPreparatorio(e.uf).slice(1),
     sigla: curto,
     orgao: e.orgao,
@@ -302,7 +309,7 @@ export function concursoDoEstado(
       "Mapas mentais exclusivos (resumos ilustrados)",
       "Banco de questões de concursos anteriores",
       "Suporte dedicado ao aluno",
-      "Grupo com professores e alunos para tirar dúvidas e compartilhar conhecimento",
+      "Grupo com professores e alunos para tirar dúvidas",
       "…e muito mais!",
     ],
     ficha: {

@@ -204,6 +204,7 @@ export default async function PaginaPreparatorio({
       {c ? (
         <HeroPreparatorio
           selo={c.selo}
+          brasao={c.brasao}
           capasAoFundo={false}
           titulo={
             <>
@@ -830,6 +831,11 @@ export default async function PaginaPreparatorio({
               : "Preparatório Aprova Legista"
         }
         sublinha={`${PARCELAS}x de ${reaisComCentavos(parcela)} · garantia de 7 dias`}
+        mensagemWhatsApp={
+          c
+            ? `Olá! Quero mais informações sobre o preparatório ${c.doEstado ?? `de ${c.estado}`}.`
+            : "Olá! Quero mais informações sobre o preparatório Aprova Legista."
+        }
       />
     </div>
   );

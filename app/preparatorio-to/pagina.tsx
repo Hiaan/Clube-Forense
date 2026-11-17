@@ -1,10 +1,14 @@
 // O preparatório da PC-TO, como dado para a PaginaPreparatorio.
 
 import type { ConcursoPreparatorio } from "../preparatorio/concurso";
+import { brasaoDoEstado } from "../preparatorio/estados";
 import { DADOS_TO } from "./dados";
 import SecaoConcursoTO from "./SecaoConcursoTO";
 
 export const CONCURSO_TO: ConcursoPreparatorio = {
+  estado: "Tocantins",
+  doEstado: "do Tocantins",
+  brasao: brasaoDoEstado("TO"),
   slug: "preparatorio-to",
   sigla: DADOS_TO.sigla,
   orgao: DADOS_TO.orgao,
@@ -18,7 +22,7 @@ export const CONCURSO_TO: ConcursoPreparatorio = {
     "Mapas mentais exclusivos (resumos ilustrados)",
     "Banco de questões de concursos anteriores",
     "Suporte dedicado ao aluno",
-    "Grupo com professores e alunos para tirar dúvidas e compartilhar conhecimento",
+    "Grupo com professores e alunos para tirar dúvidas",
     "…e muito mais!",
   ],
   ficha: {

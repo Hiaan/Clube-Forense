@@ -13,9 +13,12 @@ import BotaoWhatsApp from "../black/BotaoWhatsApp";
 export default function BarraCompra({
   linha,
   sublinha,
+  mensagemWhatsApp,
 }: {
   linha: string;
   sublinha: string;
+  /** A conversa já aberta dizendo de qual página a pessoa veio. */
+  mensagemWhatsApp?: string;
 }) {
   const [visivel, setVisivel] = useState(false);
 
@@ -32,7 +35,7 @@ export default function BarraCompra({
 
   return (
     <>
-      <BotaoWhatsApp elevado={visivel} />
+      <BotaoWhatsApp elevado={visivel} mensagem={mensagemWhatsApp} />
       <div
         className={`fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0b0b0d]/95 backdrop-blur transition-transform duration-300 ${
           visivel ? "translate-y-0" : "translate-y-full"

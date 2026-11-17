@@ -19,6 +19,7 @@ export default function HeroPreparatorio({
   rodape,
   aprovados,
   capasAoFundo = true,
+  brasao,
 }: {
   selo: string;
   titulo: React.ReactNode;
@@ -33,11 +34,26 @@ export default function HeroPreparatorio({
    * dizia o contrário.
    */
   capasAoFundo?: boolean;
+  /**
+   * O distintivo do órgão, grande e quase apagado no alto à direita: é o que
+   * faz a página de cada estado parecer dele, e não uma cópia com o nome
+   * trocado. Fica atrás de tudo e não recebe clique.
+   */
+  brasao?: string;
 }) {
   return (
     <div id="capa" className="relative overflow-hidden bg-[#0b0b0d]">
       {capasAoFundo && <FundoCapas veu="capa" />}
       <div className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#ffcd07]/10 blur-[130px]" />
+      {brasao && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={brasao}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute -right-16 top-6 w-[340px] select-none opacity-[0.08] sm:-right-10 sm:w-[420px] lg:right-[4%] lg:top-10 lg:w-[460px] lg:opacity-[0.1]"
+        />
+      )}
 
       <section className="relative mx-auto w-full max-w-5xl px-4 pb-20 pt-8 sm:pt-10">
         <Image
@@ -63,13 +79,10 @@ export default function HeroPreparatorio({
               {subtitulo}
             </p>
 
-            {/* Lista longa vai em duas colunas: numa só, ela empurrava o botão
-                e o preço para fora da primeira dobra. */}
-            <ul
-              className={`mx-auto mt-7 grid max-w-xl gap-2.5 text-left lg:mx-0 ${
-                itens.length > 4 ? "sm:grid-cols-2 sm:gap-x-5" : ""
-              }`}
-            >
+            {/* Uma coluna só. Em duas, os itens de tamanhos diferentes
+                deixavam buracos e o "…e muito mais!" sobrava sozinho embaixo
+                — a lista parecia torta. Uma coluna justa fica alinhada. */}
+            <ul className="mx-auto mt-6 grid max-w-xl gap-2 text-left lg:mx-0">
               {itens.map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#ffcd07] text-[10px] font-black text-gray-900">

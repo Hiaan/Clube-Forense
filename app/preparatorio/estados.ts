@@ -66,6 +66,21 @@ export const ESTADOS_PREPARATORIO: EstadoPreparatorio[] = [
   { uf: "TO", orgao: "Polícia Civil do Tocantins", doOrgao: "da Polícia Civil do Tocantins", sigla: "PC-TO", cargo: "Médico Legista", checkout: BLACK("Z0BB2EJ30A"), propria: true },
 ];
 
+/**
+ * Distintivos dos órgãos que já existem no site (os da faixa de editais da
+ * Black, em public/black/orgaos). Para um estado novo, basta o arquivo
+ * `UF.webp` lá e a sigla aqui.
+ */
+const BRASOES: Record<string, string> = {
+  AC: "AC", AM: "AM-v2", DF: "DF", ES: "ES", MA: "MA", MG: "MG",
+  MT: "MT", PA: "PA", PE: "PE-v2", RJ: "RJ", TO: "TO",
+};
+
+export function brasaoDoEstado(uf: string): string | undefined {
+  const arquivo = BRASOES[uf.toUpperCase()];
+  return arquivo ? `/black/orgaos/${arquivo}.webp` : undefined;
+}
+
 export function estadoPreparatorio(uf: string): EstadoPreparatorio | null {
   return ESTADOS_PREPARATORIO.find((e) => e.uf === uf.toUpperCase()) ?? null;
 }

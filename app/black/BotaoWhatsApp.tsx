@@ -9,10 +9,21 @@
 
 import { WHATSAPP } from "./oferta";
 
-export default function BotaoWhatsApp({ elevado }: { elevado: boolean }) {
+export default function BotaoWhatsApp({
+  elevado,
+  mensagem,
+}: {
+  elevado: boolean;
+  /** Mensagem pronta da conversa; sem ela, a da Black. */
+  mensagem?: string;
+}) {
   return (
     <a
-      href={WHATSAPP}
+      href={
+        mensagem
+          ? `https://wa.me/558594160607?text=${encodeURIComponent(mensagem)}`
+          : WHATSAPP
+      }
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar com o Clube Forense no WhatsApp"
