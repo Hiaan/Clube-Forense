@@ -1,7 +1,8 @@
 // A página de vendas do preparatório avulso (Aprova Legista).
 //
 // SERVE A DUAS PÁGINAS. /preparatorio vende o curso para qualquer concurso;
-// /preparatorio-ac vende o mesmo curso focado no edital da PC-AC (`acre`). O
+// /preparatorio-ac, /preparatorio-to… vendem o mesmo curso focado num concurso
+// (`concurso`, ver concurso.ts). O
 // que muda é o que se diz — capa, a ficha do edital no lugar da lista de
 // concursos, para quem é, o que entra na oferta —, não a estrutura nem o
 // preço, que é o mesmo produto e o mesmo checkout.
@@ -42,9 +43,7 @@ import { coletar } from "../monitor/lib/coletor";
 import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { type Nivel } from "../monitor/lib/tipos";
 import EventosDeVenda from "../components/EventosDeVenda";
-import { EDITAL_AC } from "../preparatorio-ac/edital";
-import { MATERIAS_AC } from "../preparatorio-ac/materias";
-import SecaoEditalAC from "../preparatorio-ac/SecaoEditalAC";
+import type { ConcursoPreparatorio } from "./concurso";
 import BarraCompra from "./BarraCompra";
 import HeroPreparatorio from "./HeroPreparatorio";
 import DadosEstruturados from "../components/DadosEstruturados";
@@ -135,23 +134,24 @@ function BotaoOferta({ texto = "Garanta a sua vaga" }: { texto?: string }) {
 
 export default async function PaginaPreparatorio({
   previa,
-  acre = false,
+  concurso,
 }: {
   /** ?versao=black|cheio, para ver a outra versão do preço. */
   previa?: string;
-  /** A página do Acre: o mesmo curso, focado no edital da PC-AC. */
-  acre?: boolean;
+  /** Página de um concurso só (Acre, Tocantins…): o mesmo curso, focado nele. */
+  concurso?: ConcursoPreparatorio;
 }) {
   const versao = versaoDaOferta(new Date(), previa);
   const black = versao === "black";
   const preco = black ? PRECO_BLACK : PRECO_CHEIO;
   const parcela = PARCELA[versao];
-  const campanha = acre
-    ? `Edital PC-AC publicado · perito médico-legista · prova em ${EDITAL_AC.dataProva}`
+  const c = concurso;
+  const campanha = c
+    ? c.faixa
     : `Black Forense · preparatório de ${reais(PRECO_CHEIO)} por ${reais(PRECO_BLACK)}`;
-  const comFaixa = black || acre;
+  const comFaixa = black || Boolean(c);
 
-  const relatorio = acre ? null : await coletar();
+  const relatorio = c ? null : await coletar();
   const concursos = EDITAIS_DA_BLACK.map((e) => {
     const estado = relatorio?.estados.find((x) => x.uf === e.uf) ?? null;
     return {
@@ -181,23 +181,16 @@ export default async function PaginaPreparatorio({
       <DadosEstruturados
         json={grafo(
           curso({
-            url: `https://mapa.clubeforense.com.br/${acre ? "preparatorio-ac" : "preparatorio"}`,
-            nome: acre
-              ? "Preparatório para Perito Médico-Legista da Polícia Civil do Acre (PC-AC) — Clube Forense"
+            url: `https://mapa.clubeforense.com.br/${c ? c.slug : "preparatorio"}`,
+            nome: c
+              ? c.schema.nome
               : "Preparatório Aprova Legista — concursos de médico legista — Clube Forense",
-            descricao: acre
-              ? `Preparatório para o concurso de perito médico-legista da PC-AC (edital de 2026, banca ${EDITAL_AC.banca}, prova em ${EDITAL_AC.dataProva}), com aulas de todos os assuntos do edital, Medicina Legal com professores que são médicos legistas, eBooks, mapas mentais e banco de questões.`
+            descricao: c
+              ? c.schema.descricao
               : "Preparatório para qualquer concurso de médico legista do Brasil, com professores que são médicos legistas: aulas, material pré-edital e atualização pós-edital, mais de 25 mil questões, eBooks e mapas mentais de Medicina Legal.",
             preco,
-            checkout: acre ? EDITAL_AC.checkout : CHECKOUT[versao],
-            assuntos: acre
-              ? [
-                  "Medicina Legal",
-                  "Concurso PC-AC",
-                  "Perito médico-legista",
-                  "Toxicologia forense",
-                ]
-              : undefined,
+            checkout: c ? c.checkout : CHECKOUT[versao],
+            assuntos: c?.schema.assuntos,
           }),
           ...professores(),
         )}
@@ -205,19 +198,20 @@ export default async function PaginaPreparatorio({
       {comFaixa && <Ticker texto={campanha} />}
 
       {/* ----------------------------------------------------------- capa */}
-      {acre ? (
+      {c ? (
         <HeroPreparatorio
-          selo={`Edital ${EDITAL_AC.sigla} publicado`}
+          selo={c.selo}
           capasAoFundo={false}
           titulo={
             <>
               Conquiste sua aprovação como{" "}
               <span className="text-[#ffcd07]">
-                Perito{" "}
-                <span className="whitespace-nowrap">Médico-Legista</span>
+                {c.cargo.split(" ").slice(0, -1).join(" ")}{" "}
+                <span className="whitespace-nowrap">
+                  {c.cargo.split(" ").at(-1)}
+                </span>
               </span>{" "}
-              da
-              Polícia Civil do Acre
+              da {c.orgao}
             </>
           }
           subtitulo={
@@ -229,15 +223,7 @@ export default async function PaginaPreparatorio({
               e impulsione seus estudos com o nosso preparatório.
             </>
           }
-          itens={[
-            "Aulas gravadas de todos os assuntos do edital",
-            "eBooks das matérias",
-            "Mapas mentais exclusivos (resumos ilustrados)",
-            "Banco de questões de concursos anteriores",
-            "Suporte dedicado ao aluno",
-            "Grupo com professores e alunos para tirar dúvidas e compartilhar conhecimento",
-            "…e muito mais!",
-          ]}
+          itens={c.itensCapa}
           rodape={
             <>
               {black && (
@@ -255,10 +241,12 @@ export default async function PaginaPreparatorio({
                   </span>
                 </p>
               )}
-              <p className="text-[13px] font-semibold text-white/45">
-                Faltam <Contador compacto ate={EDITAL_AC.inicioProva} /> para a
-                prova
-              </p>
+              {c.prova && (
+                <p className="text-[13px] font-semibold text-white/45">
+                  Faltam <Contador compacto ate={c.prova.inicio} /> para a
+                  prova
+                </p>
+              )}
             </>
           }
           aprovados={totalAprovados}
@@ -304,23 +292,19 @@ export default async function PaginaPreparatorio({
       {comFaixa && <Ticker texto={campanha} />}
 
       {/* ---------------------------------------------- concursos (claro) */}
-      {acre ? (
+      {c ? (
         <div className="bg-[#f8f9fb]">
           <Secao id="concursos" className="pt-16">
-            <Titulo claro nota="edital publicado em 06/11/2026">
-              O concurso da PC-AC para perito médico-legista
+            <Titulo claro nota={c.ficha.nota}>
+              {c.ficha.titulo}
             </Titulo>
             <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-gray-600">
-              O primeiro concurso com vagas de médico-legista no Acre desde
-              2015. Estes são os números do edital, e é com eles que o seu
-              estudo começa.
+              {c.ficha.texto}
             </p>
           </Secao>
-          <div className="pt-10">
-            <SecaoEditalAC />
-          </div>
+          <div className="pt-10">{c.ficha.conteudo}</div>
           <Secao className="py-12 text-center">
-            <BotaoOferta texto="Quero me preparar para a PC-AC" />
+            <BotaoOferta texto={c.ficha.botao} />
           </Secao>
         </div>
       ) : (
@@ -435,13 +419,8 @@ export default async function PaginaPreparatorio({
         <Secao className="py-16">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl">
-              {acre ? (
-                <>
-                  O edital saiu: são poucas semanas até a prova.{" "}
-                  <span className="text-[#ffcd07]">
-                    Cada uma delas conta
-                  </span>
-                </>
+              {c ? (
+                c.urgencia.titulo
               ) : (
                 <>
                   Não deixe para estudar de última hora e{" "}
@@ -451,14 +430,14 @@ export default async function PaginaPreparatorio({
                 </>
               )}
             </h2>
-            {acre && (
+            {c?.prova && (
               <div className="mt-8 flex justify-center">
-                <Contador ate={EDITAL_AC.inicioProva} />
+                <Contador ate={c.prova.inicio} />
               </div>
             )}
             <p className="mt-5 text-base leading-relaxed text-white/65">
-              {acre
-                ? "Com 75% da objetiva em conhecimentos específicos, quem chega à prova dominando medicina legal sai na frente. Em vez de juntar material de vários lugares, você estuda numa sequência só, já organizada pelo que o edital da PC-AC cobra."
+              {c
+                ? c.urgencia.texto
                 : "Mesmo sem a publicação do edital, você pode estudar os principais assuntos que caem nos concursos, com base no conteúdo dos editais anteriores — para não ser pego de surpresa e estar preparado para qualquer prova."}
             </p>
             <p className="mt-4 text-base leading-relaxed text-white/65">
@@ -479,14 +458,8 @@ export default async function PaginaPreparatorio({
             Para médicos e estudantes de medicina que…
           </Titulo>
           <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-2">
-            {(acre
-              ? [
-                  "Vão prestar o concurso da PC-AC para perito médico-legista",
-                  "Desejam estudar com professores que já são médicos legistas, com uma metodologia validada",
-                  "Querem otimizar o tempo até a prova com um estudo direcionado ao edital",
-                  "Desejam estabilidade, salário de R$ 14,6 mil e a carreira policial",
-                  "Querem continuar preparados para os próximos concursos de legista do país",
-                ]
+            {(c
+              ? c.paraQuem
               : [
                   "Desejam estabilidade, altos salários e plano de carreira",
                   "Desejam estudar com professores que já são médicos legistas, com uma metodologia validada",
@@ -511,7 +484,7 @@ export default async function PaginaPreparatorio({
 
       {/* ----------------------------------------------- plataforma (claro) */}
       <div className="border-t border-gray-100">
-        <SecaoPlataforma materias={acre ? MATERIAS_AC : undefined} />
+        <SecaoPlataforma materias={c?.materias} />
       </div>
 
       <div className="bg-[#f8f9fb]">
@@ -582,25 +555,23 @@ export default async function PaginaPreparatorio({
       <div className="bg-[#0b0b0d]">
         <Secao id="oferta" className="py-16">
           <Titulo
-            nota={acre ? "preparatório PC-AC · perito médico-legista" : "Aprova Legista · preparatório"}
+            nota={c ? c.oferta.quadro : "Aprova Legista · preparatório"}
           >
             {black
               ? "Preço de Black Friday, por tempo limitado"
               : "Garanta a sua vaga"}
           </Titulo>
           <p className="mx-auto mt-4 max-w-xl text-center text-base text-white/55">
-            {acre
-              ? "Tudo o que você leva para estudar para a PC-AC:"
+            {c
+              ? c.oferta.subtitulo
               : "Escolha seu edital só quando ele sair e, até lá, estude com:"}
           </p>
 
           <div className="mx-auto mt-10 max-w-xl overflow-hidden rounded-3xl border border-[#ffcd07]/30 bg-white/[0.03]">
             <ul className="grid gap-2.5 p-6 sm:p-8">
               {[
-                acre
-                  ? "Aulas gravadas de todos os assuntos do edital"
-                  : "Acesso ao nosso material pré-edital",
-                ...(acre
+                c ? c.oferta.primeiroItem : "Acesso ao nosso material pré-edital",
+                ...(c
                   ? []
                   : ["Atualização gratuita pós-edital do concurso da sua escolha"]),
                 "Acesso ao grupo de alunos e professores (médicos legistas)",
@@ -658,7 +629,7 @@ export default async function PaginaPreparatorio({
                 </p>
               )}
               <a
-                href={acre ? EDITAL_AC.checkout : CHECKOUT[versao]}
+                href={c ? c.checkout : CHECKOUT[versao]}
                 data-valor={preco}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -690,7 +661,7 @@ export default async function PaginaPreparatorio({
             </div>
             <div className="rounded-2xl border border-[#ffcd07]/25 bg-[#ffcd07]/[0.06] p-6">
               <p className="text-sm font-black uppercase tracking-wide text-[#ffcd07]">
-                {acre
+                {c
                   ? "Quer acompanhamento até a prova?"
                   : "O edital do seu concurso abriu depois da compra?"}
               </p>
@@ -797,7 +768,7 @@ export default async function PaginaPreparatorio({
 
       <EventosDeVenda
         produto={
-          (acre ? "Preparatório PC-AC" : "Preparatório Aprova Legista") +
+          (c ? c.produto : "Preparatório Aprova Legista") +
           (black ? " — Black" : "")
         }
         valor={preco}
@@ -806,8 +777,8 @@ export default async function PaginaPreparatorio({
         linha={
           black
             ? `Black · ${reais(PRECO_BLACK)} à vista`
-            : acre
-              ? "Preparatório PC-AC · perito médico-legista"
+            : c
+              ? c.oferta.quadro
               : "Preparatório Aprova Legista"
         }
         sublinha={`${PARCELAS}x de ${reaisComCentavos(parcela)} · garantia de 7 dias`}

@@ -28,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${MAPA}/black`, changeFrequency: "daily", priority: 0.9 },
     { url: `${MAPA}/preparatorio`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${MAPA}/preparatorio-ac`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${MAPA}/preparatorio-to`, changeFrequency: "weekly", priority: 0.8 },
 
     // As categorias entram porque são poucas, fixas e cada uma tem um recorte
     // que se sustenta sozinho — diferente das combinações de filtro.

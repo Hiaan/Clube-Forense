@@ -104,7 +104,7 @@ export const EDITAIS_DA_BLACK: {
   { uf: "DF", sigla: "PCDF", orgao: "Polícia Civil do Distrito Federal" },
   { uf: "ES", sigla: "PCI-ES", orgao: "Polícia Científica do Espírito Santo" },
   { uf: "PA", sigla: "PC-PA", orgao: "Polícia Civil do Pará" },
-  { uf: "TO", sigla: "PC-TO", orgao: "Polícia Civil do Tocantins" },
+  { uf: "TO", sigla: "PC-TO", orgao: "Polícia Civil do Tocantins", banca: "Cebraspe" },
   { uf: "AC", sigla: "PC-AC", orgao: "Polícia Civil do Acre", banca: "Idecan" },
   { uf: "MG", sigla: "PC-MG", orgao: "Polícia Civil de Minas Gerais" },
   { uf: "AM", sigla: "PC-AM", orgao: "Polícia Civil do Amazonas" },
