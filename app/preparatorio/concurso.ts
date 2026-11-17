@@ -8,6 +8,7 @@
 
 import type { ReactNode } from "react";
 
+import type { Pergunta } from "../black/faq";
 import type { Materia } from "../black/plataforma/aulas";
 
 export interface ConcursoPreparatorio {
@@ -42,4 +43,6 @@ export interface ConcursoPreparatorio {
   /** Para os dados estruturados e o nome do produto nos eventos. */
   schema: { nome: string; descricao: string; assuntos: string[] };
   produto: string;
+  /** Perguntas deste concurso, antes das gerais do FAQ. */
+  faq?: Pergunta[];
 }

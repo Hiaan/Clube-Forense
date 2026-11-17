@@ -47,7 +47,8 @@ import type { ConcursoPreparatorio } from "./concurso";
 import BarraCompra from "./BarraCompra";
 import HeroPreparatorio from "./HeroPreparatorio";
 import DadosEstruturados from "../components/DadosEstruturados";
-import { curso, grafo, professores } from "../lib/schema";
+import { curso, grafo, perguntas, professores } from "../lib/schema";
+import { perguntasDoPreparatorio } from "./faq";
 import {
   CHECKOUT,
   PARCELA,
@@ -150,6 +151,7 @@ export default async function PaginaPreparatorio({
     ? c.faixa
     : `Black Forense · preparatório de ${reais(PRECO_CHEIO)} por ${reais(PRECO_BLACK)}`;
   const comFaixa = black || Boolean(c);
+  const faq = perguntasDoPreparatorio(c?.faq);
 
   const relatorio = c ? null : await coletar();
   const concursos = EDITAIS_DA_BLACK.map((e) => {
@@ -192,6 +194,7 @@ export default async function PaginaPreparatorio({
             checkout: c ? c.checkout : CHECKOUT[versao],
             assuntos: c?.schema.assuntos,
           }),
+          perguntas(faq),
           ...professores(),
         )}
       />
@@ -525,15 +528,17 @@ export default async function PaginaPreparatorio({
 
           <div className="mt-6 rounded-3xl bg-gray-900 p-6 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffcd07]">
-              bônus
+              material completo
             </p>
             <p className="mt-2 text-xl font-black text-white">
-              Tudo de medicina legal condensado em 9 eBooks completos
+              eBooks, PDFs e material de todas as matérias previstas para o
+              edital
             </p>
             <p className="mt-2 text-sm leading-relaxed text-white/60">
-              Para estudar de maneira objetiva e completa. Todo o conteúdo foi
-              criado e adaptado pelos nossos professores aprovados, com base nas
-              principais literaturas, como França, Hygino e Croce.
+              Para estudar de maneira objetiva e completa. O conteúdo de
+              medicina legal foi criado e adaptado pelos nossos professores
+              aprovados, com base nas principais literaturas, como França,
+              Hygino e Croce.
             </p>
           </div>
         </Secao>
@@ -570,16 +575,18 @@ export default async function PaginaPreparatorio({
           <div className="mx-auto mt-10 max-w-xl overflow-hidden rounded-3xl border border-[#ffcd07]/30 bg-white/[0.03]">
             <ul className="grid gap-2.5 p-6 sm:p-8">
               {[
-                c ? c.oferta.primeiroItem : "Acesso ao nosso material pré-edital",
-                ...(c
-                  ? []
-                  : ["Atualização gratuita pós-edital do concurso da sua escolha"]),
-                "Acesso ao grupo de alunos e professores (médicos legistas)",
-                "Banco de questões exclusivo, com mais de 25 mil questões",
-                "9 eBooks de Medicina Legal com tudo o que você precisa saber para a prova",
-                "Suporte pós-prova",
-                "Bônus: resumos ilustrados (mapas mentais) de Medicina Legal",
+                c?.oferta.primeiroItem ??
+                  "Material pré-edital completo, com base nas principais matérias do último concurso",
+                c
+                  ? "Pós-edital gratuito incluído"
+                  : "Pós-edital gratuito incluído, do concurso da sua escolha",
+                "Acesso ao grupo de professores (médicos legistas) e alunos",
+                "Banco de questões exclusivo, com mais de 25 mil questões e filtro por edital",
+                "eBooks, PDFs e material de todas as matérias previstas para o edital",
+                "Suporte pós-prova, com auxílio na criação de recursos",
+                "Bônus: resumos ilustrados (mapas mentais), minigames, questões impressas comentadas e muito mais",
                 "Garantia incondicional de 7 dias",
+                "Acesso garantido até um mês após a sua prova",
               ].map((t) => (
                 <li
                   key={t}
@@ -707,6 +714,42 @@ export default async function PaginaPreparatorio({
               </div>
             ))}
           </div>
+        </Secao>
+      </div>
+
+      {/* ------------------------------------------------------- faq (claro) */}
+      <div className="bg-white">
+        <Secao className="py-16">
+          <Titulo claro nota="dúvidas">
+            O que costumam perguntar
+          </Titulo>
+          <div className="mx-auto mt-10 max-w-3xl divide-y divide-gray-200 overflow-hidden rounded-2xl border border-gray-200">
+            {faq.map((f) => (
+              <details
+                key={f.p}
+                className="group bg-white px-6 py-5 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer items-center justify-between gap-4 text-base font-bold text-gray-900">
+                  {f.p}
+                  <span className="shrink-0 text-xl text-[#b38f00] transition group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                  {f.r}
+                </p>
+              </details>
+            ))}
+          </div>
+          <p className="mt-8 text-center text-sm text-gray-600">
+            Ficou outra dúvida?{" "}
+            <a
+              href={WHATSAPP}
+              className="font-bold text-gray-900 underline decoration-[#ffcd07] decoration-2 underline-offset-4"
+            >
+              Fale com a equipe no WhatsApp
+            </a>
+          </p>
         </Secao>
       </div>
 

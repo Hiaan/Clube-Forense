@@ -60,4 +60,10 @@ export const CONCURSO_AC: ConcursoPreparatorio = {
     assuntos: ["Medicina Legal", "Concurso PC-AC", "Perito médico-legista", "Toxicologia forense"],
   },
   produto: "Preparatório PC-AC",
+  faq: [
+    {
+      p: "Quando é a prova da PC-AC para perito médico-legista?",
+      r: `As provas objetiva e discursiva são em ${EDITAL_AC.dataProva}, à tarde (13h às 18h, horário do Acre). As inscrições vão de ${EDITAL_AC.inscricoes}, pelo site do Idecan, e o salário inicial é de R$ 14.629,25.`,
+    },
+  ],
 };

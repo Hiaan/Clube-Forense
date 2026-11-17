@@ -13,6 +13,8 @@
 
 import Link from "next/link";
 
+import Avatar from "../components/Avatar";
+
 import { reais } from "../black/oferta";
 import { estadoComArtigo } from "../blog/lib/taxonomia";
 import type { PostResumido } from "../lib/postsRepo";
@@ -35,6 +37,32 @@ const BASE = [
 
 const ANDANDO: Nivel[] = ["banca", "comissao", "autorizado", "solicitado", "estudo"];
 
+/**
+ * Os alunos do Clube aprovados no último concurso do estado, com foto.
+ *
+ * Só quando o registro é do concurso do PRÓPRIO estado: os aprovados que
+ * aprovados.ts guarda no DF são da Polícia Federal (`orgao`), e mostrá-los
+ * na página da PCDF seria vender o resultado de outro concurso.
+ */
+function aprovadosDoConcurso(uf: string) {
+  const a = APROVADOS[uf];
+  if (!a || a.orgao) return null;
+  // A colocação de cada um, como no mural da Black: uma por nome quando a
+  // lista bate, a mesma para todos quando há uma só, nenhuma no resto.
+  const pessoas = a.nomes
+    .map((nome, i) => ({
+      nome,
+      destaque:
+        a.destaques.length === a.nomes.length
+          ? a.destaques[i]
+          : a.destaques.length === 1
+            ? a.destaques[0]
+            : null,
+    }))
+    .filter((p) => !FORA_DO_MURAL.includes(p.nome));
+  return { total: a.total, destaques: a.destaques, pessoas };
+}
+
 function Ficha({
   e,
   estado,
@@ -46,8 +74,8 @@ function Ficha({
 }) {
   const ficha = estado?.curadoria ?? null;
   const hist = estado?.historico ?? null;
-  const aprovados = APROVADOS[e.uf];
-  const nomes = aprovados?.nomes.filter((n) => !FORA_DO_MURAL.includes(n)) ?? [];
+  const aprovados = aprovadosDoConcurso(e.uf);
+  const nomeUf = estado?.nome ?? e.uf;
 
   const numeros = [
     estado && { valor: NIVEL_LABEL[estado.nivel], rotulo: "etapa do concurso hoje" },
@@ -60,6 +88,48 @@ function Ficha({
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4">
+      {aprovados && (
+        <div className="card-white mb-6 p-6 sm:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b38f00]">
+                nossos alunos aprovados no último concurso
+              </p>
+              <p className="mt-2 text-3xl font-black tracking-tight text-gray-900">
+                {aprovados.total} aprovados {noEstado(e.uf, nomeUf)}
+              </p>
+            </div>
+            {aprovados.destaques.length > 0 && (
+              <p className="text-sm font-bold text-[#b38f00]">
+                {aprovados.destaques.join(" · ")}
+              </p>
+            )}
+          </div>
+          {aprovados.pessoas.length > 0 && (
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {aprovados.pessoas.map((p) => (
+                <div
+                  key={p.nome}
+                  className="rounded-2xl border border-gray-100 bg-[#f8f9fb] p-4 text-center"
+                >
+                  <div className="flex justify-center">
+                    <Avatar nome={p.nome} size={72} />
+                  </div>
+                  <p className="mt-3 text-sm font-bold leading-tight text-gray-900">
+                    {p.nome}
+                  </p>
+                  {p.destaque && (
+                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#b38f00]">
+                      {p.destaque}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {numeros.length > 0 && (
         <div
           className={`grid grid-cols-2 gap-3 ${numeros.length >= 4 ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}
@@ -104,33 +174,40 @@ function Ficha({
 
         <div className="card-white p-6">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b38f00]">
-            {aprovados ? "aprovados do Clube no estado" : "por que começar agora"}
+            notícias do concurso no blog
           </p>
-          {aprovados ? (
-            <>
-              <p className="mt-3 text-3xl font-black text-gray-900">
-                {aprovados.total} aprovados
-              </p>
-              {aprovados.destaques.length > 0 && (
-                <p className="mt-1 text-sm font-semibold text-[#b38f00]">
-                  {aprovados.destaques.join(" · ")}
-                </p>
-              )}
-              {nomes.length > 0 && (
-                <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                  Entre eles: {nomes.join(", ")}.
-                </p>
-              )}
-            </>
+          {posts.length > 0 ? (
+            <ul className="mt-3 divide-y divide-gray-100">
+              {posts.map((p) => (
+                <li key={p.slug} className="py-2.5">
+                  <Link
+                    href={`/blog/${p.slug}`}
+                    className="text-sm font-bold leading-snug text-gray-900 hover:underline"
+                  >
+                    {p.titulo}
+                  </Link>
+                  {p.publicadoEm && (
+                    <span className="mt-0.5 block text-xs text-gray-500">
+                      {new Date(p.publicadoEm).toLocaleDateString("pt-BR", {
+                        timeZone: "America/Sao_Paulo",
+                      })}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
           ) : (
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
-              Concurso de médico legista abre pouco, e quem é aprovado é quem
-              já vinha estudando quando o edital saiu. A medicina legal que cai
-              é a mesma em todo o país: estudar agora, com base nos últimos
-              concursos, é chegar ao edital com a maior parte da prova
-              específica já vista.
+              Ainda não publicamos notícia deste concurso. Quando sair qualquer
+              movimentação, ela aparece aqui e no blog.
             </p>
           )}
+          <Link
+            href={`/blog?uf=${e.uf}`}
+            className="mt-3 inline-block text-sm font-bold text-gray-900 underline decoration-[#ffcd07] decoration-2 underline-offset-4"
+          >
+            Ver todas as notícias {deEstadoDe(e.uf, nomeUf)} no blog
+          </Link>
         </div>
       </div>
 
@@ -148,28 +225,34 @@ function Ficha({
             </span>
           ))}
         </div>
-        {posts.length > 0 && (
-          <div className="mt-5 border-t border-gray-100 pt-4">
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-gray-500">
-              notícias do concurso no blog
-            </p>
-            <ul className="mt-2 space-y-1.5">
-              {posts.map((p) => (
-                <li key={p.slug}>
-                  <Link
-                    href={`/blog/${p.slug}`}
-                    className="text-sm font-semibold text-gray-900 underline decoration-[#ffcd07] decoration-2 underline-offset-4"
-                  >
-                    {p.titulo}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <p className="mt-4 text-sm leading-relaxed text-gray-600">
+          É a base de medicina legal que cai em todo concurso de médico
+          legista. Quem estuda agora chega ao edital com a maior parte da prova
+          específica já vista.
+        </p>
       </div>
     </div>
   );
+}
+
+/** "no Maranhão", "na Bahia", "em Minas Gerais". */
+function noEstado(uf: string, nomeUf: string): string {
+  const comArtigo = estadoComArtigo(uf) ?? nomeUf;
+  return comArtigo.startsWith("o ")
+    ? `no ${comArtigo.slice(2)}`
+    : comArtigo.startsWith("a ")
+      ? `na ${comArtigo.slice(2)}`
+      : `em ${comArtigo}`;
+}
+
+/** "do Maranhão", "da Bahia", "de Minas Gerais". */
+function deEstadoDe(uf: string, nomeUf: string): string {
+  const comArtigo = estadoComArtigo(uf) ?? nomeUf;
+  return comArtigo.startsWith("o ")
+    ? `do ${comArtigo.slice(2)}`
+    : comArtigo.startsWith("a ")
+      ? `da ${comArtigo.slice(2)}`
+      : `de ${comArtigo}`;
 }
 
 export function concursoDoEstado(
@@ -182,13 +265,13 @@ export function concursoDoEstado(
   const curto = e.sigla ?? nomeUf;
   const banca = estado?.curadoria?.banca;
   const salario = estado?.curadoria?.salarioInicial;
-  // "do Maranhão", "da Bahia", "de Minas Gerais".
-  const comArtigo = estadoComArtigo(e.uf) ?? nomeUf;
-  const deEstado = comArtigo.startsWith("o ")
-    ? `do ${comArtigo.slice(2)}`
-    : comArtigo.startsWith("a ")
-      ? `da ${comArtigo.slice(2)}`
-      : `de ${comArtigo}`;
+  const deEstado = deEstadoDe(e.uf, nomeUf);
+  // "da PCERJ" quando há sigla; sem ela, o órgão por extenso ("da Polícia
+  // Científica de Santa Catarina") — "da Santa Catarina" não existe.
+  const doCurto = e.sigla
+    ? `${e.doOrgao.startsWith("do ") ? "do" : "da"} ${e.sigla}`
+    : e.doOrgao;
+  const oCurto = doCurto.replace(/^d([ao]) /, "$1 ");
 
   const selo =
     nivel === "edital"
@@ -254,10 +337,10 @@ export function concursoDoEstado(
     ],
     ficha: {
       nota: `${NIVEL_LABEL[nivel].toLowerCase()} · ${nomeUf}`,
-      titulo: `O concurso ${e.doOrgao.startsWith("do ") ? "do" : "da"} ${curto} para ${e.cargo.toLowerCase()}`,
+      titulo: `O concurso ${doCurto} para ${e.cargo.toLowerCase()}`,
       texto: `Onde o concurso está hoje e o que já se sabe dele, pela mesma base que alimenta o nosso mapa dos concursos — e é com isso que o seu estudo começa.`,
       conteudo: <Ficha e={e} estado={estado} posts={posts} />,
-      botao: `Quero me preparar para ${e.doOrgao.startsWith("do ") ? "o" : "a"} ${curto}`,
+      botao: `Quero me preparar para ${oCurto}`,
     },
     urgencia,
     paraQuem: [
@@ -270,8 +353,9 @@ export function concursoDoEstado(
       "Querem continuar preparados para os próximos concursos de legista do país",
     ],
     oferta: {
-      subtitulo: `Tudo o que você leva para estudar para ${e.doOrgao.startsWith("do ") ? "o" : "a"} ${curto}:`,
-      primeiroItem: "Material pré-edital completo, com base nos últimos concursos",
+      subtitulo: `Tudo o que você leva para estudar para ${oCurto}:`,
+      primeiroItem:
+        "Material pré-edital completo, com base nas principais matérias do último concurso",
       quadro: `preparatório ${curto} · ${e.cargo.toLowerCase()}`,
     },
     schema: {
@@ -280,5 +364,25 @@ export function concursoDoEstado(
       assuntos: ["Medicina Legal", `Concurso ${curto}`, e.cargo, nomeUf],
     },
     produto: `Preparatório ${curto}`,
+    faq: [
+      {
+        p: `Quando sai o edital ${e.doOrgao} para ${e.cargo.toLowerCase()}?`,
+        r:
+          nivel === "edital"
+            ? `O edital já foi publicado. As datas e a situação de cada etapa estão no mapa dos concursos do Clube Forense (mapa.clubeforense.com.br/?uf=${e.uf}), atualizado de hora em hora.`
+            : `Ainda não saiu. Hoje o concurso está na etapa "${NIVEL_LABEL[nivel].toLowerCase()}"${banca ? `, com a banca ${banca}` : ""}. O monitor do Clube Forense confere notícias, diários oficiais e sites das bancas de hora em hora: acompanhe em mapa.clubeforense.com.br/?uf=${e.uf}.`,
+      },
+      ...(aprovadosDoConcurso(e.uf)
+        ? [
+            {
+              p: `O Clube Forense já aprovou alunos ${noEstado(e.uf, nomeUf)}?`,
+              r: (() => {
+                const a = aprovadosDoConcurso(e.uf)!;
+                return `Sim: ${a.total} alunos do Clube foram aprovados no último concurso${a.destaques.length ? ` (${a.destaques.join(", ")})` : ""}${a.pessoas.length ? `, entre eles ${a.pessoas.map((x) => x.nome).join(", ")}` : ""}.`;
+              })(),
+            },
+          ]
+        : []),
+    ],
   };
 }

@@ -48,7 +48,8 @@ export const CONCURSO_TO: ConcursoPreparatorio = {
   ],
   oferta: {
     subtitulo: "Tudo o que você leva para estudar para a PC-TO:",
-    primeiroItem: "Material pré-edital com base nos últimos concursos",
+    primeiroItem:
+      "Material pré-edital completo, com base nas principais matérias do último concurso",
     quadro: "preparatório PC-TO · médico legista",
   },
   schema: {
@@ -57,4 +58,10 @@ export const CONCURSO_TO: ConcursoPreparatorio = {
     assuntos: ["Medicina Legal", "Concurso PC-TO", "Médico legista", "Cebraspe"],
   },
   produto: "Preparatório PC-TO",
+  faq: [
+    {
+      p: "O edital da PC-TO para médico legista já saiu?",
+      r: `Ainda não. A ${DADOS_TO.banca} foi contratada como banca (noticiado em ${DADOS_TO.bancaDefinidaEm}), e o edital é o próximo passo. O subsídio inicial do perito oficial, carreira do médico legista no Tocantins, é de R$ 15.763,91.`,
+    },
+  ],
 };
