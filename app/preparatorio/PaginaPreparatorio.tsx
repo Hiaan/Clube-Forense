@@ -211,7 +211,7 @@ export default async function PaginaPreparatorio({
                   {c.cargo.split(" ").at(-1)}
                 </span>
               </span>{" "}
-              da {c.orgao}
+              {c.doOrgao ?? `da ${c.orgao}`}
             </>
           }
           subtitulo={

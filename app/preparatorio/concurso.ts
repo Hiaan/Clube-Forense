@@ -17,6 +17,8 @@ export interface ConcursoPreparatorio {
   sigla: string;
   /** "Polícia Civil do Acre". */
   orgao: string;
+  /** Artigo + órgão, quando "da {orgao}" não serve ("do ITEP do RN"). */
+  doOrgao?: string;
   /** Nome do cargo no título da capa ("Perito Médico-Legista"). */
   cargo: string;
   /** Checkout próprio do preparatório deste concurso, já com cupom. */

@@ -33,6 +33,10 @@ import { ESTADO_POR_UF } from "../monitor/lib/estados";
 import { NIVEL_LABEL } from "../monitor/lib/tipos";
 import { EDITAL_AC } from "../preparatorio-ac/edital";
 import { DADOS_TO } from "../preparatorio-to/dados";
+import {
+  ESTADOS_PREPARATORIO,
+  caminhoPreparatorio,
+} from "../preparatorio/estados";
 import { PRECO_BLACK, PRECO_CHEIO } from "../preparatorio/oferta";
 
 // Montado a cada pedido, e não no build: no build não há banco, e o texto
@@ -99,6 +103,15 @@ export async function GET() {
     `- Preparatório Aprova Legista (qualquer concurso de médico legista): ${reais(PRECO_CHEIO)}, ${reais(PRECO_BLACK)} na Black Friday. ${SITE}/preparatorio`,
     `- Preparatório PC-AC (perito médico-legista da Polícia Civil do Acre): edital publicado em 06/11/2026, banca ${EDITAL_AC.banca}, salário inicial de ${reaisComCentavos(EDITAL_AC.salario)}, prova em ${EDITAL_AC.dataProva}. ${SITE}/preparatorio-ac`,
     `- Preparatório PC-TO (médico legista da Polícia Civil do Tocantins): banca ${DADOS_TO.banca} definida em ${DADOS_TO.bancaDefinidaEm}, edital em breve, subsídio inicial do perito oficial de ${reaisComCentavos(DADOS_TO.subsidio)}. ${SITE}/preparatorio-to`,
+    "",
+    "### Preparatório por estado",
+    "",
+    `Cada estado tem o seu preparatório pré-edital (de ${reais(PRECO_CHEIO)} por ${reais(PRECO_BLACK)} na Black Friday), com a situação do concurso atualizada pelo monitor:`,
+    "",
+    ...ESTADOS_PREPARATORIO.map(
+      (e) =>
+        `- ${ESTADO_POR_UF[e.uf]?.nome ?? e.uf}: ${e.cargo} ${e.doOrgao} — ${SITE}${caminhoPreparatorio(e.uf)}`,
+    ),
     "",
     "## Perguntas frequentes",
     "",

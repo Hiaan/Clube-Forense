@@ -10,6 +10,10 @@ import type { MetadataRoute } from "next";
 import { listarSlugsPublicados } from "./lib/postsRepo";
 import { CATEGORIAS } from "./blog/lib/taxonomia";
 import { baseDoSite } from "./lib/site";
+import {
+  ESTADOS_PREPARATORIO,
+  caminhoPreparatorio,
+} from "./preparatorio/estados";
 
 
 const MAPA = "https://mapa.clubeforense.com.br";
@@ -27,8 +31,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BLOG}/blog`, changeFrequency: "daily", priority: 0.9 },
     { url: `${MAPA}/black`, changeFrequency: "daily", priority: 0.9 },
     { url: `${MAPA}/preparatorio`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${MAPA}/preparatorio-ac`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${MAPA}/preparatorio-to`, changeFrequency: "weekly", priority: 0.8 },
+    ...ESTADOS_PREPARATORIO.map((e) => ({
+      url: `${MAPA}${caminhoPreparatorio(e.uf)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
 
     // As categorias entram porque são poucas, fixas e cada uma tem um recorte
     // que se sustenta sozinho — diferente das combinações de filtro.
