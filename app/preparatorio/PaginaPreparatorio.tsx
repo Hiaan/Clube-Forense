@@ -470,7 +470,12 @@ export default async function PaginaPreparatorio({
                   "Desejam os benefícios exclusivos de um servidor público e da carreira policial",
                   "Querem estar preparados para qualquer concurso para médico legista que for publicado",
                 ]
-            ).map((t) => (
+            )
+              // O método vale para toda página: os números vêm de aprovados.ts.
+              .concat(
+                `Querem seguir um método já testado e aprovado por mais de ${Math.floor(totalAprovados / 10) * 10} médicos aprovados nos últimos ${Object.keys(APROVADOS).length} concursos`,
+              )
+              .map((t) => (
               <div
                 key={t}
                 className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-[#f8f9fb] px-5 py-4"
@@ -586,7 +591,7 @@ export default async function PaginaPreparatorio({
                 "Suporte pós-prova, com auxílio na criação de recursos",
                 "Bônus: resumos ilustrados (mapas mentais), minigames, questões impressas comentadas e muito mais",
                 "Garantia incondicional de 7 dias",
-                "Acesso garantido até um mês após a sua prova",
+                "Acesso garantido por 1 ano, ou até a sua prova, se ela for depois disso",
               ].map((t) => (
                 <li
                   key={t}

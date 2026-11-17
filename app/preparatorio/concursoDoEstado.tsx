@@ -23,18 +23,6 @@ import { NIVEL_LABEL, type EstadoStatus, type Nivel } from "../monitor/lib/tipos
 import type { ConcursoPreparatorio } from "./concurso";
 import { caminhoPreparatorio, type EstadoPreparatorio } from "./estados";
 
-/** A base de medicina legal que cai em todo concurso de médico legista. */
-const BASE = [
-  "Perícias, peritos e documentos médico-legais",
-  "Traumatologia forense",
-  "Asfixiologia",
-  "Tanatologia e cronotanatognose",
-  "Sexologia forense",
-  "Antropologia e identificação",
-  "Psicopatologia forense",
-  "Toxicologia forense",
-];
-
 const ANDANDO: Nivel[] = ["banca", "comissao", "autorizado", "solicitado", "estudo"];
 
 /**
@@ -213,26 +201,6 @@ function Ficha({
         </div>
       </div>
 
-      <div className="card-white mt-6 p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b38f00]">
-          o que estudar até o edital
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {BASE.map((c) => (
-            <span
-              key={c}
-              className="rounded-full border border-gray-200 bg-[#f8f9fb] px-3.5 py-1.5 text-sm font-semibold text-gray-800"
-            >
-              {c}
-            </span>
-          ))}
-        </div>
-        <p className="mt-4 text-sm leading-relaxed text-gray-600">
-          É a base de medicina legal que cai em todo concurso de médico
-          legista. Quem estuda agora chega ao edital com a maior parte da prova
-          específica já vista.
-        </p>
-      </div>
     </div>
   );
 }

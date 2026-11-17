@@ -24,7 +24,7 @@ export function perguntasDoPreparatorio(doConcurso: Pergunta[] = []): Pergunta[]
     },
     {
       p: "Até quando eu tenho acesso?",
-      r: "O acesso é garantido até um mês depois da sua prova.",
+      r: "O acesso é garantido por 1 ano. Se a sua prova for depois disso, ele vai até a data da prova.",
     },
     {
       p: "Quem são os professores?",

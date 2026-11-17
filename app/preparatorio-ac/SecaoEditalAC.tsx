@@ -28,21 +28,6 @@ const BLOCOS = [
   { nome: "Conhecimentos jurídicos", questoes: 16, pontos: 16, cor: "bg-gray-300" },
 ];
 
-const CAI = [
-  "Perícias, peritos e documentos médico-legais",
-  "Antropologia e identificação",
-  "Traumatologia: energias mecânica, química, física e biodinâmica",
-  "Asfixiologia",
-  "Tanatologia e cronotanatognose",
-  "Sexologia forense",
-  "Psicopatologia forense e imputabilidade",
-  "Infortunística",
-  "Exames em vivos e em cadáveres",
-  "Toxicologia forense",
-  "Patologia e exames laboratoriais",
-  "Lei nº 12.030/2009 e Código de Ética Médica",
-];
-
 export default function SecaoEditalAC() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4">
@@ -121,20 +106,7 @@ export default function SecaoEditalAC() {
       </div>
 
       <div className="card-white mt-6 p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b38f00]">
-          o que cai de medicina legal
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {CAI.map((c) => (
-            <span
-              key={c}
-              className="rounded-full border border-gray-200 bg-[#f8f9fb] px-3.5 py-1.5 text-sm font-semibold text-gray-800"
-            >
-              {c}
-            </span>
-          ))}
-        </div>
-        <p className="mt-4 text-sm leading-relaxed text-gray-600">
+        <p className="text-sm leading-relaxed text-gray-600">
           A medicina legal do edital é o centro do preparatório, com aulas,
           questões e mapas mentais feitos por médicos legistas.{" "}
           <Link
