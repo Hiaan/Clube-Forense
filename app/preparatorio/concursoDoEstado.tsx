@@ -18,7 +18,7 @@ import Avatar from "../components/Avatar";
 import { reais } from "../black/oferta";
 import { estadoComArtigo } from "../blog/lib/taxonomia";
 import type { PostResumido } from "../lib/postsRepo";
-import { APROVADOS, FORA_DO_MURAL } from "../monitor/lib/aprovados";
+import { APROVADOS } from "../monitor/lib/aprovados";
 import { NIVEL_LABEL, type EstadoStatus, type Nivel } from "../monitor/lib/tipos";
 import type { ConcursoPreparatorio } from "./concurso";
 import { caminhoPreparatorio, type EstadoPreparatorio } from "./estados";
@@ -58,8 +58,10 @@ function aprovadosDoConcurso(uf: string) {
           : a.destaques.length === 1
             ? a.destaques[0]
             : null,
-    }))
-    .filter((p) => !FORA_DO_MURAL.includes(p.nome));
+    }));
+  // Todos os nomes do mapa dos aprovados, com a colocação de cada um. O
+  // filtro FORA_DO_MURAL vale para o mural da Black e do preparatório geral;
+  // na página do estado, quem passou naquele concurso aparece.
   return { total: a.total, destaques: a.destaques, pessoas };
 }
 
