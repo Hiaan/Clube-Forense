@@ -583,16 +583,16 @@ export default async function PaginaPreparatorio({
               {[
                 c?.oferta.primeiroItem ??
                   "Material pré-edital completo, com base nas principais matérias do último concurso",
-                c
-                  ? "Pós-edital gratuito incluído"
-                  : "Pós-edital gratuito incluído, do concurso da sua escolha",
                 "Acesso ao grupo de professores (médicos legistas) e alunos",
                 "Banco de questões exclusivo, com mais de 25 mil questões e filtro por edital",
                 "eBooks, PDFs e material de todas as matérias previstas para o edital",
                 "Suporte pós-prova, com auxílio na criação de recursos",
                 "Bônus: resumos ilustrados (mapas mentais), minigames, questões impressas comentadas e muito mais",
-                "Garantia incondicional de 7 dias",
                 "Acesso garantido por 1 ano, ou até a sua prova, se ela for depois disso",
+                c
+                  ? "Pós-edital gratuito incluído"
+                  : "Pós-edital gratuito incluído, do concurso da sua escolha",
+                "Garantia incondicional de 7 dias",
               ].map((t) => (
                 <li
                   key={t}
@@ -776,6 +776,35 @@ export default async function PaginaPreparatorio({
           >
             Garantir minha vaga
           </a>
+        </Secao>
+      </div>
+
+      {/* ------------------------------------------------- teste grátis */}
+      {/* A ÚLTIMA COISA DA PÁGINA, DE PROPÓSITO. É a saída para quem chegou
+          ao fim sem comprar: discreta, para não competir com a oferta, mas
+          ali para quem ainda quer ver a plataforma antes de pagar. */}
+      <div className="border-t border-white/10 bg-[#0b0b0d]">
+        <Secao className="py-10">
+          <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-6 text-center sm:flex-row sm:text-left">
+            <div className="flex-1">
+              <p className="text-sm font-black uppercase tracking-[0.15em] text-[#ffcd07]">
+                Teste gratuitamente agora
+              </p>
+              <p className="mt-1.5 text-sm leading-relaxed text-white/60">
+                Crie sua conta em app.clubeforense.com.br e conheça a
+                metodologia que mais aprova médicos legistas nos últimos
+                concursos, antes de comprometer qualquer valor.
+              </p>
+            </div>
+            <a
+              href={PLATAFORMA}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-xl border border-white/25 px-5 py-2.5 text-sm font-bold text-white transition hover:border-[#ffcd07] hover:text-[#ffcd07]"
+            >
+              Criar conta grátis
+            </a>
+          </div>
         </Secao>
       </div>
 
