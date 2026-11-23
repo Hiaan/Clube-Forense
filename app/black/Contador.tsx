@@ -104,7 +104,7 @@ function Casa({ valor, rotulo }: { valor: number; rotulo: string }) {
       <span className="min-w-[2.6rem] rounded-lg bg-white/10 px-2 py-1.5 text-center font-mono text-xl font-black tabular-nums text-white sm:text-2xl">
         {String(valor).padStart(2, "0")}
       </span>
-      <span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-white/40">
+      <span className="mt-1 text-[11px] font-bold uppercase tracking-wider text-white/40">
         {rotulo}
       </span>
     </div>

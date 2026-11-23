@@ -68,13 +68,44 @@ function instalar() {
   window.fbq = fila;
   window._fbq ??= fila;
 
-  const tag = document.createElement("script");
-  tag.async = true;
-  tag.src = "https://connect.facebook.net/en_US/fbevents.js";
-  document.head.appendChild(tag);
-
   fila("init", PIXEL_ID);
+  agendarScript();
 }
+
+/**
+ * Carrega o fbevents.js depois que a página já apareceu.
+ *
+ * POR QUE ESPERAR. O script da Meta e a configuração que ele busca somam
+ * perto de 1 MB, e quase todo o público que compra está no celular, em rede
+ * móvel. Carregado junto com a página, ele disputava banda e processador com
+ * a capa e o botão de compra. A fila do fbq já existe desde o início, então
+ * nada se perde: PageView e os outros eventos esperam na fila e saem, na
+ * ordem, quando o script chega — no primeiro toque, rolagem ou tecla, ou
+ * quando o navegador fica ocioso (no máximo 3,5 s depois de carregar).
+ */
+function agendarScript() {
+  let feito = false;
+  const carregar = () => {
+    if (feito) return;
+    feito = true;
+    for (const ev of GATILHOS) window.removeEventListener(ev, carregar);
+    const tag = document.createElement("script");
+    tag.async = true;
+    tag.src = "https://connect.facebook.net/en_US/fbevents.js";
+    document.head.appendChild(tag);
+  };
+  for (const ev of GATILHOS) {
+    window.addEventListener(ev, carregar, { once: true, passive: true });
+  }
+  const ocioso = () =>
+    "requestIdleCallback" in window
+      ? window.requestIdleCallback(carregar, { timeout: 3500 })
+      : setTimeout(carregar, 2500);
+  if (document.readyState === "complete") ocioso();
+  else window.addEventListener("load", ocioso, { once: true });
+}
+
+const GATILHOS = ["pointerdown", "scroll", "keydown", "touchstart"] as const;
 
 /**
  * Dispara um evento padrão da Meta (ViewContent, InitiateCheckout, Contact…).

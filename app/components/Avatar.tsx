@@ -97,6 +97,8 @@ export default function Avatar({
       width={size}
       height={size}
       onError={() => setFalhou(true)}
+      loading="lazy"
+      decoding="async"
       className="shrink-0 rounded-full object-cover"
       style={{ width: size, height: size }}
     />

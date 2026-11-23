@@ -208,7 +208,7 @@ function Cartao({ d, aoAbrir }: { d: Depoimento; aoAbrir: () => void }) {
         <p className="text-sm font-black leading-tight text-gray-900">
           {d.nome}
         </p>
-        <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#b38f00]">
+        <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-[#b38f00]">
           {d.cargo}
         </p>
       </figcaption>

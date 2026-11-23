@@ -26,9 +26,27 @@ export default function SecaoPlataforma({
 } = {}) {
   const raiz = useRef<HTMLElement>(null);
 
+  // Só liga quando a seção está chegando na tela. A primeira aba toca o
+  // vídeo da aula (meio megabyte), e no celular isso saía junto com a capa,
+  // disputando a rede com o que a pessoa estava vendo — a seção fica no meio
+  // da página, e muita gente nem chega a ela.
   useEffect(() => {
-    if (!raiz.current) return;
-    return iniciarPlataforma(raiz.current, materias);
+    const alvo = raiz.current;
+    if (!alvo) return;
+    let desligar: (() => void) | null = null;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        obs.disconnect();
+        desligar = iniciarPlataforma(alvo, materias);
+      },
+      { rootMargin: "400px 0px" },
+    );
+    obs.observe(alvo);
+    return () => {
+      obs.disconnect();
+      desligar?.();
+    };
   }, [materias]);
 
   return (

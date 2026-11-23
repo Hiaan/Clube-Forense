@@ -403,7 +403,7 @@ export default async function PaginaPreparatorio({
                   {a.onde}
                 </p>
                 {a.destaque && (
-                  <p className="mt-1 text-[11px] text-gray-500">{a.destaque}</p>
+                  <p className="mt-1 text-xs text-gray-500">{a.destaque}</p>
                 )}
               </div>
             ))}

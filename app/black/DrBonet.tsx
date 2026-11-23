@@ -103,7 +103,7 @@ function Resposta({
       {/* A fonte ocupa o lugar desde o começo, só aparece no fim: surgir do
           nada somava uma linha à caixa e empurrava a página. */}
       <p
-        className={`mt-2.5 text-[11px] font-semibold text-[#ffcd07] transition-opacity ${
+        className={`mt-2.5 text-xs font-semibold text-[#ffcd07] transition-opacity ${
           terminou ? "opacity-100" : "opacity-0"
         }`}
       >
@@ -142,7 +142,7 @@ export default function DrBonet() {
             <span className="block text-sm font-bold text-white">
               Dr. Bonet
             </span>
-            <span className="block text-[11px] text-white/40">
+            <span className="block text-xs text-white/40">
               disponível a qualquer hora
             </span>
           </span>

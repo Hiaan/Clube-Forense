@@ -55,7 +55,7 @@ export default function HeroPreparatorio({
         />
       )}
 
-      <section className="relative mx-auto w-full max-w-5xl px-4 pb-20 pt-8 sm:pt-10">
+      <section className="relative mx-auto w-full max-w-5xl px-4 pb-12 pt-8 sm:pb-20 sm:pt-10">
         <Image
           src="/logo-fundo-escuro.png"
           alt="Clube Forense"
@@ -65,7 +65,7 @@ export default function HeroPreparatorio({
           className="mx-auto h-7 w-auto lg:mx-0"
         />
 
-        <div className="mt-10 grid items-center gap-14 lg:mt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
+        <div className="mt-8 grid items-center gap-8 sm:gap-14 lg:mt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
           <div className="text-center lg:text-left">
             <span className="badge-pulse inline-flex items-center gap-2 rounded-full border border-[#ffcd07]/30 bg-[#ffcd07]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[#ffcd07]">
               {selo}
@@ -106,7 +106,7 @@ export default function HeroPreparatorio({
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[520px] lg:max-w-[600px]">
+          <div className="relative mx-auto w-full max-w-[340px] sm:max-w-[520px] lg:max-w-[600px]">
             <Image
               src="/black/hero-professores.webp"
               alt="Dr. João Paulo, Dra. Erika Anjos e Dr. Miguel Souza com a plataforma do Clube Forense"

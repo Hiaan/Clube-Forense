@@ -192,9 +192,32 @@ export default async function PreparatorioEscolhaPage() {
         © {new Date().getFullYear()} Clube Forense · CNPJ 53.323.379/0001-37
       </footer>
 
+      {/* No celular o mapa e a lista ocupam a tela, e as ofertas ficavam lá
+          embaixo. A barra fixa deixa as duas à mão o tempo todo: o preço do
+          estado (escolhido no mapa) e o atalho para a Black. */}
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0b0b0d]/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-md items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-white/50">
+              Seu estado: <span className="text-white">{reais(PRECO_BLACK)}</span>
+            </p>
+            <p className="truncate text-sm font-bold text-white">
+              Todos os {EDITAIS_DA_BLACK.length} editais:{" "}
+              <span className="text-[#ffcd07]">{reais(black.avista)}</span>
+            </p>
+          </div>
+          <Link
+            href="/black"
+            className="shrink-0 rounded-xl bg-[#ffcd07] px-4 py-3 text-sm font-black uppercase text-gray-900"
+          >
+            Quero todos
+          </Link>
+        </div>
+      </div>
+
       <EventosDeVenda produto="Preparatórios — escolha do estado" valor={PRECO_BLACK} />
       <BotaoWhatsApp
-        elevado={false}
+        elevado
         mensagem="Olá! Quero ajuda para escolher o preparatório do meu concurso."
       />
     </div>

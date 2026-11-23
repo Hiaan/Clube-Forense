@@ -238,7 +238,7 @@ export default async function PaginaBlack({
         <FundoCapas veu="capa" />
         <div className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#ffcd07]/10 blur-[130px]" />
 
-        <Secao className="relative pb-20 pt-8 sm:pt-10">
+        <Secao className="relative pb-12 pt-8 sm:pb-20 sm:pt-10">
           <Image
             src="/logo-fundo-escuro.png"
             alt="Clube Forense"
@@ -248,7 +248,7 @@ export default async function PaginaBlack({
             className="mx-auto h-7 w-auto lg:mx-0"
           />
 
-          <div className="mt-10 grid items-center gap-14 lg:mt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
+          <div className="mt-8 grid items-center gap-8 sm:gap-14 lg:mt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
             <div className="text-center lg:text-left">
               <span className="badge-pulse inline-flex items-center gap-2 rounded-full border border-[#ffcd07]/30 bg-[#ffcd07]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[#ffcd07]">
                 {aluno ? "Exclusivo para alunos" : "Black Forense 2026"}
@@ -319,7 +319,7 @@ export default async function PaginaBlack({
             {/* Os três professores com a plataforma atrás. A base da foto já
                 vem esmaecida no próprio arquivo, para sumir no preto da capa
                 em vez de terminar num corte reto. */}
-            <div className="relative mx-auto w-full max-w-[520px] lg:max-w-[600px]">
+            <div className="relative mx-auto w-full max-w-[340px] sm:max-w-[520px] lg:max-w-[600px]">
               <Image
                 src="/black/hero-professores.webp"
                 alt="Dr. João Paulo, Dra. Erika Anjos e Dr. Miguel Souza com a plataforma do Clube Forense"
@@ -569,7 +569,7 @@ export default async function PaginaBlack({
                     />
                   </div>
                   <div className="p-3.5 sm:p-5">
-                    <p className="text-[10px] font-bold sm:text-[11px] uppercase tracking-wider text-[#b38f00]">
+                    <p className="text-[11px] font-bold sm:text-xs uppercase tracking-wider text-[#b38f00]">
                       {p.cargo}
                     </p>
                     <BioProfessor texto={p.texto} />
