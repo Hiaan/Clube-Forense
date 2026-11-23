@@ -21,7 +21,7 @@ export const INICIO_BLACK = "2026-10-27T00:00:00-03:00";
  * Quando a promoção acaba. `null` = segue até alguém mudar aqui.
  * O fim não foi definido ainda; quando for, basta escrever a data.
  */
-export const FIM_BLACK: string | null = null;
+export const FIM_BLACK: string | null = "2026-11-30T23:59:59-03:00";
 
 export const PARCELAS = 12;
 

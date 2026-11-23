@@ -106,6 +106,8 @@ export async function GET() {
     "",
     "### Preparatório por estado",
     "",
+    `Mapa para escolher o preparatório do seu concurso: ${SITE}/preparatorio-escolha`,
+    "",
     `Cada estado tem o seu preparatório pré-edital (de ${reais(PRECO_CHEIO)} por ${reais(PRECO_BLACK)} na Black Friday), com a situação do concurso atualizada pelo monitor:`,
     "",
     ...ESTADOS_PREPARATORIO.map(

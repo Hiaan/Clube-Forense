@@ -31,6 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BLOG}/blog`, changeFrequency: "daily", priority: 0.9 },
     { url: `${MAPA}/black`, changeFrequency: "daily", priority: 0.9 },
     { url: `${MAPA}/preparatorio`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${MAPA}/preparatorio-escolha`, changeFrequency: "daily", priority: 0.9 },
     ...ESTADOS_PREPARATORIO.map((e) => ({
       url: `${MAPA}${caminhoPreparatorio(e.uf)}`,
       changeFrequency: "weekly" as const,
