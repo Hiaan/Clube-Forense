@@ -24,4 +24,13 @@ export const LINK_GRUPO_CASOS = process.env.NEXT_PUBLIC_LINK_GRUPO_CASOS ?? "";
  * este número com uma mensagem pronta, com os dados do agendamento: assim a
  * conversa já começa com tudo o que ele precisa para confirmar.
  */
+/**
+ * Página de agendamento do Google Agenda para a reunião gratuita. O Miguel
+ * controla dias e horários livres por lá, e os horários ocupados na agenda
+ * dele somem sozinhos. `?gv=true` é o modo que o Google permite incorporar.
+ */
+export const AGENDA_GOOGLE =
+  process.env.NEXT_PUBLIC_AGENDA_GOOGLE ??
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KdXqkpIHyWxzKBVHIvH6UNnqvR6Q4J0jfxoewDJSJYUH-tuHSo7EkVouQtOgyMwDpey_4zXGe";
+
 export const WHATSAPP_MIGUEL = process.env.NEXT_PUBLIC_WHATSAPP_MIGUEL ?? "";

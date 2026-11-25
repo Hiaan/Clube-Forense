@@ -4,38 +4,21 @@
 //
 // Nome, e-mail e WhatsApp vêm primeiro e são enviados assim que a pessoa
 // avança (`/api/contato`): o contato fica guardado mesmo que ela desista nas
-// perguntas ou na agenda. O resto vai junto com o agendamento, no fim.
+// perguntas ou na agenda. As respostas das perguntas vão quando ela chega à
+// agenda (`/api/agendar`).
 //
-// Os dias vêm de `lib/agenda.ts`, o mesmo arquivo que a API usa para validar:
-// o que aparece aqui é exatamente o que vai ser aceito lá.
+// O dia e o horário são escolhidos na página de agendamento do Google Agenda
+// do Miguel, incorporada no último passo: ele controla a disponibilidade por
+// lá, e o Google manda a confirmação com o link do Meet.
 
-import { useMemo, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 
-import {
-  HORARIOS,
-  dataPorExtenso,
-  diasDisponiveis,
-  hojeNoFuso,
-  horarioCurto,
-  partesDaData,
-} from "../../lib/agenda";
-import { LINK_GRUPO_CASOS, WHATSAPP_MIGUEL } from "../../lib/site";
+import { AGENDA_GOOGLE, LINK_GRUPO_CASOS } from "../../lib/site";
 import { eventoPixel } from "./PixelMeta";
 
 type Passo = 1 | 2 | 3;
 
-type Estado =
-  | { fase: "editando"; erro?: string }
-  | { fase: "enviando" }
-  | { fase: "pronto"; resumo: string; primeiroNome: string; whatsapp: string };
-
-// "Hoje" só existe no navegador. No HTML gerado no build a data seria a do
-// dia da publicação, então o servidor entrega a agenda vazia e o navegador a
-// preenche com a data real — sem divergência de hidratação.
-const semAssinatura = () => () => {};
-function useHoje(): string | null {
-  return useSyncExternalStore(semAssinatura, () => hojeNoFuso(), () => null);
-}
+type Estado = { fase: "editando"; erro?: string } | { fase: "enviando" };
 
 function mascararTelefone(valor: string): string {
   const d = valor.replace(/\D/g, "").slice(0, 11);
@@ -84,12 +67,12 @@ const campo =
   "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-base text-osso outline-none transition placeholder:text-osso/30 focus:border-destaque focus:bg-white/[0.07]";
 const opcaoBase = "border transition";
 const opcaoAtiva = "border-destaque bg-destaque text-preto";
+
+/** O Google só deixa incorporar a página de agendamento com `gv=true`. */
+const AGENDA_INCORPORADA = `${AGENDA_GOOGLE}${AGENDA_GOOGLE.includes("?") ? "&" : "?"}gv=true`;
 const opcaoInativa = "border-white/10 bg-white/[0.03] hover:border-white/30";
 
 export default function Agendamento() {
-  const hoje = useHoje();
-  const dias = useMemo(() => (hoje ? diasDisponiveis(hoje) : []), [hoje]);
-
   const [passo, setPasso] = useState<Passo>(1);
   const [pergunta, setPergunta] = useState<Pergunta>("situacao");
   const [situacao, setSituacao] = useState("");
@@ -111,8 +94,6 @@ export default function Agendamento() {
     });
     if (nome === AINDA_NAO_SEI) setAbrirOutro(false);
   }
-  const [data, setData] = useState("");
-  const [horario, setHorario] = useState("");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -152,10 +133,12 @@ export default function Agendamento() {
     setPasso(2);
   }
 
-  async function confirmar() {
+  // Guarda as respostas e abre a agenda. Se o envio falhar, a pessoa segue
+  // mesmo assim: os dados de contato já foram salvos no primeiro passo, e
+  // perder a reunião por causa disso seria pior.
+  async function irParaAgenda() {
     setEstado({ fase: "enviando" });
-
-    const erro = await postar("/api/agendar", {
+    await postar("/api/agendar", {
       id: id.current,
       nome,
       email,
@@ -163,87 +146,16 @@ export default function Agendamento() {
       situacao,
       estuda,
       concurso: estuda === "sim" ? concurso : "",
-      data,
-      horario,
       site: robo.current,
     });
-    if (erro) {
-      setEstado({ fase: "editando", erro });
-      return;
-    }
-    eventoPixel("Schedule", { content_name: "Mentoria — reunião gratuita" });
-    const resumo = `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`;
-    const mensagem = [
-      `Olá, Dr. Miguel! Sou ${nome.trim()} e acabei de agendar a reunião gratuita da mentoria.`,
-      "",
-      `*Dia e horário:* ${resumo}`,
-      `*Situação:* ${SITUACOES.find((s) => s.valor === situacao)?.titulo ?? ""}`,
-      `*Já estuda para legista:* ${estuda === "sim" ? "Sim" : "Ainda não"}`,
-      ...(estuda === "sim" && concurso ? [`*Concurso de interesse:* ${concurso}`] : []),
-      `*E-mail:* ${email.trim()}`,
-    ].join("\n");
-    const whatsapp = WHATSAPP_MIGUEL
-      ? `https://wa.me/${WHATSAPP_MIGUEL}?text=${encodeURIComponent(mensagem)}`
-      : "";
-    setEstado({ fase: "pronto", primeiroNome: nome.trim().split(" ")[0], resumo, whatsapp });
-    if (whatsapp) setTimeout(() => window.location.assign(whatsapp), 1800);
-    // A confirmação é mais curta que o formulário: sem isto, no celular a
-    // pessoa fica olhando para o que vem depois sem ver que deu certo.
+    setEstado({ fase: "editando" });
+    eventoPixel("Schedule", { content_name: "Mentoria — abriu a agenda da reunião gratuita" });
+    setPasso(3);
     document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
   }
 
   const cartao =
     "relative min-w-0 rounded-3xl border border-white/10 bg-carvao/90 p-5 shadow-[0_40px_120px_-40px_rgba(95,211,154,0.35)] backdrop-blur sm:p-7";
-
-  if (estado.fase === "pronto") {
-    return (
-      <div className={`${cartao} animate-surgir`} role="status">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-destaque">Reunião agendada</p>
-        <h3 className="mt-3 text-3xl font-bold uppercase leading-none tracking-tight sm:text-4xl">
-          Tudo certo, {estado.primeiroNome}.
-        </h3>
-        {estado.whatsapp ? (
-          <>
-            <p className="mt-4 leading-relaxed text-osso/75">
-              Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. Agora é só enviar a
-              mensagem que preparei no meu WhatsApp, para eu confirmar e te mandar o link do Google Meet.
-            </p>
-            <a
-              href={estado.whatsapp}
-              className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-verde px-6 py-4 text-base font-bold uppercase text-preto transition hover:brightness-110"
-            >
-              Confirmar pelo WhatsApp <span aria-hidden className="text-2xl">→</span>
-            </a>
-          </>
-        ) : (
-          <p className="mt-4 leading-relaxed text-osso/75">
-            Sua reunião ficou para <strong className="text-osso">{estado.resumo}</strong>. Já recebi seu
-            agendamento e vou falar com você pelo WhatsApp para confirmar e enviar o link do Google Meet.
-          </p>
-        )}
-        <div className="mt-6 rounded-2xl border border-verde/30 bg-verde/10 p-5">
-          <p className="font-bold uppercase">Enquanto isso: Dose Diária</p>
-          <p className="mt-1 text-sm text-osso/70">
-            O grupo onde eu discuto um caso forense por dia.
-          </p>
-          {LINK_GRUPO_CASOS ? (
-            <a
-              href={LINK_GRUPO_CASOS}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-verde px-5 py-3 text-sm font-bold uppercase text-preto transition hover:brightness-110"
-            >
-              Entrar no grupo <span aria-hidden>→</span>
-            </a>
-          ) : (
-            <p className="mt-3 text-xs font-bold uppercase tracking-[0.14em] text-verde">
-              O convite chega junto com a confirmação.
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   const enviando = estado.fase === "enviando";
   const erro = estado.fase === "editando" ? estado.erro : undefined;
@@ -329,7 +241,7 @@ export default function Agendamento() {
                 onClick={() => {
                   setEstuda(op.valor);
                   if (op.valor === "sim") setPergunta("concurso");
-                  else setPasso(3);
+                  else irParaAgenda();
                 }}
                 className={`rounded-2xl p-4 text-left ${opcaoBase} ${
                   estuda === op.valor ? "border-destaque bg-destaque/10" : opcaoInativa
@@ -418,8 +330,8 @@ export default function Agendamento() {
             </button>
             <button
               type="button"
-              disabled={!concurso}
-              onClick={() => setPasso(3)}
+              disabled={!concurso || estado.fase === "enviando"}
+              onClick={irParaAgenda}
               className="rounded-full bg-destaque px-7 py-3.5 text-sm font-bold uppercase text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-30"
             >
               Continuar →
@@ -431,82 +343,38 @@ export default function Agendamento() {
       {passo === 3 && (
         <div className="animate-surgir">
           <h3 className="text-xl font-bold sm:text-2xl">Escolha o dia e o horário</h3>
-          <p className={`${rotulo} mt-5`}>Dia</p>
-          <div
-            className="-mx-5 mt-2 flex snap-x scroll-px-5 gap-2 overflow-x-auto px-5 pb-2 sm:-mx-7 sm:scroll-px-7 sm:px-7 [scrollbar-width:thin]"
-            role="radiogroup"
-            aria-label="Dia da reunião"
-          >
-            {dias.length === 0
-              ? Array.from({ length: 7 }, (_, i) => (
-                  <div key={i} className="h-[78px] w-[62px] shrink-0 animate-pulse rounded-xl bg-white/5" />
-                ))
-              : dias.map((d) => {
-                  const p = partesDaData(d.iso);
-                  const ativo = data === d.iso;
-                  return (
-                    <button
-                      key={d.iso}
-                      type="button"
-                      role="radio"
-                      aria-checked={ativo}
-                      aria-label={dataPorExtenso(d.iso)}
-                      onClick={() => setData(d.iso)}
-                      className={`flex h-[78px] w-[62px] shrink-0 snap-start flex-col items-center justify-center rounded-xl ${opcaoBase} ${
-                        ativo ? opcaoAtiva : opcaoInativa
-                      }`}
-                    >
-                      <span className={`text-[10px] font-bold uppercase ${ativo ? "" : "text-osso/50"}`}>{p.semana}</span>
-                      <span className="font-impacto text-[26px] leading-tight">{p.dia}</span>
-                      <span className={`text-[10px] font-bold uppercase ${ativo ? "" : "text-osso/50"}`}>{p.mes}</span>
-                    </button>
-                  );
-                })}
-          </div>
-
-          <p className={`${rotulo} mt-4`}>
-            Horário <span className="font-medium normal-case tracking-normal text-osso/35">(Brasília)</span>
+          <p className="mt-1 text-sm leading-relaxed text-osso/60">
+            Os horários abaixo são os que eu tenho livres. Depois de marcar, você recebe a confirmação por e-mail
+            com o link do Google Meet.
           </p>
-          <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6" role="radiogroup" aria-label="Horário da reunião">
-            {HORARIOS.map((h) => {
-              const ativo = horario === h;
-              return (
-                <button
-                  key={h}
-                  type="button"
-                  role="radio"
-                  aria-checked={ativo}
-                  onClick={() => setHorario(h)}
-                  className={`rounded-lg py-2.5 text-sm font-bold ${opcaoBase} ${ativo ? opcaoAtiva : opcaoInativa}`}
-                >
-                  {h}
-                </button>
-              );
-            })}
+          <div className="-mx-5 mt-5 overflow-hidden bg-white sm:-mx-7 sm:rounded-2xl">
+            <iframe
+              src={AGENDA_INCORPORADA}
+              title="Agenda da reunião gratuita"
+              className="block h-[720px] w-full border-0"
+              loading="lazy"
+            />
           </div>
-
-          {erro && (
-            <p role="alert" className="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-              {erro}
-            </p>
-          )}
-
-          <button
-            type="button"
-            disabled={!data || !horario || enviando}
-            onClick={confirmar}
-            className="group mt-6 flex w-full items-center justify-between gap-4 rounded-2xl bg-destaque px-6 py-4 text-left text-preto transition hover:bg-destaque-claro disabled:cursor-not-allowed disabled:opacity-40"
+          <a
+            href={AGENDA_GOOGLE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 block text-center text-sm font-bold text-destaque underline-offset-4 hover:underline"
           >
-            <span>
-              <span className="block text-base font-bold uppercase">
-                {enviando ? "Agendando…" : "Confirmar reunião gratuita"}
-              </span>
-              <span className="block text-sm font-semibold text-preto/65">
-                {data && horario ? `${dataPorExtenso(data)}, às ${horarioCurto(horario)}` : "Escolha o dia e o horário"}
-              </span>
-            </span>
-            <span aria-hidden className="text-2xl transition group-hover:translate-x-1">→</span>
-          </button>
+            A agenda não abriu? Toque aqui para abrir em outra aba
+          </a>
+          {LINK_GRUPO_CASOS && (
+            <div className="mt-6 rounded-2xl border border-verde/30 bg-verde/10 p-5">
+              <p className="font-bold uppercase">Enquanto isso: Dose Diária</p>
+              <p className="mt-1 text-sm text-osso/70">O grupo onde eu discuto um caso forense por dia.</p>
+              <a
+                href="/dose-diaria"
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-verde px-5 py-3 text-sm font-bold uppercase text-preto transition hover:brightness-110"
+              >
+                Conhecer o grupo <span aria-hidden>→</span>
+              </a>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setPasso(2)}

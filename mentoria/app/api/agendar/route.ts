@@ -63,8 +63,11 @@ export async function POST(request: Request) {
   if (!situacao) return erro("Conte se você já é médico(a) ou se está se formando.");
   if (!estuda) return erro("Conte se você já estuda para se tornar legista.");
   if (corpo.estuda === "sim" && !concurso) return erro("Escolha o concurso que te interessa.");
-  if (!dataValida(data)) return erro("Escolha um dia a partir de amanhã.");
-  if (!horarioValido(horario)) return erro("Escolha um horário.");
+  // Dia e horário agora são escolhidos na página de agendamento do Google.
+  // Se vierem do formulário antigo, continuam sendo validados.
+  const comHorario = Boolean(data || horario);
+  if (comHorario && !dataValida(data)) return erro("Escolha um dia a partir de amanhã.");
+  if (comHorario && !horarioValido(horario)) return erro("Escolha um horário.");
 
   const entregue = await notificarMiguel({
     ...contato,
@@ -73,13 +76,17 @@ export async function POST(request: Request) {
     concurso,
     data,
     horario,
-    dataLegivel: `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`,
+    dataLegivel: comHorario
+      ? `${dataPorExtenso(data)}, às ${horarioCurto(horario)}`
+      : "Escolhe o horário na agenda do Google",
   });
 
   // Com o WhatsApp do Miguel configurado, a própria pessoa manda os dados para
   // ele ao confirmar; o aviso automático passa a ser um extra, não o único
   // registro do agendamento.
-  if (!entregue && !WHATSAPP_MIGUEL) {
+  // O horário é marcado no Google Agenda, que já avisa o Miguel; estas
+  // respostas são um extra para ele chegar preparado à reunião.
+  if (!entregue && !WHATSAPP_MIGUEL && comHorario) {
     return erro(
       "Não conseguimos registrar seu agendamento agora. Tente de novo em instantes.",
       502,
