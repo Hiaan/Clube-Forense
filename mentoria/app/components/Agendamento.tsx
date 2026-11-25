@@ -13,7 +13,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 
-import { AGENDA_GOOGLE, LINK_GRUPO_CASOS } from "../../lib/site";
+import { AGENDA_GOOGLE, LINK_GRUPO_CASOS, WHATSAPP_MIGUEL } from "../../lib/site";
 import { eventoPixel } from "./PixelMeta";
 
 type Passo = 1 | 2 | 3;
@@ -153,6 +153,21 @@ export default function Agendamento() {
     setPasso(3);
     document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
   }
+
+  // Depois de marcar no Google, a pessoa avisa o Miguel pelo WhatsApp com as
+  // respostas do formulário já escritas; só falta ela dizer o dia e a hora.
+  const mensagemWhatsapp = [
+    `Olá, Dr. Miguel! Sou ${nome.trim()} e acabei de marcar a reunião gratuita da mentoria pela sua agenda.`,
+    "",
+    "*Dia e horário que marquei:* ",
+    `*Situação:* ${SITUACOES.find((op) => op.valor === situacao)?.titulo ?? ""}`,
+    `*Já estuda para legista:* ${estuda === "sim" ? "Sim" : "Ainda não"}`,
+    ...(estuda === "sim" && concurso ? [`*Concurso de interesse:* ${concurso}`] : []),
+    `*E-mail:* ${email.trim()}`,
+  ].join("\n");
+  const linkWhatsapp = WHATSAPP_MIGUEL
+    ? `https://wa.me/${WHATSAPP_MIGUEL}?text=${encodeURIComponent(mensagemWhatsapp)}`
+    : "";
 
   const cartao =
     "relative min-w-0 rounded-3xl border border-white/10 bg-carvao/90 p-5 shadow-[0_40px_120px_-40px_rgba(95,211,154,0.35)] backdrop-blur sm:p-7";
@@ -363,6 +378,22 @@ export default function Agendamento() {
           >
             A agenda não abriu? Toque aqui para abrir em outra aba
           </a>
+          {linkWhatsapp && (
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="font-bold uppercase">Já marcou? Me avise no WhatsApp</p>
+              <p className="mt-1 text-sm leading-relaxed text-osso/65">
+                A mensagem já vai com as suas respostas. É só completar o dia e o horário que você escolheu.
+              </p>
+              <a
+                href={linkWhatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center justify-between gap-4 rounded-2xl bg-verde px-6 py-4 text-sm font-bold uppercase text-preto transition hover:brightness-110"
+              >
+                Avisar pelo WhatsApp <span aria-hidden className="text-xl">→</span>
+              </a>
+            </div>
+          )}
           {LINK_GRUPO_CASOS && (
             <div className="mt-6 rounded-2xl border border-verde/30 bg-verde/10 p-5">
               <p className="font-bold uppercase">Enquanto isso: Dose Diária</p>
