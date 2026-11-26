@@ -1,8 +1,8 @@
 import { exigirAdmin } from "@/lib/painel/auth";
 import { hoje } from "@/lib/painel/dados";
-import { dinheiro, numero } from "@/lib/painel/formato";
-import { listarContasDeAnuncio, metaConfigurado, relatorioDaConta, type LinhaRelatorioMeta } from "@/lib/painel/meta";
+import { listarContasDeAnuncio, metaConfigurado, relatorioDaConta } from "@/lib/painel/meta";
 import BotaoImprimir from "../../_ui/BotaoImprimir";
+import Tabelas from "./Tabelas";
 
 // Relatório de uma conta de anúncio por mês, lido na hora da Meta (não precisa ser cliente do painel).
 
@@ -45,8 +45,6 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
   if (metaConfigurado()) contas = await listarContasDeAnuncio().catch((e) => ((erro = e instanceof Error ? e.message : String(e)), []));
   const escolhida = contas.find((c) => c.id === conta);
   const moeda = escolhida?.moeda ?? "BRL";
-  const din = (v: number) => dinheiro(v, moeda, "pt");
-  const cpl = (l: LinhaRelatorioMeta) => (l.leads ? din(l.gasto / l.leads) : "–");
 
   let porMes: { mes: string; inicio: string; fim: string; dados: Awaited<ReturnType<typeof relatorioDaConta>> }[] = [];
   let geral: Awaited<ReturnType<typeof relatorioDaConta>> | null = null;
@@ -106,90 +104,30 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
       {!metaConfigurado() && <p className="mt-4 text-white/55">Falta o token da Meta na Vercel.</p>}
 
       {porMes.length > 0 && (
-        <div className="mt-8 space-y-6">
-          <section className="painel-cartao overflow-x-auto p-5">
-            <h2 className="font-display text-xl font-extrabold">{escolhida?.nome ?? conta}: resumo por mês</h2>
-            <table className="painel-tabela mt-3 w-full min-w-[720px] text-left text-sm">
-              <thead>
-                <tr>
-                  <th>Mês</th>
-                  <th className="text-right">Investido</th>
-                  <th className="text-right">Alcance</th>
-                  <th className="text-right">Impressões</th>
-                  <th className="text-right">Leads</th>
-                  <th className="text-right">Custo por lead</th>
-                </tr>
-              </thead>
-              <tbody>
-                {porMes.map(({ mes, fim, dados: { total } }) => (
-                  <tr key={mes}>
-                    <td>
-                      {rotuloMes(mes)}
-                      {fim.slice(0, 7) === ref.slice(0, 7) && <span className="block text-xs text-white/45">até {fim.split("-").reverse().join("/")}</span>}
-                    </td>
-                    <td className="text-right">{din(total.gasto)}</td>
-                    <td className="text-right">{numero(total.alcance, "pt")}</td>
-                    <td className="text-right">{numero(total.impressoes, "pt")}</td>
-                    <td className="text-right">
-                      {numero(total.leads, "pt")}
-                      {total.conversas > 0 && total.cadastros > 0 && (
-                        <span className="block text-xs text-white/45">
-                          {numero(total.cadastros, "pt")} cadastros + {numero(total.conversas, "pt")} conversas
-                        </span>
-                      )}
-                    </td>
-                    <td className="text-right font-semibold">{cpl(total)}</td>
-                  </tr>
-                ))}
-                {geral && (
-                  <tr className="font-semibold">
-                    <td>Período todo</td>
-                    <td className="text-right">{din(geral.total.gasto)}</td>
-                    <td className="text-right">{numero(geral.total.alcance, "pt")}</td>
-                    <td className="text-right">{numero(geral.total.impressoes, "pt")}</td>
-                    <td className="text-right">{numero(geral.total.leads, "pt")}</td>
-                    <td className="text-right">{cpl(geral.total)}</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <p className="mt-3 text-xs text-white/45">
-              Alcance = pessoas diferentes que viram os anúncios; no período todo, quem viu em mais de um mês conta uma vez só. Leads = cadastros
-              (formulário e site) + conversas iniciadas no WhatsApp, Direct ou Messenger.
-            </p>
-          </section>
-
-          {porMes.map(({ mes, dados }) => (
-            <section key={mes} className="painel-cartao overflow-x-auto p-5">
-              <h2 className="font-display text-lg font-extrabold">Campanhas de {rotuloMes(mes).toLowerCase()}</h2>
-              {dados.campanhas.length ? (
-                <table className="painel-tabela mt-3 w-full min-w-[720px] text-left text-sm">
-                  <thead>
-                    <tr>
-                      <th>Campanha</th>
-                      <th className="text-right">Investido</th>
-                      <th className="text-right">Alcance</th>
-                      <th className="text-right">Leads</th>
-                      <th className="text-right">Custo por lead</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dados.campanhas.map((c) => (
-                      <tr key={c.campanha}>
-                        <td>{c.campanha}</td>
-                        <td className="text-right">{din(c.gasto)}</td>
-                        <td className="text-right">{numero(c.alcance, "pt")}</td>
-                        <td className="text-right">{numero(c.leads, "pt")}</td>
-                        <td className="text-right">{cpl(c)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="mt-2 text-sm text-white/55">Sem campanhas com investimento neste mês.</p>
-              )}
-            </section>
-          ))}
+        <div className="mt-8">
+          <Tabelas
+            moeda={moeda}
+            nota="Alcance = pessoas diferentes que viram os anúncios; no período todo, quem viu em mais de um mês conta uma vez só. Leads = cadastros (formulário e site) + conversas iniciadas no WhatsApp, Direct ou Messenger."
+            secoes={[
+              {
+                titulo: `${escolhida?.nome ?? conta}: resumo por mês`,
+                tipo: "resumo",
+                linhas: [
+                  ...porMes.map(({ mes, fim, dados: { total } }) => ({
+                    ...total,
+                    rotulo: rotuloMes(mes),
+                    detalhe: fim.slice(0, 7) === ref.slice(0, 7) ? `até ${fim.split("-").reverse().join("/")}` : undefined,
+                  })),
+                  ...(geral ? [{ ...geral.total, rotulo: "Período todo", destaque: true }] : []),
+                ],
+              },
+              ...porMes.map(({ mes, dados }) => ({
+                titulo: `Campanhas de ${rotuloMes(mes).toLowerCase()}`,
+                tipo: "campanhas" as const,
+                linhas: dados.campanhas.map((c) => ({ ...c, rotulo: c.campanha || "—" })),
+              })),
+            ]}
+          />
         </div>
       )}
     </>
