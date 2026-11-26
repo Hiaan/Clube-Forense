@@ -36,7 +36,7 @@ export default async function AlunoClubePage() {
         ofertaAluno={{
           rotulo: regra.rotulo,
           preco: regra.preco,
-          link: linkComCupom(regra.cupom),
+          link: linkComCupom(),
           lote: FAIXA_UNICA ? LOTE_ALUNO : undefined,
           avisoLote: viradaPendente()
             ? `Valor do ${VIRADA_ALUNO.sai} · muda ${VIRADA_ALUNO.quando}`

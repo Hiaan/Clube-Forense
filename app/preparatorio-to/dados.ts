@@ -25,6 +25,7 @@ export const DADOS_TO = {
     "Investigação social",
     "Curso de formação",
   ],
-  /** Checkout do preparatório da PC-TO, com o cupom BLACK (passado em 17/11/2026). */
-  checkout: "https://chk.eduzz.com/Z0BB2EJ30A?cupom=BLACK",
+  /** Checkout do preparatório do Tocantins na Appmax, com o cupom BLACK. */
+  checkout:
+    "https://clubeforense.carrinho.app/one-checkout/ocmsb/39358224?coupon=BLACK",
 } as const;

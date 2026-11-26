@@ -248,7 +248,7 @@ export default function CaixaDePreco({
         <p className="mt-3 text-xs text-white/40">
           {aluno
             ? "Use no pagamento o mesmo CPF que você informou aqui"
-            : `${mostrado.nome} · compra segura pela Eduzz`}{" "}
+            : `${mostrado.nome} · compra segura pela Appmax`}{" "}
           · cartão, Pix ou boleto
         </p>
       </div>

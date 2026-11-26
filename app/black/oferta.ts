@@ -51,9 +51,11 @@ export const LOTES: Lote[] = [
     nome: "Oferta de Black",
     avista: 6947,
     parcelas: 12,
-    valorParcela: 718.5,
+    // Appmax (26/11/2026): 12x de R$ 710,22.
+    valorParcela: 710.22,
     fecha: "2026-11-30T23:59:59-03:00",
-    checkout: "https://chk.eduzz.com/G96RYB5QW1?cupom=BLACK",
+    checkout:
+      "https://clubeforense.carrinho.app/one-checkout/ocmsb/39358554?coupon=BLACK",
   },
 ];
 

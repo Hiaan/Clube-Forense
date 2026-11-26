@@ -48,7 +48,8 @@ export default function EventosDeVenda({
       );
       if (!link) return;
       const href = link.href;
-      if (href.includes("eduzz.com")) {
+      // Appmax (carrinho.app) desde 26/11/2026; a Eduzz fica por segurança.
+      if (href.includes("carrinho.app") || href.includes("eduzz.com")) {
         const v = Number(link.dataset.valor);
         rastrear("InitiateCheckout", {
           content_name: produto,

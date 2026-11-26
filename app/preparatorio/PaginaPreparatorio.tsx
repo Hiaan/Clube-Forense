@@ -651,7 +651,7 @@ export default async function PaginaPreparatorio({
                 Conquiste sua aprovação
               </a>
               <p className="mt-4 text-xs text-white/40">
-                Pagamento seguro pela Eduzz · garantia incondicional de 7 dias
+                Pagamento seguro pela Appmax · garantia incondicional de 7 dias
               </p>
             </div>
           </div>

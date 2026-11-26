@@ -157,6 +157,7 @@ export default async function PaginaBlack({
     editais: EDITAIS_DA_BLACK.map((e) => e.sigla),
     totalAprovados,
     concursosComAprovado,
+    precoAluno: aluno ? ofertaAluno?.preco : undefined,
   });
 
   // Cada aprovado divulgado, com o estado dele — para o mural de rostos.

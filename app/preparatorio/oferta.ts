@@ -34,8 +34,9 @@ export const PARCELAS = 12;
  * mostrar; se for outro, é trocar aqui.
  */
 export const PARCELA: Record<"cheio" | "black", number> = {
-  cheio: 516.81,
-  black: 356.51,
+  // Appmax, 26/11/2026: os valores da planilha de links do Clube.
+  cheio: 510.86,
+  black: 352.4,
 };
 
 /**
@@ -46,8 +47,9 @@ export const PARCELA: Record<"cheio" | "black", number> = {
  * cobra antes de a Black acabar (FIM_BLACK).
  */
 export const CHECKOUT: Record<"cheio" | "black", string> = {
-  cheio: "https://sun.eduzz.com/2325387",
-  black: "https://chk.eduzz.com/2325387?cupom=BLACK",
+  cheio: "https://clubeforense.carrinho.app/one-checkout/ocmsb/39357454",
+  black:
+    "https://clubeforense.carrinho.app/one-checkout/ocmsb/39357454?coupon=BLACK",
 };
 
 export type Versao = "cheio" | "black";

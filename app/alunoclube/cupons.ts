@@ -97,9 +97,9 @@ export const REGRAS_CUPOM: RegraCupom[] = [
   },
   {
     rotulo: "aluno do Clube",
-    // 3º lote (11/11/2026): o mesmo cupom, que na Eduzz passou a dar R$ 4.947.
-    // No 2º lote ele dava R$ 3.947.
-    preco: 4947,
+    // Appmax (26/11/2026): "Todos os Editais (preço de ALUNO)" com o cupom
+    // BLACK sai por R$ 4.997 (12x R$ 510,86). Na Eduzz, o 3º lote era R$ 4.947.
+    preco: 4997,
     cupom: "EXLUSIV0ALUNO",
     // Produtos abaixo de R$ 500: 7 eBooks, Toxicologia Forense, Curso de
     // Criminalística e o Resumo de Traumatologia + Tanatologia.
@@ -113,8 +113,13 @@ export const REGRAS_CUPOM: RegraCupom[] = [
   },
 ];
 
-/** O checkout da Black (o mesmo da página pública); o cupom vai no fim. */
-export const CHECKOUT_ALUNO = "https://chk.eduzz.com/G96RYB5QW1";
+/**
+ * O checkout da Black de alunos: o kit "Todos os Editais (preço de ALUNO)"
+ * na Appmax, com o cupom BLACK. Os nomes de cupom de REGRAS_CUPOM continuam
+ * valendo dentro dos passes já emitidos, mas o link é um só.
+ */
+export const CHECKOUT_ALUNO =
+  "https://clubeforense.carrinho.app/one-checkout/ocmsb/39558197";
 
 /** "A partir de": o menor valor que um aluno pode pagar. */
 export const PRECO_ALUNO_A_PARTIR = 2497;
@@ -182,8 +187,12 @@ export const WHATSAPP_EDITAL_UNICO =
     "Oi, Lucas! Sou aluno do Clube Forense e quero garantir apenas um edital na Black.",
   );
 
-export function linkComCupom(cupom: string): string {
-  return `${CHECKOUT_ALUNO}?cupom=${encodeURIComponent(cupom)}`;
+/**
+ * O link de compra do aluno. Na Appmax há um link só para todos os alunos
+ * (kit de aluno com o cupom BLACK); o cupom do passe não muda mais o link.
+ */
+export function linkComCupom(): string {
+  return `${CHECKOUT_ALUNO}?coupon=BLACK`;
 }
 
 /** O cookie com o passe do aluno validado. */

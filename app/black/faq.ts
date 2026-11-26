@@ -25,11 +25,14 @@ export function perguntasDaBlack({
   editais,
   totalAprovados,
   concursosComAprovado,
+  precoAluno,
 }: {
   /** Siglas dos editais inclusos ("PO-MA", "PCERJ"…). */
   editais: string[];
   totalAprovados: number;
   concursosComAprovado: number;
+  /** Na página dos alunos: o preço deles, no lugar do público. */
+  precoAluno?: number;
 }): Pergunta[] {
   const oferta = LOTES[0];
   const fim = new Date(oferta.fecha).toLocaleDateString("pt-BR", {
@@ -51,7 +54,7 @@ export function perguntasDaBlack({
     },
     {
       p: "O que é a Black Vitalícia do Clube Forense?",
-      r: `É a oferta de Black Friday do Clube Forense: um único pagamento dá acesso vitalício ao material pré-edital e à atualização pós-edital de todos os concursos para médico legista autorizados até agora (${editais.join(", ")}). Sai por ${reais(oferta.avista)} à vista ou ${oferta.parcelas}x de ${reaisComCentavos(oferta.valorParcela)}, até ${fim}, com 7 dias de garantia.`,
+      r: `É a oferta de Black Friday do Clube Forense: um único pagamento dá acesso vitalício ao material pré-edital e à atualização pós-edital de todos os concursos para médico legista autorizados até agora (${editais.join(", ")}). Sai por ${precoAluno ? `${reais(precoAluno)} para alunos do Clube` : `${reais(oferta.avista)} à vista ou ${oferta.parcelas}x de ${reaisComCentavos(oferta.valorParcela)}`}, até ${fim}, com 7 dias de garantia.`,
     },
     {
       p: "Quem são os professores do Clube Forense?",
