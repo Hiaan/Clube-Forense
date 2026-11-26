@@ -1,6 +1,6 @@
 import { exigirAdmin } from "@/lib/painel/auth";
 import { hoje } from "@/lib/painel/dados";
-import { listarContasDeAnuncio, metaConfigurado, relatorioDaConta } from "@/lib/painel/meta";
+import { listarContasDeAnuncio, metaConfigurado, normalizarConta, relatorioDaConta } from "@/lib/painel/meta";
 import BotaoImprimir from "../../_ui/BotaoImprimir";
 import Tabelas from "./Tabelas";
 
@@ -29,12 +29,23 @@ function limites(mes: string, ref: string) {
   return { inicio: `${mes}-01`, fim: ultimo > ref ? ref : ultimo };
 }
 
-export default async function RelatorioMeta({ searchParams }: { searchParams: Promise<{ conta?: string; meses?: string | string[] }> }) {
+/** Explica em português os recusas mais comuns da Meta ao ler uma conta. */
+function explicarErro(mensagem: string) {
+  if (/NOT grant ads_management or ads_read/i.test(mensagem))
+    return "A conta é de outro Business (do cliente) e o app T9 Painel ainda só tem o acesso de teste da Meta, que lê apenas contas do próprio Business da T9. Para ler contas de clientes é preciso o Acesso avançado de ads_read (revisão do app na Meta).";
+  if (/does not exist|cannot be loaded due to missing permissions|Unsupported get request|\(código 100\)/i.test(mensagem))
+    return "O usuário do sistema da T9 não tem acesso a essa conta. Ela precisa ser compartilhada com o Business da T9 e atribuída ao usuário do sistema.";
+  return mensagem;
+}
+
+export default async function RelatorioMeta({ searchParams }: { searchParams: Promise<{ conta?: string; manual?: string; meses?: string | string[] }> }) {
   await exigirAdmin();
   const ref = hoje();
   const opcoes = ultimosMeses(ref.slice(0, 7), 12);
   const sp = await searchParams;
-  const conta = sp.conta && /^act_\d+$/.test(sp.conta) ? sp.conta : "";
+  // Conta digitada (número, act_123 ou link do Gerenciador) vale mais que a escolhida na lista.
+  const manual = sp.manual?.trim() ? normalizarConta(sp.manual) : null;
+  const conta = manual ?? (sp.conta && /^act_\d+$/.test(sp.conta) ? sp.conta : "");
   const meses = ([] as string[])
     .concat(sp.meses ?? opcoes.slice(0, 3))
     .filter((m) => opcoes.includes(m))
@@ -76,7 +87,7 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
         <div className="grid gap-4">
           <label>
             <span className="painel-rotulo">Conta de anúncio</span>
-            <select name="conta" defaultValue={conta} required className="painel-campo">
+            <select name="conta" defaultValue={manual ? "" : conta} className="painel-campo">
               <option value="">Escolha a conta</option>
               {contas.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -84,6 +95,10 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
                 </option>
               ))}
             </select>
+          </label>
+          <label>
+            <span className="painel-rotulo">Ou digite o número da conta (se ela não aparecer na lista)</span>
+            <input name="manual" defaultValue={manual ? manual.replace("act_", "") : ""} inputMode="numeric" placeholder="Ex.: 1234567890 ou o link do Gerenciador" className="painel-campo" />
           </label>
           <fieldset>
             <legend className="painel-rotulo">Meses</legend>
@@ -100,7 +115,8 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
         <button className="botao-painel self-end">Gerar relatório</button>
       </form>
 
-      {erro && <p className="mt-4 rounded-xl border border-[#ff2d38]/30 bg-[#ff2d38]/10 px-4 py-3 text-sm text-[#ffb3b7]">Não deu para ler a Meta: {erro}</p>}
+      {sp.manual?.trim() && !manual && <p className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">Não reconheci o número da conta. Copie o número que aparece depois de &quot;act=&quot; no endereço do Gerenciador de Anúncios.</p>}
+      {erro && <p className="mt-4 rounded-xl border border-[#ff2d38]/30 bg-[#ff2d38]/10 px-4 py-3 text-sm text-[#ffb3b7]">Não deu para ler a Meta: {explicarErro(erro)}</p>}
       {!metaConfigurado() && <p className="mt-4 text-white/55">Falta o token da Meta na Vercel.</p>}
 
       {porMes.length > 0 && (
