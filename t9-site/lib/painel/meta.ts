@@ -1057,3 +1057,52 @@ export async function enviarEventosCrm(dataset: string, eventos: EventoCrm[], pa
   }
   return r.events_received ?? eventos.length;
 }
+
+// ---------- Relatório mensal (consulta na hora, sem gravar) ----------
+
+export type LinhaRelatorioMeta = {
+  campanha: string;
+  gasto: number;
+  alcance: number;
+  impressoes: number;
+  cliques: number;
+  /** Cadastros: formulário da Meta e pixel. */
+  cadastros: number;
+  /** Conversas iniciadas por mensagem (WhatsApp, Direct, Messenger). */
+  conversas: number;
+  leads: number;
+};
+
+type InsightMes = { campaign_name?: string; spend?: string; reach?: string; impressions?: string; inline_link_clicks?: string; clicks?: string; actions?: Acao[] };
+
+function linhaDoInsight(i: InsightMes): LinhaRelatorioMeta {
+  const cadastros = Math.round(valorDe(i.actions, "lead") ?? (valorDe(i.actions, "onsite_conversion.lead_grouped") ?? 0) + (valorDe(i.actions, "offsite_conversion.fb_pixel_lead") ?? 0));
+  const conversas = Math.round(valorDe(i.actions, "onsite_conversion.messaging_conversation_started_7d") ?? 0);
+  return {
+    campanha: i.campaign_name ?? "",
+    gasto: Number(i.spend ?? 0),
+    alcance: Number(i.reach ?? 0),
+    impressoes: Number(i.impressions ?? 0),
+    cliques: Number(i.inline_link_clicks ?? i.clicks ?? 0),
+    cadastros,
+    conversas,
+    leads: cadastros + conversas,
+  };
+}
+
+/**
+ * Investimento, alcance e leads de uma conta, por período: o total da conta (alcance sem
+ * contar a mesma pessoa duas vezes) e cada campanha. Lido direto da Meta, nada é gravado.
+ */
+export async function relatorioDaConta(conta: string, inicio: string, fim: string) {
+  const periodo = JSON.stringify({ since: inicio, until: fim });
+  const campos = "spend,reach,impressions,inline_link_clicks,clicks,actions";
+  const [total, campanhas] = await Promise.all([
+    graph<{ data: InsightMes[] }>(`${conta}/insights`, { level: "account", time_range: periodo, fields: campos }),
+    todasPaginas<InsightMes>(`${conta}/insights`, { level: "campaign", time_range: periodo, fields: `campaign_name,${campos}`, limit: 200 }),
+  ]);
+  return {
+    total: linhaDoInsight(total.data[0] ?? {}),
+    campanhas: campanhas.map(linhaDoInsight).filter((c) => c.gasto > 0 || c.leads > 0).sort((a, b) => b.gasto - a.gasto),
+  };
+}

@@ -12,6 +12,7 @@ export default async function LayoutAdmin({ children }: { children: React.ReactN
     abas.push(
       { href: "/painel/admin/propostas", rotulo: "Propostas" },
       { href: "/painel/admin/contratos", rotulo: "Contratos" },
+      { href: "/painel/admin/relatorio-meta", rotulo: "Relatório Meta" },
       { href: "/painel/admin/financeiro", rotulo: "Financeiro" },
       { href: "/painel/admin/whatsapp", rotulo: "WhatsApp" },
       { href: "/painel/admin/nova", rotulo: "Novo cliente" },
