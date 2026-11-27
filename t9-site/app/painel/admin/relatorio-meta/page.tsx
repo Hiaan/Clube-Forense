@@ -1,5 +1,5 @@
 import { exigirAdmin } from "@/lib/painel/auth";
-import { hoje } from "@/lib/painel/dados";
+import { hoje, somarDias } from "@/lib/painel/dados";
 import { listarContasDeAnuncio, metaConfigurado, normalizarConta, relatorioDaConta } from "@/lib/painel/meta";
 import BotaoImprimir from "../../_ui/BotaoImprimir";
 import Tabelas from "./Tabelas";
@@ -38,7 +38,7 @@ function explicarErro(mensagem: string) {
   return mensagem;
 }
 
-export default async function RelatorioMeta({ searchParams }: { searchParams: Promise<{ conta?: string; manual?: string; meses?: string | string[] }> }) {
+export default async function RelatorioMeta({ searchParams }: { searchParams: Promise<{ conta?: string; manual?: string; meses?: string | string[]; modo?: string; de?: string; ate?: string }> }) {
   await exigirAdmin();
   const ref = hoje();
   const opcoes = ultimosMeses(ref.slice(0, 7), 12);
@@ -51,6 +51,15 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
     .filter((m) => opcoes.includes(m))
     .sort();
 
+  // Datas escolhidas (de/até): valem quando o modo é "datas" e o intervalo faz sentido.
+  const iso = /^\d{4}-\d{2}-\d{2}$/;
+  const modoDatas = sp.modo === "datas";
+  const de = sp.de && iso.test(sp.de) ? sp.de : `${ref.slice(0, 7)}-01`;
+  const ate = sp.ate && iso.test(sp.ate) ? (sp.ate > ref ? ref : sp.ate) : ref;
+  const datasValidas = de <= ate && de >= somarDias(ref, -36 * 31);
+  const dias = Math.round((Date.parse(ate) - Date.parse(de)) / 86_400_000) + 1;
+  const br = (d: string) => d.split("-").reverse().join("/");
+
   let contas: Awaited<ReturnType<typeof listarContasDeAnuncio>> = [];
   let erro: string | null = null;
   if (metaConfigurado()) contas = await listarContasDeAnuncio().catch((e) => ((erro = e instanceof Error ? e.message : String(e)), []));
@@ -59,7 +68,18 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
 
   let porMes: { mes: string; inicio: string; fim: string; dados: Awaited<ReturnType<typeof relatorioDaConta>> }[] = [];
   let geral: Awaited<ReturnType<typeof relatorioDaConta>> | null = null;
-  if (conta && meses.length && !erro) {
+  let periodo: { atual: Awaited<ReturnType<typeof relatorioDaConta>>; anterior: Awaited<ReturnType<typeof relatorioDaConta>>; antDe: string; antAte: string } | null = null;
+  if (conta && modoDatas && datasValidas && !erro) {
+    try {
+      const antAte = somarDias(de, -1);
+      const antDe = somarDias(antAte, -(dias - 1));
+      const [atual, anterior] = await Promise.all([relatorioDaConta(conta, de, ate), relatorioDaConta(conta, antDe, antAte)]);
+      periodo = { atual, anterior, antDe, antAte };
+    } catch (e) {
+      erro = e instanceof Error ? e.message : String(e);
+    }
+  }
+  if (conta && !modoDatas && meses.length && !erro) {
     try {
       porMes = await Promise.all(
         meses.map(async (mes) => {
@@ -80,7 +100,7 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
           <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Relatório Meta</h1>
           <p className="mt-1 text-white/55">Investimento, alcance e leads de qualquer conta de anúncio, mês a mês. Lido na hora, direto da Meta.</p>
         </div>
-        {porMes.length > 0 && <BotaoImprimir rotulo="Salvar em PDF" />}
+        {(porMes.length > 0 || periodo) && <BotaoImprimir rotulo="Salvar em PDF" />}
       </div>
 
       <form className="painel-cartao nao-imprimir mt-6 grid gap-4 p-5 lg:grid-cols-[1fr_auto]" action="/painel/admin/relatorio-meta">
@@ -100,8 +120,29 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
             <span className="painel-rotulo">Ou digite o número da conta (se ela não aparecer na lista)</span>
             <input name="manual" defaultValue={manual ? manual.replace("act_", "") : ""} inputMode="numeric" placeholder="Ex.: 1234567890 ou o link do Gerenciador" className="painel-campo" />
           </label>
+          <fieldset className="flex flex-wrap gap-2">
+            <legend className="painel-rotulo">Período</legend>
+            <label className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-sm has-[:checked]:border-[#ff2d38] has-[:checked]:bg-[#ff2d38]/15">
+              <input type="radio" name="modo" value="meses" defaultChecked={!modoDatas} className="accent-[#ff2d38]" />
+              Mês a mês
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-sm has-[:checked]:border-[#ff2d38] has-[:checked]:bg-[#ff2d38]/15">
+              <input type="radio" name="modo" value="datas" defaultChecked={modoDatas} className="accent-[#ff2d38]" />
+              Escolher datas
+            </label>
+          </fieldset>
+          <div className="grid max-w-md grid-cols-2 gap-3">
+            <label>
+              <span className="painel-rotulo">De (escolher datas)</span>
+              <input type="date" name="de" defaultValue={de} max={ref} className="painel-campo" />
+            </label>
+            <label>
+              <span className="painel-rotulo">Até</span>
+              <input type="date" name="ate" defaultValue={ate} max={ref} className="painel-campo" />
+            </label>
+          </div>
           <fieldset>
-            <legend className="painel-rotulo">Meses</legend>
+            <legend className="painel-rotulo">Meses (mês a mês)</legend>
             <div className="flex flex-wrap gap-2">
               {opcoes.map((m) => (
                 <label key={m} className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-sm has-[:checked]:border-[#ff2d38] has-[:checked]:bg-[#ff2d38]/15">
@@ -119,7 +160,36 @@ export default async function RelatorioMeta({ searchParams }: { searchParams: Pr
       {erro && <p className="mt-4 rounded-xl border border-[#ff2d38]/30 bg-[#ff2d38]/10 px-4 py-3 text-sm text-[#ffb3b7]">Não deu para ler a Meta: {explicarErro(erro)}</p>}
       {!metaConfigurado() && <p className="mt-4 text-white/55">Falta o token da Meta na Vercel.</p>}
 
-      {porMes.length > 0 && (
+      {modoDatas && !datasValidas && (
+        <p className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">Confira as datas: o início precisa ser antes do fim (a Meta guarda até 37 meses).</p>
+      )}
+
+      {periodo && (
+        <div className="mt-8">
+          <Tabelas
+            moeda={moeda}
+            nota="Período anterior = os mesmos dias imediatamente antes, para comparar. Alcance = pessoas diferentes que viram os anúncios. Leads = cadastros (formulário e site) + conversas iniciadas no WhatsApp, Direct ou Messenger."
+            secoes={[
+              {
+                titulo: `${escolhida?.nome ?? conta}: ${br(de)} a ${br(ate)}`,
+                tipo: "resumo",
+                rotuloLinhas: "Período",
+                linhas: [
+                  { ...periodo.atual.total, rotulo: `${br(de)} a ${br(ate)}`, detalhe: `${dias} ${dias === 1 ? "dia" : "dias"}`, destaque: true },
+                  { ...periodo.anterior.total, rotulo: "Período anterior", detalhe: `${br(periodo.antDe)} a ${br(periodo.antAte)}` },
+                ],
+              },
+              {
+                titulo: `Campanhas de ${br(de)} a ${br(ate)}`,
+                tipo: "campanhas",
+                linhas: periodo.atual.campanhas.map((c) => ({ ...c, rotulo: c.campanha || "—" })),
+              },
+            ]}
+          />
+        </div>
+      )}
+
+      {!modoDatas && porMes.length > 0 && (
         <div className="mt-8">
           <Tabelas
             moeda={moeda}

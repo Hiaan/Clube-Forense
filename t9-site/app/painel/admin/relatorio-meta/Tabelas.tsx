@@ -30,7 +30,7 @@ export const METRICAS: Metrica[] = [
 const PADRAO = ["gasto", "alcance", "impressoes", "leads", "cpl"];
 const CHAVE = "t9-relatorio-meta-colunas";
 
-export type Secao = { titulo: string; tipo: "resumo" | "campanhas"; linhas: (Linha & { rotulo: string; detalhe?: string; destaque?: boolean })[] };
+export type Secao = { titulo: string; tipo: "resumo" | "campanhas"; rotuloLinhas?: string; linhas: (Linha & { rotulo: string; detalhe?: string; destaque?: boolean })[] };
 
 export default function Tabelas({ secoes, moeda, nota }: { secoes: Secao[]; moeda: string; nota: string }) {
   const [colunas, setColunas] = useState<string[]>(PADRAO);
@@ -173,7 +173,7 @@ export default function Tabelas({ secoes, moeda, nota }: { secoes: Secao[]; moed
               <table className="painel-tabela mt-3 w-full text-left text-sm" style={{ minWidth: 200 + ativas.length * 120 }}>
                 <thead>
                   <tr>
-                    <th>{s.tipo === "resumo" ? "Mês" : "Campanha"}</th>
+                    <th>{s.rotuloLinhas ?? (s.tipo === "resumo" ? "Mês" : "Campanha")}</th>
                     {ativas.map((m) => (
                       <th key={m.id} className="text-right" aria-sort={s.tipo === "campanhas" && ordem?.id === m.id ? (ordem.desc ? "descending" : "ascending") : undefined}>
                         {s.tipo === "campanhas" ? (
@@ -205,7 +205,7 @@ export default function Tabelas({ secoes, moeda, nota }: { secoes: Secao[]; moed
                 </tbody>
               </table>
             ) : (
-              <p className="mt-2 text-sm text-white/55">Sem campanhas com investimento neste mês.</p>
+              <p className="mt-2 text-sm text-white/55">Sem campanhas com investimento neste período.</p>
             )}
             {s.tipo === "resumo" && <p className="mt-3 text-xs text-white/45">{nota}</p>}
           </section>
